@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static checks (validate + lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Install Claude Code CLI
+        # `claude plugin validate --strict` is a local manifest check (no auth needed).
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run static checks (same script as local pre-commit)
+        run: bash scripts/check.sh
+
+  install-smoke:
+    name: Install smoke (marketplace add + install + details)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Add local marketplace, install plugin, assert inventory
+        run: |
+          set -e
+          claude plugin marketplace add "$PWD"
+          claude plugin install senzing@senzing
+          claude plugin details senzing | tee details.txt
+          grep -q "Skills (6)" details.txt
+          grep -q "MCP servers (1)" details.txt
+
+  mcp-urls:
+    name: MCP endpoint reachable
+    runs-on: ubuntu-latest
+    # The bundled hosted MCP endpoint IS the product — verify it resolves and responds.
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Check every mcpServers URL in the repo
+        run: |
+          set -euo pipefail
+          urls=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' . \
+                 | sed -E 's/.*"url"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/' | sort -u)
+          [ -n "$urls" ] || { echo "No mcpServers URL found"; exit 1; }
+          for u in $urls; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$u" || echo 000)
+            echo "$u -> HTTP $code"
+            # Reachable = any HTTP response below 500. 4xx is fine (endpoint up, rejects bare GET).
+            if [ "$code" = "000" ] || [ "$code" -ge 500 ]; then
+              echo "::error::MCP endpoint unreachable or erroring: $u ($code)"; exit 1
+            fi
+          done
+
+  behavioral-eval:
+    name: Behavioral eval (early-access; gated on API key)
+    runs-on: ubuntu-latest
+    # `claude plugin eval` is early-access and needs model access. Runs only when an
+    # API key secret is configured; never blocks the PR while the feature is gated.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Run eval suite
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "No ANTHROPIC_API_KEY secret set — skipping behavioral eval."; exit 0
+          fi
+          # Threshold gate on activation/behavior cases under ./evals (see evals/README.md).
+          claude plugin eval ./plugins/senzing --threshold 0.8 --json evals/results/ci.json

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "senzing",
+  "displayName": "Senzing",
+  "version": "1.28.8",
+  "description": "Turn Senzing knowledge into outcomes: map, resolve, and explore your data with your own installed Senzing, grounded by the hosted Senzing MCP so the SDK code is always version-correct.",
+  "author": {
+    "name": "Senzing, Inc.",
+    "url": "https://senzing.com"
+  },
+  "homepage": "https://senzing.com",
+  "repository": "https://github.com/Senzing/senzing-claude-plugins",
+  "license": "Proprietary",
+  "keywords": ["senzing", "entity-resolution", "mcp", "data-matching", "deduplication"]
+}
