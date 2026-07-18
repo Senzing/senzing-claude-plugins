@@ -3,7 +3,7 @@
   "name": "senzing",
   "displayName": "Senzing",
   "version": "1.28.8",
-  "description": "Turn Senzing knowledge into outcomes: map, resolve, and explore your data with your own installed Senzing, grounded by the hosted Senzing MCP so the SDK code is always version-correct.",
+  "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data.",
   "author": {
     "name": "Senzing, Inc.",
     "url": "https://senzing.com"

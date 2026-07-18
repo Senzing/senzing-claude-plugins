@@ -10,7 +10,7 @@
     {
       "name": "senzing",
       "source": "./plugins/senzing",
-      "description": "Map, resolve, and explore your data with your own Senzing — grounded by the hosted Senzing MCP, run locally via Bash."
+      "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data."
     }
   ]
 }
