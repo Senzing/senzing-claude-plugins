@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in the Senzing plugin isn't working
+labels: ["bug", "customer-submission", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. You can also send feedback without leaving Claude Code via the
+        plugin's built-in `submit_feedback`.
+
+        **Please do NOT paste real records or PII** — the plugin runs against your data locally,
+        so we never need it to help.
+  - type: input
+    id: command
+    attributes:
+      label: Which command or skill?
+      placeholder: "/senzing:analyze, /senzing:build, /senzing:doctor, …"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you asked for, what the plugin did, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "Claude Code version; OS; Senzing SDK version (if you got that far)"
