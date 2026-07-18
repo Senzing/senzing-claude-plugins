@@ -1,9 +1,11 @@
 ---
 name: senzing-grounder
 description: >
-  Answer a Senzing question using only the Senzing MCP as the source of truth. Delegate to this
-  agent for any factual Senzing question (attributes, SDK signatures, config, error meanings,
-  architecture) to guarantee the answer is grounded, not confabulated from training data.
+  Answer a Senzing question using only the Senzing MCP as the source of truth, for any factual
+  Senzing question (attributes, SDK signatures, config, error meanings, architecture) — so the
+  answer is grounded, not confabulated from training data. Delegating here is an optional
+  optimization, never required: it needs the Senzing MCP tools. If a spawned sub-agent lacks them,
+  answer in the current context (which has the MCP) instead of stalling.
 tools: Read, Bash, mcp__plugin_senzing_senzing__*
 ---
 

@@ -32,5 +32,12 @@ is given, default to `truthset` and tell the user which you're using; call `get_
    data source <DS> — proceed? (If this instance holds real data, I can set up a scratch SQLite
    repository for the demo instead.)"* Prefer the scratch-repository offer whenever doctor shows
    existing entities. Then Bash-load it into their Senzing.
-3. Render the before/after over the **real** results: raw record count → resolved entity count,
-   and a few non-obvious merges with a `why` explanation. Deliver as a shareable Artifact.
+3. **Deliver analytics — required; the demo is not complete until this ships.** A demo is
+   **load → analytics**, not load alone. Over the **real** results, use `reporting_guide` for the
+   report/entity-view + visualization patterns and produce BOTH:
+   - a **report** — the before/after story: raw record count → resolved entity count, and a few
+     non-obvious merges, each with a `why` explanation; and
+   - a **visualization** — a shareable dashboard (an Artifact) that renders that before/after.
+
+   The rendered report-and-visualization IS the demo, not trailing commentary — produce it without
+   waiting to be asked.

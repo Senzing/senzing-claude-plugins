@@ -45,10 +45,19 @@ Confirm the resolved input list back to the user before proceeding.
 1. **Pre-flight.** Invoke the `doctor` skill first — confirm the Senzing SDK is importable and the
    license is valid. This flow builds its **own fresh scratch repository**, so a configured
    production database is **not** required.
-2. **Agree a workspace.** Default `~/sz-workspace` (or `$SZ_WORKSPACE` if set; create if missing) —
-   this must match what the state-capture hook uses, so keep the default unless the user sets
-   `SZ_WORKSPACE`. Mapper scripts write
-   validated JSONL there. Required for sandboxed clients.
+2. **Agree a workspace — and confirm the shell can actually write to it.** Default `~/sz-workspace`
+   (or `$SZ_WORKSPACE` if set). The state-capture hook resolves the same convention
+   (`${SZ_WORKSPACE:-$HOME/sz-workspace}`), so the two must stay in lockstep. **Do not assume the
+   shell and the file tools share one filesystem, or that the default path is writable** — some
+   hosts sandbox the shell to a different filesystem than the file tools see. Verify by having the
+   shell create the directory and write a probe file; if the default isn't writable, pick a
+   directory the shell reports as writable and pass `SZ_WORKSPACE=<dir>` **on each mapper/analyzer
+   command** so the state-capture hook resolves the same path. (Don't rely on a bare `export` in one
+   Bash call reaching later calls or the hook — set it per command.) Whichever path you settle on,
+   thread it through every `mapping_workflow` call, and always write the returned `state` to
+   `{workspace}/.sz-state-<workflow_id>.json` yourself (step 3) — that self-written file is the
+   authoritative state; the hook backup is best-effort. Mapper scripts write validated JSONL there.
+   Required for sandboxed clients.
 3. **Map each source (fan out, then a barrier).** For every input file:
    - Call `mapping_workflow` — it returns a **mapper script + instructions** (not JSONL).
    - Run that mapper script with Bash → it writes `{workspace}/<data_source>_output.jsonl`.
@@ -58,7 +67,13 @@ Confirm the resolved input list back to the user before proceeding.
      `{workspace}/.sz-state-<workflow_id>.json`. On each subsequent call, read `state` from that
      file and pass it — never reconstruct it from conversation memory. **Barrier:** every source
      must reach an `approve` verdict before anything is loaded.
-   Use parallel sub-agents (the `field-mapper` agent) when there are several files.
+   **Mapping many files — delegate only as an optimization, never as a requirement.** If several
+   files need mapping you MAY fan out `field-mapper` sub-agents (one per file) to parallelize — but
+   only after confirming a spawned sub-agent actually has a shell that can run the mapper scripts
+   against the workspace. Some hosts give sub-agents a reduced tool set (no shell) or a different
+   filesystem; mapping is execution-bound, so a shell-less sub-agent will stall. If a sub-agent
+   can't run shell commands against the workspace, **map the files sequentially in the current
+   context instead** (which has the shell). Never let completion depend on delegation succeeding.
 4. **Load into a fresh, isolated scratch repository — NOT their production Senzing.** Resolving a
    dataset must not pollute the user's real entity repo, so **by default create a dedicated scratch
    Senzing repository**: a fresh SQLite instance in the workspace, initialized empty — the same
@@ -73,8 +88,11 @@ Confirm the resolved input list back to the user before proceeding.
 5. **Ask the engine (read-only).** Generate and run `search` / `why` / `how` scripts via
    `sdk_guide` / `generate_scaffold` to answer the user's questions ("biggest duplicate
    clusters?", "why did these two resolve?"). Parse the JSON output.
-6. **Deliver.** Use `reporting_guide` for the SQL + entity-view patterns and render a shareable
-   dashboard (an Artifact) or an xlsx workbook from the real results.
+6. **Deliver — required; the run is not complete until this ships.** Use `reporting_guide` for the
+   SQL + entity-view patterns and render a shareable dashboard (an Artifact) or an xlsx workbook
+   from the real results. The deliverable IS the outcome — do not stop at raw JSON or a prose
+   summary, and do not wait to be asked to produce it. Only skip it if the user explicitly declined
+   a report.
 
 Outcome: a loaded, resolved dataset on the user's machine and a report they can share — with PII
 that never left the box.

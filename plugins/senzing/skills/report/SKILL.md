@@ -23,5 +23,7 @@ entities"). If none is given, ask what they want to see before running anything.
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,
    quality, evaluation) for the SQL and schema, and run it against the user's database.
-4. Render a shareable dashboard (Artifact) or xlsx from the real results — a link, not a query.
+4. **Deliver — required; the report is not complete until this ships.** Render a shareable dashboard
+   (Artifact) or xlsx from the real results — a link, not a query. The rendered result is the
+   deliverable; produce it without waiting to be asked.
 Never simulate resolution or fabricate metrics.
