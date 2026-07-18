@@ -42,9 +42,9 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
   requirement is a file *sample for profiling*, not full materialization.)
 Confirm the resolved input list back to the user before proceeding.
 
-1. **Pre-flight.** Invoke the `doctor` skill first (SDK importable, engine config
-   present, DB reachable, license valid). If it reports a problem, stop and resolve it before
-   touching data.
+1. **Pre-flight.** Invoke the `doctor` skill first — confirm the Senzing SDK is importable and the
+   license is valid. This flow builds its **own fresh scratch repository**, so a configured
+   production database is **not** required.
 2. **Agree a workspace.** Default `~/sz-workspace` (or `$SZ_WORKSPACE` if set; create if missing) —
    this must match what the state-capture hook uses, so keep the default unless the user sets
    `SZ_WORKSPACE`. Mapper scripts write
@@ -59,14 +59,17 @@ Confirm the resolved input list back to the user before proceeding.
      file and pass it — never reconstruct it from conversation memory. **Barrier:** every source
      must reach an `approve` verdict before anything is loaded.
    Use parallel sub-agents (the `field-mapper` agent) when there are several files.
-4. **Confirm the write, then register + load.** Loading mutates the customer's live database, so
-   ask once, explicitly: *"About to load N records into your `<db>` Senzing database — proceed?"*
-   On yes: generate a `SzConfig.addDataSource` call for each new data-source code, then a
-   `generate_scaffold(workflow="load")` script, and Bash-run them. Show the code before running it.
-   On no: stop cleanly. Tell the user: *"Nothing was loaded. Your validated JSONL is in
-   ~/sz-workspace — say the word to load it later, or rerun /senzing:analyze
-   anytime."* After a successful load, note once that records can be removed later (per-record
-   delete or a full repository purge) on request.
+4. **Load into a fresh, isolated scratch repository — NOT their production Senzing.** Resolving a
+   dataset must not pollute the user's real entity repo, so **by default create a dedicated scratch
+   Senzing repository**: a fresh SQLite instance in the workspace, initialized empty — the same
+   "always fresh SQLite, never reuse an existing database" rule `mapping_workflow`'s own sandbox
+   uses. Generate the scratch-repo config, the data-source registration, and the load code via
+   `sdk_guide` / `generate_scaffold` — ground the exact V4 method and attribute names through the
+   MCP, never hand-write them — then Bash-run them (show the code first). **No confirmation is needed — the scratch repo is throwaway and touches no production
+   data.**
+   Load into their **production** Senzing only if the user explicitly asks (ongoing ingestion). In
+   that case confirm first — *"This will load N records into your production Senzing repository —
+   proceed?"* — and on "no," stop cleanly (the validated JSONL stays in the workspace for later).
 5. **Ask the engine (read-only).** Generate and run `search` / `why` / `how` scripts via
    `sdk_guide` / `generate_scaffold` to answer the user's questions ("biggest duplicate
    clusters?", "why did these two resolve?"). Parse the JSON output.

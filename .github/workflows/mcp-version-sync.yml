@@ -30,7 +30,7 @@ jobs:
         id: live
         run: |
           set -euo pipefail
-          V=$(curl -sfL --max-time 30 https://sz-mcp-coworker.fly.dev/.well-known/agent-card.json | jq -r '.version')
+          V=$(curl -sfL --max-time 30 https://mcp.senzing.com/.well-known/agent-card.json | jq -r '.version')
           case "$V" in
             [0-9]*.[0-9]*.[0-9]*) : ;;
             *) echo "::error::unexpected MCP version '$V'"; exit 1 ;;
@@ -52,11 +52,9 @@ jobs:
         run: |
           set -euo pipefail
           NEW="${{ steps.live.outputs.version }}"
-          MONTH=$(date -u +%Y-%m)
           tmp=$(mktemp)
           jq --arg v "$NEW" '.version=$v' plugins/senzing/.claude-plugin/plugin.json > "$tmp"
           mv "$tmp" plugins/senzing/.claude-plugin/plugin.json
-          sed -i -E "s/Senzing MCP server v[0-9]+\.[0-9]+\.[0-9]+ \([0-9]{4}-[0-9]{2}\)/Senzing MCP server v${NEW} (${MONTH})/g" README.md
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Open sync PR
@@ -68,8 +66,7 @@ jobs:
           commit-message: "chore: sync plugin version to MCP server v${{ steps.live.outputs.version }}"
           body: |
             Automated: the hosted Senzing MCP server is now **v${{ steps.live.outputs.version }}**
-            (this plugin was v${{ steps.ours.outputs.version }}). Bumps `plugin.json` and the
-            README "Verified against" line.
+            (this plugin was v${{ steps.ours.outputs.version }}). Bumps the `plugin.json` version.
 
             **This is a version-only sync.** If this MCP release changed the *tool surface*
             (a tool added / removed / renamed, or args changed), the skills' `allowed-tools`,

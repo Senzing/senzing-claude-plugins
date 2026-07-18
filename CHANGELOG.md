@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.28.8] - 2026-07-18
 
-Branch: `scaffold` (initial scaffold, not yet pushed).
+Initial public release.
 
 ### Added
 

@@ -1,10 +1,21 @@
-Copyright (c) 2025-2026 Senzing, Inc. All rights reserved.
+Copyright © Senzing, Inc. All rights reserved.
 
-This repository contains configuration for Claude Code plugins that interoperate
-with Senzing's hosted Model Context Protocol (MCP) service. It is proprietary to
-Senzing, Inc. and provided for use with Senzing products.
+This Claude Code plugin (the "Plugin") — the contents of this repository,
+including the marketplace manifest, plugin manifest, skills, agents, and hooks —
+is proprietary to Senzing, Inc. and is provided for use with the Senzing MCP
+server and Senzing products.
 
-No warranty. Provided AS-IS, without warranty of any kind, express or implied.
+You may install and use the Plugin with Claude Code for the purpose of
+interacting with Senzing software and services. Except as expressly permitted
+above, you may not redistribute, sublicense, sell, or create derivative works of
+the Plugin without the prior written permission of Senzing, Inc.
 
-NOTE (placeholder): confirm the intended license/terms for public distribution
-with Senzing before publishing this repository. Replace this file accordingly.
+The Plugin and the associated Senzing MCP server are provided "AS IS", without
+warranty of any kind, express or implied, including but not limited to the
+warranties of merchantability, fitness for a particular purpose, accuracy,
+completeness, and noninterference. In no event shall Senzing, Inc. be liable for
+any claim, damages, or other liability arising from, out of, or in connection
+with the Plugin or its use.
+
+Use of Senzing software and services is separately governed by the Senzing End
+User License Agreement: https://senzing.com/end-user-license-agreement

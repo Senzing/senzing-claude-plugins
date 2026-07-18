@@ -18,7 +18,8 @@ is given, default to `truthset` and tell the user which you're using; call `get_
 `dataset='list'` first if they'd rather choose. No user data is needed — the demo uses sample data.
 
 1. Pre-flight with `doctor`. **If there is no running Senzing**, do not fake a demo — use
-   `sdk_guide(topic="install")` and the `request-eval-license` prompt to get them set up, and
+   `sdk_guide(topic="install")` to get them set up (a free 10-day eval license can be requested via
+   `submit_feedback`), and
    offer to resume the demo the moment install completes. If the user can't or won't install now,
    offer the zero-install tier: pull the truth-set sample via `get_sample_data`, run the mapping
    workflow on it, and show the validated Senzing-ready records plus 2-3 raw record pairs that

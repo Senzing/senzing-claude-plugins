@@ -13,10 +13,11 @@ Senzing**. Your records never leave your machine.
 
 ## Requirements
 
-- **Claude Code 2.1.195 or newer.**
-- To actually run entity resolution (`analyze`, `demo`, `report`): **your own installed, licensed
-  Senzing and a database.** Grounding, code generation, troubleshooting, and data mapping work
-  without one — and `/senzing:doctor` checks your setup and tells you exactly what's missing.
+- **Claude Code 2.1.143 or newer.**
+- To run entity resolution (`analyze`, `demo`, `report`): **your own installed, licensed Senzing
+  SDK.** `analyze` and `demo` spin up a throwaway scratch database automatically; `report` runs
+  over a Senzing you've already loaded. Grounding, code generation, troubleshooting, and data
+  mapping need no Senzing at all — and `/senzing:doctor` checks your setup and says what's missing.
 
 ## Install
 
@@ -32,7 +33,7 @@ knowledge is served from the hosted Senzing MCP.
 
 | Command | What it does |
 |---|---|
-| `/senzing:analyze <files>` | Map, load, and resolve your data — dedupe and unify people and companies across sources — then report. Confirms before writing to your database. |
+| `/senzing:analyze <files>` | Resolve and dedupe your data — who is who across your sources — in a throwaway scratch workspace, then report. Your existing Senzing is left untouched unless you ask to load into it. |
 | `/senzing:build` | Generate correct, compilable Senzing SDK code (Python, Java, C#, …) for your app, with source attribution — and optionally run it. |
 | `/senzing:troubleshoot` | Explain a Senzing error and how to fix it — paste an error code or a failing trace. |
 | `/senzing:demo` | See entity resolution work on sample data. If Senzing isn't installed, it helps you install rather than faking a result. |
@@ -51,7 +52,8 @@ app") and the right one kicks in.
   sent off your machine.
 - **No fake results** — if Senzing isn't available it says so and helps you install; it never
   invents match scores or merges.
-- **Asks before changing anything** — it confirms before loading or modifying your database.
+- **Your existing Senzing is safe** — analysis runs in a throwaway scratch repository; loading into
+  your real instance is an explicit choice, and it confirms first.
 
 ## Feedback
 
