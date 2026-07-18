@@ -7,10 +7,10 @@ about Senzing (Entity Spec attributes, real V4 SDK signatures, error codes, inde
 snippets, sample data) so an LLM never confabulates Senzing APIs. These plugins add the *hands,
 front doors, and guardrails* around it — for Claude Code specifically.
 
-> **Open standard, not open source.** The MCP *protocol* is open, so the grounding reaches any
-> MCP client or LLM through the hosted endpoint. The plugin format here is Claude Code-only, and
-> the MCP's own code is proprietary and private. This repo is thin config — skills, hooks, and a
-> marketplace manifest that point at the hosted service. It contains no Senzing source.
+> This repo is **thin config** — skills, hooks, and a marketplace manifest that point at the hosted
+> Senzing MCP (`mcp.senzing.com`); it bundles no Senzing code. Because the MCP speaks the open MCP
+> protocol, the same grounding is reachable from any MCP client — these plugins add the Claude Code
+> experience on top.
 
 ### Relationship to `senzing-mcp-skill`
 
@@ -121,10 +121,8 @@ mint one skill per prompt.
 | The generate-and-run loop | ⚠️ needs a shell/exec tool | Any agentic client with code execution |
 | These plugins (skills, hooks, marketplace) | ❌ Claude Code proprietary | Claude Code only |
 
-**Design principle: capability in the MCP, experience in the plugin.** Anything every client
-should have belongs in the (hosted) MCP so it travels. A guarantee that must hold everywhere is
-enforced by the MCP tool's own contract, with plugin hooks as *additional* enforcement — never
-the sole one.
+In short: the Senzing knowledge is portable (any MCP client can reach the hosted MCP); the
+`/senzing:*` commands, orchestration, and rendering are the Claude Code experience this plugin adds.
 
 ---
 
