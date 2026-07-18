@@ -156,22 +156,12 @@ Senzing/senzing-claude-plugins/          (this repo — PUBLIC)
 └── README.md
 ```
 
-The MCP itself is `senzing/sz-mcp-coworker` (private, closed-source) — not in this repo; the plugin
-reaches it only through the hosted endpoint, the single distribution chokepoint.
+The plugin bundles no Senzing code — it reaches Senzing's knowledge entirely through the hosted
+MCP at `mcp.senzing.com`.
 
 ---
 
-## Status
+## Feedback
 
-Design complete; implementation not yet started. This public `senzing` plugin is the first ship
-(lowest risk — it proves the whole chain: marketplace → skill → agent → generate-and-run → render).
-Open product calls before a build:
-
-- Does hosted `mcp.senzing.com` honor a **data-version pin** header/path? (Required for
-  reproducibility.)
-- Will `mcp.senzing.com` also serve the **`/plugin` marketplace URL**, or GitHub-direct only?
-- Is `PreToolUse` **`updatedInput`** reliable enough to make workflow-state threading fully
-  invisible, or is "re-read the hook-written state file" the shipping default?
-- The **evaluator demo is unavoidably heavy** — "no simulation" means a fresh evaluator must
-  install Senzing + a DB just to see it work; a hosted demo would break the no-live-connection
-  charter. A known funnel tension.
+Found a problem or have a request? Open an issue in this repo, or use the plugin's built-in
+`submit_feedback` path.
