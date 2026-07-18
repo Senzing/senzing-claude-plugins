@@ -14,7 +14,7 @@ jobs:
     name: Static checks (validate + lint)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
@@ -30,7 +30,7 @@ jobs:
     name: Install smoke (marketplace add + install + details)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Add local marketplace, install plugin, assert inventory
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     # The bundled hosted MCP endpoint IS the product — verify it resolves and responds.
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Check every mcpServers URL in the repo
         run: |
           set -euo pipefail
@@ -71,7 +71,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     continue-on-error: true
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Run eval suite
