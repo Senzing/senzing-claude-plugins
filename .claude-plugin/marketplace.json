@@ -10,7 +10,8 @@
     {
       "name": "senzing",
       "source": "./plugins/senzing",
-      "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data."
+      "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data.",
+      "category": "analytics"
     }
   ]
 }

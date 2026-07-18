@@ -11,8 +11,9 @@ claude plugin eval ./plugins/senzing --threshold 0.8 --report report.html
 # --ablation with-without shows the plugin's lift over a no-plugin baseline.
 ```
 
-Cases live under `evals/**/` as `case.yaml` (or `prompt.md` + `graders/*.md`). Author them with
-`claude plugin eval init` once the feature is generally available (the schema is finalized there).
+Cases live under `evals/<name>/` as `prompt.md` (the user utterance) + `graders/criteria.md` (the
+grading rubric). Scaffolded so far: `analyze`, `troubleshoot`, `demo-no-simulation`, `build` —
+covering activation, MCP-grounding, the scratch-repo default, and the no-simulation guarantee.
 
 ## Intended cases (design)
 
