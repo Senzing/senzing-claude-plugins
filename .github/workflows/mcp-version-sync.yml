@@ -5,6 +5,11 @@ name: MCP version sync
 # Runs daily; trigger manually right after an MCP release for an immediate sync.
 # Only version-only drift is auto-bumped — a tool-surface change still needs manual work
 # (the opened PR says so).
+#
+# Plugin-only patch releases carry a suffix on the SAME server version, e.g. `1.28.8-1`
+# (a plugin fix shipped without a server bump). The suffix is stripped before the drift
+# comparison so the daily sync treats `1.28.8-1` as in-lockstep with server `1.28.8` and
+# does NOT revert it. A real server bump (e.g. `1.28.9`) still wins and resets the suffix.
 
 on:
   schedule:
@@ -43,12 +48,16 @@ jobs:
         run: |
           set -euo pipefail
           CUR=$(jq -r '.version' plugins/senzing/.claude-plugin/plugin.json)
+          # Strip any plugin-patch suffix (-N / +meta) so the drift check compares the
+          # base server version only. A plugin-only release like 1.28.8-1 stays put.
+          BASE="${CUR%%[-+]*}"
           echo "version=$CUR" >> "$GITHUB_OUTPUT"
-          echo "Our version: $CUR"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "Our version: $CUR (base $BASE)"
 
       - name: Bump on drift
         id: bump
-        if: steps.live.outputs.version != steps.ours.outputs.version
+        if: steps.live.outputs.version != steps.ours.outputs.base
         run: |
           set -euo pipefail
           NEW="${{ steps.live.outputs.version }}"

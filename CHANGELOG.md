@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.28.8-1] - 2026-07-18
+
+Plugin-only patch on MCP server v1.28.8 (no server change). Addresses Cowork-mode
+plugin feedback from `#mcp-logging` (2026-07-18).
 
 ### Changed
 
