@@ -1,0 +1,24 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "Anthropic",
+    "CCLA",
+    "claude",
+    "CODEOWNER",
+    "cooldown",
+    "dedupe",
+    "frontmatter",
+    "grounder",
+    "ICLA",
+    "kernelsam",
+    "mcp",
+    "quickstarts",
+    "SENZ",
+    "Senzing"
+  ],
+  "ignorePaths": [
+    ".git/**",
+    "evals/results/**"
+  ]
+}
