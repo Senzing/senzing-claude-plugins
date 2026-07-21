@@ -8,16 +8,20 @@
     "CODEOWNER",
     "cooldown",
     "dedupe",
+    "esac",
     "evals",
     "frontmatter",
     "grounder",
     "ICLA",
     "kernelsam",
     "mcp",
+    "mktemp",
+    "pipefail",
     "quickstarts",
     "reusables",
     "SENZ",
-    "Senzing"
+    "Senzing",
+    "shellcheck"
   ],
   "ignorePaths": [
     ".git/**",
