@@ -1,0 +1,4 @@
+{
+  "ignore": ["**/plugins/**", "**/scripts/**", "**/evals/**"],
+  "threshold": 5
+}

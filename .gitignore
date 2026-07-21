@@ -2,11 +2,15 @@
 sz-workspace/
 *_output.jsonl
 
-# Local Claude Code state (settings.local.json, session scratch) — not published
-.claude/
+# Local Claude Code state (settings.local.json, session scratch) — not published,
+# but keep the shared settings.json (includeCoAuthoredBy) that the org standardizes on
+.claude/*
+!.claude/settings.json
 
 # OS / editor cruft
 .DS_Store
 *.swp
 .idea/
-.vscode/
+.vscode/*
+# ...but keep the shared cspell dictionary (used by the spellcheck workflow)
+!.vscode/cspell.json
