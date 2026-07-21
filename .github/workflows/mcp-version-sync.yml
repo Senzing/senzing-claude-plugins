@@ -30,6 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Read live MCP server version
         id: live
@@ -58,9 +60,10 @@ jobs:
       - name: Bump on drift
         id: bump
         if: steps.live.outputs.version != steps.ours.outputs.base
+        env:
+          NEW: ${{ steps.live.outputs.version }}
         run: |
           set -euo pipefail
-          NEW="${{ steps.live.outputs.version }}"
           tmp=$(mktemp)
           jq --arg v "$NEW" '.version=$v' plugins/senzing/.claude-plugin/plugin.json > "$tmp"
           mv "$tmp" plugins/senzing/.claude-plugin/plugin.json
