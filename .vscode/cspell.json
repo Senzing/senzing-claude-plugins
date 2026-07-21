@@ -20,7 +20,8 @@
     "quickstarts",
     "reusables",
     "SENZ",
-    "Senzing"
+    "Senzing",
+    "shellcheck"
   ],
   "ignorePaths": [
     ".git/**",
