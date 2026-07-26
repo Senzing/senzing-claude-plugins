@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.29.0] - 2026-07-26
+
+Lockstep with Senzing MCP server **v1.29.0**, which adds per-binding method
+argument types to `get_sdk_reference`.
+
+### Changed
+
+- **`build` skill** — step 2 now requires confirming argument types for the
+  target language before writing any method call, via
+  `get_sdk_reference(topic='parameters', filter=<method>, language=<target>)`.
+  The same method has a different name AND different argument types in each
+  binding: Python `find_network_by_entity_id(entity_ids: List[int], …)`, Java
+  `findNetwork(SzEntityIds, …)`, C# `FindNetwork(ISet<long>, …)`, Rust
+  `find_network_by_entity_id(&[EntityId], …)`, TypeScript
+  `findNetwork(number[], …)`. Carrying a call from one binding to another
+  produces code the SDK rejects at runtime.
+- **`senzing-grounder` agent** — new hard rule: answer argument-shape questions
+  from `topic='parameters'` for the asked-about binding, never from another
+  binding's docs.
+
 ## [1.28.8-1] - 2026-07-18
 
 Plugin-only patch on MCP server v1.28.8 (no server change). Addresses Cowork-mode
