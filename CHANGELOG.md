@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.30.0] - 2026-07-27
+
+Version pin to Senzing MCP server **v1.30.0**.
+
+**No plugin content changes.** v1.30.0 changes served response-schema data
+(7 schemas → 13; ~29 → 1,144 fields) and migrates the MCP SDK to rmcp 2.2,
+but the tool surface is unchanged — every tool `inputSchema` was diffed
+against production with zero drift across all 13 tools, so the `build` skill
+and `senzing-grounder` agent need no updates.
+
 ## [1.29.0] - 2026-07-26
 
 Lockstep with Senzing MCP server **v1.29.0**, which adds per-binding method

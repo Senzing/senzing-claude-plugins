@@ -19,6 +19,7 @@
     "mktemp",
     "pipefail",
     "quickstarts",
+    "rmcp",
     "reusables",
     "SENZ",
     "Senzing",
