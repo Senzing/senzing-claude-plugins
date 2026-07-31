@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.32.3] - 2026-07-31
+
+Version pin to Senzing MCP server **v1.32.3**.
+
+**No plugin content changes.** v1.32.3 is a bugfix batch (eval-license
+competitor-list change, `download_url` no longer inheriting the preview
+`limit`, CORD cap/`offset` now explicit, `find_examples` elision made
+self-describing, `generate_scaffold(initialize)` now returning config-seeding
+code, `sdk_guide` language-alias normalization, V3 method-name recovery) plus
+new `*_DEFAULT_FLAGS` production guidance and an expanded NETWORK ACCESS
+section. It also grows the `find_examples` corpus from 37 to 42 indexed repos.
+
+**Tool surface is unchanged** — the release added *response* fields
+(`content_elided`, `source_download_url`, `download_url_max_records`), not
+declared parameters, so the `build` skill and `senzing-grounder` agent need no
+updates.
+
+**Catches up two skipped pins.** This repo's `plugin.json` was at 1.31.0 while
+this changelog's newest entry was 1.30.0, and the auto-sync PR for v1.32.2 was
+never merged. Going straight to 1.32.3 rather than back-filling 1.31.0/1.32.0/
+1.32.1/1.32.2 individually.
+
 ## [1.30.0] - 2026-07-27
 
 Version pin to Senzing MCP server **v1.30.0**.
