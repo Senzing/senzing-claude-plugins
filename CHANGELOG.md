@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.32.4] - 2026-08-01
+
+Version pin to Senzing MCP server **v1.32.4**.
+
+**No plugin content changes.** v1.32.4 is the second #mcp-logging feedback batch:
+three flag docs the extractor had been silently skipping (closing the why-family
+`composite_members` gap and the `export` returns-axis blind spot in one fix),
+SENZ7426 SUPPORTPATH guidance, a mapping_workflow field-count warning that fired
+on every correct mapping, per-input profiler output paths, headerless-CSV
+support, and `fetch-data` pruning of pages that vanish upstream.
+
+**Tool surface is unchanged** — the release altered behaviour, response fields
+and wording only; no tool added, removed or renamed, and no declared parameter
+changed. The `build` skill and `senzing-grounder` agent need no updates.
+
 ## [1.32.3] - 2026-07-31
 
 Version pin to Senzing MCP server **v1.32.3**.
