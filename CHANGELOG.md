@@ -24,6 +24,16 @@ Plugin-only feature on MCP server v1.32.9 (no server change).
   not a heading); internal frontmatter (`version`, `senzing_version`) and the
   `## Changelog` section are skipped.
 
+- **Uploadable plugin release for Claude Desktop.** A new
+  `Release plugin (.zip)` workflow (`.github/workflows/release-plugin.yml`) fires
+  on the `senzing--v<version>` tag, packages the plugin with
+  `scripts/build-plugin-zip.sh` into `senzing-<version>.zip` (canonical nested
+  `senzing/` layout, validated with `claude plugin validate --strict`), and
+  attaches it to the GitHub Release. Install in Claude Desktop via *Settings →
+  Plugins → Add → Upload a file*, or in Claude Code via `claude --plugin-url` —
+  re-uploading a newer same-named `.zip` updates in place. This is the plugin
+  itself (skills/hooks/agents), not an MCP bundle.
+
 ### Changed
 
 - **Unprompted, visual progress on the long-running skills (`demo`, `analyze`,

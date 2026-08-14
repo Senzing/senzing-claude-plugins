@@ -1,0 +1,107 @@
+name: Release plugin (.zip)
+
+# Packages the Senzing plugin as an uploadable `senzing-<version>.zip` and
+# attaches it to a GitHub Release. Users install it in Claude Desktop via
+# Settings -> Plugins -> Add -> Upload a file, or in Claude Code via
+# `claude --plugin-url <asset-url>`. Re-uploading a newer same-named .zip updates
+# the plugin in place.
+#
+# Fires on the plugin's release tag — `senzing--v<version>` (the tag
+# `claude plugin tag` / mcp-version-sync.yml already produce). Manual dispatch
+# can (re)build & release any existing such tag.
+
+on:
+  push:
+    tags:
+      - "senzing--v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing senzing--v* tag to (re)build & release"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-plugin-${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish plugin .zip
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve tag
+        id: tag
+        env:
+          RAW: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+        run: |
+          set -euo pipefail
+          case "$RAW" in
+            senzing--v*) : ;;
+            *) echo "::error::tag '$RAW' does not match senzing--v*"; exit 1 ;;
+          esac
+          echo "tag=$RAW" >> "$GITHUB_OUTPUT"
+          echo "version=${RAW#senzing--v}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+          persist-credentials: false
+
+      - name: Guard — tag version matches plugin.json
+        env:
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          set -euo pipefail
+          PJ=$(jq -r '.version' plugins/senzing/.claude-plugin/plugin.json)
+          if [ "$VERSION" != "$PJ" ]; then
+            echo "::error::tag version '$VERSION' != plugin.json version '$PJ' — re-tag or bump plugin.json"
+            exit 1
+          fi
+          echo "Releasing Senzing plugin v$VERSION"
+
+      - name: Install Claude Code CLI (for plugin validate)
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Build plugin .zip
+        env:
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: bash scripts/build-plugin-zip.sh "$VERSION"
+
+      - name: Publish GitHub Release with .zip attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          set -euo pipefail
+          ASSET="dist/senzing-$VERSION.zip"
+          [ -f "$ASSET" ] || { echo "::error::$ASSET not built"; exit 1; }
+
+          notes=$(cat <<EOF
+          **Senzing plugin v$VERSION**
+
+          Install in **Claude Desktop**: download \`senzing-$VERSION.zip\` below, then
+          *Settings → Plugins → Add → Upload a file* and select it. Uploading a newer
+          same-named .zip updates the plugin in place.
+
+          Install in **Claude Code** (marketplace, auto-updating):
+          \`\`\`
+          /plugin marketplace add Senzing/senzing-claude-plugins
+          /plugin install senzing@senzing
+          \`\`\`
+          Or load this exact artifact without installing:
+          \`claude --plugin-url <the senzing-$VERSION.zip asset URL>\`
+          EOF
+          )
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber
+          else
+            gh release create "$TAG" "$ASSET" \
+              --title "Senzing plugin v$VERSION" \
+              --notes "$notes" \
+              --verify-tag
+          fi

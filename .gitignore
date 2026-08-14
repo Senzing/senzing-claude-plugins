@@ -14,3 +14,6 @@ sz-workspace/
 .vscode/*
 # ...but keep the shared cspell dictionary (used by the spellcheck workflow)
 !.vscode/cspell.json
+
+# Built plugin release artifacts (produced by scripts/build-plugin-zip.sh)
+dist/
