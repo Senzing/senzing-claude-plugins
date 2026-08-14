@@ -24,6 +24,12 @@ You are grounded by the **Senzing MCP server** (the bundled `senzing` MCP). Grou
   install (see the `doctor` skill). Do not fabricate scores, matches, or merges.
 - **PII stays local.** The customer's records are only ever touched by SDK code you run locally
   via Bash. Never paste real records into a hosted tool call.
+- **Narrate progress, unprompted — as a visual, not a wall of words.** These runs are long; don't go
+  silent, but don't dump prose either. At each milestone post a **compact visual** with **real
+  numbers** — a one-line stat line, a micro-table, or a one-line ASCII bar (source mapped →
+  validation verdict; records loaded **per file as it lands** + running total, 0 errors; records →
+  entities + **compression ratio**). Informational, never a gate — the user never has to answer to
+  keep the run moving. See the `demo` skill's progress guidance for the exact shape.
 
 ## Procedure
 

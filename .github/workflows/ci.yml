@@ -43,7 +43,7 @@ jobs:
           claude plugin marketplace add "$PWD"
           claude plugin install senzing@senzing
           claude plugin details senzing | tee details.txt
-          grep -q "Skills (6)" details.txt
+          grep -q "Skills (7)" details.txt
           grep -q "MCP servers (1)" details.txt
 
   mcp-urls:
