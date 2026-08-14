@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.32.9-2] - 2026-08-14
+
+Plugin-only patch on MCP server v1.32.9 (no server change).
+
+### Added
+
+- **Uploadable plugin release for Claude Desktop.** A new
+  `Release plugin (.zip)` workflow (`.github/workflows/release-plugin.yml`) fires
+  on the `senzing--v<version>` tag, packages the plugin with
+  `scripts/build-plugin-zip.sh` into `senzing-claude-plugin-<version>.zip`
+  (canonical nested `senzing/` layout, validated with
+  `claude plugin validate --strict`), and attaches it to the GitHub Release.
+  Install in Claude Desktop via *Settings → Plugins → Add → Upload a file*, or in
+  Claude Code via `claude --plugin-url` — re-uploading a newer same-named `.zip`
+  updates in place. This is the plugin itself (skills/hooks/agents), not an MCP
+  bundle.
+
+### Fixed
+
+- **`recipes` resolves its cookbook ref at runtime so it survives the
+  branch→`main` migration.** Instead of a single pinned `RECIPE_REF`, the skill
+  now tries `RECIPE_REFS = [main, cookbook-import]` in order and uses the **first**
+  whose `recipes.md` fetches (a non-empty `200`) for every URL that run. While the
+  cookbook lives on `cookbook-import` it is used; the moment it lands on `main` the
+  skill picks `main` automatically — no plugin re-release needed at the cut-over,
+  and no empty catalog if `cookbook-import` is later retired. Drop `cookbook-import`
+  from the list once `main` is canonical.
+
 ## [1.32.9-1] - 2026-08-14
 
 Plugin-only feature on MCP server v1.32.9 (no server change).

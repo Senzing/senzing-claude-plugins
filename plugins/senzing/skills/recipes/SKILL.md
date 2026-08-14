@@ -21,12 +21,21 @@ You are the **sous-chef** — you interpret and *run* each prompt, backed by the
 
 ## Recipe source
 
-<!-- REF: recipes live on the `cookbook-import` branch until it merges to main. When it lands on
-     main, change `cookbook-import` → `main` in the RECIPE_REF below (one place). -->
-- `RECIPE_REF = cookbook-import`
-- Raw base: `https://raw.githubusercontent.com/senzing/recipes/${RECIPE_REF}/`
+<!-- REF: recipes are migrating from the `cookbook-import` branch to `main` in senzing/recipes.
+     RECIPE_REFS is tried in order so the skill self-heals across the merge — no plugin
+     re-release needed at the moment it lands. Once `main` is canonical and the branch is
+     retired, drop `cookbook-import` from the list. -->
+- `RECIPE_REFS = [main, cookbook-import]` — candidate refs, highest priority first.
+- **Resolve the ref once, at the start of the run:** try each ref in order and pick the **first**
+  whose catalog fetches successfully (a non-empty `200`) —
+  `curl -fsSL "https://raw.githubusercontent.com/senzing/recipes/<ref>/recipes.md"` (`-f` fails on
+  `404`, so "first that succeeds" is well-defined). Call the winner `REF` and use it for **every**
+  URL for the rest of the run, so catalog, recipe, and ingredients all come from one source.
+- Raw base: `https://raw.githubusercontent.com/senzing/recipes/${REF}/`
 - Catalog: `<raw base>/recipes.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
   ingredients: `<raw base>/ingredients/<...>`
+- If **no** ref yields a catalog, tell the user the cookbook is unreachable (and to allow
+  `raw.githubusercontent.com`); do **not** reconstruct recipes from memory.
 
 **Fetch verbatim.** Use Bash `curl -fsSL "<url>"` to pull the exact markdown into context — the
 recipe's inline prompt blocks must be run **word-for-word** (their hard rules matter). If `curl`
