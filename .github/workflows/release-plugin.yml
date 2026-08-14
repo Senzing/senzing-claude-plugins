@@ -14,17 +14,16 @@ on:
   push:
     tags:
       - "senzing--v*"
+  # Manual (re)build & release of an existing tag: pick the senzing--v* tag in the
+  # "Use workflow from" ref dropdown when dispatching. No inputs — Checkov CKV_GHA_7
+  # forbids workflow_dispatch inputs; the tag comes from the selected ref instead.
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Existing senzing--v* tag to (re)build & release"
-        required: true
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-plugin-${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+  group: release-plugin-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -35,12 +34,12 @@ jobs:
       - name: Resolve tag
         id: tag
         env:
-          RAW: ${{ github.event_name == 'push' && github.ref_name || inputs.tag }}
+          RAW: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           case "$RAW" in
             senzing--v*) : ;;
-            *) echo "::error::tag '$RAW' does not match senzing--v*"; exit 1 ;;
+            *) echo "::error::ref '$RAW' is not a senzing--v* tag — dispatch against a release tag"; exit 1 ;;
           esac
           echo "tag=$RAW" >> "$GITHUB_OUTPUT"
           echo "version=${RAW#senzing--v}" >> "$GITHUB_OUTPUT"
