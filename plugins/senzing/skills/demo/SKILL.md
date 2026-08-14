@@ -17,6 +17,40 @@ Grounded by the **Senzing MCP server**. Never simulate results.
 is given, default to `truthset` and tell the user which you're using; call `get_sample_data` with
 `dataset='list'` first if they'd rather choose. No user data is needed — the demo uses sample data.
 
+## Narrate progress as you cook (unprompted, no response required)
+
+A demo is a **spectator sport** — the user is watching, not driving. Do **not** run silently through
+the long stretch (install → map → load → resolve → report). A wall of "ran a command / done" with
+nothing to read for 15+ minutes is a failed demo *even if the result is correct* — the user is left
+to "wonder." As each milestone completes, surface a short, concrete **progress checkpoint** on your
+own initiative: **informational, never a question**, and never something the user must answer to
+continue. (Answer-required gates stay reserved for the only two that matter: loading into a
+**production** repo, and any **merge/split**.)
+
+Post a checkpoint at each milestone, each carrying **real numbers from the actual run** — never
+estimated, never fabricated:
+- **Environment ready** — Senzing version + database kind.
+- **Mapped** — file, row count, which source fields mapped to which Entity-Spec attributes, validation verdict.
+- **Loaded** — records loaded for *this* source + running total, throughput, and error count (should be 0). Report **per file as it lands**, not once at the end.
+- **Resolved** — records → entities and the **compression ratio**; note the redo queue drained.
+
+**Make it a visual, not a paragraph.** The failure mode on both sides is silence *and* a wall of
+words — a demo watcher wants something to *glance at*, not read. Each checkpoint is a compact
+visual: a **one-line stat line**, a **micro-table**, or a **one-line ASCII bar** — never prose. A
+few lines, then move on. Examples (shape, not literal):
+
+```
+✓ Loaded CRM        1,000 records · 0 errors · 1.2k/s   (total 1,000)
+✓ Loaded ONLINE       579 records · 0 errors · 1.1k/s   (total 1,579)
+Resolved  1,579 records → 1,192 entities   (1.33× compression)
+  records   ████████████████████  1,579
+  entities  ███████████████       1,192
+```
+
+Prefer **many small, quick-to-scan updates** over one silent march *or* a dense report. The full
+dashboard Artifact (step 3) is the finale — these checkpoints are the pulse on the way there, not a
+second report.
+
 1. Pre-flight with `doctor`. **If there is no running Senzing**, do not fake a demo — use
    `sdk_guide(topic="install")` to get them set up (a free 10-day eval license can be requested via
    `submit_feedback`), and

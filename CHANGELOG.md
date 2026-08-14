@@ -4,6 +4,53 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.32.9-1] - 2026-08-14
+
+Plugin-only feature on MCP server v1.32.9 (no server change).
+
+### Added
+
+- **`recipes` skill → `/senzing:recipes [recipe]`.** Cook a curated, step-by-step
+  recipe from the **Senzing Cookbook** (`github.com/senzing/recipes`). With no
+  recipe named it fetches the catalog (`recipes.md`) and helps the user choose;
+  with one named it loads `recipes/<id>.md`, confirms the kitchen/language/
+  ingredients, and **drives each cook → plate → plus step in order** against the
+  user's own Senzing — rather than handing the user prompts to paste. Recipe
+  content is fetched **verbatim** via `curl` (falling back to `WebFetch`) so each
+  step's inline prompt runs word-for-word; the cooking metaphor's own House Rule
+  (*"Use the Senzing MCP. Do not rely on general training."*) keeps every step
+  grounded, and stewardship (merge/split) is gated — confirmed before each write,
+  never automatic. Recipes are parsed as Markdown (a `#` inside a fenced prompt is
+  not a heading); internal frontmatter (`version`, `senzing_version`) and the
+  `## Changelog` section are skipped.
+
+### Changed
+
+- **Unprompted, visual progress on the long-running skills (`demo`, `analyze`,
+  `report`, and the new `recipes`).** These runs can take 15+ minutes, and the
+  demo flow in particular is a spectator sport — the user is watching, not
+  driving. The skills now require a **progress checkpoint at each milestone**
+  (environment ready · mapped · loaded **per file as it lands**, with counts and
+  errors · records → entities + compression ratio), surfaced **on the skill's own
+  initiative** and **never as a gate** — the user never has to answer to keep the
+  run moving (answer-required prompts stay reserved for loading into a production
+  repo and for merges/splits). Each checkpoint is a **compact visual** — a
+  one-line stat line, a micro-table, or a one-line ASCII bar — explicitly **not a
+  wall of prose and not silence**. Fixes feedback that a ~18-minute demo showed
+  little but terse "ran a command / done" lines with nothing to glance at until
+  the final dashboard.
+
+### Note
+
+- **Recipe ref is pinned to the `cookbook-import` branch** until it merges to
+  `main` in `senzing/recipes`. Flip the single `RECIPE_REF` marker in
+  `plugins/senzing/skills/recipes/SKILL.md` from `cookbook-import` to `main` when
+  it lands, so the command never lists an empty catalog.
+- **Tool surface (MCP) is unchanged** — this adds a plugin skill only; no MCP tool
+  was added, removed, or renamed. The `-1` suffix marks a plugin-only patch on the
+  same server pin; `mcp-version-sync.yml` strips it, so daily version sync won't
+  revert it.
+
 ## [1.32.4] - 2026-08-01
 
 Version pin to Senzing MCP server **v1.32.4**.

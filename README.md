@@ -39,6 +39,7 @@ knowledge is served from the hosted Senzing MCP.
 | `/senzing:demo` | See entity resolution work on sample data. If Senzing isn't installed, it helps you install rather than faking a result. |
 | `/senzing:report` | Explore an already-loaded Senzing: why records resolved, your biggest entities, dashboards, and match quality. |
 | `/senzing:doctor` | Diagnose your Senzing setup (SDK, database, license, config) and give actionable fixes. |
+| `/senzing:recipes [recipe]` | Cook a guided, use-case recipe from the [Senzing Cookbook](https://github.com/senzing/recipes) — pick one (fraud, customer 360, exclusion screening, …) and Claude walks each step, standing up a working solution against your own Senzing. Run it with no argument to browse the catalog. |
 
 You don't have to remember the commands — just say what you want ("dedupe my customer files", "why
 did these two records match?", "what does error 0033E mean?", "add Senzing search to my Python
