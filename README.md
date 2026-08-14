@@ -32,9 +32,9 @@ knowledge is served from the hosted Senzing MCP.
 ### Claude Desktop (upload the packaged plugin)
 
 Claude Desktop can't add a custom marketplace, but it can install a plugin from a file. Each
-release attaches a packaged `senzing-<version>.zip` you can upload directly:
+release attaches a packaged `senzing-claude-plugin-<version>.zip` you can upload directly:
 
-1. Download `senzing-<version>.zip` from the [latest release](https://github.com/Senzing/senzing-claude-plugins/releases).
+1. Download `senzing-claude-plugin-<version>.zip` from the [latest release](https://github.com/Senzing/senzing-claude-plugins/releases).
 2. In Claude Desktop: **Settings → Plugins → Add → Upload a file**, then select the `.zip`.
 
 Uploading a newer `.zip` with the same name **updates** the plugin in place. (In Claude Code you can

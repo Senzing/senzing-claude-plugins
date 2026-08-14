@@ -4,7 +4,7 @@
 # The archive follows the canonical layout — a single top-level plugin folder
 # with `.claude-plugin/plugin.json` nested inside it:
 #
-#   senzing-<version>.zip
+#   senzing-claude-plugin-<version>.zip
 #   └── senzing/
 #       ├── .claude-plugin/plugin.json
 #       ├── skills/ agents/ hooks/ .mcp.json ...
@@ -21,6 +21,7 @@ cd "$(dirname "$0")/.."
 
 PLUGIN_DIR="plugins/senzing"          # source plugin root
 PLUGIN_NAME="senzing"                 # top-level folder inside the archive
+ARTIFACT="senzing-claude-plugin"      # release .zip basename (download filename)
 OUT_DIR="dist"
 PLUGIN_JSON="$PLUGIN_DIR/.claude-plugin/plugin.json"
 
@@ -43,9 +44,9 @@ cp -R "$PLUGIN_DIR" "$STAGE/$PLUGIN_NAME"
 find "$STAGE" -name '.DS_Store' -delete
 
 mkdir -p "$OUT_DIR"
-OUT="$(pwd)/$OUT_DIR/senzing-$VERSION.zip"
+OUT="$(pwd)/$OUT_DIR/$ARTIFACT-$VERSION.zip"
 rm -f "$OUT"
 ( cd "$STAGE" && zip -qr "$OUT" "$PLUGIN_NAME" )
 
-echo "Built $OUT_DIR/senzing-$VERSION.zip"
+echo "Built $OUT_DIR/$ARTIFACT-$VERSION.zip"
 unzip -l "$OUT" | tail -n +2 | head -8

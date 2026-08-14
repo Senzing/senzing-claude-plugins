@@ -27,7 +27,7 @@ Plugin-only feature on MCP server v1.32.9 (no server change).
 - **Uploadable plugin release for Claude Desktop.** A new
   `Release plugin (.zip)` workflow (`.github/workflows/release-plugin.yml`) fires
   on the `senzing--v<version>` tag, packages the plugin with
-  `scripts/build-plugin-zip.sh` into `senzing-<version>.zip` (canonical nested
+  `scripts/build-plugin-zip.sh` into `senzing-claude-plugin-<version>.zip` (canonical nested
   `senzing/` layout, validated with `claude plugin validate --strict`), and
   attaches it to the GitHub Release. Install in Claude Desktop via *Settings →
   Plugins → Add → Upload a file*, or in Claude Code via `claude --plugin-url` —

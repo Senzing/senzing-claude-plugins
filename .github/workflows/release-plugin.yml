@@ -1,6 +1,6 @@
 name: Release plugin (.zip)
 
-# Packages the Senzing plugin as an uploadable `senzing-<version>.zip` and
+# Packages the Senzing plugin as an uploadable `senzing-claude-plugin-<version>.zip` and
 # attaches it to a GitHub Release. Users install it in Claude Desktop via
 # Settings -> Plugins -> Add -> Upload a file, or in Claude Code via
 # `claude --plugin-url <asset-url>`. Re-uploading a newer same-named .zip updates
@@ -77,13 +77,13 @@ jobs:
           VERSION: ${{ steps.tag.outputs.version }}
         run: |
           set -euo pipefail
-          ASSET="dist/senzing-$VERSION.zip"
+          ASSET="dist/senzing-claude-plugin-$VERSION.zip"
           [ -f "$ASSET" ] || { echo "::error::$ASSET not built"; exit 1; }
 
           notes=$(cat <<EOF
           **Senzing plugin v$VERSION**
 
-          Install in **Claude Desktop**: download \`senzing-$VERSION.zip\` below, then
+          Install in **Claude Desktop**: download \`senzing-claude-plugin-$VERSION.zip\` below, then
           *Settings → Plugins → Add → Upload a file* and select it. Uploading a newer
           same-named .zip updates the plugin in place.
 
@@ -93,7 +93,7 @@ jobs:
           /plugin install senzing@senzing
           \`\`\`
           Or load this exact artifact without installing:
-          \`claude --plugin-url <the senzing-$VERSION.zip asset URL>\`
+          \`claude --plugin-url <the senzing-claude-plugin-$VERSION.zip asset URL>\`
           EOF
           )
 
