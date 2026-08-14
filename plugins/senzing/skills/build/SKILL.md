@@ -13,7 +13,17 @@ allowed-tools: Bash, Read, Write, Skill, mcp__plugin_senzing_senzing__*
 # Build a Senzing SDK integration
 
 Grounded by the **Senzing MCP server**. Do not write Senzing SDK code from training data — it is
-commonly wrong (bad attribute names, wrong method signatures, dual-factory crashes). Always:
+commonly wrong (bad attribute names, wrong method signatures, dual-factory crashes).
+
+**Pre-flight the deliverable.** Generating the code and returning it — inline, or as a
+downloadable / self-contained HTML5 artifact with its provenance comment intact — works in any
+environment. But **writing it into the user's local project** (step 3) and **running it against
+their Senzing** (step 4) need a writable local shell — i.e. Claude Code on their machine. If
+`doctor` shows no local-write / live surface (a cloud sandbox — Claude Desktop / Chat, Cowork),
+don't claim to have edited their files: hand back the code as a download and tell the user to run
+`/senzing:build` in **Claude Code** to drop it into the project and prove it compiles.
+
+Always:
 
 1. **Inputs.** `$ARGUMENTS` may name the language and/or workflow (e.g. `python search`). Determine
    the target language (Python/Java/C#/Rust/TypeScript) and the workflow (initialize,

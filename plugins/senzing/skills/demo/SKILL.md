@@ -51,7 +51,10 @@ Prefer **many small, quick-to-scan updates** over one silent march *or* a dense 
 dashboard Artifact (step 3) is the finale — these checkpoints are the pulse on the way there, not a
 second report.
 
-1. Pre-flight with `doctor`. **If there is no running Senzing**, do not fake a demo — use
+1. Pre-flight with `doctor` (it clears network/allowlist, host shell, Senzing, **and**
+   interactive-outcome capability up front). This demo's finale is a **dashboard Artifact** (step
+   3) — a self-contained HTML5 visual — so it lands even on a cloud sandbox that can't serve a live
+   `localhost` app; no live-server substitution is needed here. **If there is no running Senzing**, do not fake a demo — use
    `sdk_guide(topic="install")` to get them set up (a free 10-day eval license can be requested via
    `submit_feedback`), and
    offer to resume the demo the moment install completes. If the user can't or won't install now,
