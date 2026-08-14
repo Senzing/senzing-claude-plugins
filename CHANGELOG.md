@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.32.9-3] - 2026-08-14
+
+Plugin-only patch on MCP server v1.32.9 (no server change).
+
+### Changed
+
+- **Centralized the environment preflight in `doctor`, run up front by every skill.** The
+  reachability + capability checks that only `recipes` had (hand-rolled inline) now live in
+  `doctor`, so all skills share one gate: **network/allowlist** (`mcp.senzing.com` +
+  `raw.githubusercontent.com` reachable), **host shell + writable workspace**, Senzing
+  **SDK/engine/DB/license**, and **interactive-outcome capability** (can this host serve a live
+  `localhost` app, or only a self-contained HTML5/PDF artifact?). `doctor` reports a compact
+  status table and a specific fix per failing row. `recipes` drops its duplicated block and defers
+  to `doctor`; `demo` and `build` run it up front too.
+
+- **Fail fast on the deliverable, not after a 45-minute run.** Because the interactive-outcome
+  check runs in preflight, skills that can end in a *live interactive app* now decide up front:
+  `recipes` offers a self-contained interactive **HTML5 artifact** (map → load → resolve) in a
+  cloud sandbox and recommends **Claude Code** for the literal live-server plate; `build`
+  generates code anywhere but flags that **writing into the user's local project and running it**
+  need Claude Code, handing back a downloadable artifact otherwise; `demo`'s dashboard was already
+  a self-contained Artifact, so it lands everywhere. The environment is decided *before* the work,
+  never revealed as impossible at the end.
+
 ## [1.32.9-2] - 2026-08-14
 
 Plugin-only patch on MCP server v1.32.9 (no server change).

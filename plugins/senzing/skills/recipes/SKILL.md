@@ -67,31 +67,23 @@ section — neither is part of the cook.
 **Inputs.** `$ARGUMENTS` may name a recipe by `id` (e.g. `customer-360-crm-online`) or by title
 words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm which before cooking.
 
-1. **Pre-flight FIRST — can this environment actually finish a recipe?** A recipe ends in a *served*
-   result (a loaded Senzing **and** an interactive app/visual), so verify the whole path is viable
-   **before** investing in a cook — don't march into a recipe that can't reach its plate. Check all
-   three:
-   - **Senzing can be deployed.** Run the `doctor` skill: SDK importable, a license present (or the
-     free 10-day eval obtainable via `submit_feedback`), a database reachable. If Senzing can't be
-     stood up, stop and help install (`doctor` → `sdk_guide(topic="install")`) before cooking — a
-     recipe over a Senzing that won't deploy goes nowhere.
-   - **The host can build and serve visuals.** Recipes build and run **interactive web apps** and
-     render dashboards — that needs **Claude Code (or an equivalent host with a writable shell plus
-     the ability to build/serve a local app and render an Artifact)**. Probe it: have the shell
-     create the workspace and write a file. If you're in a shell-less or non-interactive surface (a
-     chat-only host, or a spawned sub-agent with a reduced tool set), **say so plainly** — the
-     recipe's *Plate* step can't be served here. Offer what *is* possible (map → load → resolve + a
-     static report) and tell the user to run the recipe in Claude Code for the full interactive
-     plate. Don't pretend the plate will render where it can't.
-   - **Sources are reachable / allowlisted.** **At minimum the host must be able to pull assets from
-     `mcp.senzing.com`** — that one domain serves the SDK package downloads, the CORD sample data,
-     and the workflow resources, so a recipe cannot be cooked without it. **Actively probe it** (a
-     `curl -fsSI https://mcp.senzing.com/` reachability check), and if it's blocked, stop and ask
-     the user to allowlist `mcp.senzing.com` **now** before going further. Recipe text and repo
-     ingredients additionally come from `raw.githubusercontent.com` — allowlist it too, or fall back
-     to `WebFetch` for the recipe markdown. If egress is restricted, resolve it up front; otherwise
-     the cook stalls midway. (Browsing the catalog is fine to attempt either way; committing to cook
-     is not.)
+1. **Pre-flight FIRST — run `doctor`.** A recipe ends in a *served* result (a loaded Senzing **and**
+   an interactive app/visual), so clear the whole path **before** investing in a cook — don't march
+   into a recipe that can't reach its plate. `doctor` checks it all in one pass: sources reachable
+   (`mcp.senzing.com` + `raw.githubusercontent.com` allowlisted), host shell writable, Senzing
+   deployable (SDK / license / DB), and **interactive-outcome capability**. Act on its verdict
+   before cooking:
+   - **Senzing can't deploy** → help install (`doctor` → `sdk_guide(topic="install")`; free 10-day
+     eval via `submit_feedback`); don't cook over a Senzing that won't stand up.
+   - **A source is blocked** → stop and ask the user to allowlist that domain now (for recipe text
+     you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
+   - **No live-app surface here** (cloud sandbox, chat-only host, or a reduced sub-agent) → say so
+     plainly: the recipe's *Plate* can't be a live `localhost` server here. Offer the honest
+     substitution — map → load → resolve **plus a self-contained interactive HTML5 artifact** you
+     deliver as a download — and recommend running the recipe in **Claude Code** for the literal
+     live-server plate. Don't pretend the plate will render where it can't.
+
+   (Browsing the catalog is fine to attempt either way; committing to cook is not.)
 2. **Pick a recipe.** If no recipe was named (or the match is unclear), `curl` the catalog
    (`recipes.md`) and present it: for each entry show **title · use_case · difficulty · kitchen ·
    estimated time · author** and its "what you'll make" line, then ask which to cook. If one was
