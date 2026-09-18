@@ -7,9 +7,9 @@ description: >
   resolution — e.g. "resolve my customer list", "dedupe these files", "find duplicates", "match
   these two lists", "load this into Senzing and show me the entities". Also the entry point for
   mapping alone, when the user wants only Senzing-ready JSON or has no Senzing installed. Runs real
-  SDK code locally via Bash; records never leave the machine and results are never simulated. Not
-  for data already loaded in Senzing (use report), sample data (use demo), or a named cookbook use
-  case (use recipes).
+  SDK code locally via Bash; records never leave the machine and results are never simulated. Runs
+  doctor first to confirm this host can deliver the result. Not for data already loaded in Senzing
+  (use report), sample data (use demo), or a named cookbook use case (use recipes).
 argument-hint: "[path/to/data ...]"
 allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
 ---

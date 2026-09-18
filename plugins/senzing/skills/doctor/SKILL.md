@@ -1,12 +1,15 @@
 ---
 name: doctor
 description: >
-  Check whether this machine's Senzing environment works — SDK, engine config, database, license,
-  network reachability — and give a runnable fix for anything broken. Use when the user asks "is my
-  Senzing set up?", "check my Senzing environment", "why won't Senzing start", "does my Senzing
-  actually work?", or when a script fails to import or initialize with no Senzing error code in
-  hand. Not for a specific SENZ error code or message (use troubleshoot), not for installing
-  Senzing (use install), and not for showing that Senzing works on sample data (use demo).
+  Check whether this machine can do the Senzing task at hand — SDK, engine config, database,
+  license, network reachability, AND what kind of result this host can actually deliver (a live
+  app the user drives, a self-contained artifact, or information only). Every skill that runs or
+  builds something calls this FIRST, so it fails early with a fix instead of late with a
+  traceback. Use when the user asks "is my Senzing set up?", "check my Senzing environment", "why
+  won't Senzing start", "does my Senzing actually work?", or when a script fails to import or
+  initialize with no Senzing error code in hand. Not for a specific SENZ error code or message
+  (use troubleshoot), not for installing Senzing (use install), and not for showing that Senzing
+  works on sample data (use demo).
 allowed-tools: Bash, Read, mcp__plugin_senzing_senzing__*
 ---
 
