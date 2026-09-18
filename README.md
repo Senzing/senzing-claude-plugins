@@ -17,7 +17,8 @@ Senzing**. Your records never leave your machine.
 - To run entity resolution (`analyze`, `demo`, `report`): **your own installed, licensed Senzing
   SDK.** `analyze` and `demo` spin up a throwaway scratch database automatically; `report` runs
   over a Senzing you've already loaded. Grounding, code generation, troubleshooting, and data
-  mapping need no Senzing at all — and `/senzing:doctor` checks your setup and says what's missing.
+  mapping need no Senzing at all — and `/senzing:doctor` checks your setup and says what's missing,
+  while `/senzing:install` sets one up.
 
 ## Install
 
@@ -45,10 +46,12 @@ also load a release artifact without installing: `claude --plugin-url <url-to-th
 | Command | What it does |
 |---|---|
 | `/senzing:analyze <files>` | Resolve and dedupe your data — who is who across your sources — in a throwaway scratch workspace, then report. Your existing Senzing is left untouched unless you ask to load into it. |
+| `/senzing:ask <question>` | Answer a Senzing question — attributes, SDK signatures, config, architecture, deployment, pricing and ROI — grounded in the Senzing MCP with source links, never from training data. Answers only; it writes nothing and runs nothing. |
 | `/senzing:build` | Generate correct, compilable Senzing SDK code (Python, Java, C#, …) for your app, with source attribution — and optionally run it. |
 | `/senzing:troubleshoot` | Explain a Senzing error and how to fix it — paste an error code or a failing trace. |
 | `/senzing:demo` | See entity resolution work on sample data. If Senzing isn't installed, it helps you install rather than faking a result. |
 | `/senzing:report` | Explore an already-loaded Senzing: why records resolved, your biggest entities, dashboards, and match quality. |
+| `/senzing:install` | Install and set up Senzing on this machine — SDK, database and license — using the official platform-specific steps, then verifies with `doctor`. |
 | `/senzing:doctor` | Diagnose your Senzing setup (SDK, database, license, config) and give actionable fixes. |
 | `/senzing:recipes [recipe]` | Cook a guided, use-case recipe from the [Senzing Cookbook](https://github.com/senzing/recipes) — pick one (fraud, customer 360, exclusion screening, …) and Claude walks each step, standing up a working solution against your own Senzing. Run it with no argument to browse the catalog. |
 

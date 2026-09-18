@@ -1,12 +1,11 @@
 ---
 name: field-mapper
 description: >
-  Map a single source data file to the Senzing Entity Specification using mapping_workflow. An
-  optional optimization for mapping many files at once: fan several out in parallel (one per file),
-  then barrier on all results before loading. The `analyze` skill MAY delegate to this agent when
-  there are multiple input files AND a spawned sub-agent has a shell that can run the mapper scripts
-  against the workspace — otherwise analyze maps sequentially in its own context. Delegation is
-  never required for completion.
+  Map ONE source data file to the Senzing Entity Specification via mapping_workflow, and return
+  the validated JSONL path plus a mapping summary. Spawn one per file to map several files in
+  parallel. Requires a sub-agent shell that can run the mapper scripts against the workspace, plus
+  the Senzing MCP tools; if either is missing, say so immediately so the caller can map in its own
+  context instead of stalling.
 tools: Read, Bash, Write, mcp__plugin_senzing_senzing__*
 ---
 

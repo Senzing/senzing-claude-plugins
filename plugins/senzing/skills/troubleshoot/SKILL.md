@@ -1,10 +1,11 @@
 ---
 name: troubleshoot
 description: >
-  Diagnose and resolve a Senzing error or failure. Use automatically when the user pastes a
-  Senzing error code or stack trace (e.g. "SENZ0005", "0005", "5", "why is add_record failing?"),
+  Explain a specific Senzing error and how to fix it. Use automatically when the user pastes a
+  Senzing error code or stack trace (e.g. "SENZ0005", "0005", "5", a traceback naming add_record),
   or asks what an error means. Looks up the authoritative cause and fix, then points at docs and
-  real code examples.
+  real code examples. If the cause turns out to be environmental (SDK, database, license, config),
+  hands off to doctor. Not for "is my setup OK?" with no error in hand (use doctor).
 argument-hint: "[error-code-or-message]"
 allowed-tools: Bash, Read, Skill, mcp__plugin_senzing_senzing__*
 ---

@@ -1,15 +1,12 @@
 ---
 name: doctor
 description: >
-  Diagnose a Senzing environment before anything runs. Use automatically before the first Senzing
-  operation of a session, and whenever an SDK script fails to import/init/connect, or the user
-  asks "is my Senzing set up?", "check my Senzing environment", "why won't Senzing start". The
-  shared up-front preflight for every skill: checks network/allowlist reachability
-  (mcp.senzing.com + raw.githubusercontent.com), the host shell, the SDK install, engine
-  configuration, database reachability, license, AND whether this host can serve a live interactive
-  app or only a self-contained artifact — returning grounded, actionable fixes instead of a raw
-  traceback — or wants Senzing installed or set up in the first place — e.g. "install Senzing",
-  "set up Senzing on this machine", "get me started with Senzing".
+  Check whether this machine's Senzing environment works — SDK, engine config, database, license,
+  network reachability, and what kind of output this host can deliver — and give a runnable fix for
+  anything broken. Use when the user asks "is my Senzing set up?", "check my Senzing environment",
+  "why won't Senzing start", or when a script fails to import or initialize with no Senzing error
+  code in hand. Also the shared preflight the other skills run first. Not for a specific SENZ error
+  code or message (use troubleshoot), and not for installing Senzing (use install).
 allowed-tools: Bash, Read, mcp__plugin_senzing_senzing__*
 ---
 
@@ -24,6 +21,17 @@ duplicated in each skill.
 
 **Inputs.** Takes no arguments — run the probe directly (any `$ARGUMENTS` are ignored). If invoked
 because the user asked to *install* Senzing, skip straight to the install path below.
+
+## Division of labor — do not duplicate the MCP
+
+This skill owns **workflow and host mechanics**: what to probe, in what order, on this machine —
+platform detection, package-manager layout, loader paths, SIP behavior, and how to grade the
+result. The MCP server cannot know those about the host in front of you.
+
+**The MCP owns every Senzing fact** — install commands, config keys and their correct values,
+database prerequisites, error meanings, limits. When you need one, **call the tool**
+(`sdk_guide`, `explain_error_code`, `search_docs`) instead of restating it here. Senzing facts
+copied into this file go stale silently and then confidently mislead; the MCP's do not.
 
 ## Status vocabulary — read this FIRST
 
@@ -197,30 +205,29 @@ or WSL2. Neither → likely a cloud sandbox.
    an application may build any way it likes.
    - unset → **➖** (expected on a machine nobody has pointed at a repository yet — never ❌)
    - set but not valid JSON → ❌
-   - set and parseable → verify `CONFIGPATH`, `RESOURCEPATH`, `SUPPORTPATH` **exist on disk**; a
-     wrong `SUPPORTPATH` passes every other check and then fails engine init with SENZ7426 while
-     `SzProduct` still works. macOS `SUPPORTPATH` is `$(brew --prefix)/opt/senzing/data` — a
-     **sibling** of `er/`, not under it.
+   - set and parseable → verify `CONFIGPATH`, `RESOURCEPATH` and `SUPPORTPATH` **exist on disk**.
+     A wrong `SUPPORTPATH` passes every other check and then fails at engine init while
+     `SzProduct` still works. Get the correct values for this platform from
+     `sdk_guide(topic="configure", platform=…)` — do not hardcode them here.
    > ⛔ **Never derive config from the shipped `er/etc/sz_engine_config.ini` on macOS/Windows** —
-   > cask 4.5.0.26245 ships Linux paths (`/opt/senzing/...`) that do not exist there.
+   > it ships Linux paths that do not exist there.
 
 8. **Database reachable.** ➖ when check 7 is ➖, or when the connection is `internal://` (nothing
-   to reach). Otherwise parse the connection string from the config and test it: SQLite → the file
-   (⚠ it is **not** auto-created; fix is
-   `sqlite3 <db> < <install>/er/resources/schema/szcore-schema-sqlite-create.sql`);
-   PostgreSQL/MySQL/MSSQL → connect with the matching client. ⚠ PostgreSQL on macOS needs
-   `brew install libpq && brew link libpq --force`, otherwise the errors are misleading
-   `.dylib` failures.
+   to reach). Otherwise parse the connection string from the config and test it with the matching
+   client. ⚠ A SQLite repository file is **not** auto-created. For the schema-creation step and
+   the per-database client prerequisites call `sdk_guide(topic="configure", platform=…)` rather
+   than reproducing them here — they change with the SDK, this file does not.
 
 9. **License.** Depends on check 6 only. Probe `SzProduct.get_license()` using a minimal
    `internal://` config — no database, no user config required.
    > ⚠ **There is always a license.** With none configured this returns a built-in EVAL record,
    > so "no license" is not an observable state and must not be reported as one.
 
-   `customer` empty + `recordLimit` 500 → ⚠️ built-in eval (500 DSRs; `SENZ9000|LIMIT` at record
-   501). **Do not prompt for a license unless the user actually has >500 records.** `expireDate`
-   in the past → ❌ with the fix (`submit_feedback(category="license_request")`, ask.senzing.com,
-   or add `LICENSESTRINGBASE64`). Otherwise ✅, stating `recordLimit` and `expireDate`.
+   `customer` empty → ⚠️ built-in eval; report the `recordLimit` it returns. **Do not prompt for a
+   license unless the user actually has more records than that limit.** `expireDate` in the past
+   → ❌; offer `submit_feedback(category="license_request")` for a free eval. Otherwise ✅, stating
+   `recordLimit` and `expireDate`. For what happens at the limit call `explain_error_code(9000)`
+   rather than restating it.
 
 ## Reporting
 
@@ -230,12 +237,8 @@ raw stack trace. Checks 1–3 are host-level and resolve independently of whethe
 installed: **a green host with no SDK is a valid, healthy state** (the caller may only need
 grounding or code generation).
 
-## Install path
+## Installing
 
-If the user asked to *install* Senzing, go straight to
-`sdk_guide(topic="install", platform=<from Step 0>)` and follow its commands, including its EULA
-prompt before running anything.
-
-> ⛔ **A zero exit code from `brew install` does NOT mean the SDK installed.** Verify:
-> `test -f "$(brew --prefix)/opt/senzing/er/lib/libSz.dylib"` and
-> `ls "$(brew --prefix)/opt/senzing/data"/*TransRules.sz`.
+If there is no Senzing here, or the user asked to install one, hand off to the **`install`**
+skill — it owns the install workflow. Come back to `doctor` afterwards to verify: an installer
+exiting zero is not proof the SDK loads.
