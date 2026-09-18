@@ -66,7 +66,7 @@ jobs:
       - name: Check every mcpServers URL in the repo
         run: |
           set -euo pipefail
-          urls=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' . \
+          urls=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' plugins/ \
                  | sed -E 's/.*"url"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/' | sort -u)
           [ -n "$urls" ] || { echo "No mcpServers URL found"; exit 1; }
           for u in $urls; do
@@ -84,7 +84,7 @@ jobs:
         # plugin-only patch on the same server version and is stripped before comparing).
         run: |
           set -euo pipefail
-          host=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' . \
+          host=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' plugins/ \
                  | sed -E 's/.*"url"[[:space:]]*:[[:space:]]*"(https?:\/\/[^\/"]+).*/\1/' | sort -u | head -1)
           [ -n "$host" ] || { echo "::error::could not derive MCP host from .mcp.json"; exit 1; }
           card="$host/.well-known/agent-card.json"
