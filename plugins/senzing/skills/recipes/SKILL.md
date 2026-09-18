@@ -10,7 +10,7 @@ description: >
   not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
   sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
-allowed-tools: Bash, Read, Write, WebFetch, Task, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Bash, Read, Write, WebFetch, Agent, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Cook a Senzing Cookbook recipe
