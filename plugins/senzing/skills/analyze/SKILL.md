@@ -28,6 +28,15 @@ You are grounded by the **Senzing MCP server** (the bundled `senzing` MCP). Grou
   matches, or merges.
 - **PII stays local.** The customer's records are only ever touched by SDK code you run locally
   via Bash. Never paste real records into a hosted tool call.
+
+**If `./senzing-poc-plan.md` exists, read it before asking the user anything.** It is the handoff
+artifact `/senzing:poc-planner` writes, and its header declares a consumer contract. Parse by the
+`## N.` headings and take `platform_id`, `languages` and `database` from the `## 2.` yaml block
+rather than re-asking or choosing for them. **Any value you need whose text begins
+`TBD — decided by` is an undecided row: stop, name the row and its owner, and send the user back
+to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the plan somewhere
+else, they must tell you the path.
+
 - **Narrate progress, unprompted — as a visual, not a wall of words.** These runs are long; don't go
   silent, but don't dump prose either. At each milestone post a **compact visual** with **real
   numbers** — a one-line stat line, a micro-table, or a one-line ASCII bar (source mapped →
@@ -143,11 +152,18 @@ State the resolved input list to the user before proceeding — informational, n
    fix and reload, or continue with the shortfall named in the final report.
 5. **Drain the redo queue before asking anything — loading is not resolving.** Senzing defers part
    of resolution to redo records processed *after* load; an entity count taken before the queue is
-   empty is a mid-resolution snapshot, not the answer. Get the drain loop from
+   empty is a mid-resolution snapshot, not the answer. Get the redo calls from
    `sdk_guide(topic="redo", language=…)` and the queue-count call from
    `get_sdk_reference(topic="parameters", filter="redo", language=…)` — do not name either method
-   from memory. Bash-run the drain until the count reads **0**, then report how many redo records
-   were processed. Only then take the entity count and compression ratio.
+   from memory.
+   **Do NOT Bash-run the redo snippet as-is.** What that topic returns is a *continuous daemon*:
+   an endless loop that sleeps (~30s) when the queue is empty and never exits, so running it
+   hangs the step and the run never reaches the entity count. This is the same trap
+   `doctor` check 6b documents for `full_pipeline`.
+   Instead take only the **per-record** calls from the loop body (the get-redo-record and
+   process-redo-record methods the tool names) and write a **bounded** loop that exits as soon as
+   the queue-count call reads **0**. Then report how many redo records were processed, and only
+   then take the entity count and compression ratio.
 6. **Ask the engine (read-only).** Generate and run `search` / `why` / `how` scripts via
    `sdk_guide` / `generate_scaffold` to answer the user's questions ("biggest duplicate
    clusters?", "why did these two resolve?"). Parse the JSON output.

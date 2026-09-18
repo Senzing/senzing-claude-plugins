@@ -8,7 +8,7 @@ expected_outcome: >
   and for load with a record_count, search_docs for sizing; senzing-poc-plan.md exists with
   exactly nine template headings, the §2 yaml keys carrying the user's PostgreSQL/Linux/Python/
   volumes (platform_id from sdk_guide's tree is the one tool-derived §2 value), SC-n items with
-  only the template's six keys whose targets are all TBD literals (the user agreed none), a
+  only the template's seven keys whose targets are all TBD literals (the user agreed none), a
   counted provenance line, a synthetic-truth-set warning, and source URLs; the license material
   the tools return is quoted per tool and the 755k-vs-250K record-limit constraint is set against
   the vertical-slice rule rather than resolved; it contains no week/sprint labels, no duration

@@ -16,6 +16,16 @@ Install steps are **Senzing facts and change with the SDK**, so they live in the
 file. This skill owns the *workflow*: work out the host, get the official steps, run them, and
 prove the result. It deliberately reproduces none of the commands.
 
+## Inputs
+
+**If `./senzing-poc-plan.md` exists, read it before asking the user anything.** It is the handoff
+artifact `/senzing:poc-planner` writes, and its header declares a consumer contract. Parse by the
+`## N.` headings and take `platform_id`, `languages` and `database` from the `## 2.` yaml block
+rather than re-asking or choosing for them. **Any value you need whose text begins
+`TBD — decided by` is an undecided row: stop, name the row and its owner, and send the user back
+to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the plan somewhere
+else, they must tell you the path.
+
 ## Procedure
 
 0. **Is this shell the user's machine?** Reuse `doctor`'s Step-0 host-kind signals before anything
@@ -54,8 +64,15 @@ prove the result. It deliberately reproduces none of the commands.
 4. **Run the steps** with Bash, showing each command before you run it.
 
 5. **Verify — a zero exit code is NOT proof it installed.** `sdk_guide` returns the verification
-   commands for the platform; run them. Then hand off to the **`doctor`** skill for the real
-   check: it confirms the library actually loads, the config resolves, and the license is valid.
+   commands for the platform; run them.
+   **If any verification command fails, STOP.** Do not re-run the installer and do not hand off to
+   `doctor`. The installer exiting 0 while installing nothing is a documented failure on some
+   platforms (macOS `brew install --cask senzingsdk` with the EULA variable unset exits 0, purges
+   the download and installs nothing) — quote the matching entry from the platform's `gotchas` and
+   report it. Re-running loops: `install` → verify fails → `doctor` → "not installed, offer
+   install" → `install` → … Break the loop here and tell the user what to correct.
+   Only when verification passes, hand off to the **`doctor`** skill for the real check: it
+   confirms the library actually loads, the config resolves, and the license is valid.
    Installation is not complete until `doctor` is green — **on the target host** (step 0), not in
    a sandbox.
 

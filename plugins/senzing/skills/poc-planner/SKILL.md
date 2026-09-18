@@ -252,7 +252,7 @@ calendar:
   measurement:         # as the tool names it — source: <url>
   measured_against:
   decided_by:
-  target:              # "per user: <their words>" or "TBD — decided by <owner>" — these six keys only
+  target:              # "per user: <their words>" or "TBD — decided by <owner>" — these seven keys only
 ```
 ## 4. What must be true to buy — goal and scope
 ## 5. Data selection checklist
