@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/senzing:recipes` was dead in production.** Both configured catalog refs 404'd (`recipes.md` on `main`, and a `cookbook-import` branch deleted after merge); the real catalog is `cookbook.md` on `main`. Every run stopped at the catalog fetch and told the user to allowlist a domain that was never blocked. The ref-fallback list was built to survive a branch *move* and cannot survive a file *rename*. Also removed instructions to parse YAML frontmatter that recipes do not have.
+- **The state-capture hook had never written a file.** Four independent defects, including that the MCP returns a content array rather than a parsed object, that the `workflow_id` it keyed filenames on does not exist in the response, and that a `[REMINDER: …]` footer shares the text block with the JSON. It exited 0 regardless, so nothing ever surfaced it. Now covered by six fixture tests.
+- **The eval suite was never discovered and could never fail.** Cases lived at repo root while `claude plugin eval` looks under the plugin; the job was additionally `workflow_dispatch` + `continue-on-error`. Moved, gated, and grown from 4 cases to 11.
+- **`analyze` drove one `mapping_workflow` per file.** The tool takes a `file_paths` array and does explicit multi-schema analysis, so per-file workflows could never see a cross-file join — multi-file runs silently produced worse mappings with no error. Parallel sub-agents also clobbered each other's fixed-name files in a shared workspace.
+- **`demo` loaded the user's production repository by default**, inverting its own description, the README and `analyze`.
+- **The EULA gate was bypassable** — three skills routed around `install` straight to `sdk_guide(topic="install")`.
+- **`build` required `doctor` checks 4–9 green**, which is unreachable on a healthy machine (7 is ➖ when the config env var is unset, 8 cascades, 9 is ⚠️ on the built-in eval license).
+- **`report` claimed the entity count works on `internal://`**, which the MCP contradicts — that store lives only in the process that loaded it, so a Bash-run export counts zero.
+- Numerous restated Senzing facts replaced with tool calls, per the rule that the MCP owns facts and the plugin owns workflow.
+
+### Added
+
+- **`ask`** — the entry point for questions. Routes to the MCP and writes nothing. Added because every other skill is a *doer*: a plain question either matched nothing or matched a skill that would start writing files, and two independent weak-model reviews said they would answer Senzing questions from stale training data instead.
+- **`install`** — install and set up Senzing. Reproduces no install commands; detects the host, takes the official steps from `sdk_guide`, surfaces the EULA, then verifies with `doctor`. Previously buried at the end of `doctor`'s description where the command picker truncated it.
+- Explicit "Not for X — use Y" boundaries on every skill description. Weak-model routing measured 17/20 → 20/20.
+
+
 Plugin-only changes on MCP server v1.37.2 (no server change). Branch `fix-doctor-platform-gate`.
 
 ### Added
