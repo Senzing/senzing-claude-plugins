@@ -15,7 +15,7 @@ allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
 Grounded by the **Senzing MCP server**. Do not explain Senzing errors from training data.
 
 > **The gate: `explain_error_code` runs BEFORE you write a single sentence about the error.**
-> You will often recognise a Senzing code and be able to produce a fluent, confident,
+> You will often recognize a Senzing code and be able to produce a fluent, confident,
 > plausible-sounding explanation with no tool call at all. That is the failure this skill exists
 > to prevent, and it is indistinguishable from a correct answer to the user — which is what makes
 > it dangerous. Codes are version-specific and the catalog is authoritative; your recollection is

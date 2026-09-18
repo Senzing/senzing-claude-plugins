@@ -81,7 +81,7 @@ State the resolved input list to the user before proceeding — informational, n
    files in a single `start`.**
    **Call `start` as soon as you know the file paths — it is the first real action of the run,
    and nothing about the environment gates it.** Mapping is an MCP call over paths you have
-   already listed: it needs no SDK, no database, no licence, and no writable project directory.
+   already listed: it needs no SDK, no database, no license, and no writable project directory.
    Only the later LOAD and DELIVER steps depend on the host, so a host question that is still
    open is not a reason to delay the mapping — start it, and settle the host question while the
    workflow is under way. Turn budget spent probing the environment before `start` is the run's

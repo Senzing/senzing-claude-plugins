@@ -165,9 +165,13 @@ jobs:
           # so the sandbox dies with "Can't mount tmpfs on /newroot/run/shm: No such
           # file or directory". On a normal Ubuntu box /run/shm is a symlink to
           # /dev/shm; the runner image lacks it entirely.
-          if [ ! -e /run/shm ]; then
-            sudo ln -s /dev/shm /run/shm || sudo mkdir -p /run/shm
-          fi
+          # It must be a real DIRECTORY, not a symlink to /dev/shm. bwrap mounts the
+          # tmpfs at <newroot>/run/shm and cannot mount onto a symlink — the first
+          # attempt here created the symlink (ln succeeded, so the mkdir fallback never
+          # ran) and bwrap still failed with the identical error.
+          if [ -L /run/shm ]; then sudo rm -f /run/shm; fi
+          sudo mkdir -p /run/shm
+          sudo chmod 1777 /run/shm
           ls -ld /run/shm || true
 
           # The assertion must mirror what the CLI's sandbox actually does. The previous

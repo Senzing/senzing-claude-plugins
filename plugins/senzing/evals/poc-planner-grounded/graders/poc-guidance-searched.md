@@ -10,5 +10,5 @@ min: 3
 `min` counts only calls whose input MATCHES. Step 1 of the skill prescribes exactly three
 queries, and the previous pattern matched just two of them -- "Selecting the right data" contains
 neither "proof of concept" nor "poc". A model following the skill VERBATIM produced 2 matching
-calls against `min: 3` and failed, so this grader could not be satisfied by correct behaviour.
+calls against `min: 3` and failed, so this grader could not be satisfied by correct behavior.
 Every prescribed query is now covered.
