@@ -165,55 +165,63 @@ jobs:
             exit 1
           fi
 
-      - name: Assert the Senzing MCP tools are actually registered
+      - name: Canary — one cheap case must actually reach the Senzing MCP
         if: steps.gate.outputs.has_key == 'true'
-        # THE GATE THAT WOULD HAVE SAVED A DAY. A full eval run ($6, ~7 min) reported
-        # 4/14 and was read as a plugin-quality problem. It was not: the agent had NO
-        # Senzing MCP tools at all. The server CONNECTED (all 31 of its prompts
-        # registered as slash commands) but its TOOLS never entered the session, so
-        # every `tool_used` grader failed while every `regex`-on-trace grader passed --
-        # the latter match the tool NAMES in each skill's own `allowed-tools:`
-        # frontmatter, so they pass whenever a skill fires, MCP or no MCP.
+        # THE GATE THAT WOULD HAVE SAVED A DAY, second attempt.
         #
-        # This costs about a cent and one turn. It asks the only question that makes
-        # the rest of the run worth paying for: does this session actually have the
-        # tools under test? If not, stop -- do not spend the eval budget measuring an
-        # agent with no tools.
+        # A full run ($6, ~7 min) once reported 4/14 and was read as a plugin-quality
+        # problem. It was not: the agent had NO Senzing MCP tools in session at all.
+        # The server CONNECTED (all 31 of its prompts registered as slash commands)
+        # while its TOOLS never arrived, so every `tool_used` grader failed for purely
+        # environmental reasons.
+        #
+        # My first attempt at this gate used a synthetic `claude -p --mcp-config`
+        # probe and asserted on the init event's tools[]. That was WRONG and would
+        # have blocked every run: the identical probe reports 0 mcp__ tools on a
+        # developer Mac where the eval itself registers all 13. A standalone `claude -p`
+        # does not load the MCP the way `plugin eval` does (plugin-sourced server,
+        # different registration timing), so it cannot answer this question.
+        #
+        # The only trustworthy signal is the eval's own loading path. So: run ONE cheap
+        # case for ONE run, and require a real `mcp__` tool_use in its trace. ~$0.30 to
+        # protect a ~$6 run, and it fails with "environmental" rather than a score that
+        # looks like a plugin verdict.
         run: |
-          cd plugins/senzing
-          claude -p --mcp-config .mcp.json --strict-mcp-config \
-                 --output-format stream-json --verbose --max-turns 1 'say hi' \
-            > /tmp/mcp-probe.jsonl 2>&1 || true
-          python3 - <<'PROBE'
-          import json, sys
-          init = None
-          for line in open('/tmp/mcp-probe.jsonl', encoding='utf-8', errors='replace'):
-              line = line.strip()
-              if not line.startswith('{'):
-                  continue
+          set -o pipefail
+          EVAL_RUNS=1 EVAL_JSON=/tmp/canary.json \
+            bash plugins/senzing/evals/run.sh --case ask-routing --keep-temp || true
+          python3 - <<'CANARY'
+          import glob, json, os, sys
+
+          traces = glob.glob(os.path.join(os.environ.get('TMPDIR', '/tmp'), '**', 'trace.jsonl'),
+                             recursive=True)
+          if not traces:
+              print('::warning::canary produced no trace; cannot verify MCP reachability')
+              sys.exit(0)
+
+          seen = set()
+          for t in traces:
               try:
-                  d = json.loads(line)
-              except Exception:
+                  blob = open(t, encoding='utf-8', errors='replace').read()
+              except OSError:
                   continue
-              if d.get('subtype') == 'init' or 'mcp_servers' in d:
-                  init = d
-                  break
-          if init is None:
-              print('::error::MCP probe produced no init event — cannot confirm the Senzing MCP tools are available.')
-              sys.exit(1)
-          tools = init.get('tools') or []
-          servers = init.get('mcp_servers') or []
-          mcp_tools = [t for t in tools if isinstance(t, str) and t.startswith('mcp__')]
-          print(f'mcp_servers: {servers}')
-          print(f'total tools: {len(tools)}; senzing MCP tools: {len(mcp_tools)}')
-          for t in mcp_tools:
-              print(f'  {t}')
-          if not mcp_tools:
-              print('::error::No mcp__* tools registered in the session. The eval would grade an '
-                    'agent that cannot call the Senzing MCP at all, and every tool_used grader '
-                    'would fail for environmental reasons. Refusing to spend the eval budget.')
-              sys.exit(1)
-          PROBE
+              for chunk in blob.split('"name":"')[1:]:
+                  name = chunk.split('"', 1)[0]
+                  if name.startswith('mcp__'):
+                      seen.add(name)
+
+          if seen:
+              print(f'canary OK — {len(seen)} Senzing MCP tool(s) actually invoked:')
+              for n in sorted(seen):
+                  print(f'  {n}')
+              sys.exit(0)
+
+          print('::error::The canary case completed without invoking a single mcp__* tool. '
+                'The Senzing MCP is not reachable from the eval session on this runner, so the '
+                'full suite would grade an agent that cannot call the tools under test and every '
+                'tool_used grader would fail environmentally. Refusing to spend the eval budget.')
+          sys.exit(1)
+          CANARY
 
       - name: Run eval suite (same script as local)
         if: steps.gate.outputs.has_key == 'true'
