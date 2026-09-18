@@ -17,3 +17,6 @@ sz-workspace/
 
 # Built plugin release artifacts (produced by scripts/build-plugin-zip.sh)
 dist/
+
+# Behavioral eval output (`claude plugin eval ... --json evals/results/ci.json`)
+**/evals/results/
