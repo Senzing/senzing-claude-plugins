@@ -11,7 +11,7 @@ allowed-tools: Bash, Read, Skill, mcp__plugin_senzing_senzing__*
 
 # Troubleshoot a Senzing error
 
-Grounded by the **Senzing MCP server** (456 real error codes). Do not explain Senzing errors from
+Grounded by the **Senzing MCP server** (450+ real error codes). Do not explain Senzing errors from
 training data.
 
 1. **Inputs.** `$ARGUMENTS` may carry the error code or message. Extract the error code (e.g.
