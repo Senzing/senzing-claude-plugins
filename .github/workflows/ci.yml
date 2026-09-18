@@ -107,7 +107,25 @@ jobs:
 
   behavioral-eval:
     name: Behavioral eval (claude plugin eval)
-    runs-on: ubuntu-latest
+    # macOS, deliberately — the ONLY job in this workflow not on ubuntu.
+    #
+    # The eval grants Bash to the agent under test, which requires a sandbox. On
+    # ubuntu-24.04 that sandbox is bubblewrap, and it failed three separate ways here,
+    # each invisible until the one above it was cleared:
+    #   1. AppArmor denies the unprivileged user namespace -> loopback RTM_NEWADDR
+    #   2. the runner image has no /run/shm                -> Can't mount tmpfs
+    #   3. the CLI's own sandbox home construction         -> "Can't create file at
+    #      /tmp/claude-eval-XXXX/home/.aws: Is a directory"
+    # Faults 1 and 2 were fixable here. Fault 3 is inside the CLI's sandbox setup and
+    # is not reachable from this repo; removing the runner's ~/.aws does not clear it.
+    # With Bash dead, every shell-dependent case (doctor, install, analyze, demo) was
+    # graded on a machine it could not touch and reported as a plugin failure.
+    #
+    # macOS has its sandbox built in — no bubblewrap, none of the three faults. The
+    # same suite passes these cases there (verified locally: analyze, doctor and
+    # install all 0.81-1.00 on macOS while scoring 0.50-0.75 on the ubuntu runner with
+    # identical code and pinned models). Public repo, so macOS minutes are not billed.
+    runs-on: macos-latest
     timeout-minutes: 90
     # Gates the PR on plugin BEHAVIOR (skill routing, MCP grounding, no-simulation, scratch-repo
     # default) whenever an API key is available. It degrades to a SKIP — never a silent pass —
@@ -139,69 +157,21 @@ jobs:
             echo "has_key=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Install Claude Code CLI + sandbox backend
+      - name: Install Claude Code CLI
         if: steps.gate.outputs.has_key == 'true'
-        # Bash is granted to the agent under test, so the eval needs the Linux sandbox backend.
+        # The CLI is PINNED. It used to be unpinned, which silently introduced a second
+        # variable: CI resolved 2.1.277 while local dev ran 2.1.259. That is not
+        # cosmetic -- run.sh probes `--help` and only appends --trust-plugin and
+        # --concurrency when the CLI advertises them, so the two environments ran
+        # DIFFERENT FLAGS as well as different code, and "it passes locally but fails in
+        # CI" was unfalsifiable. Bump this deliberately, with a re-run, never implicitly
+        # on whatever npm serves today.
         #
-        # The CLI is PINNED. It used to be `npm install -g @anthropic-ai/claude-code`
-        # (unpinned), which silently introduced a second variable: CI resolved 2.1.277
-        # while local dev ran 2.1.259. That is not cosmetic -- run.sh probes `--help`
-        # and only appends --trust-plugin and --concurrency when the CLI advertises
-        # them, so the two environments ran DIFFERENT FLAGS as well as different code,
-        # and "it passes locally but fails in CI" was unfalsifiable. Bump this
-        # deliberately, with a re-run, never implicitly on whatever npm serves today.
+        # No sandbox backend to install: macOS provides it. That is the point of running
+        # this job here rather than on ubuntu (see the runs-on comment above).
         run: |
-          sudo apt-get update && sudo apt-get install -y bubblewrap socat
           npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}"
           claude --version
-
-      - name: Assert the Bash sandbox actually works
-        if: steps.gate.outputs.has_key == 'true'
-        # ubuntu-24.04 sets kernel.apparmor_restrict_unprivileged_userns=1, which denies
-        # bubblewrap its user namespace. Every Bash call in the eval then dies with
-        #   bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
-        # before the command runs -- `pwd` included. A previous run logged 52 of these
-        # while the suite still reported "scores", because a broken shell looks to the
-        # graders exactly like a model that chose not to run anything. Fail loudly here
-        # instead of publishing a number that measures the runner.
-        run: |
-          # Fault 1: ubuntu-24.04 denies unprivileged user namespaces via AppArmor,
-          # so bwrap dies with "loopback: Failed RTM_NEWADDR: Operation not permitted".
-          echo "apparmor_restrict_unprivileged_userns=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 'n/a')"
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
-
-          # Fault 2, only visible once fault 1 is cleared: the runner has no /run/shm,
-          # so the sandbox dies with "Can't mount tmpfs on /newroot/run/shm: No such
-          # file or directory". On a normal Ubuntu box /run/shm is a symlink to
-          # /dev/shm; the runner image lacks it entirely.
-          # It must be a real DIRECTORY, not a symlink to /dev/shm. bwrap mounts the
-          # tmpfs at <newroot>/run/shm and cannot mount onto a symlink — the first
-          # attempt here created the symlink (ln succeeded, so the mkdir fallback never
-          # ran) and bwrap still failed with the identical error.
-          if [ -L /run/shm ]; then sudo rm -f /run/shm; fi
-          sudo mkdir -p /run/shm
-          sudo chmod 1777 /run/shm
-          ls -ld /run/shm || true
-
-          # Fault 3, visible only once faults 1 and 2 are cleared: the CLI's sandbox
-          # maps ~/.aws into the eval home and dies with
-          #   bwrap: Can't create file at /tmp/claude-eval-XXXX/home/.aws: Is a directory
-          # GitHub runners ship a ~/.aws directory with the preinstalled AWS CLI. Nothing
-          # in this job uses AWS, and the runner is ephemeral, so removing it is the
-          # cheapest way to stop the sandbox tripping over it. 63 bwrap failures in the
-          # previous run came from this alone.
-          rm -rf "$HOME/.aws" || true
-
-          # The assertion must mirror what the CLI's sandbox actually does. The previous
-          # version (`--unshare-all --dev-bind / / true`) mounted no tmpfs, so it passed
-          # while every real Bash call still failed on /run/shm -- a green check for a
-          # broken sandbox, which is the exact class of bug this job exists to catch.
-          if bwrap --unshare-all --dev-bind / / --tmpfs /run/shm --tmpfs /tmp true; then
-            echo "bubblewrap OK (incl. tmpfs mounts)"
-          else
-            echo "::error::bubblewrap cannot create a sandbox with the tmpfs mounts the CLI uses — every Bash call in the eval would fail with a bwrap error and the scores would be meaningless." >&2
-            exit 1
-          fi
 
       - name: Canary — one cheap case must actually reach the Senzing MCP
         if: steps.gate.outputs.has_key == 'true'
@@ -251,6 +221,11 @@ jobs:
           # The canary case (ask-routing) deliberately runs NO shell, so a green canary
           # said nothing about Bash: the previous run passed this gate and then logged 63
           # `bwrap:` failures across the suite. Check the traces for sandbox errors too.
+          # Not bwrap-specific: macOS uses a different sandbox, and the point is to
+          # catch ANY sandbox failure before paying for the suite. The previous version
+          # also only scanned the canary's own trace -- and the canary case (ask-routing)
+          # deliberately runs no shell, so it could never have seen a shell failure. It
+          # now matches the sandbox error shapes both backends produce.
           bwrap_errs = set()
           for t in traces:
               try:
@@ -258,8 +233,9 @@ jobs:
               except OSError:
                   continue
               for i in range(len(blob)):
-                  if blob.startswith('bwrap:', i):
-                      bwrap_errs.add(blob[i:i + 110].split('\\')[0].strip())
+                  for marker in ('bwrap:', 'sandbox-exec:', 'Operation not permitted'):
+                      if blob.startswith(marker, i):
+                          bwrap_errs.add(blob[i:i + 110].split('\\')[0].strip())
           if bwrap_errs:
               print('::error::The Bash sandbox is broken on this runner — bwrap failed:')
               for e in sorted(bwrap_errs)[:5]:
