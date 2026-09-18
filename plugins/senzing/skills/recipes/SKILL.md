@@ -44,9 +44,10 @@ before parsing anything, assert all three:
   and the recipes open with an H1; neither has YAML frontmatter.);
 - it contains at least one `## ` section heading.
 
-A file that fails any check is a **failed fetch**, not a recipe: try the next ref, or `WebFetch`
-with the same checks; never parse it as recipe steps. Then read the validated file into context —
-the recipe's inline prompt blocks must be run **word-for-word** (their hard rules matter). If
+A file that fails any check is a **failed fetch**, not a recipe: retry once via `WebFetch` (same
+checks); if that fails too, quote the URL and the status you got. Never parse it as recipe steps.
+Then read the validated file into context — the recipe's inline prompt blocks must be run
+**word-for-word** (their hard rules matter). If
 `curl` is unavailable or blocked, fall back to `WebFetch` (same validation); if both fail, ask the
 user to allow `raw.githubusercontent.com`, and do **not** reconstruct a recipe from memory.
 

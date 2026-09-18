@@ -23,9 +23,10 @@ caller can map this file in its own context instead.
 
 Given a single file path and a workspace directory **dedicated to that file** (the caller passes
 `{workspace}/<file-stem>/`; create it if it does not exist). Never share a workspace with another
-mapper: `mapping_workflow` writes fixed-name files into it (`profile_report.md`,
-`schema_hints.md`, `JOURNAL.md`, `.sz-state.json`) and a second workflow in the same directory
-overwrites them mid-run. Every `{workspace}` below means *your* dedicated directory.
+mapper: a single-file `mapping_workflow` writes fixed-name files into it (`profile_report.md`,
+`schema_hints.md`, `JOURNAL.md`, `mapping_spec.json`, `<datasource>_sample.jsonl`), you and the
+state-capture hook write `.sz-state.json` there, and a second workflow in the same directory
+overwrites all of them mid-run. Every `{workspace}` below means *your* dedicated directory.
 1. `start` `mapping_workflow` with `file_paths` (just your one file) and `data.workspace_dir`
    (your dedicated directory). It is an 8-step guided
    state machine, not a code generator: each response says what to do for the current step and
