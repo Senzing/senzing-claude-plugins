@@ -16,7 +16,9 @@ allowed-tools: Bash, Read, Write, Skill, mcp__plugin_senzing_senzing__*
 # Build a Senzing SDK integration
 
 Grounded by the **Senzing MCP server**. Do not write Senzing SDK code from training data — it is
-commonly wrong (bad attribute names, wrong method signatures, dual-factory crashes).
+commonly wrong (attribute names, method signatures, initialization patterns). The anti-patterns
+themselves live in the MCP: before committing to a design, run
+`search_docs(query=<what you are about to write>, category='anti_patterns')`.
 
 **Pre-flight the deliverable.** Generating the code and returning it — inline, or as a
 downloadable / self-contained HTML5 artifact with its provenance comment intact — works in any
@@ -29,18 +31,19 @@ don't claim to have edited their files: hand back the code as a download and tel
 Always:
 
 1. **Inputs.** `$ARGUMENTS` may name the language and/or workflow (e.g. `python search`). Determine
-   the target language (Python/Java/C#/Rust/TypeScript) and the workflow (initialize,
-   load/add_records, search, redo, export, error_handling, full_pipeline, …). If either is missing
-   or ambiguous, **ask — do not default to Python**. If it's being wired into an existing project,
-   ask for or read the relevant file(s) so the code matches.
+   the target language (Python/Java/C#/Rust/TypeScript) and the workflow. Use the workflow names
+   `generate_scaffold` itself enumerates in its description (it accepts aliases) — do not carry
+   over `sdk_guide` topic names, which are a different vocabulary for setup and guidance, and do
+   not keep a copy of either list here. If either input is missing or ambiguous, **ask — do not
+   default to Python**. If it's being wired into an existing project, ask for or read the
+   relevant file(s) so the code matches.
 2. Call `generate_scaffold` for the code, then `find_examples` and `get_sdk_reference` to confirm
    signatures and fill gaps. Use `sdk_guide` for setup/config steps.
    **Confirm argument types for the target language before writing any method call:**
    `get_sdk_reference(topic='parameters', filter=<method>, language=<target>)`. The same method
-   has a different name AND different argument types in each binding — Python
-   `find_network_by_entity_id(entity_ids: List[int], …)` vs Java `findNetwork(SzEntityIds, …)`
-   vs C# `FindNetwork(ISet<long>, …)` vs Rust `find_network_by_entity_id(&[EntityId], …)` vs
-   TypeScript `findNetwork(number[], …)`. **Never carry a call from one binding to another.**
+   has a different name AND different argument types in each binding; the response carries the
+   cross-binding divergence warnings, so read them there rather than from memory. **Never carry a
+   call from one binding to another.**
 3. **Write the code into the user's project with its source-URL provenance comment preserved** —
    do not strip attribution. Match the surrounding code's style.
 4. If the user has a working Senzing (check via `doctor`), offer to **Bash-run** the

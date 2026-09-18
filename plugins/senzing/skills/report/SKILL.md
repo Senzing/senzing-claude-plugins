@@ -19,9 +19,16 @@ No mapping, no load — the data is already resolved. Grounded by the **Senzing 
 **Inputs.** `$ARGUMENTS` may carry the question (e.g. "why did A and B resolve?", "biggest
 entities"). If none is given, ask what they want to see before running anything.
 
-1. Pre-flight with `doctor` (engine reachable, entities present). If the instance has **no entities
-   loaded**, say so and offer `/senzing:analyze` to load data first — do not report on an empty
-   instance.
+1. Pre-flight with `doctor`, then close the two gaps it leaves for this skill:
+   - **Engine configuration.** `doctor` grades an unset `SENZING_ENGINE_CONFIGURATION_JSON` as ➖
+     (not applicable) and cascades its database check to ➖ — so on a loaded repository whose
+     config lives anywhere else it comes back green with **no reachable database**. If the config
+     row is ➖, **ask the user for the engine configuration** (or where their application loads it
+     from) before doing anything else, and re-run the database check with it.
+   - **Entities present.** `doctor` never counts entities. Before any report, run a read-only
+     count against the repository — get the call from `sdk_guide(topic="information", language=…)`
+     or the query from `reporting_guide` — and show the number. **Zero → refuse**: say so and offer
+     `/senzing:analyze` to load data first. Never report on an empty instance.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,

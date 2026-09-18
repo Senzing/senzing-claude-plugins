@@ -7,7 +7,7 @@ description: >
   Senzing", or when doctor, demo or analyze finds no Senzing present. Not for checking an install
   that already exists (use doctor).
 argument-hint: "[platform] [language]"
-allowed-tools: Bash, Read, mcp__plugin_senzing_senzing__*
+allowed-tools: Bash, Read, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Install Senzing
@@ -18,14 +18,29 @@ prove the result. It deliberately reproduces none of the commands.
 
 ## Procedure
 
+0. **Is this shell the user's machine?** Reuse `doctor`'s Step-0 host-kind signals before anything
+   else: `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on the user's machine —
+   proceed. `/.dockerenv` present, or `/proc/version` containing `microsoft` → a container or WSL2;
+   the install lands *there* — say so. **Neither signal → a cloud sandbox** (Claude Desktop / Chat,
+   Cowork). There the Bash tool is a throwaway Linux VM: `uname` says Linux, the package install
+   "succeeds", and `doctor` goes green **inside the sandbox** while the user's actual machine has
+   nothing. Say plainly: *"This shell is not your machine — I would be installing Senzing into a
+   disposable sandbox. Run `/senzing:install` in Claude Code on the host you want Senzing on."*
+   Then stop; offer the official steps (step 2) for them to run themselves. **No shell at all** →
+   the same answer. Never report an install you could not run on the target host.
+
 1. **Establish the host — never assume it.**
    ```bash
    uname -s    # Darwin | Linux | MINGW*/MSYS*/CYGWIN*
    uname -m    # arm64 | x86_64 | aarch64
    ```
-   Map to an MCP platform id: `macos_arm`, `linux_apt`, `linux_yum`, `windows`, `docker`.
-   ⚠ On an **Intel Mac** (`x86_64` + Darwin) there is no native build — go to `docker`.
-   Ask which language they intend to use; it changes what gets installed.
+   Call `sdk_guide(topic="install")` with **no** platform to get the platform decision tree and
+   pick the platform id from that tree — do not carry the ids from memory. If the host matches none
+   of them cleanly (a distribution the tree doesn't name, an ambiguous package manager, an
+   architecture the tree says has no native build), **ask the user or take the tree's Docker option
+   — do not guess an id.** Ask which language they intend to use; it changes what gets installed,
+   and the `compatibility_notes` that come back (only when `language` is passed) settle whether
+   that binding is supported on this platform.
 
 2. **Get the official steps.** `sdk_guide(topic="install", platform=…, language=…)`. Use what it
    returns verbatim — install commands, environment variables, and the `direct_download` URLs it
@@ -39,18 +54,21 @@ prove the result. It deliberately reproduces none of the commands.
 5. **Verify — a zero exit code is NOT proof it installed.** `sdk_guide` returns the verification
    commands for the platform; run them. Then hand off to the **`doctor`** skill for the real
    check: it confirms the library actually loads, the config resolves, and the license is valid.
-   Installation is not complete until `doctor` is green.
+   Installation is not complete until `doctor` is green — **on the target host** (step 0), not in
+   a sandbox.
 
 6. **Configure a repository.** `sdk_guide(topic="configure", platform=…)` for the engine config
-   and data-source registration. For quick single-process prototyping on v4.3+ a
-   `"CONNECTION": "internal://"` needs no database at all.
+   and data-source registration. It also describes the zero-setup connection option for
+   single-process prototyping — use what it returns rather than restating it here.
 
 ## Licensing
 
-Senzing runs out of the box under a built-in evaluation license with a record cap. **Do not ask
-the user for a license unless their dataset actually exceeds that cap** — `doctor` reports the
-limit. If they do need more, `submit_feedback` with `category='license_request'` requests a free
-evaluation license.
+Whether a license is needed is `doctor`'s call: its license row reports the active license and the
+record limit it carries, read from the SDK itself. **Do not ask the user for a license unless their
+dataset actually exceeds that limit.** If they do need more, `submit_feedback` with
+`category='license_request'` requests a free evaluation license (its description states the
+current terms — do not quote a duration or record count from memory). What happens at the limit
+is `explain_error_code`'s answer, not this file's.
 
 ## If it cannot be installed here
 

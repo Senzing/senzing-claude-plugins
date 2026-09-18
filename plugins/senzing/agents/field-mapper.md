@@ -19,12 +19,19 @@ for the workspace, **do not stall**: report immediately that you lack the shell 
 caller can map this file in its own context instead.
 
 Given a single file path and a workspace directory:
-1. Call `mapping_workflow` — it returns a mapper script + instructions (not JSONL).
-2. Run the mapper script with Bash so it writes `{workspace}/<data_source>_output.jsonl`.
-3. Submit the `output_path` back to `mapping_workflow` for validation against the Entity Spec.
+1. `start` `mapping_workflow` with `file_paths` and `data.workspace_dir`. It is an 8-step guided
+   state machine, not a code generator: each response says what to do for the current step and
+   what the next `advance` payload must contain. Follow it through profile → plan → map fields.
+2. At the generate-and-validate step **you** write the mapper from the tool's instructions, run it
+   with Bash so it writes `{workspace}/<data_source>_output.jsonl`, then run the analyzer the tool
+   provides against that output.
+3. Read the analyzer's findings and **self-report the verdict** in the advance payload — `approve`
+   only when the output is genuinely clean, otherwise the rework verdict it asks for. If the source
+   has not reached `approve` after three rework rounds, stop and return the blocking findings
+   verbatim instead of retrying.
 4. After every `mapping_workflow` response, immediately write the returned `state` to
-   `{workspace}/.sz-state-<workflow_id>.json`. On each subsequent call, read `state` from that
-   file and pass it — never reconstruct it from conversation memory.
+   `{workspace}/.sz-state.json`. On each subsequent call, read `state` from that file and pass it
+   verbatim — never reconstruct it from conversation memory.
 
 Do not load anything into a database — mapping only. Return: the data-source code, the output
 JSONL path, the validated record count, and the final verdict (`approve` or the blocking issue).
