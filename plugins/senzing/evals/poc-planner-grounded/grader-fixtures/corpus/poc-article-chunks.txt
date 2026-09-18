@@ -1,0 +1,78 @@
+source_url: https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC
+
+=== section: The Path to a Successful Proof of Concept (PoC) ===
+# The Path to a Successful Proof of Concept (PoC)
+
+# Overview
+
+The general guidance for completing a successful Senzing Proof of Concept (PoC) will be in-line with nearly any other PoC you undertake: understand the required technical and business goals, scope and define success to measure against these goals, ensure the correct and capable human and system resources are available, regular progress checks, etc.
+
+This article will highlight key items of consideration for a successful PoC. It isn't a PoC project plan.
+
+The [Senzing MCP server](https://github.com/senzing-garage/sz-mcp-coworker) puts a Senzing expert directly inside your LLM — Claude Code, Claude Desktop, Cursor, or any MCP-compatible tool. It can help you map your data sources, generate SDK code, troubleshoot errors, search Senzing documentation, and guide you through every phase of a PoC. Think of it as a coworker who knows Senzing inside and out, available on demand throughout your evaluation.
+
+# Scoping Success
+
+If you are considering evaluating Senzing, it's almost certain you have at least one use case and various goals you'd like to explore and aim to achieve. Some of the common goals and aspects we hear from our customers include the low entry cost of using Senzing, quality of results and outcomes, rapid return on investment (ROI), rapid deployment and time to value, ease of adding new data, the availability of the embeddable SDK, and that Senzing never 'calls home' or needs to send data externally. With consideration to these aspects, nearly all evaluations of Senzing focus on the ease of adding data and the quality of the results. We will focus on those.
+
+=== section: Rightsizing for Success ===
+Generally, the most important considerations to start with and understand are:
+
+**What data do you need?** What data is required to demonstrate success to the business? Where is the data, which sources of data are required, who owns the data and can it be used for the evaluation, how many records are required to satisfy success outcomes?
+
+**What systems are available?** What system resources are quickly and easily available to support the evaluation? Review the [System Requirements](/hc/en-us/articles/115010259947), [API Hardware Sizing Guide](/hc/en-us/articles/115007301867) and [Disk I/O Performance](/hc/en-us/articles/115004439428) articles.
+
+**Who will run the evaluation?** What human resources and skills are available to support the evaluation and iterative analysis of the results?
+
+If your evaluation use case is to ingest, entity resolve, and analyze 1 billion records across multiple data sources, but all you have is one part-time person and a Windows VM, then there is a mismatch between expectations and resources. A part-time resource and a Windows VM would be great for 1 million records, but not a large-scale Senzing API evaluation.
+
+=== section: Selecting the right data ===
+Typically you will be doing a subset of your overall data, both in the number of records and the number of sources. When selecting data it is important that the data will actually support matching.
+
+=== section: Selecting the right data > Take a vertical slice, not a random sample. ===
+**Take a vertical slice, not a random sample.** Don't randomly select data. Instead, pick everyone with a last name that starts with 'A', from a specific state/city/postal code, or some similar approach. This way there is a general expectation that you'll get multiple records for the same person or organization. If you are selecting from multiple sources, slice by the same dimension (e.g., the same geographic region from each source) so the same real-world entities appear across your selected data.
+
+=== section: Selecting the right data > Include messy data, not just clean records. ===
+**Include messy data, not just clean records.** If your production data has abbreviations, misspellings, missing fields, or mixed formats, your PoC data should too. Clean-only subsets produce unrealistically optimistic results that won't reflect production performance. Senzing is specifically designed to handle real-world data quality issues — let it demonstrate that.
+
+=== section: Selecting the right data > Don't sanitize away identity features. ===
+**Don't sanitize away identity features.** If your data has date of birth, SSN, email, or phone number — send them. These are the features that drive high-confidence matching. If you must mask sensitive data for a PoC, discuss with Senzing support first — naive masking (e.g., truncating SSN to last 4 digits) destroys match value.
+
+=== section: Selecting the right data > Mock up specific test cases if needed. ===
+**Mock up specific test cases if needed.** If your organization has specific data scenarios that are important to evaluate, don't be afraid to create records to demonstrate them in case the selected data doesn't happen to have examples.
+
+=== section: Selecting the right data > Consider including a truth set. ===
+**Consider including a truth set.** If you have a small set of records where you know which ones represent the same entity, include them. This lets you measure precision and recall objectively. Even 50-100 labeled pairs is useful. See [How to create an entity resolution truth set](/hc/en-us/articles/360051016033) for ideas.
+
+=== section: Deployment Platform ===
+It is important that the environment you choose for your PoC fits with your team's skills and capabilities. Some options to consider:
+
+=== section: Deployment Platform > Bare metal Linux. ===
+**Bare metal Linux.** The most common method of deployment, Senzing is natively installed on Red Hat or Debian-based systems. Getting started instructions can be found in the [Quickstart Guide](/hc/en-us/articles/115002408867).
+
+=== section: Deployment Platform > Docker. ===
+**Docker.** If your team loves one of these platforms, see the [Quickstart for Docker](/hc/en-us/articles/12938524464403-Quickstart-For-Docker).
+
+# Mapping Data
+
+Mapping data is the process of informing Senzing what the fields in your data sources represent. Consider a CSV file where an individual's full name is stored in a column called **NAME**. To inform Senzing this field describes all the tokens comprising an individual name, you would modify the header row of the CSV file and change **NAME** to **NAME\_FULL**. **NAME\_FULL** is the term informing Senzing what to expect in this column and how to use it for all functions of entity resolution.
+
+Unlimited support is included with an evaluation license; we will help you map your data sources. Typically, mapping data for processing in Senzing is straightforward with the out-of-the-box configuration covering most scenarios. The initial mapping process usually takes less than 30 minutes per data source.
+
+It's important to have resources that understand the desired outcomes with the available data, the schema of the data, and access to utilize it during a PoC.
+
+There are a few things to be cognizant of:
+
+=== section: Deployment Platform > One entity per record. ===
+**One entity per record.** Each record must include attributes that identify one and only one entity. For instance, if you are mapping a contact from your address book, the name, home address, email, phone number, etc. are for the person entity. Their company name, company address, company phone number, company website as their employer is a separate and distinct entity. In such a scenario the person entity and company entity would be extracted from the data source and mapped accordingly, with each being a distinct record sent to Senzing.
+
+=== section: Deployment Platform > Tell Senzing the name type. ===
+**Tell Senzing the name type.** Senzing uses highly sophisticated domain-aware name processing which includes culturally aware person name matching and organizational name domain knowledge. Senzing does need to be told that a name is a personal name (**NAME\_FIRST**, **NAME\_MIDDLE**, **NAME\_LAST** or **NAME\_FULL**) or an organizational name (**NAME\_ORG**).
+
+Data mapping is beyond the scope of this article. For additional information on getting started with data mapping using both CSV and JSON, see the [Generic Entity Specification](/hc/en-us/articles/231925448).
+
+# Evaluating Results and Outcomes
+
+During a PoC you may only want — for example — a CSV output of the results that connect records into entities and how those entities are related. You may want to export or replicate similar information to a warehouse for further analysis and consider joining to the original data sources. Both and similar scenarios are easily accomplished. Additionally, see the [Exploratory Data Analysis Tools](/hc/en-us/articles/360052040553) that can be used to dynamically explore, compare, and analyze results.
+
+We're ready and waiting to help with accelerating your Senzing evaluation and discussing any topics herein further. If you'd like to reach out to us please do so at [support@senzing.com](mailto:support@senzing.com) or [support ticket](/hc/en-us/requests/new).

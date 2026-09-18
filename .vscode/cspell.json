@@ -25,9 +25,11 @@
     "frontmatter",
     "fsSI",
     "fsSL",
+    "Gantt",
     "githubusercontent",
     "grounder",
     "ICLA",
+    "iops",
     "jnilib",
     "kernelsam",
     "libpq",
@@ -43,6 +45,8 @@
     "readlink",
     "RESOURCEPATH",
     "reusables",
+    "rightsizing",
+    "Rightsizing",
     "rmcp",
     "sandboxed",
     "SENZ",
@@ -57,14 +61,19 @@
     "TransRules",
     "truthed",
     "truthset",
+    "vcpus",
     "venv",
+    "watchlist",
     "writability"
   ],
   "ignorePaths": [
     ".git/**",
-    "evals/results/**"
+    "evals/results/**",
+    "plugins/senzing/evals/*/grader-fixtures/**",
+    "**/evals/results/**"
   ],
   "ignoreRegExpList": [
-    "/^\\s*(?:pattern|[a-z_]*match)\\s*:\\s*['\"].*['\"]\\s*$/gm"
+    "/^\\s*(?:pattern|[a-z_]*match)\\s*:\\s*['\"].*['\"]\\s*$/gm",
+    "/input_match\\s*:\\s*'[^']*'/g"
   ]
 }

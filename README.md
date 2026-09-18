@@ -16,8 +16,8 @@ Senzing**. Your records never leave your machine.
 - **Claude Code 2.1.143 or newer.**
 - To run entity resolution (`analyze`, `demo`, `report`): **your own installed, licensed Senzing
   SDK.** `analyze` and `demo` spin up a throwaway scratch database automatically; `report` runs
-  over a Senzing you've already loaded. Grounding, code generation, troubleshooting, and data
-  mapping need no Senzing at all — and `/senzing:doctor` checks your setup and says what's missing,
+  over a Senzing you've already loaded. Grounding, code generation, troubleshooting, POC planning and
+  data mapping need no Senzing at all — and `/senzing:doctor` checks your setup and says what's missing,
   while `/senzing:install` sets one up.
 
 ## Install
@@ -47,6 +47,7 @@ also load a release artifact without installing: `claude --plugin-url <url-to-th
 |---|---|
 | `/senzing:analyze <files>` | Resolve and dedupe your data — who is who across your sources — in a throwaway scratch workspace, then report. Your existing Senzing is left untouched unless you ask to load into it. |
 | `/senzing:ask <question>` | Answer a Senzing question — attributes, SDK signatures, config, architecture, deployment, pricing and ROI — grounded in the Senzing MCP with source links, never from training data. Answers only; it writes nothing and runs nothing. |
+| `/senzing:poc-planner [use case]` | Plan a Senzing proof of concept with you — not a project plan. Works out what must be true for your organization to buy (which data, what hardware, platform and performance, who runs it, what "success" means), assembles Senzing's own guidance against your constraints, and writes the plan of **your** decisions as a structured file later commands can act on. Proposes no targets, timelines or sizing of its own; maps, loads and resolves nothing. |
 | `/senzing:build` | Generate correct, compilable Senzing SDK code (Python, Java, C#, …) for your app, with source attribution — and optionally run it. |
 | `/senzing:troubleshoot` | Explain a Senzing error and how to fix it — paste an error code or a failing trace. |
 | `/senzing:demo` | See entity resolution work on sample data. If Senzing isn't installed, it helps you install rather than faking a result. |

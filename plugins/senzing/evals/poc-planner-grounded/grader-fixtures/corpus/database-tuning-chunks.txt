@@ -1,0 +1,57 @@
+=== Database Tuning > Aurora PostgreSQL — https://www.senzing.com/docs/tutorials/database/database_tuning ===
+Ensure that the ec2 instances running the Senzing SDK are in the same AZ (availability zone), VPC, and subnet as the Aurora PostgreSQL server. This will greatly reduce latency and increase performance.
+
+If an Aurora PostgreSQL read replica is in another AZ, all commits will be synchronous. Either disable replicas for the large historical/initial loads or ensure the replicas are in the same AZ.
+
+Aurora PostgreSQL Server-less v2 is showing significantly degraded performance compared to v1.
+
+The following settings are per cluster database group:
+
+autovacuum_max_workers: 5
+enable_seqscan: 0
+pglogical.synchronous_commit: 0
+synchronous_commit: "off"
+
+=== Database Tuning — https://www.senzing.com/docs/tutorials/database/database_tuning ===
+# Database Tuning
+
+This article is for general guidance. Always work with your DBA when working on a production database. If you have any questions, contact [Senzing Support](mailto:support@senzing.com) . **Support is 100% FREE!**
+
+This page addresses perceived poor performance or a warning from Senzing that the entity repository database is performing slowly. The Senzing `check_repository_performance()` function tests how many auto-commit inserts can be performed on the Senzing entity repository within a few seconds. The faster this completes, the higher scalability the system can achieve. This is not the only performance area impacting Senzing but is the primary one outside of data mapping.
+
+Database performance with Senzing is highly related to latency. Issues with performance, in order, tend to focus around:
+
+1. Disk IO performance of the database server
+2. Lack of database tuning for an auto-commit OLTP workload
+3. Network bottlenecks preventing high-speed communication between the Senzing SDK and the database
+4. Latency between the database server and non-direct attached storage subsystems
+
+The database parameters outlined here are the minimum required and not an exhaustive list for optimal database performance. Senzing Support can assist with further recommendations, but always include the Database Administrator in monitoring and tuning the underlying Senzing database.
+
+Production systems run as fast as low 10s of milliseconds for searches and mid 10s of milliseconds for loads all while running 100s or 1000s of operations in parallel. Performance depends on data, config, architecture, and hardware. Contact [Senzing Support](mailto:support@senzing.com) for help optimizing a specific setup.
+
+=== Tuning Your Database — https://senzing.zendesk.com/hc/en-us/articles/360016288254-Tuning-Your-Database ===
+# Tuning Your Database
+
+# Overview
+
+You may have arrived here due to perceived poor performance in general or a warning from Senzing your entity repository database is performing slowly; for example during the startup of G2Loader. The Senzing checkDBPerf() function tests how many auto-commit inserts can be performed on the Senzing entity repository within a few seconds. The faster this completes, the higher scalability you can expect from you system. This isn't the only performance area impacting Senzing but is the #1 outside of data mapping.
+
+Database performance with Senzing is highly related to latency. Issues with performance, in order, tend to focus around:
+
+1.  Disk IO performance of the database server - see the [Disk Performance](/hc/en-us/articles/115004439428-Performance) article
+2.  Lack of database tuning for an auto-commit OLTP workload
+3.  Network bottlenecks preventing high-speed communication between the Senzing API and the database
+4.  Latency between the database server and non-direct attached storage subsystems
+
+Info
+
+The database parameters outlined here are the minimim required and not an exhaustive list for optimal database performance. We are happy to assist in making further recommendations but you should always include your Database Administrator in helping to monitor and tune your underlying Senzing database.
+
+Tip
+
+Our customers have systems running as fast as low 10s of milliseconds for searches and mid 10s of milliseconds for loads all while running 100s or 1000s of operations in parallel -- performance depends on data, config, architecture, and hardware. If you aren't seeing the performance you are looking for, reach out so we can help you get the most from your setup.
+
+# Auto-Commit Tuning
+
+For each database system the following parameters should be set for the Senzing auto-commit workload.

@@ -20,9 +20,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **`poc-planner` skill** — plan a proof of concept *with* the user; explicitly not a project
+  plan. A facilitator, not a generator: it retrieves Senzing's own PoC guidance, asks the
+  rightsizing questions (data, systems, people — plus hardware available, performance to
+  demonstrate, and platform), assembles the corpus's sizing / database / platform / load material
+  against the user's stated constraints with every item attributed, and works through what must
+  be true for a buy decision. Writes `./senzing-poc-plan.md` as a handoff artifact: fixed
+  headings, a YAML constraint block (`volume_records`, `database`, `platform_id`, `languages`,
+  `data_sources[]`…), individually-addressable `SC-n` success criteria, and the machine-detectable
+  `TBD — decided by <owner>` literal so a downstream skill can tell decided from undecided and
+  refuse to fill the difference. Never calls `doctor` (planning needs the MCP reachable, not a
+  working install); never invokes a sibling skill (hand-off means naming the next command); never
+  offers to generate a truth set; where tools disagree on license terms it quotes each and lists
+  the discrepancy rather than reconciling. Deterministic file-level graders catch the common
+  fabrication shapes (week-numbered schedule, metric thresholds, hardware verdicts, hedged TBDs,
+  a `guidance:` hint under a target); a file-focused judge covers the rest (phase structure, role
+  titles, extrapolation).
+- **Offline grader fixture check (`scripts/check-poc-graders.py`, `check.sh` section 8).** Runs
+  every `not_contains` grader against the verbatim tool output the plan is required to quote
+  (Hardware Sizing FAQ, `reporting_guide(quality)`, the PoC article, Database Tuning, both
+  `sdk_guide` results, the `submit_feedback` terms) and against a correct and a fabricated plan
+  fixture. Caught two false-fails before the first paid run: a bare-percentage grader fired on
+  seventeen quotable corpus figures, and the proposed hardware-recommendation pattern missed its
+  own example.
 - **`ask`** — the entry point for questions. Routes to the MCP and writes nothing. Added because every other skill is a *doer*: a plain question either matched nothing or matched a skill that would start writing files, and two independent weak-model reviews said they would answer Senzing questions from stale training data instead.
 - **`install`** — install and set up Senzing. Reproduces no install commands; detects the host, takes the official steps from `sdk_guide`, surfaces the EULA, then verifies with `doctor`. Previously buried at the end of `doctor`'s description where the command picker truncated it.
 - Explicit "Not for X — use Y" boundaries on every skill description. Weak-model routing measured 17/20 → 20/20.
+
+### Changed
+
+- **`ask`** names `poc-planner` in its Not-for clause, no longer claims to be the only skill
+  that works on an information-only host, and now grounds arithmetic as well as retrieval: it
+  may not extrapolate a retrieved sizing figure into a new one, and a plan-shaped question that
+  lands there is answered from the PoC guidance only with `TBD — decided by <owner>` for anything
+  no tool or user supplied.
 
 
 Plugin-only changes on MCP server v1.37.2 (no server change). Branch `fix-doctor-platform-gate`.
