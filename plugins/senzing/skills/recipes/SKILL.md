@@ -1,11 +1,11 @@
 ---
 name: recipes
 description: >
-  Run a recipe from the Senzing Cookbook — a chef-authored, step-by-step solution for a named use
-  case that Claude drives end to end against the user's own Senzing. Use when the user names a
-  recipe or a cookbook use case (fraud, customer-360, compliance / exclusion screening, PPP-loan
-  exploration), or asks e.g. "show me the recipes", "run the customer 360 recipe", "senzing
-  recipes". With no recipe named it lists the catalog and helps them choose. Runs doctor first — a
+  Run a recipe from the Senzing Cookbook — a chef-authored, step-by-step solution that Claude
+  drives end to end against the user's own Senzing. Use when the user names a recipe or one of its
+  use cases (fraud, customer-360, compliance / exclusion screening, PPP-loan exploration), or asks
+  e.g. "show me the recipes", "run the customer 360 recipe", "senzing recipes". With no recipe
+  named it lists the catalog and helps them choose. Runs doctor first — a
   recipe ends in a served result, so a host that cannot deliver one must be caught before the cook,
   not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
   sample data (use demo).
