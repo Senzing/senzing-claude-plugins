@@ -7,10 +7,11 @@ description: >
   deployment and database options, pricing and ROI, licensing and how to get an evaluation
   license — e.g. "what attributes does Senzing support?", "how do I initialize the V4 SDK?",
   "what does Senzing cost?", "what's the ROI?", "how should I deploy this on AWS?", "which
-  database should I use?". Needs no Senzing installed and no shell, so this is the one skill that
-  works on any host — including information-only environments where the others cannot run. Not for
+  database should I use?". Needs no Senzing installed and no shell, so it works on any host —
+  including information-only environments — and is the fallback when no other skill fits. Not for
   generating code into a project (use build), running anything (analyze, demo, report), a pasted
-  error code (troubleshoot), or checking this machine (doctor).
+  error code (troubleshoot), checking this machine (doctor), or planning, scoping or sizing a proof
+  of concept / pilot / evaluation (use poc-planner).
 argument-hint: "[question]"
 allowed-tools: Read, mcp__plugin_senzing_senzing__*
 ---
@@ -32,6 +33,14 @@ return**, so the user can verify.
 
 If the tools genuinely do not cover it, say so plainly rather than filling the gap from memory.
 "I could not find that in the Senzing documentation" is a correct answer; an invented one is not.
+
+**Ground the arithmetic, not just the retrieval.** Never extrapolate a retrieved figure into a new
+one — "the sizing FAQ says N cores for 100k, so for 1M you'd need roughly 10×" is fabrication with
+a citation. Quote the figure with its source and stop; a number that is in no tool result and did
+not come from the user is not yours to produce. For a plan-, scope- or POC-shaped question that
+lands here anyway: answer from the retrieved PoC guidance only; any target, duration, size or
+threshold not in a tool result or from the user is `TBD — decided by <owner>`; then point at
+`/senzing:poc-planner`.
 
 ## Procedure
 
@@ -65,7 +74,7 @@ If the tools genuinely do not cover it, say so plainly rather than filling the g
    call you saw in another binding.
 3. **Answer, then offer the next step.** Point at the skill that would act on it —
    `build` to write the code, `analyze` to resolve their data, `demo` to see it work,
-   `install` to set Senzing up.
+   `install` to set Senzing up, `poc-planner` to plan an evaluation.
 
 ## Scope
 

@@ -79,6 +79,9 @@ violation; the deterministic graders carry the tool-call obligations. Anything p
 | `doctor-healthy-no-sdk` | "Is my Senzing set up? Check this machine." | `Skill:doctor`, `uname` ran, install location probed, `get_capabilities` in trace, `➖` present, **`❌` absent**, "install" offered | not-installed is ➖ never ❌; downstream rows cascade ➖; verdict names what/where it probed |
 | `report-empty-instance` | "Show me my biggest entities…" (repo has 0 records) | `Skill:report`; "analyze" in reply; `mapping_workflow` = 0; `Write` = 0 | no entity/count/why output, not even "example"; redirect, don't load |
 | `install-eula` | "Install Senzing on this machine… Python." | `Skill:install`, `uname` ran, `sdk_guide(topic=install)`, **zero install commands executed** (`apt/dpkg/yum/brew/scoop/pip install`, `.deb/.rpm`), EULA in reply | EULA surfaced and agreement asked before anything runs; every install command in the reply is in a tool result; no license key demanded |
+| `poc-planner-grounded` | "Help me plan a Senzing proof of concept. CRM ~400k, billing ~350k, watchlist ~5k; two engineers, six weeks, Ubuntu VMs, PostgreSQL, on-prem, Python; no targets, hardware or performance agreed; owner = data platform lead…" | `Skill:poc-planner`; no action skill, no `doctor`, no `ask` via `Skill` (hand-off = naming); `get_capabilities`; ≥3 PoC `search_docs` calls, the first **before** the first `Write` (`tool_order` with `input_match`); `reporting_guide` quality **and** evaluation(python); `sdk_guide` install **and** load(record_count); sizing `search_docs`; file exists with **exactly 9** `## N.` headings, §2 keys carrying PostgreSQL + Python, `SC-n` items, `https?://`, `poc_guidance_chunks_retrieved: N`, `TBD — decided by` **on a value line** (and only that form), `synthetic`; **absent**: week/sprint labels, `N–M weeks`/`Weeks 1–2`, schedule words, metric thresholds (valid here because the user stated no targets), a number or "typically" after a TBD, `target:` values that are not `per user:`/TBD (lookahead), any extra key under an SC item (`guidance:`, `note:`…), "you will need N cores" / "N GB should be a comfortable start", invented role titles; `mapping_workflow`/`Bash`/`submit_feedback` = 0 | file-focused judge (sees ONLY the file — asking is graded in `elicits`, not here): every target TBD-with-owner, `platform_id` from `sdk_guide`'s tree is the one tool-derived §2 value, infrastructure only as cited quotes + the user's commitment, no extrapolation, license paths quoted per tool and the discrepancy listed, no truth-set generation (quoting the article's "mock up specific test cases" is correct), **no phase/stage/week structure outside a verbatim quote** and **no role titles** — roles and un-numbered phases are rubric guards, not deterministic |
+| `poc-planner-elicits` | "We're evaluating Senzing this quarter. How should we structure the proof of concept?" | `Skill:poc-planner`; `ask`/`demo`/`doctor` = 0; PoC guidance retrieved (`search_docs` + article title in trace); `Write` = 0; no files; reply mentions data, infrastructure, people, the buy decision; no metric threshold, no `N–M weeks`, no week/sprint label | asks all four Round-1 blocks; proposes no target, size, platform or timeline; no phased plan |
+| `poc-planner-how-long` | "How long will a Senzing POC take?" | `Skill:poc-planner`; `ask` = 0; PoC guidance retrieved; reply has no `N weeks/months` or `N–M weeks`; mentions data + people | declines a duration, says whose decision it is and what determines it; a duration in words is a FAIL |
 
 `analyze-multi-file-join` exists because plugin commit `4a537cf` fixed `analyze` running one
 `mapping_workflow` **per file** — `start` takes a `file_paths` array and step 2 plans masters, children,
@@ -87,6 +90,17 @@ relationships and join keys *across* files, so per-file workflows silently lost 
 has two related files, so nothing would catch a regression. Its join assertion runs on the tool
 **input** deliberately: the step-2 tool *response* contains the literal template `"join_key": "<field>"`,
 so a trace-wide regex would pass on the server's own text.
+
+The three `poc-planner-*` cases grant `Bash` deliberately so `no-shell-ran` tests the skill body,
+not the sandbox (`ask-routing` omits Bash, so its grader is trivially true). Their `not_contains`
+graders are checked **offline** before any paid run by `scripts/check-poc-graders.py` (`check.sh`
+section 8) against `poc-planner-grounded/grader-fixtures/`: the verbatim tool output the plan is
+required to quote, plus a correct plan that must pass every file grader and a template-following
+fabricated plan that must trip the listed ones. A grader that fires on quoted corpus text is a
+false-fail in waiting — fix the grader, never weaken the quoting rule. Two checks pass without doing
+the work and are kept only as weak positives paired with the judge: `provenance-kept` (any URL) and
+`synthetic-truth-set-warned` (the word); `retrieval-counted` is a self-reported integer, so
+`poc-guidance-searched` carries `min: 3` as the checkable proxy.
 
 `demo-scratch-repo` and `report-empty-instance` are **plan-level**: the sandbox cannot host a real
 Senzing, so the prompt supplies the doctor result and the graders check the decision (scratch repo /

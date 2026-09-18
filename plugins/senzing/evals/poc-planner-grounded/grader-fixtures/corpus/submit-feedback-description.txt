@@ -1,0 +1,5 @@
+Request a free Senzing evaluation license or submit feedback.
+
+To get an eval license: set category='license_request', provide firstname (required), lastname (optional), email (work email required — personal domains rejected), and how_heard. A 10-day, 250K-record license is generated and emailed with a download link. One per email, re-requestable after 30 days.
+
+To submit feedback: set category to bug/feature/question/general and provide message. Show the user the exact message and get confirmation before sending.

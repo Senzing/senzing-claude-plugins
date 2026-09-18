@@ -18,8 +18,9 @@ fi
 mkdir -p "$marker_dir" 2>/dev/null || true
 : > "$marker" 2>/dev/null || true
 
-# `ask` leads: it is the only skill that works on an information-only host (no
-# shell, no Senzing install) — everything else needs at least one of those.
+# `ask` leads: it works on an information-only host (no shell, no Senzing install),
+# as does `poc-planner`, which only writes a plan — everything else needs at least
+# one of those.
 cat <<'BANNER'
 Senzing coworker ready. Grounded by the hosted Senzing MCP (mcp.senzing.com).
 Try: /senzing:ask <question>   /senzing:install   /senzing:doctor
