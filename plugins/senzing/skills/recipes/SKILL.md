@@ -22,30 +22,26 @@ You are the **sous-chef** — you interpret and *run* each prompt, backed by the
 
 ## Recipe source
 
-<!-- REF: recipes are migrating from the `cookbook-import` branch to `main` in senzing/recipes.
-     RECIPE_REFS is tried in order so the skill self-heals across the merge — no plugin
-     re-release needed at the moment it lands. Once `main` is canonical and the branch is
-     retired, drop `cookbook-import` from the list. -->
-- `RECIPE_REFS = [main, cookbook-import]` — candidate refs, highest priority first.
-- **Resolve the ref once, at the start of the run:** try each ref in order and pick the **first**
-  whose catalog passes the fetch validation below —
-  `curl -fsSL "https://raw.githubusercontent.com/senzing/recipes/<ref>/recipes.md"` (`-f` fails on
-  `404`, so "first that succeeds" is well-defined — but a `200` alone is not success; see
-  *Fetch verbatim*). Call the winner `REF` and use it for **every** URL for the rest of the run,
-  so catalog, recipe, and ingredients all come from one source.
-- Raw base: `https://raw.githubusercontent.com/senzing/recipes/${REF}/`
-- Catalog: `<raw base>/recipes.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
+<!-- The cookbook lives on `main` in senzing/recipes. The catalog file is `cookbook.md`.
+     Both were wrong here once already: this skill shipped pointing at a `cookbook-import`
+     branch (since deleted) AND at `recipes.md` (which has never existed on main), so every
+     run died at the catalog fetch with a misleading "cookbook unreachable" message. If the
+     catalog 404s again, verify the real filename in the repo before adding a fallback ref —
+     the failure mode last time was a file RENAME, which no amount of ref-juggling fixes. -->
+- Raw base: `https://raw.githubusercontent.com/senzing/recipes/main/`
+- Catalog: `<raw base>/cookbook.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
   ingredients: `<raw base>/ingredients/<...>`
-- If **no** ref yields a catalog, tell the user the cookbook is unreachable (and to allow
-  `raw.githubusercontent.com`); do **not** reconstruct recipes from memory.
+- If the catalog does not pass the fetch validation below, say the cookbook is unreachable **and
+  quote the URL and status you got** — do not just tell the user to allow a domain, because a
+  `404` is a wrong path, not a blocked network. Never reconstruct recipes from memory.
 
 **Fetch verbatim — to a file, and validate it before trusting it.** Use Bash
 `curl -fsSL "<url>" -o "<workspace>/<name>.md"` to pull the exact markdown. `-f` rejects only HTTP
 ≥ 400: it happily passes an **empty body**, and a `200` that is really an HTML error page. So
 before parsing anything, assert all three:
 - the file is non-empty (`test -s`);
-- its first non-blank line is `---` (a recipe's frontmatter) or a `# ` heading (the catalog) —
-  **not** `<!DOCTYPE` or `<html`;
+- its first non-blank line is a `# ` heading — **not** `<!DOCTYPE` or `<html`. (Both the catalog
+  and the recipes open with an H1; neither has YAML frontmatter.);
 - it contains at least one `## ` section heading.
 
 A file that fails any check is a **failed fetch**, not a recipe: try the next ref, or `WebFetch`
@@ -54,10 +50,10 @@ the recipe's inline prompt blocks must be run **word-for-word** (their hard rule
 `curl` is unavailable or blocked, fall back to `WebFetch` (same validation); if both fail, ask the
 user to allow `raw.githubusercontent.com`, and do **not** reconstruct a recipe from memory.
 
-**Parse it as Markdown, not by line-grep.** A recipe is YAML frontmatter + a body of `## ` (H2)
-sections. A `#` inside a fenced code block is **not** a heading (it's a comment in an example
-prompt). Skip the internal frontmatter keys (`version`, `senzing_version`) and the `## Changelog`
-section — neither is part of the cook.
+**Parse it as Markdown, not by line-grep.** A recipe is an `# ` title followed by `## ` (H2)
+sections — there is **no YAML frontmatter**, so do not look for any. A `#` inside a fenced code
+block is **not** a heading (it's a comment in an example prompt). Skip the `## Changelog`
+section — it is not part of the cook.
 
 ## Ground rules (non-negotiable)
 
@@ -100,11 +96,15 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
 
    (Browsing the catalog is fine to attempt either way; committing to cook is not.)
 2. **Pick a recipe.** If no recipe was named (or the match is unclear), fetch and validate the
-   catalog (`recipes.md`) per *Fetch verbatim* and present it: for each entry show **title · use_case · difficulty · kitchen ·
-   estimated time · author** and its "what you'll make" line, then ask which to cook. If one was
-   named, skip to step 3.
+   catalog (`cookbook.md`) per *Fetch verbatim* and present it. Each entry is an
+   `### [Title](recipes/<id>.md)` heading, an italic metadata line of ` · `-separated fields
+   (currently category · difficulty · where it runs · rough duration · author), and a
+   `**What you'll make:**` line. Show the title, that metadata line as-is, and the
+   what-you'll-make line — render the fields the catalog actually carries rather than a fixed
+   list, so a change upstream degrades to "one fewer field" instead of a wrong label. Then ask
+   which to cook. If one was named, skip to step 3.
 3. **Load the recipe.** Fetch and validate `recipes/<id>.md` per *Fetch verbatim*. Read the
-   frontmatter and body. Show the user the
+   title and body. Show the user the
    recipe's identity up front: **title, the mission, a one-line take from the Chef's Note,
    difficulty, kitchen, estimated time**, and surface the recipe's own "before you cook" reminders
    (use your most capable model; *your result will look different each run*; the video is
@@ -147,7 +147,7 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    resolved truth across every view — **gate each merge/split, confirm before it writes, never
    automatic.**
 7. **Wrap up.** Summarize what was built and why it matters, per the recipe's *Wrap Up*, and link
-   the demo **video** if the frontmatter carries one.
+   the demo **video** if the recipe links one (it appears inline, near the top).
 
 Outcome: the recipe's finished dish — a real, loaded, resolved Senzing solution on the user's
 machine, served through its place setting, built by driving the chef's prompts and grounded in the
