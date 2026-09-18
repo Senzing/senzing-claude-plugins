@@ -5,9 +5,9 @@ description: >
   their project. Use when the user wants to add Senzing to an app or service — e.g. "add Senzing
   search to my Python service", "scaffold a Senzing loader", "write the add-record code", "wire up
   the V4 SDK in Java". Emits code from real indexed snippets with source-URL provenance, and can
-  run it against the user's own Senzing to prove it works. Not for answering a question about the
-  SDK when no code is wanted (use ask), dashboards over already-loaded data (use report), or
-  resolving data files (use analyze).
+  run it against the user's own Senzing to prove it works — running it calls doctor first. Not for
+  answering a question about the SDK when no code is wanted (use ask), dashboards over
+  already-loaded data (use report), or resolving data files (use analyze).
 argument-hint: "[language] [workflow]"
 allowed-tools: Bash, Read, Write, Skill, mcp__plugin_senzing_senzing__*
 ---

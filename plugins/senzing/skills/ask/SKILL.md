@@ -7,8 +7,10 @@ description: >
   deployment and database options, pricing and ROI, licensing and how to get an evaluation
   license — e.g. "what attributes does Senzing support?", "how do I initialize the V4 SDK?",
   "what does Senzing cost?", "what's the ROI?", "how should I deploy this on AWS?", "which
-  database should I use?". Not for generating code into a project (use build), running anything
-  (analyze, demo, report), a pasted error code (troubleshoot), or checking this machine (doctor).
+  database should I use?". Needs no Senzing installed and no shell, so this is the one skill that
+  works on any host — including information-only environments where the others cannot run. Not for
+  generating code into a project (use build), running anything (analyze, demo, report), a pasted
+  error code (troubleshoot), or checking this machine (doctor).
 argument-hint: "[question]"
 allowed-tools: Read, mcp__plugin_senzing_senzing__*
 ---

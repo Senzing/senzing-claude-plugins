@@ -5,8 +5,9 @@ description: >
   largest entities, match quality, dashboards — using read-only search/why/how calls and reporting
   SQL, rendered as a shareable result. Use when the data is already in Senzing — e.g. "why did
   these two resolve?", "show me my biggest entities", "dashboard of my resolved entities", "run
-  some ER quality checks". Read-only: never loads or mutates. Not for starting from data files
-  (use analyze) or writing reporting code into a project (use build).
+  some ER quality checks". Read-only: never loads or mutates. Runs doctor first to confirm this
+  host can deliver the result. Not for starting from data files (use analyze) or writing reporting
+  code into a project (use build).
 argument-hint: "[question]"
 allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
 ---
