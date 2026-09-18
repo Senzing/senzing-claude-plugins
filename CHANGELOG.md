@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.3] - 2026-09-18
+
+### Changed
+
+- Synced to MCP server **v1.37.3**, a security release closing CVE-2026-14456 (HIGH) in `libssl3t64` on both deployed images. Tool surface unchanged. Note the new CI gate compares `plugin.json` against the **live** agent-card, so a plugin version bump must now follow the server deploy rather than lead it — this branch was blocked by that gate until the bump, which is the gate working as designed.
+
 ### Fixed
 
 - **`/senzing:recipes` was dead in production.** Both configured catalog refs 404'd (`recipes.md` on `main`, and a `cookbook-import` branch deleted after merge); the real catalog is `cookbook.md` on `main`. Every run stopped at the catalog fetch and told the user to allowlist a domain that was never blocked. The ref-fallback list was built to survive a branch *move* and cannot survive a file *rename*. Also removed instructions to parse YAML frontmatter that recipes do not have.
