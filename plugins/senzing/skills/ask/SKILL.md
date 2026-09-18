@@ -36,9 +36,12 @@ If the tools genuinely do not cover it, say so plainly rather than filling the g
 ## Procedure
 
 1. **Route the question.** Call `get_capabilities` if you are unsure which tool owns it. The MCP
-   also publishes ready-made prompt workflows — prefer one when it fits the question
-   (ROI, why-Senzing, deployment options, choosing a database, requesting an eval license,
-   V3→V4 migration).
+   also publishes prompt workflows (ROI, why-Senzing, deployment options, choosing a database,
+   requesting an eval license, V3→V4 migration) — but a skill **cannot** invoke them; they are
+   user slash commands. When a question matches one, run the tool calls that prompt would have
+   run yourself: `search_docs` with the question's own terms (for V3→V4,
+   `get_sdk_reference(topic="migration")`), then answer from the results. You may mention the
+   prompt as something the user can run directly.
 2. **Pick the tool that owns the fact.** Do not reproduce Senzing knowledge in this file — it
    goes stale silently. The MCP's copy does not.
 
@@ -49,7 +52,13 @@ If the tools genuinely do not cover it, say so plainly rather than filling the g
    | What an error code means | `explain_error_code` |
    | Working code to look at (not write into the project) | `find_examples` |
    | Install/configure steps for a platform | `sdk_guide` |
-   | Requesting a free evaluation license | `submit_feedback` with `category='license_request'` |
+   | Requesting a free evaluation license | `submit_feedback` with `category='license_request'` — see below |
+
+   ⚠ **The license request is the one call in this skill with a side effect** — it emails a license.
+   Its description names the fields it needs (currently the requester's first name, a work email
+   address, and how they heard of Senzing; last name optional) and the current terms — read both
+   from the tool, not from here. Collect the fields, show the user exactly what will be sent,
+   and call only after they confirm.
 
    ⚠ The same method has **different names and argument types in each language binding**. When the
    question names a method, pass `language` and read the divergence warnings — never translate a
@@ -60,5 +69,6 @@ If the tools genuinely do not cover it, say so plainly rather than filling the g
 
 ## Scope
 
-Answer only. This skill writes no files and runs nothing. If the user actually wants something
-done, name the skill that does it and hand off rather than half-doing it here.
+Answer only. This skill writes no files and runs no code; its one side-effecting tool call is the
+confirmed license request above. If the user actually wants something done, name the skill that
+does it and hand off rather than half-doing it here.

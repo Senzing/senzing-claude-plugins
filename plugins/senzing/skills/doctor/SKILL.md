@@ -53,9 +53,11 @@ ignore it.
 
 - **Not installed is ➖, never ❌.** ❌ is reserved for something that IS there and IS misbehaving.
 - **Cascade: if a prerequisite is ➖ or ❌, every check downstream of it is ➖** — never repeat the
-  same failure as a second ❌. Dependency chain: 4 → 5 → 6 → {6b, 9}; 7 → 8. **Check 9 (license)
-  depends only on 6, NOT on 7/8** — a license is readable with the in-process, no-database
-  connection (check 6b) and no user config.
+  same failure as a second ❌. Dependency chain: 4 → 5 → 6 → {6b, 9}; 7 → 8. So when 4 is ➖,
+  cascade **5, 6, 6b and 9** to ➖ — but **7–8 still grade**: a config can exist on a host with
+  no SDK, and it is graded on its own terms. **Check 9 (license) depends only on 6, NOT on
+  7/8** — a license is readable with the in-process, no-database connection (check 6b) and no
+  user config.
 - **Broken but NOT user-fixable** (no admin rights, locked-down host) → ⚠️ with the blocker named.
   ❌ promises the user an action; do not promise one that does not exist.
 - **Never report ❌ from an absence you did not verify in the platform-correct location.** That
@@ -70,15 +72,42 @@ uname -m        # arm64 | x86_64 | aarch64
 ```
 
 Nothing below is meaningful until you know this. **Do not use the macOS row on Linux, and do not
-default to Python because it is the usual choice.** Once the platform is known, call
-`sdk_guide(topic="install", platform=<detected>, language=<l>)` **once** and keep the response:
-its `environment` block (paths, `env_vars`, `engine_config`) and `compatibility_notes` are the
-Senzing facts checks 4–9 need — library and version-file locations, loader variables, config
-keys, the license probe. Read them from that response; never from this file or from memory.
+default to Python because it is the usual choice.** Then make **two deliberate `sdk_guide`
+calls** — one cannot do it, because the platform id and the language-scoped facts come from
+different responses:
+
+1. **Platform id.** `sdk_guide(topic="install")` with **no** arguments returns the platform
+   decision tree. Map the host onto one of *its* ids — `uname` alone cannot: it says `Linux`,
+   not which package manager, and its output is not a valid id. If the host matches none
+   cleanly (a distribution the tree does not name, an ambiguous package manager, an
+   architecture the tree says has no native build), ask the user or take the tree's Docker
+   option — do not guess an id. (`install` step 1 does exactly this; keep the two in lockstep.)
+2. **Language-scoped facts.** `sdk_guide(topic="install", platform=<id>, language=<l>)` for the
+   language the user named — or, if none was named yet, for the first candidate you will test
+   in check 6. Keep the response: `install.platform.env_vars`, `.default_paths`, `.gotchas` and
+   `.post_install`, plus `install.engine_config` / `install.engine_config_notes` and any
+   `compatibility_notes`, are the Senzing facts checks 4–9 read — loader variables, the library
+   verify command, config keys, the license probe. Never read them from this file or from
+   memory.
+
+   **If the response has no `install` block** (only `compatibility_notes` + `next_steps`), that
+   binding is unsupported on this platform — the server withholds paths and env vars rather
+   than hand you facts for a combination it does not support. Record that verdict for check 6,
+   then **re-call with a language the notes mark supported** so you still hold the platform's
+   `install` block for checks 4–9. Do not fill the gap from memory — that is exactly the
+   failure this preflight exists to remove.
+
+   **If the `sdk_guide` call itself fails** — a tool error, a timeout, or a shape with none of
+   `install`, `compatibility_notes`, or a `needs_input` decision tree — retry once; if it still
+   fails, grade check 1 as ❌ "grounding tool `sdk_guide` failed — <error or the top-level keys
+   you got>", grade checks 2–3 normally (they need no Senzing facts), and mark 4–9 ➖ "not
+   reached — no grounding". Do **not** continue on remembered paths or filenames; a preflight
+   that guesses is worse than one that stops.
 
 Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on
-the user's machine. `/.dockerenv` present, or `/proc/version` containing `microsoft` → container
-or WSL2. Neither → likely a cloud sandbox.
+the user's machine (or a Claude Code **cloud/remote** session — the same variables are set but
+the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/version` containing
+`microsoft` → container or WSL2. Neither → likely a cloud sandbox.
 
 ## The checks
 
@@ -118,21 +147,24 @@ or WSL2. Neither → likely a cloud sandbox.
    | Linux | `/opt/senzing`; `dpkg -l 'senzingsdk*'` or `rpm -qa 'senzingsdk*'` |
 
    Also honour whatever install-root environment variable `sdk_guide`'s `env_vars` names for this
-   platform (an already-set one on the host is a strong hint where the install is). Take the
-   library filename, the version-file name, and where each sits relative to the install root from
-   the `sdk_guide` response's `environment` block — do not carry filenames or subdirectory layout
-   from memory; they change with the SDK.
+   platform (an already-set one on the host is a strong hint where the install is).
 
-   Confirm by **finding the library file** at the location `sdk_guide` gives — never by the
-   absence of one directory. Read the version from the version file it names.
+   Confirm by **running the verify command from the Step 0 response** — the `post_install` line
+   that lists the library, and the `gotchas` entry that says what to `test -f` — never by the
+   absence of one directory. Those carry the library filename and where it sits under the
+   install root; do not supply either from memory, they change with the SDK. Read the
+   **version from the package manager** (`brew list --versions`, `dpkg-query -W 'senzingsdk*'`,
+   `rpm -q 'senzingsdk*'`, `scoop list`) — host mechanics, legitimately ours.
 
    **Which build is active:** `$(brew --prefix)/opt/senzing` is a *symlink* overwritten by
-   whichever cask installed last. `readlink` it. `brew info` is per-cask and can disagree;
-   the version file inside the install (check 4) is authoritative. ⚠️ if the active cask is `senzingsdk-staging`
-   (pre-release) or if both casks are installed — report both versions.
+   whichever cask installed last. `readlink` it — the target names the cask — and compare with
+   `brew list --versions` for each installed cask; `brew info` is per-cask and can disagree with
+   the symlink. ⚠️ if the active cask is `senzingsdk-staging` (pre-release) or if both casks are
+   installed — report both versions.
 
    Nothing found → **➖ "not installed"**, offer the **`install`** skill (it owns the install
-   workflow, including the license agreement), cascade 5–9 to ➖, and do not attempt resolution.
+   workflow, including the license agreement), cascade **5, 6, 6b and 9** to ➖ (7–8 still
+   grade — a config can exist on a host with no SDK), and do not attempt resolution.
 
 5. **Loader path.** Derive it, never hardcode it (`sdk_guide` flags a hardcoded path as an
    **error**-severity anti-pattern). The variable names and their values for this platform come
@@ -151,11 +183,18 @@ or WSL2. Neither → likely a cloud sandbox.
    > to `~/.zshrc`".
 
 6. **SDK importable — support and function are SEPARATE facts.**
-   - *Support*: `sdk_guide(topic="install", platform=<p>, language=<l>)` → `compatibility_notes`.
-     ⚠ That field only appears **when `language` is passed**. Its wording is deliberately
+   - *Support*: the Step 0 language-scoped call, `sdk_guide(topic="install", platform=<p>,
+     language=<l>)`, one per candidate language → `compatibility_notes`. ⚠ That field appears
+     only **when `language` is passed and there is a caveat**: a supported binding comes back
+     with the `install` block and no `compatibility_notes` at all; an unsupported one comes back
+     with `compatibility_notes` and **no `install` block**. Its wording is deliberately
      discouraging ("not supported on macOS… use Docker or WSL2"); it settles **support**, not
      **function**.
-   - *Function*: the actual import, with check 5 applied.
+   - *Function*: the actual import, with check 5 applied. The Python probe below is the one
+     example this file carries; for Java, C#, Rust and TypeScript the minimal load/import is a
+     Senzing fact — take it from `sdk_guide(topic="initialize", platform=<p>, language=<l>)` or
+     `generate_scaffold(workflow="initialize", language=<l>)`, never invent an import line or
+     class name.
 
    | Support | Probe | Report |
    |---|---|---|
@@ -165,10 +204,12 @@ or WSL2. Neither → likely a cloud sandbox.
    | supported | fails | ❌ with the fix |
 
    **Determine which bindings exist by listing what the install actually ships — do not infer it
-   from a table or from memory:** `ls` the SDK directory under the install root that `sdk_guide`'s
-   `environment` block locates. What is listed there is what the SDK ships on this platform;
-   anything importable that is *not* listed there arrived some other way (typically a package
-   manager such as pip).
+   from a table or from memory:** `ls` the SDK directory the Step 0 response points at — for
+   Python the path its `env_vars` gives for `PYTHONPATH`; for Java the jar path in its Java
+   `gotchas` entry; for other bindings whatever `env_vars` / `gotchas` name. If the response
+   names no SDK directory for a binding, say so rather than inventing a path. What is listed
+   there is what the SDK ships on this platform; anything importable that is *not* listed there
+   arrived some other way (typically a package manager such as pip).
 
    ⛔ **A binding that imports but is not shipped by the install is not a working Senzing setup.**
    A package-manager-installed binding can load the SDK library and appear to work while
@@ -200,27 +241,35 @@ or WSL2. Neither → likely a cloud sandbox.
    Use the in-process, no-database connection that `sdk_guide`'s `engine_config_notes` describe
    (take the exact connection string and its version floor from there): it **needs no database
    and no `SENZING_ENGINE_CONFIGURATION_JSON`**. Build the factory, register a data source, add two
-   records, read the entity back — code via `generate_scaffold(workflow="initialize")`, never
-   hand-written. ✅ on success; on failure run `explain_error_code` against the
-   returned SENZ code and report that, never a raw traceback.
+   records, read the entity back — code via `sdk_guide(topic="full_pipeline", platform=<p>,
+   language=<l>, record_count=2)` (configure + load + redo in one response), or the
+   `generate_scaffold` workflows `initialize` **+ `add_records` + `query`** — `initialize` alone
+   returns factory, priming, purge and config-registry snippets and has **no** add-record or
+   get-entity code. Never hand-written. ✅ on success; on failure run `explain_error_code`
+   against the returned SENZ code and report that, never a raw traceback.
 
-7. **Engine configuration.** ⚠ `SENZING_ENGINE_CONFIGURATION_JSON` is a **naming convention** used
-   by POC tools and examples — **NOT required by the SDK**, which simply receives a config string
-   an application may build any way it likes.
+7. **Engine configuration.** Grade `SENZING_ENGINE_CONFIGURATION_JSON` as a *convention*, not a
+   requirement — the Step 0 response's `engine_config_notes` say why; do not restate it here.
+   Grades independently of checks 4–6 (a config can exist on a host with no SDK):
    - unset → **➖** (expected on a machine nobody has pointed at a repository yet — never ❌)
    - set but not valid JSON → ❌
    - set and parseable → verify every path-valued key in its pipeline section **exists on disk**
-     (`sdk_guide(topic="configure", platform=…)` names the keys and the correct values for this
-     platform — do not hardcode either here). A wrong support-data path passes every other check
-     and then fails at engine init while the product API still works.
-   > ⛔ **Never derive config from the shipped `er/etc/sz_engine_config.ini` on macOS/Windows** —
-   > it ships Linux paths that do not exist there.
+     (the Step 0 response's `default_paths` / `engine_config` name the keys and the correct
+     values for this platform — do not hardcode either here). A wrong support-data path passes
+     every other check and then fails at engine init while the product API still works.
+   > ⛔ **Do not copy the shipped `sz_engine_config.ini` as-is** — `sdk_guide`'s `gotchas` for
+   > this platform say why and give the correct `SUPPORTPATH`. Grade a config derived from it by
+   > the on-disk check above, not by where it came from.
 
 8. **Database reachable.** ➖ when check 7 is ➖, or when the connection is the in-process one from
-   check 6b (nothing to reach). Otherwise parse the connection string from the config and test it with the matching
-   client. ⚠ A SQLite repository file is **not** auto-created. For the schema-creation step and
-   the per-database client prerequisites call `sdk_guide(topic="configure", platform=…)` rather
-   than reproducing them here — they change with the SDK, this file does not.
+   check 6b (nothing to reach). Otherwise parse the connection string from the config and test
+   it with the matching client — `sqlite3 <path> .tables` for a SQLite file (proves the file
+   exists *and* has a schema), `psql` for PostgreSQL, `mysql` for MySQL; the clients are host
+   mechanics, legitimately ours. ⚠ A SQLite repository file is **not** auto-created. The
+   connection-string formats, the schema-creation step and the per-database prerequisites are
+   Senzing facts — read them from `engine_config_notes` or
+   `sdk_guide(topic="configure", platform=…, language=…)` rather than reproducing them here;
+   they change with the SDK, this file does not.
 
 9. **License.** Depends on check 6 only. Probe the license through the product API using the
    minimal in-process config from check 6b — no database, no user config required. Get the call

@@ -11,7 +11,7 @@ description: >
   doctor first to confirm this host can deliver the result. Not for data already loaded in Senzing
   (use report), sample data (use demo), or a named cookbook use case (use recipes).
 argument-hint: "[path/to/data ...]"
-allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Analyze data with Senzing (map → load → resolve → report)
@@ -50,7 +50,7 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
   read the full table directly from the DB** (connect + `SELECT` → emit Senzing JSONL) — or export
   the whole table; both work. The field-to-attribute mapping is identical either way. (The only
   hard requirement is a file *sample for profiling*, not full materialization.)
-Confirm the resolved input list back to the user before proceeding.
+State the resolved input list to the user before proceeding — informational, not a gate.
 
 1. **Pre-flight.** Invoke the `doctor` skill first and keep two things from its verdict: whether
    the SDK is importable and the license valid (needed from step 4 on), and whether this host has a
@@ -68,34 +68,48 @@ Confirm the resolved input list back to the user before proceeding.
    `state` to `{workspace}/.sz-state.json` yourself (step 3) — that self-written file is the
    authoritative state; the hook's copy at the same path is a best-effort backup. Mapper scripts
    write validated JSONL there. Required for sandboxed clients.
-3. **Map each source by driving `mapping_workflow`'s 8-step state machine (fan out, then a
-   barrier).** The tool is a guided state machine, not a code generator: each response tells you
-   what to do for the current step and what the next `advance` payload must contain. For every
-   input file:
-   - `start` with `file_paths` and `data.workspace_dir`. Follow the per-step instructions the
-     responses return — profile the source, plan the entity structure, map fields to Entity-Spec
-     attributes — advancing with exactly the payload shape each step asks for.
+3. **Map the sources by driving ONE `mapping_workflow` through its 8-step state machine — all
+   files in a single `start`.** The tool is a guided state machine, not a code generator: each
+   response tells you what to do for the current step and what the next `advance` payload must
+   contain. `start` takes a `file_paths` **array** for a reason: step 1 profiles every schema
+   together and step 2 plans them as one entity structure — which files are masters, which are
+   lookups, relationships or children, and the join keys between them. **A workflow per file
+   can never see a cross-file join or relationship**, which is the point of resolving several
+   files at once. It is also self-clobbering: every workflow writes fixed-name files into its
+   `workspace_dir` (`profile_report.md`, `schema_hints.md`, `JOURNAL.md`, `.sz-state.json`), so
+   two workflows sharing a workspace overwrite each other mid-run.
+   - `start` **once**, with **all** `file_paths` and `data.workspace_dir`. Follow the per-step
+     instructions the responses return — profile the sources, plan the entity structure across
+     them, map fields to Entity-Spec attributes — advancing with exactly the payload shape each
+     step asks for.
    - At the generate-and-validate step **you** write the mapper from the tool's instructions and
-     reference material, Bash-run it so it writes `{workspace}/<data_source>_output.jsonl`, then run
-     the analyzer the tool provides against that output. The tool never sees your JSONL — **you read
-     the analyzer's findings and self-report the verdict** in the advance payload. Report `approve`
-     only when the analyzer output is genuinely clean; otherwise report the rework verdict it asks
-     for and fix the mapping or the code.
+     reference material, Bash-run it so it writes `{workspace}/<data_source>_output.jsonl` per
+     data source, then run the analyzer the tool provides against each output. The tool never
+     sees your JSONL — **you read the analyzer's findings and self-report the verdict** in the
+     advance payload. Report `approve` only when every output is genuinely clean; otherwise
+     report the rework verdict it asks for and fix the mapping or the code.
    - After every `mapping_workflow` response, immediately write the returned `state` to
      `{workspace}/.sz-state.json`. On each subsequent call, read `state` from that file and pass it
      verbatim — never reconstruct it from conversation memory.
-   - **Barrier:** every source must reach an `approve` verdict before anything is loaded.
-   - **Escape hatch — never loop silently.** If a source has not reached `approve` after **three**
-     rework rounds, stop. Show the user that source's blocking analyzer findings verbatim, say what
-     you tried, and ask how to proceed (fix the source data, accept a narrower mapping, or drop the
-     file). Do not keep retrying, and do not quietly load the other sources around it.
-   **Mapping many files — delegate only as an optimization, never as a requirement.** If several
-   files need mapping you MAY fan out `field-mapper` sub-agents (one per file) to parallelize — but
-   only after confirming a spawned sub-agent actually has a shell that can run the mapper scripts
-   against the workspace. Some hosts give sub-agents a reduced tool set (no shell) or a different
+   - **Barrier:** the workflow must reach an `approve` verdict — every data source's output
+     clean — before anything is loaded.
+   - **Escape hatch — never loop silently.** If the workflow has not reached `approve` after
+     **three** rework rounds, stop. Show the user the blocking analyzer findings verbatim (per
+     data source), say what you tried, and ask how to proceed (fix the source data, accept a
+     narrower mapping, or drop the file). Do not keep retrying, and do not quietly load the
+     clean sources around it.
+   **Fan-out is the exception, never the default.** Only when the files are *genuinely
+   independent* — no shared keys, no relationship between them, and the user wants each resolved
+   on its own — MAY you run several workflows, one per file, via `field-mapper` sub-agents to
+   parallelize. Then **each `field-mapper` gets its own `workspace_dir` = `{workspace}/<file-stem>/`**
+   (create it first) so their fixed-name files and `.sz-state.json` cannot collide; the
+   state-capture hook follows `state.workspace_dir`, so per-file directories keep its copies
+   apart too. Delegate only as an optimization, never as a requirement, and only after confirming
+   a spawned sub-agent actually has a shell that can run the mapper scripts against its
+   workspace. Some hosts give sub-agents a reduced tool set (no shell) or a different
    filesystem; mapping is execution-bound, so a shell-less sub-agent will stall. If a sub-agent
-   can't run shell commands against the workspace, **map the files sequentially in the current
-   context instead** (which has the shell). Never let completion depend on delegation succeeding.
+   can't run shell commands against the workspace, **map in the current context instead**
+   (which has the shell). Never let completion depend on delegation succeeding.
 
    **Mapping-only exit.** Stop here — and say so — when **either** `doctor` reported no importable
    SDK **or** the user asked only for Senzing-ready JSON. Deliver the validated JSONL file(s) and a

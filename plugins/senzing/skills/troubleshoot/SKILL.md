@@ -7,13 +7,12 @@ description: >
   real code examples. If the cause turns out to be environmental (SDK, database, license, config),
   hands off to doctor. Not for "is my setup OK?" with no error in hand (use doctor).
 argument-hint: "[error-code-or-message]"
-allowed-tools: Bash, Read, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Troubleshoot a Senzing error
 
-Grounded by the **Senzing MCP server** (`get_capabilities` reports the size of the error-code
-catalog it serves). Do not explain Senzing errors from training data.
+Grounded by the **Senzing MCP server**. Do not explain Senzing errors from training data.
 
 1. **Inputs.** `$ARGUMENTS` may carry the error code or message. Extract the error code (e.g.
    `SENZ0005`, `0005`, or `5`) from the arguments or the recent conversation/trace. If none was
