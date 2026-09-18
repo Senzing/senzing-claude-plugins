@@ -156,12 +156,28 @@ jobs:
         # graders exactly like a model that chose not to run anything. Fail loudly here
         # instead of publishing a number that measures the runner.
         run: |
+          # Fault 1: ubuntu-24.04 denies unprivileged user namespaces via AppArmor,
+          # so bwrap dies with "loopback: Failed RTM_NEWADDR: Operation not permitted".
           echo "apparmor_restrict_unprivileged_userns=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 'n/a')"
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
-          if bwrap --unshare-all --dev-bind / / true; then
-            echo "bubblewrap OK"
+
+          # Fault 2, only visible once fault 1 is cleared: the runner has no /run/shm,
+          # so the sandbox dies with "Can't mount tmpfs on /newroot/run/shm: No such
+          # file or directory". On a normal Ubuntu box /run/shm is a symlink to
+          # /dev/shm; the runner image lacks it entirely.
+          if [ ! -e /run/shm ]; then
+            sudo ln -s /dev/shm /run/shm || sudo mkdir -p /run/shm
+          fi
+          ls -ld /run/shm || true
+
+          # The assertion must mirror what the CLI's sandbox actually does. The previous
+          # version (`--unshare-all --dev-bind / / true`) mounted no tmpfs, so it passed
+          # while every real Bash call still failed on /run/shm -- a green check for a
+          # broken sandbox, which is the exact class of bug this job exists to catch.
+          if bwrap --unshare-all --dev-bind / / --tmpfs /run/shm --tmpfs /tmp true; then
+            echo "bubblewrap OK (incl. tmpfs mounts)"
           else
-            echo "::error::bubblewrap cannot create a sandbox on this runner — every Bash call in the eval would fail with a bwrap error and the scores would be meaningless." >&2
+            echo "::error::bubblewrap cannot create a sandbox with the tmpfs mounts the CLI uses — every Bash call in the eval would fail with a bwrap error and the scores would be meaningless." >&2
             exit 1
           fi
 
