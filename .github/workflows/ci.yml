@@ -113,6 +113,8 @@ jobs:
       # Read into env (not a step `if:`) — `secrets.*` in a step `if:` is rejected by GHA at
       # parse time, and an empty secret must produce a visible skip, not a parse failure.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Pinned deliberately — see the install step. Keep in step with local dev.
+      CLAUDE_CLI_VERSION: "2.1.259"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -131,10 +133,87 @@ jobs:
       - name: Install Claude Code CLI + sandbox backend
         if: steps.gate.outputs.has_key == 'true'
         # Bash is granted to the agent under test, so the eval needs the Linux sandbox backend.
+        #
+        # The CLI is PINNED. It used to be `npm install -g @anthropic-ai/claude-code`
+        # (unpinned), which silently introduced a second variable: CI resolved 2.1.277
+        # while local dev ran 2.1.259. That is not cosmetic -- run.sh probes `--help`
+        # and only appends --trust-plugin and --concurrency when the CLI advertises
+        # them, so the two environments ran DIFFERENT FLAGS as well as different code,
+        # and "it passes locally but fails in CI" was unfalsifiable. Bump this
+        # deliberately, with a re-run, never implicitly on whatever npm serves today.
         run: |
           sudo apt-get update && sudo apt-get install -y bubblewrap socat
-          npm install -g @anthropic-ai/claude-code
+          npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}"
           claude --version
+
+      - name: Assert the Bash sandbox actually works
+        if: steps.gate.outputs.has_key == 'true'
+        # ubuntu-24.04 sets kernel.apparmor_restrict_unprivileged_userns=1, which denies
+        # bubblewrap its user namespace. Every Bash call in the eval then dies with
+        #   bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
+        # before the command runs -- `pwd` included. A previous run logged 52 of these
+        # while the suite still reported "scores", because a broken shell looks to the
+        # graders exactly like a model that chose not to run anything. Fail loudly here
+        # instead of publishing a number that measures the runner.
+        run: |
+          echo "apparmor_restrict_unprivileged_userns=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || echo 'n/a')"
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          if bwrap --unshare-all --dev-bind / / true; then
+            echo "bubblewrap OK"
+          else
+            echo "::error::bubblewrap cannot create a sandbox on this runner — every Bash call in the eval would fail with a bwrap error and the scores would be meaningless." >&2
+            exit 1
+          fi
+
+      - name: Assert the Senzing MCP tools are actually registered
+        if: steps.gate.outputs.has_key == 'true'
+        # THE GATE THAT WOULD HAVE SAVED A DAY. A full eval run ($6, ~7 min) reported
+        # 4/14 and was read as a plugin-quality problem. It was not: the agent had NO
+        # Senzing MCP tools at all. The server CONNECTED (all 31 of its prompts
+        # registered as slash commands) but its TOOLS never entered the session, so
+        # every `tool_used` grader failed while every `regex`-on-trace grader passed --
+        # the latter match the tool NAMES in each skill's own `allowed-tools:`
+        # frontmatter, so they pass whenever a skill fires, MCP or no MCP.
+        #
+        # This costs about a cent and one turn. It asks the only question that makes
+        # the rest of the run worth paying for: does this session actually have the
+        # tools under test? If not, stop -- do not spend the eval budget measuring an
+        # agent with no tools.
+        run: |
+          cd plugins/senzing
+          claude -p --mcp-config .mcp.json --strict-mcp-config \
+                 --output-format stream-json --verbose --max-turns 1 'say hi' \
+            > /tmp/mcp-probe.jsonl 2>&1 || true
+          python3 - <<'PROBE'
+          import json, sys
+          init = None
+          for line in open('/tmp/mcp-probe.jsonl', encoding='utf-8', errors='replace'):
+              line = line.strip()
+              if not line.startswith('{'):
+                  continue
+              try:
+                  d = json.loads(line)
+              except Exception:
+                  continue
+              if d.get('subtype') == 'init' or 'mcp_servers' in d:
+                  init = d
+                  break
+          if init is None:
+              print('::error::MCP probe produced no init event — cannot confirm the Senzing MCP tools are available.')
+              sys.exit(1)
+          tools = init.get('tools') or []
+          servers = init.get('mcp_servers') or []
+          mcp_tools = [t for t in tools if isinstance(t, str) and t.startswith('mcp__')]
+          print(f'mcp_servers: {servers}')
+          print(f'total tools: {len(tools)}; senzing MCP tools: {len(mcp_tools)}')
+          for t in mcp_tools:
+              print(f'  {t}')
+          if not mcp_tools:
+              print('::error::No mcp__* tools registered in the session. The eval would grade an '
+                    'agent that cannot call the Senzing MCP at all, and every tool_used grader '
+                    'would fail for environmental reasons. Refusing to spend the eval budget.')
+              sys.exit(1)
+          PROBE
 
       - name: Run eval suite (same script as local)
         if: steps.gate.outputs.has_key == 'true'
