@@ -5,7 +5,9 @@
 #  instructions, not in this user-facing banner.)
 set -euo pipefail
 
-marker_dir="${CLAUDE_PLUGIN_DATA:-$HOME/.senzing-er}"
+# HOME may be unset in a hook's environment (hooks inherit the Claude Code process
+# env, not a login shell); under `set -u` a bare $HOME then aborts the hook.
+marker_dir="${CLAUDE_PLUGIN_DATA:-${HOME:-/tmp}/.senzing-er}"
 marker="${marker_dir}/.greeted"
 
 # Already greeted → stay silent.
@@ -16,9 +18,12 @@ fi
 mkdir -p "$marker_dir" 2>/dev/null || true
 : > "$marker" 2>/dev/null || true
 
-cat <<'EOF'
+# `ask` leads: it is the only skill that works on an information-only host (no
+# shell, no Senzing install) — everything else needs at least one of those.
+cat <<'BANNER'
 Senzing coworker ready. Grounded by the hosted Senzing MCP (mcp.senzing.com).
-Try: /senzing:analyze <files>   /senzing:demo   /senzing:build   /senzing:doctor
-EOF
+Try: /senzing:ask <question>   /senzing:install   /senzing:doctor
+     /senzing:analyze <files>  /senzing:demo      /senzing:build
+BANNER
 
 exit 0

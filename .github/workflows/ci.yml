@@ -43,7 +43,16 @@ jobs:
           claude plugin marketplace add "$PWD"
           claude plugin install senzing@senzing
           claude plugin details senzing | tee details.txt
-          grep -q "Skills (9)" details.txt
+          # Derive the expected skill count from the tree instead of hard-coding it, and
+          # assert every skill NAME is listed — a count alone cannot catch a mis-named
+          # directory that quietly drops one skill and picks up another.
+          n=$(find plugins/senzing/skills -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+          echo "expecting Skills ($n)"
+          grep -q "Skills ($n)" details.txt
+          for d in plugins/senzing/skills/*/; do
+            name=$(basename "$d")
+            grep -qw -- "$name" details.txt || { echo "::error::skill '$name' not listed in plugin details"; exit 1; }
+          done
           grep -q "MCP servers (1)" details.txt
 
   mcp-urls:
@@ -68,6 +77,24 @@ jobs:
               echo "::error::MCP endpoint unreachable or erroring: $u ($code)"; exit 1
             fi
           done
+      - name: Live MCP server version matches plugin.json
+        # "<500" above lets a 404 from a moved path pass. The A2A agent card on the same
+        # host is a hard check: it must parse AND its version must equal the plugin's
+        # (the plugin version mirrors the MCP server version; a trailing -N is a
+        # plugin-only patch on the same server version and is stripped before comparing).
+        run: |
+          set -euo pipefail
+          host=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' . \
+                 | sed -E 's/.*"url"[[:space:]]*:[[:space:]]*"(https?:\/\/[^\/"]+).*/\1/' | sort -u | head -1)
+          [ -n "$host" ] || { echo "::error::could not derive MCP host from .mcp.json"; exit 1; }
+          card="$host/.well-known/agent-card.json"
+          live=$(curl -sf --max-time 20 "$card" | jq -r '.version // empty')
+          [ -n "$live" ] || { echo "::error::agent card missing or did not parse: $card"; exit 1; }
+          want=$(jq -r .version plugins/senzing/.claude-plugin/plugin.json | sed -E 's/-[0-9]+$//')
+          echo "live server=$live  plugin.json=$want  ($card)"
+          if [ "$live" != "$want" ]; then
+            echo "::error::plugin.json version $want does not match live MCP server $live — sync plugin.json (mcp-version-sync.yml) or wait for the server deploy"; exit 1
+          fi
 
   behavioral-eval:
     name: Behavioral eval (early-access; gated on API key)

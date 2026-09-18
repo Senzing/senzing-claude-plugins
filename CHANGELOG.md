@@ -4,6 +4,110 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Plugin-only changes on MCP server v1.37.2 (no server change). Branch `fix-doctor-platform-gate`.
+
+### Added
+
+- **`ask` skill** — answer any Senzing question grounded solely in the hosted MCP. The only
+  skill that works on an information-only host (no shell, no Senzing install), so it now leads
+  the session banner.
+- **`install` skill** — install / set up Senzing on the current machine, split out of `doctor`.
+- **Hook fixture tests in `scripts/check.sh` (section 6).** A REAL `mapping_workflow`
+  PostToolUse payload (content-array shape, `[REMINDER: …]` footer intact) is fed to
+  `capture_state.sh` and the state file must appear; a `Write` payload is fed to
+  `check_provenance.sh` and hook JSON must appear on stdout; `session_start.sh` must run with
+  `HOME` unset. Fixtures live in `plugins/senzing/hooks/fixtures/`. Also: every `SKILL.md`
+  `name:` must equal its directory (section 5), and `CHANGELOG.md` must have a `## [<version>]`
+  heading for the version in `plugin.json` (section 7).
+- **CI: live server version check.** The "MCP endpoint reachable" job accepted any status
+  below 500, so a 404 from a moved path passed. It now also fetches
+  `/.well-known/agent-card.json` on the MCP host and requires its `version` to equal
+  `plugin.json`'s (a `-N` plugin-patch suffix is stripped first).
+
+### Fixed
+
+- **`capture_state.sh` had never written a state file — three independent defects.**
+  (1) It read `.tool_response.state`, but an MCP tool's `tool_response` is a CallToolResult
+  content array `[{"type":"text","text":"<json>\n\n[REMINDER: …]"}]`; the path matched
+  nothing, so the hook exited 0 silently on every call. (2) It named the file
+  `.sz-state-<workflow_id>.json`, but a `mapping_workflow` state is
+  `{step, step_name, file_paths, workspace_dir}` — there is no `workflow_id` — so even a
+  working writer and the skills' reader disagreed on the name. (3) It resolved the workspace
+  from `SZ_WORKSPACE`/`HOME`, which a hook inherits from the Claude Code process, not from the
+  Bash tool's environment. Proof: `~/sz-workspace` has hosted mapping runs since 2026-08-21
+  and contained zero `.sz-state-*` files; the old hook fed the captured payload writes
+  nothing, the new one writes the state. Now: parse the content array, strip the footer,
+  take `workspace_dir` **from the state itself**, and write `<workspace_dir>/.sz-state.json`
+  (write-then-rename). The `analyze` skill and `field-mapper` agent read that exact path.
+- **`check_provenance.sh` nudged nobody.** It wrote to stderr and exited 0; for a
+  PostToolUse hook that reaches neither the model nor the user. It now emits
+  `{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":…}}` on stdout.
+  Its trigger also fired on the bare word `senzing` (a comment `# no senzing here` tripped
+  it); it now matches SDK symbols only (`senzing_core`, `from senzing`, `com.senzing`,
+  `Senzing.Sdk`, `sz_rust_sdk`, `@senzing/`, the `Sz*` class family).
+- **`session_start.sh` crashed under `set -u` when `HOME` was unset**
+  (`HOME: unbound variable`, exit 1). Uses `${HOME:-/tmp}`. Banner now lists `ask` and
+  `install`.
+- **`doctor` reported a healthy machine as broken** and its interactive-outcome capability
+  gate was restored; `demo` is now explicitly `analyze` on sample data; running generated
+  code from `build` is optional, not assumed.
+- **CI `install-smoke` hard-coded `Skills (9)`.** The count is derived from the skills
+  directory, and every skill name must appear in `claude plugin details` output.
+- `.gitignore` now ignores `**/evals/results/` (behavioral-eval output, wherever the evals tree lives).
+
+## [1.37.2] - 2026-09-18
+
+Version sync to MCP server v1.37.2 (`plugin.json` only). Server headline: boot-time
+self-smoke turns Fly's rolling deploy into a per-machine canary; rollbacks no longer replace
+every machine at once. Also: `troubleshoot` stops hard-coding the error-code count
+(`450+`) — the literal had drifted to three different values across three repos in one day.
+
+## [1.37.1] - 2026-09-17
+
+Version sync to MCP server v1.37.1 (`plugin.json` only). Server headline: TypeScript SDK doc
+examples restored in `find_examples` (they vanished on every clean build).
+
+## [1.37.0] - 2026-09-17
+
+Version sync to MCP server v1.37.0 (`plugin.json` only). Server headline: rmcp 3.4.0; three
+more `senzing` repos indexed (incl. the Cookbook, which `recipes` consumes); crawler prefers
+origin-served markdown.
+
+## [1.36.1] - 2026-09-03
+
+Version sync to MCP server v1.36.1 (`plugin.json` only). Server headline: `sdk_guide`'s dead
+EULA link (`senzing.com/senzing-eula` → `senzing.com/end-user-license-agreement/`) fixed.
+
+## [1.35.5] - 2026-09-01
+
+Version sync to MCP server v1.35.5 (`plugin.json` only). Server headline: reindex of the
+refreshed upstream Windows Quickstart; refreshed committed SDK snippets from
+`code-snippets-v4`.
+
+## [1.35.4] - 2026-09-01
+
+Version sync to MCP server v1.35.4 (`plugin.json` only). Server headline: full
+`senzing.com/releases` history captured (multi-`<article>` fix).
+
+## [1.35.3] - 2026-09-01
+
+Version sync to MCP server v1.35.3 (`plugin.json` only). Server headline: Senzing 4.4.0
+Feature Store & Advisory Locking configuration guide indexed for `search_docs`.
+
+## [1.35.1] - 2026-08-29
+
+Version sync to MCP server v1.35.1 (`plugin.json` only). Server headline: `senzing.com/releases`
+served from a committed fallback (Cloudflare blocks datacenter IPs); CORD 250k eval samples.
+(v1.35.0 was superseded before a plugin sync landed.)
+
+## [1.33.0] - 2026-08-20
+
+Version sync to MCP server v1.33.0 (`plugin.json` only). Server headline: `needs_input`
+clarification responses no longer read as empty; eval-license duration corrected (10-day).
+(v1.34.x had no plugin sync.)
+
 ## [1.32.9-3] - 2026-08-14
 
 Plugin-only patch on MCP server v1.32.9 (no server change).
