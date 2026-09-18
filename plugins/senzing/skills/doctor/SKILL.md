@@ -25,6 +25,14 @@ duplicated in each skill.
 **Inputs.** Takes no arguments — run the probe directly (any `$ARGUMENTS` are ignored). If invoked
 because the user asked to *install* Senzing, skip straight to the install path below.
 
+**If `./senzing-poc-plan.md` exists, read it before asking the user anything.** It is the handoff
+artifact `/senzing:poc-planner` writes, and its header declares a consumer contract. Parse by the
+`## N.` headings and take `platform_id`, `languages` and `database` from the `## 2.` yaml block
+rather than re-asking or choosing for them. **Any value you need whose text begins
+`TBD — decided by` is an undecided row: stop, name the row and its owner, and send the user back
+to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the plan somewhere
+else, they must tell you the path.
+
 ## Division of labor — do not duplicate the MCP
 
 This skill owns **workflow and host mechanics**: what to probe, in what order, on this machine —

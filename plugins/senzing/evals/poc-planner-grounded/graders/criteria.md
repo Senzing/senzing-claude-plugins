@@ -18,7 +18,7 @@ A correct plan MUST:
   §2 `yaml` block — no invented owners, systems, sizes, record counts or team members. The one
   §2 value allowed to come from a tool is `platform_id`: the user's Linux/Ubuntu expressed as the
   matching id from `sdk_guide`'s platform tree (e.g. `linux_apt`) — that is correct, not a FAIL.
-- In §3, list `SC-n` items using only the template's six keys (`id`, `shape`, `statement`,
+- In §3, list `SC-n` items using only the template's seven keys (`id`, `shape`, `statement`,
   `measurement`, `measured_against`, `decided_by`, `target`) whose `measurement` is named as a
   tool named it (do not judge the names against your own knowledge) and whose `target` is
   `TBD — decided by …` with NOTHING after it — a numeric target, a "typically…" hint, a
