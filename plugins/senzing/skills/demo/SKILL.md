@@ -97,6 +97,10 @@ second report.
      count) before going on.
    - **Drain the redo queue** as `analyze` step 5 does — get the probe from the MCP, drain to 0,
      report the number processed — before taking any entity count.
+   - **Name the target in the write-up.** The closing message must say, in words, that the data
+     went into a **throwaway scratch repository** and which storage backed it (the SQLite file, or
+     `internal://`). A viewer of the result must never be left wondering whether a demo touched a
+     real repository of theirs — and "I used a scratch repo" is the sentence that answers it.
 3. **Deliver analytics — required; the demo is not complete until this ships.** A demo is
    **load → analytics**, not load alone. Over the **real** results, use `reporting_guide` for the
    report/entity-view + visualization patterns and produce BOTH:
