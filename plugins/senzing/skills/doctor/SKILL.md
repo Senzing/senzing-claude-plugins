@@ -83,12 +83,16 @@ different responses:
    architecture the tree says has no native build), ask the user or take the tree's Docker
    option — do not guess an id. (`install` step 1 does exactly this; keep the two in lockstep.)
 2. **Language-scoped facts.** `sdk_guide(topic="install", platform=<id>, language=<l>)` for the
-   language the user named — or, if none was named yet, for the first candidate you will test
-   in check 6. Keep the response: `install.platform.env_vars`, `.default_paths`, `.gotchas` and
-   `.post_install`, plus `install.engine_config` / `install.engine_config_notes` and any
-   `compatibility_notes`, are the Senzing facts checks 4–9 read — loader variables, the library
-   verify command, config keys, the license probe. Never read them from this file or from
-   memory.
+   language the user named. If none was named yet, pick a **provisional** candidate without
+   running check 6: call `sdk_guide(topic="initialize", platform=<id>)` with **no** `language`
+   — it returns the language decision tree — and take the first option not labeled community
+   whose `blocked_platforms` does not list this platform id. Check 6's toolchain scan and
+   tiebreak may revise the choice; if it does, re-call this step for the revised language
+   before grading 4–9. Keep the response: `install.platform.env_vars`, `.default_paths`,
+   `.gotchas` and `.post_install`, plus `install.engine_config` / `install.engine_config_notes`
+   and any `compatibility_notes`, are the Senzing facts checks 4–9 read — loader variables, the
+   library verify command, config keys, the license probe. Never read them from this file or
+   from memory.
 
    **If the response has no `install` block** (only `compatibility_notes` + `next_steps`), that
    binding is unsupported on this platform — the server withholds paths and env vars rather
@@ -99,10 +103,12 @@ different responses:
 
    **If the `sdk_guide` call itself fails** — a tool error, a timeout, or a shape with none of
    `install`, `compatibility_notes`, or a `needs_input` decision tree — retry once; if it still
-   fails, grade check 1 as ❌ "grounding tool `sdk_guide` failed — <error or the top-level keys
-   you got>", grade checks 2–3 normally (they need no Senzing facts), and mark 4–9 ➖ "not
-   reached — no grounding". Do **not** continue on remembered paths or filenames; a preflight
-   that guesses is worse than one that stops.
+   fails, report it as its **own** row, **Step 0 ⚠️** "grounding tool `sdk_guide` failed —
+   <error or the top-level keys you got>" (not user-fixable, so ⚠️ per the rule above — and not
+   check 1's verdict: check 1 grades reachability by its own `curl` + `get_capabilities`
+   probes, which can be healthy while one tool misbehaves). Grade checks 1–3 normally (they
+   need no Senzing facts) and mark 4–9 ➖ "not reached — no grounding". Do **not** continue on
+   remembered paths or filenames; a preflight that guesses is worse than one that stops.
 
 Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on
 the user's machine (or a Claude Code **cloud/remote** session — the same variables are set but
@@ -150,9 +156,10 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    platform (an already-set one on the host is a strong hint where the install is).
 
    Confirm by **running the verify command from the Step 0 response** — the `post_install` line
-   that lists the library, and the `gotchas` entry that says what to `test -f` — never by the
-   absence of one directory. Those carry the library filename and where it sits under the
-   install root; do not supply either from memory, they change with the SDK. Read the
+   that lists the library, and, where present, the `gotchas` entry that says what to `test -f`
+   (some platforms carry only the `post_install` line) — never by the absence of one directory.
+   Those carry the library filename and where it sits under the install root; do not supply
+   either from memory, they change with the SDK. Read the
    **version from the package manager** (`brew list --versions`, `dpkg-query -W 'senzingsdk*'`,
    `rpm -q 'senzingsdk*'`, `scoop list`) — host mechanics, legitimately ours.
 
@@ -206,8 +213,11 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    **Determine which bindings exist by listing what the install actually ships — do not infer it
    from a table or from memory:** `ls` the SDK directory the Step 0 response points at — for
    Python the path its `env_vars` gives for `PYTHONPATH`; for Java the jar path in its Java
-   `gotchas` entry; for other bindings whatever `env_vars` / `gotchas` name. If the response
-   names no SDK directory for a binding, say so rather than inventing a path. What is listed
+   `gotchas` entry, where one exists; for other bindings whatever `env_vars` / `gotchas` name.
+   If the response names no SDK directory for a binding (not every platform's response carries
+   a Java-specific `env_vars` or `gotchas` entry), say so rather than inventing a path — this
+   listing step is then not executable for that binding, and function is settled by the import
+   probe alone. What is listed
    there is what the SDK ships on this platform; anything importable that is *not* listed there
    arrived some other way (typically a package manager such as pip).
 
@@ -241,12 +251,15 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    Use the in-process, no-database connection that `sdk_guide`'s `engine_config_notes` describe
    (take the exact connection string and its version floor from there): it **needs no database
    and no `SENZING_ENGINE_CONFIGURATION_JSON`**. Build the factory, register a data source, add two
-   records, read the entity back — code via `sdk_guide(topic="full_pipeline", platform=<p>,
-   language=<l>, record_count=2)` (configure + load + redo in one response), or the
-   `generate_scaffold` workflows `initialize` **+ `add_records` + `query`** — `initialize` alone
-   returns factory, priming, purge and config-registry snippets and has **no** add-record or
-   get-entity code. Never hand-written. ✅ on success; on failure run `explain_error_code`
-   against the returned SENZ code and report that, never a raw traceback.
+   records, read the entity back — code via the `generate_scaffold` workflows `initialize` **+
+   `add_records` + `query`** (the primary route; `initialize` alone returns factory, priming,
+   purge and config-registry snippets and has **no** add-record or get-entity code — take the
+   add and the read-back from the other two). `sdk_guide(topic="full_pipeline", …)` is a
+   fallback only: it ignores `record_count` and returns the threaded production loader plus a
+   REDO snippet that is a **continuous daemon** (an endless loop that sleeps when the queue is
+   empty) with no get-entity read-back — take only its per-record redo call from the loop body,
+   never run it as-is, or the self-test hangs. Never hand-written. ✅ on success; on failure run
+   `explain_error_code` against the returned SENZ code and report that, never a raw traceback.
 
 7. **Engine configuration.** Grade `SENZING_ENGINE_CONFIGURATION_JSON` as a *convention*, not a
    requirement — the Step 0 response's `engine_config_notes` say why; do not restate it here.
@@ -276,8 +289,9 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    from `sdk_guide(topic="information", language=…)` and the response's field names from
    `get_sdk_reference(topic="response_schemas", filter="license")` — do not name the method or
    its fields from memory.
-   > ⚠ **There is always a license.** With none configured the probe returns the SDK's built-in
-   > evaluation record, so "no license" is not an observable state and must not be reported as one.
+   > ⚠ The tools describe the response's **shape** (`get_sdk_reference` lists its fields), not
+   > what the SDK does when no license is configured — do not assert that here. Grade by the
+   > record the probe returns; it is the observable.
 
    No customer on the record → ⚠️ built-in eval; report the record limit it returns. **Do not
    prompt for a license unless the user actually has more records than that limit.** Expiry in the

@@ -76,8 +76,11 @@ State the resolved input list to the user before proceeding — informational, n
    lookups, relationships or children, and the join keys between them. **A workflow per file
    can never see a cross-file join or relationship**, which is the point of resolving several
    files at once. It is also self-clobbering: every workflow writes fixed-name files into its
-   `workspace_dir` (`profile_report.md`, `schema_hints.md`, `JOURNAL.md`, `.sz-state.json`), so
-   two workflows sharing a workspace overwrite each other mid-run.
+   `workspace_dir` — `schema_hints.md`, `JOURNAL.md`, `mapping_spec.json`,
+   `<datasource>_sample.jsonl`, and `profile_report.md` for a single-file workflow (multi-file
+   runs write `profile_report_<file-stem>.md` per file) — plus this skill's own `.sz-state.json`
+   (written by you and the state-capture hook, not by the tool). Two workflows sharing a
+   workspace overwrite each other mid-run.
    - `start` **once**, with **all** `file_paths` and `data.workspace_dir`. Follow the per-step
      instructions the responses return — profile the sources, plan the entity structure across
      them, map fields to Entity-Spec attributes — advancing with exactly the payload shape each
@@ -98,10 +101,15 @@ State the resolved input list to the user before proceeding — informational, n
      data source), say what you tried, and ask how to proceed (fix the source data, accept a
      narrower mapping, or drop the file). Do not keep retrying, and do not quietly load the
      clean sources around it.
-   **Fan-out is the exception, never the default.** Only when the files are *genuinely
-   independent* — no shared keys, no relationship between them, and the user wants each resolved
-   on its own — MAY you run several workflows, one per file, via `field-mapper` sub-agents to
-   parallelize. Then **each `field-mapper` gets its own `workspace_dir` = `{workspace}/<file-stem>/`**
+   **Fan-out is the exception, never the default — and it is decided by evidence, not by a
+   guess.** "No shared keys" cannot be judged from filenames or a glance before profiling, and
+   misjudging it under-merges silently: zero errors, a clean verdict, wrong entities. So: run the
+   single `start` with all files through step 1 (profile) and step 2 (the entity plan, which
+   names every relationship, lookup and child join). Only if that plan puts each file in its own
+   master with **no** `support_schemas` linking them, **and** the user wants each resolved on
+   its own, MAY you abandon the joint workflow and run several, one per file, via
+   `field-mapper` sub-agents to parallelize. Then **each `field-mapper` gets its own
+   `workspace_dir` = `{workspace}/<file-stem>/`**
    (create it first) so their fixed-name files and `.sz-state.json` cannot collide; the
    state-capture hook follows `state.workspace_dir`, so per-file directories keep its copies
    apart too. Delegate only as an optimization, never as a requirement, and only after confirming

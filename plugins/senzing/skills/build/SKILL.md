@@ -23,15 +23,21 @@ themselves live in the MCP: before committing to a design, run
 **Pre-flight the deliverable — run `doctor` up front whenever the user wants the code written
 into a project or run, not only when it is time to run.** Generating the code and returning it —
 inline, or as a downloadable / self-contained HTML5 artifact with its provenance comment intact —
-works in any environment. The two later steps have **different** gates, and `doctor`'s verdict
-answers both:
+works in any environment. The two later steps have **different** gates. `doctor`'s verdict
+answers the run gate; the write gate needs one probe of its own:
 - **Step 3 (write)** is gated on the **file tools**: do they write the user's project? In Claude
   Code they do. In Cowork the file tools also write the user's folder — only the **shell** is
   sandboxed there. In Claude Desktop / Chat there is no project on disk to write to: hand the
-  code back as a download and say where it goes.
-- **Step 4 (run)** is gated on the **shell**: is it the user's machine with a working Senzing
-  (`doctor` checks 4–9 green)? A sandboxed or cloud shell proves nothing about their Senzing —
-  say so and offer `/senzing:build` in **Claude Code** on that host.
+  code back as a download and say where it goes. `doctor` check 3 reports Cowork and Claude
+  Desktop / Chat under one "cloud sandbox" verdict, so it cannot tell these apart — when it says
+  cloud sandbox, **probe**: `Write` a small file into the project and `Read` it back. Landed →
+  the file tools write the project; not landed → download.
+- **Step 4 (run)** is gated on the **shell**: is it the user's machine with a working Senzing —
+  `doctor` 4, 5, 6 and 6b ✅ (7–9 may legitimately be ➖/⚠️ on a healthy host: 7 is ➖ with no
+  `SENZING_ENGINE_CONFIGURATION_JSON`, 8 cascades to ➖, 9 is ⚠️ on the built-in eval license)?
+  A run against the user's **own repository** additionally needs 7–8 ✅; a scratch or in-process
+  run does not. A sandboxed or cloud shell proves nothing about their Senzing — say so and offer
+  `/senzing:build` in **Claude Code** on that host.
 Never claim to have edited files you could not write, and never claim a run you did not perform.
 
 Always:
@@ -66,7 +72,8 @@ Say which of the two you delivered:
 - **Written** (no run requested, or no runnable host): the code is in the user's project (or
   handed back) with its provenance comment intact **and** it compiles / type-checks with the
   project's own toolchain (e.g. `python -m py_compile`, `cargo check`, `dotnet build`) — name
-  the command you ran. Code you did not compile is a draft, not a deliverable.
+  the command you ran. With no shell (Claude Desktop / Chat), say "Written — not compiled here"
+  and give the compile command for the user to run; never call that Proven.
 - **Proven** (run requested and `doctor` allowed it): additionally it executed against the
   user's Senzing and you reported the real output. Never report Proven when you delivered
   Written.
