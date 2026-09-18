@@ -183,6 +183,15 @@ jobs:
           sudo chmod 1777 /run/shm
           ls -ld /run/shm || true
 
+          # Fault 3, visible only once faults 1 and 2 are cleared: the CLI's sandbox
+          # maps ~/.aws into the eval home and dies with
+          #   bwrap: Can't create file at /tmp/claude-eval-XXXX/home/.aws: Is a directory
+          # GitHub runners ship a ~/.aws directory with the preinstalled AWS CLI. Nothing
+          # in this job uses AWS, and the runner is ephemeral, so removing it is the
+          # cheapest way to stop the sandbox tripping over it. 63 bwrap failures in the
+          # previous run came from this alone.
+          rm -rf "$HOME/.aws" || true
+
           # The assertion must mirror what the CLI's sandbox actually does. The previous
           # version (`--unshare-all --dev-bind / / true`) mounted no tmpfs, so it passed
           # while every real Bash call still failed on /run/shm -- a green check for a
@@ -239,8 +248,29 @@ jobs:
                   if name.startswith('mcp__'):
                       seen.add(name)
 
+          # The canary case (ask-routing) deliberately runs NO shell, so a green canary
+          # said nothing about Bash: the previous run passed this gate and then logged 63
+          # `bwrap:` failures across the suite. Check the traces for sandbox errors too.
+          bwrap_errs = set()
+          for t in traces:
+              try:
+                  blob = open(t, encoding='utf-8', errors='replace').read()
+              except OSError:
+                  continue
+              for i in range(len(blob)):
+                  if blob.startswith('bwrap:', i):
+                      bwrap_errs.add(blob[i:i + 110].split('\\')[0].strip())
+          if bwrap_errs:
+              print('::error::The Bash sandbox is broken on this runner — bwrap failed:')
+              for e in sorted(bwrap_errs)[:5]:
+                  print(f'  {e}')
+              print('::error::Every Bash call in the suite would fail, so doctor/install/'
+                    'analyze/demo would be graded on a machine they cannot touch. '
+                    'Refusing to spend the eval budget.')
+              sys.exit(1)
+
           if seen:
-              print(f'canary OK — {len(seen)} Senzing MCP tool(s) actually invoked:')
+              print(f'canary OK — {len(seen)} Senzing MCP tool(s) invoked, no bwrap errors:')
               for n in sorted(seen):
                   print(f'  {n}')
               sys.exit(0)
