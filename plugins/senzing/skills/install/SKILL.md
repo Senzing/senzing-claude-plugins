@@ -20,7 +20,9 @@ prove the result. It deliberately reproduces none of the commands.
 
 0. **Is this shell the user's machine?** Reuse `doctor`'s Step-0 host-kind signals before anything
    else: `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on the user's machine —
-   proceed. `/.dockerenv` present, or `/proc/version` containing `microsoft` → a container or WSL2;
+   proceed (or a Claude Code **cloud/remote** session, which sets the same variables while the
+   shell is a cloud VM — ask if unsure). `/.dockerenv` present, or `/proc/version` containing
+   `microsoft` → a container or WSL2;
    the install lands *there* — say so. **Neither signal → a cloud sandbox** (Claude Desktop / Chat,
    Cowork). There the Bash tool is a throwaway Linux VM: `uname` says Linux, the package install
    "succeeds", and `doctor` goes green **inside the sandbox** while the user's actual machine has

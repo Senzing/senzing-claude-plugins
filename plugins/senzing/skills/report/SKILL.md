@@ -9,7 +9,7 @@ description: >
   host can deliver the result. Not for starting from data files (use analyze) or writing reporting
   code into a project (use build).
 argument-hint: "[question]"
-allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Report over an already-loaded Senzing
@@ -25,10 +25,15 @@ entities"). If none is given, ask what they want to see before running anything.
      config lives anywhere else it comes back green with **no reachable database**. If the config
      row is ➖, **ask the user for the engine configuration** (or where their application loads it
      from) before doing anything else, and re-run the database check with it.
-   - **Entities present.** `doctor` never counts entities. Before any report, run a read-only
-     count against the repository — get the call from `sdk_guide(topic="information", language=…)`
-     or the query from `reporting_guide` — and show the number. **Zero → refuse**: say so and offer
-     `/senzing:analyze` to load data first. Never report on an empty instance.
+   - **Entities present.** `doctor` never counts entities, and neither does
+     `sdk_guide(topic="information")` — its snippets are version, license, stats and repository
+     performance. Get the count from `reporting_guide`: the `export` pattern
+     (`reporting_guide(topic="export", language=…)`) streams every resolved entity — Bash-run it
+     and count the rows. It works on any connection, including `internal://`, where no SQL
+     client can reach the data. The `reports` SQL counts entities too, but only against the
+     mart tables it describes, which exist only if the user built them — use it when they have.
+     Show the number. **Zero → refuse**: say so and offer `/senzing:analyze` to load data first.
+     Never report on an empty instance.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,

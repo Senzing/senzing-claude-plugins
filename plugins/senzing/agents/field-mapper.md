@@ -2,10 +2,13 @@
 name: field-mapper
 description: >
   Map ONE source data file to the Senzing Entity Specification via mapping_workflow, and return
-  the validated JSONL path plus a mapping summary. Spawn one per file to map several files in
-  parallel. Requires a sub-agent shell that can run the mapper scripts against the workspace, plus
-  the Senzing MCP tools; if either is missing, say so immediately so the caller can map in its own
-  context instead of stalling.
+  the validated JSONL path plus a mapping summary. The exception path for analyze, not its
+  default: analyze normally runs ONE mapping_workflow over all files (the only way cross-file
+  joins and relationships are seen) and fans out to this agent only for genuinely independent
+  files — one per file, each with a workspace directory dedicated to that file. Requires a
+  sub-agent shell that can run the mapper scripts against the workspace, plus the Senzing MCP
+  tools; if either is missing, say so immediately so the caller can map in its own context
+  instead of stalling.
 tools: Read, Bash, Write, mcp__plugin_senzing_senzing__*
 ---
 
@@ -18,8 +21,13 @@ it cannot complete without a shell against the workspace. If you were spawned wi
 for the workspace, **do not stall**: report immediately that you lack the shell capability so the
 caller can map this file in its own context instead.
 
-Given a single file path and a workspace directory:
-1. `start` `mapping_workflow` with `file_paths` and `data.workspace_dir`. It is an 8-step guided
+Given a single file path and a workspace directory **dedicated to that file** (the caller passes
+`{workspace}/<file-stem>/`; create it if it does not exist). Never share a workspace with another
+mapper: `mapping_workflow` writes fixed-name files into it (`profile_report.md`,
+`schema_hints.md`, `JOURNAL.md`, `.sz-state.json`) and a second workflow in the same directory
+overwrites them mid-run. Every `{workspace}` below means *your* dedicated directory.
+1. `start` `mapping_workflow` with `file_paths` (just your one file) and `data.workspace_dir`
+   (your dedicated directory). It is an 8-step guided
    state machine, not a code generator: each response says what to do for the current step and
    what the next `advance` payload must contain. Follow it through profile → plan → map fields.
 2. At the generate-and-validate step **you** write the mapper from the tool's instructions, run it
