@@ -3,10 +3,11 @@ name: demo
 description: >
   Show Senzing entity resolution working on recognizable sample data, end to end, with a
   before/after view. Use when the user wants to see Senzing in action or evaluate it — e.g. "show
-  me entity resolution", "give me a demo", "prove Senzing works on realistic data". Loads a real
-  sample dataset into a throwaway scratch repository. If no Senzing is installed it offers install
-  rather than faking a result. Not for the user's own files (use analyze) or a named cookbook use
-  case (use recipes).
+  me entity resolution", "give me a demo", "prove Senzing works on realistic data", or a skeptical
+  "does this actually work?" about the product. Loads a real sample dataset into a throwaway
+  scratch repository. If no Senzing is installed it offers install rather than faking a result. Not
+  for the user's own files (use analyze), a named cookbook use case (use recipes), or "does MY
+  setup work?" (use doctor).
 argument-hint: "[dataset]"
 allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
 ---
