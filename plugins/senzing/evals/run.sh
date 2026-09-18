@@ -11,6 +11,7 @@
 # Usage: plugins/senzing/evals/run.sh [--case <glob>] [extra claude-plugin-eval args...]
 # Env:   EVAL_RUNS (default 2)  EVAL_THRESHOLD (default 0.8)  EVAL_MAX_COST_USD (default 75)
 #        EVAL_CONCURRENCY (default 3)  EVAL_JSON (default <evals>/results/ci.json)
+#        EVAL_MODEL (default sonnet)   EVAL_JUDGE_MODEL (default sonnet)
 # Needs: ANTHROPIC_API_KEY (or a logged-in claude), the sandbox backend for Bash grants
 #        (macOS: built in; Linux: bubblewrap + socat), and network to mcp.senzing.com.
 set -euo pipefail
@@ -33,6 +34,7 @@ if [ "$expected" -eq 0 ]; then
   exit 1
 fi
 echo "== $expected eval case(s) on disk under $plugin_dir/$eval_dir_name =="
+echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${EVAL_JUDGE_MODEL:-sonnet} =="
 
 # The early-access rollout is a per-organization server-side flag that a headless CI runner
 # cannot receive; this is the CLI's own documented enablement variable for that situation
@@ -51,6 +53,17 @@ args=(
   --mocks off
   --allow-tools "mcp__plugin_senzing_senzing__*" Bash Write \
                 "WebFetch(domain:mcp.senzing.com)" "WebFetch(domain:raw.githubusercontent.com)"
+  # Pin BOTH models. Neither was set before, which made the suite unreproducible:
+  # --model defaulted to whatever the CLI resolved in that environment (a logged-in
+  # user locally vs. an API key in CI can differ), and --judge-model defaulted to
+  # haiku. So a local pass and a CI pass were not the same measurement, and the
+  # branch's "weak-model routing 17/20 -> 20/20" number could drift underneath it.
+  # The judge matters as much as the subject: poc-planner-grounded asks for subtle
+  # calls (arithmetic-extrapolation fabrication, a bare "TBD — decided by" with
+  # nothing after it) and a judge that misses them fails OPEN.
+  # --judge-model is global, so this applies suite-wide, not per case.
+  --model "${EVAL_MODEL:-sonnet}"
+  --judge-model "${EVAL_JUDGE_MODEL:-sonnet}"
   --runs "${EVAL_RUNS:-2}"
   --threshold "${EVAL_THRESHOLD:-0.8}"
   --max-cost-usd "${EVAL_MAX_COST_USD:-75}"
