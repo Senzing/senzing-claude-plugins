@@ -96,9 +96,25 @@ license terms here or from memory — call the tool named in each step and cite 
 
 **Inputs.** `$ARGUMENTS` may carry a use case, a constraint set ("1M records, MSSQL, Windows,
 Azure"), a data description, or a path for the plan. Files named → `Read` the header row only
-(rule 7). A path → use it in step 8. Constraints → pre-fill §2 as `per user` and still ask the
-rest. **An existing plan named** → `Read` it, ask only about the rows still marked
-`TBD — decided by`, and rewrite the file with the same headings and keys. Nothing → continue.
+(rule 7). A path → use it in step 8. **An existing plan named** → `Read` it, ask only about the
+rows still marked `TBD — decided by`, and rewrite the file with the same headings and keys.
+
+**Decide FIRST which of the two modes you are in — this governs whether you write a file.**
+
+- **ELICIT mode — the user gave no substantive constraints** ("we're evaluating Senzing this
+  quarter, how should we structure the POC?"). Run step 1, then ask step 2's four blocks and
+  **STOP**. Write nothing. There is nothing to record yet, and a plan whose every row is TBD is
+  not worth a file.
+- **DRAFT mode — the user already stated substantive constraints**: record counts or sources,
+  a database, an OS/platform, cloud vs on-prem, who will run it, an SDK language, or what their
+  organization wants to see. Then you **MUST carry on to step 8 and write the plan in this same
+  exchange.** Ask step 2's and step 3's questions *in the same message as the work* — do not stop
+  on them. Everything they did not state becomes the literal `TBD — decided by <owner>`. That
+  literal is exactly the mechanism for an unanswered question (rule 2); waiting instead of
+  writing does not make the plan more honest, it just fails to deliver one.
+
+A single message carrying constraints is DRAFT mode. Do not wait for a second turn that may never
+come — the user asked for a plan, and the TBD rows are how the plan stays truthful without one.
 
 1. **Grounding gate.** Call `get_capabilities`. Then retrieve Senzing's PoC guidance with at least
    these three `search_docs` calls, keeping every hit whose `title` is the PoC article and its
@@ -130,8 +146,11 @@ rest. **An existing plan named** → `Read` it, ask only about the rows still ma
      scenarios they expect to find in their data — as openers only; ask which is closest. Then:
      *"Does anyone already hold a number or a bar — procurement, an architecture review, a
      regulator, a business owner?"* Record any such number `per user`.
-   Do not write before they answer; everything unanswered becomes the TBD literal with the owner
-   they named (or their team).
+   In **ELICIT** mode, stop here and write nothing. In **DRAFT** mode, ask these same questions
+   but do NOT wait on them — carry straight on through steps 3-9 in this exchange, recording
+   everything they did not state as the TBD literal with the owner they named (or their team),
+   and put the unanswered questions to them alongside the written plan. Either way, never invent
+   an answer: unanswered is TBD, never a number of yours.
 3. **Round 2 — work through the success criteria (this is the conversation).** Call
    `reporting_guide(topic="quality")` — **always**, not only when a truth set will exist — and
    `reporting_guide(topic="evaluation", language=<from Round 1>)`; no language → ask; never guess.
@@ -144,7 +163,8 @@ rest. **An existing plan named** → `Read` it, ask only about the rows still ma
    template — no extra keys (no `note`, `guidance`, `benchmark`, `typical`…): a hint under a
    TBD is the defect rule 2 exists to prevent. **`target` is `per user: <their words>` or
    `TBD — decided by <owner>` — never yours.** One round of follow-ups; "just write it" → write
-   it with the TBDs.
+   it with the TBDs. In **DRAFT** mode there is no round of follow-ups to wait for: ask, mark
+   every unanswered criterion `TBD — decided by <owner>`, and continue to step 8 now.
 4. **Data selection — apply the retrieved rules to their inventory.** §5 has one row per
    data-selection chunk retrieved: *rule (quoted, cited) → their situation (per user) → gap /
    decision*. Be blunt where the inventory falls short of a rule as quoted (one source; a random
@@ -274,6 +294,9 @@ not_indexed: []
 ## What DONE means
 
 Say which you delivered:
+- **Asked (ELICIT mode)**: the user gave no substantive constraints, so you retrieved the
+  guidance and put step 2's four blocks to them. No file, by design — there was nothing of
+  theirs to record. This is a complete, correct outcome, not an unfinished one.
 - **Written**: the file is at the canonical path (or the user's) with all nine headings, both
   `yaml` blocks complete (every key present, every value the user's or the TBD literal), §9
   listing every open decision and the `poc_guidance_chunks_retrieved` count, and every Senzing
@@ -281,8 +304,9 @@ Say which you delivered:
   `TBD — decided by` has its owner's decision; the next skill will stop on any that remain.*
 - **Delivered inline**: the same document, handed back because the file tools do not write the
   user's project. Never call this Written.
-There is no third state — a plan whose §3 targets, §2 sizes or §8 path you filled in yourself is
-not done, it is wrong, and it would be acted on.
+Written and Delivered inline are the only two outcomes once you are in DRAFT mode — having
+constraints and answering with questions alone is NOT one of them. And a plan whose §3 targets,
+§2 sizes or §8 path you filled in yourself is not done, it is wrong, and it would be acted on.
 
 ## Scope
 
