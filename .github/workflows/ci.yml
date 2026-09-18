@@ -97,24 +97,56 @@ jobs:
           fi
 
   behavioral-eval:
-    name: Behavioral eval (early-access; gated on API key)
+    name: Behavioral eval (claude plugin eval)
     runs-on: ubuntu-latest
-    # `claude plugin eval` is early-access and needs model access. Runs only when an
-    # API key secret is configured; never blocks the PR while the feature is gated.
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    continue-on-error: true
+    timeout-minutes: 90
+    # Gates the PR on plugin BEHAVIOR (skill routing, MCP grounding, no-simulation, scratch-repo
+    # default) whenever an API key is available. It degrades to a SKIP — never a silent pass —
+    # only when the secret is genuinely absent (fork PRs: GitHub withholds secrets). Every other
+    # problem fails the job: zero cases discovered, the early-access gate, a threshold miss.
+    #
+    # History: this job used to be `if: workflow_dispatch` + `continue-on-error: true`, and it ran
+    # `claude plugin eval ./plugins/senzing` while the cases lived at the repo root — the CLI only
+    # discovers `<plugin>/evals/`, so ZERO cases ever ran and nothing could fail. The suite now
+    # lives under plugins/senzing/evals/ and run.sh asserts the discovered count.
+    env:
+      # Read into env (not a step `if:`) — `secrets.*` in a step `if:` is rejected by GHA at
+      # parse time, and an empty secret must produce a visible skip, not a parse failure.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
-      - name: Run eval suite
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Gate on API key availability
+        id: gate
         run: |
           if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "No ANTHROPIC_API_KEY secret set — skipping behavioral eval."; exit 0
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ANTHROPIC_API_KEY is not available to this run (fork PR or secret unset) — behavioral eval SKIPPED, not passed."
+          else
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
           fi
-          # Threshold gate on activation/behavior cases under ./evals (see evals/README.md).
-          claude plugin eval ./plugins/senzing --threshold 0.8 --json evals/results/ci.json
+
+      - name: Install Claude Code CLI + sandbox backend
+        if: steps.gate.outputs.has_key == 'true'
+        # Bash is granted to the agent under test, so the eval needs the Linux sandbox backend.
+        run: |
+          sudo apt-get update && sudo apt-get install -y bubblewrap socat
+          npm install -g @anthropic-ai/claude-code
+          claude --version
+
+      - name: Run eval suite (same script as local)
+        if: steps.gate.outputs.has_key == 'true'
+        # run.sh: asserts every case dir on disk was discovered, fails on the early-access gate
+        # message, propagates the --threshold exit code. Budgets are env-tunable in the script.
+        run: bash plugins/senzing/evals/run.sh
+
+      - name: Upload eval results (JSON, log, HTML report)
+        if: always() && steps.gate.outputs.has_key == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: behavioral-eval-results
+          path: plugins/senzing/evals/results/
+          if-no-files-found: warn
+          retention-days: 14
