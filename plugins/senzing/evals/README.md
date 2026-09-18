@@ -69,6 +69,7 @@ violation; the deterministic graders carry the tool-call obligations. Anything p
 | Case | Utterance | Positive obligations (deterministic) | Rubric guards |
 |---|---|---|---|
 | `analyze` | "Resolve and dedupe my customer records in crm.csv and billing.csv…" (files scaffolded) | `Skill:analyze`, `Skill:doctor`, `mapping_workflow(action=start)`, `Bash` ran, no "can't find crm/billing" | no hand-coded mapping; no fabricated result; **no confirmation for the scratch repo**; pivot to install (sandbox has no Senzing) |
+| `analyze-multi-file-join` | "customers.csv is my customer master and orders.csv is their order history… who is who?" (two files scaffolded, joined on `customer_id`) | `Skill:analyze`, `Skill:doctor`, `Bash` ran; **exactly one** `mapping_workflow(action=start)` (`min:1,max:1`); a `file_paths` array holding **both** files; **zero** single-file `file_paths` (the per-file regression); a step-2 plan naming `customer_id` as `join_key`/`from_key`/`to_key`; no "can't find customers/orders" | files treated as one linked structure, not two unrelated datasets; fanned-out `field-mapper`s (if any) never share a `workspace_dir`; mapping-only exit, nothing fabricated |
 | `routing-negative-dedupe` | "Dedupe my customer list in customers.csv" (scaffolded) | `Skill:analyze`; `Skill:demo` **= 0**; `mapping_workflow` on `customers.csv`; `get_sample_data` **= 0** | user's file, not sample data |
 | `build` | "Add Senzing entity search to my Python service… senzing_search.py" | `Skill:build`, `generate_scaffold(language=python)`, `get_sdk_reference`, file exists, `https?://` in file, no `G2*` names in file | SDK names all appear in a tool result; provenance kept; no claimed run |
 | `troubleshoot` | "What does Senzing error 0033E mean…" | `Skill:troubleshoot`, `explain_error_code(…33…)`, `Write` = 0 | answer **matches the tool result** (cause + steps), nothing invented |
@@ -78,6 +79,14 @@ violation; the deterministic graders carry the tool-call obligations. Anything p
 | `doctor-healthy-no-sdk` | "Is my Senzing set up? Check this machine." | `Skill:doctor`, `uname` ran, install location probed, `get_capabilities` in trace, `➖` present, **`❌` absent**, "install" offered | not-installed is ➖ never ❌; downstream rows cascade ➖; verdict names what/where it probed |
 | `report-empty-instance` | "Show me my biggest entities…" (repo has 0 records) | `Skill:report`; "analyze" in reply; `mapping_workflow` = 0; `Write` = 0 | no entity/count/why output, not even "example"; redirect, don't load |
 | `install-eula` | "Install Senzing on this machine… Python." | `Skill:install`, `uname` ran, `sdk_guide(topic=install)`, **zero install commands executed** (`apt/dpkg/yum/brew/scoop/pip install`, `.deb/.rpm`), EULA in reply | EULA surfaced and agreement asked before anything runs; every install command in the reply is in a tool result; no license key demanded |
+
+`analyze-multi-file-join` exists because plugin commit `4a537cf` fixed `analyze` running one
+`mapping_workflow` **per file** — `start` takes a `file_paths` array and step 2 plans masters, children,
+relationships and join keys *across* files, so per-file workflows silently lost every cross-file join
+(and parallel mappers clobbered each other's fixed-name files in one `workspace_dir`). No other case
+has two related files, so nothing would catch a regression. Its join assertion runs on the tool
+**input** deliberately: the step-2 tool *response* contains the literal template `"join_key": "<field>"`,
+so a trace-wide regex would pass on the server's own text.
 
 `demo-scratch-repo` and `report-empty-instance` are **plan-level**: the sandbox cannot host a real
 Senzing, so the prompt supplies the doctor result and the graders check the decision (scratch repo /

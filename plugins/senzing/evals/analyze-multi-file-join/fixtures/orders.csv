@@ -1,0 +1,9 @@
+order_id,customer_id,order_date,ship_to_name,ship_street,ship_city,ship_state,ship_zip,contact_phone,contact_email
+O-90001,C-2001,2026-01-14,Rob Smith,123 Main St,Las Vegas,NV,89101,7025550143,rsmith@example.com
+O-90002,C-2001,2026-02-03,Robert Smith,41 Paradise Rd,Henderson,NV,89014,702-555-0177,rob.smith@example.net
+O-90003,C-2002,2026-02-11,Maria L. Garcia,77 Fremont Avenue,Las Vegas,NV,89102,702-555-0198,maria.garcia@example.com
+O-90004,C-2003,2026-03-02,Liz Chen,900 Sahara Blvd #4,Las Vegas,NV,89104,702-555-0166,lchen@example.com
+O-90005,C-2004,2026-03-19,A. Khan,16 Desert Inn Road,Las Vegas,NV,89109,702-555-0121,ahmed.khan@example.com
+O-90006,C-2005,2026-04-07,Jennifer Lopez,5 Lake Mead Pkwy,Henderson,NV,89015,702-555-0190,jlopez@example.com
+O-90007,C-2006,2026-04-22,Bob Smith,123 Main Street,Las Vegas,NV,89101,(702) 555-0143,robert.smith@example.com
+O-90008,C-2002,2026-05-15,Maria Garcia,77 Fremont Ave,Las Vegas,NV,89102,702-555-0198,mgarcia@example.com

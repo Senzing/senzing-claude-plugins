@@ -1,0 +1,7 @@
+customer_id,full_name,email,phone,street,city,state,zip,dob
+C-2001,Robert Smith,rsmith@example.com,702-555-0143,123 Main St,Las Vegas,NV,89101,1978-03-12
+C-2002,Maria Garcia,mgarcia@example.com,702-555-0198,77 Fremont Ave,Las Vegas,NV,89102,1985-11-02
+C-2003,Elizabeth Chen,lchen@example.com,,900 Sahara Blvd Apt 4,Las Vegas,NV,89104,1990-07-30
+C-2004,Ahmed Khan,akhan@example.com,702-555-0121,16 Desert Inn Rd,Las Vegas,NV,89109,1969-01-19
+C-2005,Jennifer Lopez,jlopez@example.com,702-555-0190,5 Lake Mead Pkwy,Henderson,NV,89015,1982-05-23
+C-2006,Bob Smith,robert.smith@example.com,(702) 555-0143,123 Main Street,Las Vegas,NV,89101,03/12/1978
