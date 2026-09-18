@@ -78,7 +78,15 @@ State the resolved input list to the user before proceeding — informational, n
    authoritative state; the hook's copy at the same path is a best-effort backup. Mapper scripts
    write validated JSONL there. Required for sandboxed clients.
 3. **Map the sources by driving ONE `mapping_workflow` through its 8-step state machine — all
-   files in a single `start`.** The tool is a guided state machine, not a code generator: each
+   files in a single `start`.**
+   **Call `start` as soon as you know the file paths — it is the first real action of the run,
+   and nothing about the environment gates it.** Mapping is an MCP call over paths you have
+   already listed: it needs no SDK, no database, no licence, and no writable project directory.
+   Only the later LOAD and DELIVER steps depend on the host, so a host question that is still
+   open is not a reason to delay the mapping — start it, and settle the host question while the
+   workflow is under way. Turn budget spent probing the environment before `start` is the run's
+   most common way to end with no mapping at all, which is a total failure rather than a
+   degraded one. If a probe is ambiguous, take the answer you have, note it, and move on. The tool is a guided state machine, not a code generator: each
    response tells you what to do for the current step and what the next `advance` payload must
    contain. `start` takes a `file_paths` **array** for a reason: step 1 profiles every schema
    together and step 2 plans them as one entity structure — which files are masters, which are

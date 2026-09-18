@@ -38,8 +38,15 @@ else, they must tell you the path.
    "succeeds", and `doctor` goes green **inside the sandbox** while the user's actual machine has
    nothing. Say plainly: *"This shell is not your machine — I would be installing Senzing into a
    disposable sandbox. Run `/senzing:install` in Claude Code on the host you want Senzing on."*
-   Then stop; offer the official steps (step 2) for them to run themselves. **No shell at all** →
-   the same answer. Never report an install you could not run on the target host.
+   **No shell at all** → the same answer. Never report an install you could not run on the target
+   host.
+   **"Stop" here means stop RUNNING, not stop working.** Whatever the host verdict, you still owe
+   the user the official steps and the licence agreement: carry on through steps 1-3 — call
+   `sdk_guide(topic="install", …)` and surface the EULA — and hand them the commands to run
+   themselves on the right machine. Skip only step 4 (running them) and step 5 (verifying). A
+   host verdict is never a reason to skip `sdk_guide`: the steps are Senzing facts that live in
+   the MCP, so answering "run it elsewhere" without them leaves the user with nothing to run and
+   an unsurfaced licence.
 
 1. **Establish the host — never assume it.**
    ```bash

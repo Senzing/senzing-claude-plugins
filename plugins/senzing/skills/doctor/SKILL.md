@@ -151,6 +151,19 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    **not ❌; nothing is broken.** Report it so `recipes` / `build` / `demo` offer the
    self-contained HTML artifact, or recommend Claude Code, *before* a long run.
 
+   **Probe budget: ONE attempt per question, then record the answer and move on.** Where a check
+   needs a write probe, it is exactly one `Write` of a small file into the **current project
+   directory** and one `Read` back. Landed → the file tools write the project. Did not land →
+   they do not. Both are answers; neither is a reason to keep looking. Do NOT go hunting through
+   `$TMPDIR`, `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second
+   opinion — a probe that failed in the project directory has already told you what `build`,
+   `analyze` and `demo` need to know, and those skills only ever write into the project.
+   **`doctor` is a preflight, not the task.** It runs before real work and its whole value is
+   being fast. A caller invoked `analyze` or `build`, not `doctor`; spending the turn budget on
+   environment forensics means the actual job never happens, which is a worse outcome than any
+   verdict you could have refined. If a question resists one probe, report it ⚠️ with what you
+   saw and hand back.
+
 4. **Locate the install — IN THE PLATFORM'S OWN LOCATION.**
 
    | Platform | Where |
@@ -166,6 +179,14 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    Confirm by **running the verify command from the Step 0 response** — the `post_install` line
    that lists the library, and, where present, the `gotchas` entry that says what to `test -f`
    (some platforms carry only the `post_install` line) — never by the absence of one directory.
+
+   **You may not grade this check without having RUN the row above for this platform.** Not
+   finding Senzing is a finding that requires evidence exactly as much as finding it does: ➖
+   "not installed" asserts that you looked in the platform's own location and it was not there.
+   Concluding it from the Step 0 response, from the absence of an environment variable, or from
+   a failed import is inference, not a probe — and it is wrong on precisely the hosts that matter
+   (an install under a non-default prefix, or one whose env vars are simply not exported into
+   this shell). Run the command, then report the glyph.
    Those carry the library filename and where it sits under the install root; do not supply
    either from memory, they change with the SDK. Read the
    **version from the package manager** (`brew list --versions`, `dpkg-query -W 'senzingsdk*'`,

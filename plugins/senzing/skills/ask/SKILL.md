@@ -34,6 +34,17 @@ return**, so the user can verify.
 If the tools genuinely do not cover it, say so plainly rather than filling the gap from memory.
 "I could not find that in the Senzing documentation" is a correct answer; an invented one is not.
 
+**This skill answers. It never acts.** Run no shell command — not `uname`, not a probe, not a
+"quick check" of whether Senzing is installed, not even a read-only one. A question about what
+Senzing supports is answered from the MCP, and the state of this machine has no bearing on it.
+Wanting to run something means the request was not a question: hand it to the skill that owns
+the action (`doctor` to inspect this host, `analyze`/`demo` to resolve data, `install` to set
+Senzing up) and let the user choose. Write no files either.
+
+**Cite the `source_url` the tool returned, verbatim, for every fact you state.** Not "per the
+Senzing docs" — the actual URL from the tool result. An answer the user cannot verify is the
+thing this skill was built to replace.
+
 **Ground the arithmetic, not just the retrieval.** Never extrapolate a retrieved figure into a new
 one — "the sizing FAQ says N cores for 100k, so for 1M you'd need roughly 10×" is fabrication with
 a citation. Quote the figure with its source and stop; a number that is in no tool result and did
