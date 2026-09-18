@@ -134,6 +134,35 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 # would burn a paid eval run; a fabricated plan the graders pass is a grader that does nothing.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 
+echo; echo "== 9. Eval case frontmatter parses as YAML =="
+# Why: `claude plugin eval` silently DROPS a case whose frontmatter will not parse -- it
+# prints one "✗ ... invalid YAML frontmatter" line and carries on. run.sh's discovery gate
+# catches the resulting count mismatch, but only DURING a paid run. poc-planner-how-long
+# shipped with `description: "How long will a Senzing POC take?" routes to ...` -- a double-
+# quoted scalar with text after the closing quote -- so the case never loaded and was never
+# graded, and nothing on the free static tier said so. Section 3 only covers SKILL.md/agents.
+while IFS= read -r pm; do
+  if python3 - "$pm" <<'PYEOF'
+import sys, yaml
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+if not text.startswith("---"):
+    sys.exit("no YAML frontmatter (must open with --- on line 1)")
+parts = text.split("---", 2)
+if len(parts) < 3:
+    sys.exit("frontmatter is not closed by a second ---")
+try:
+    data = yaml.safe_load(parts[1])
+except Exception as e:
+    sys.exit(f"invalid YAML frontmatter: {e}")
+if not isinstance(data, dict):
+    sys.exit("frontmatter is not a YAML mapping")
+if "description" not in data:
+    sys.exit("missing: description")
+PYEOF
+  then ok "$pm"; else bad "$pm"; fi
+done < <(find plugins -path '*/evals/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+
 echo
 if [ "$fail" -eq 0 ]; then printf '\033[32mAll static checks passed.\033[0m\n'; else printf '\033[31mChecks failed.\033[0m\n'; fi
 exit "$fail"
