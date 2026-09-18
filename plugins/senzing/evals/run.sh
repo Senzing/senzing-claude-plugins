@@ -74,7 +74,12 @@ if grep -q 'currently in early access' "$log"; then
 fi
 if [ ! -s "$json_out" ]; then
   echo "::error::no result JSON at $json_out (exit $rc) — the suite did not run to completion" >&2
-  exit "${rc:-1}"
+  # NEVER exit 0 here. `rc` is always set (rc=${PIPESTATUS[0]} above), so the old
+  # `exit "${rc:-1}"` propagated a CLI exit of 0 and the job went GREEN having graded
+  # nothing -- an `::error::` annotation alone does not fail a GitHub Actions step.
+  # No result JSON means the suite did not run, which is a failure whatever the CLI said.
+  if [ "$rc" -ne 0 ]; then exit "$rc"; fi
+  exit 1
 fi
 
 # Discovery gate + human-readable summary. Exit 1 if fewer cases ran than exist on disk.

@@ -1,0 +1,40 @@
+# Checkov configuration for super-linter (see .github/workflows/lint-workflows.yaml,
+# which calls senzing-factory/build-resources lint-workflows.yaml -> super-linter).
+#
+# Why this file exists
+# -------------------
+# super-linter's CHECKOV step runs two scans: `github_actions` (the one we actually
+# want here -- 216 checks, all passing) and `secrets`. The secrets scan walks the
+# WHOLE repo; it does not honour the workflow's FILTER_REGEX_INCLUDE of `.*\.github/.*`.
+#
+# That made CKV_SECRET_4 ("Basic Auth Credentials") fail on
+#   plugins/senzing/evals/poc-planner-grounded/grader-fixtures/corpus/
+# which holds VERBATIM CAPTURED RESPONSES from the public Senzing MCP server, kept as
+# eval grader fixtures. Those responses document Senzing database connection-string
+# SHAPES, and the shapes contain literal placeholder userinfo:
+#
+#   sqlite3://na:na@/tmp/sqlite/G2C.db        <- "na:na" is Senzing's documented literal
+#   postgresql://user:password@host:5432:g2   <- the words "user"/"password", not values
+#   mysql://user:password@host:3306:g2
+#   mssql://user:password@host:1433:database/?driver=mssqldriver
+#
+# `scheme://word:word@host` is exactly the CKV_SECRET_4 pattern, so the scan flags
+# documentation as a credential. There is no secret here to leak: these are the same
+# strings the public MCP server returns to anyone who calls sdk_guide(topic='install').
+#
+# Scope of the skip
+# -----------------
+# Deliberately narrowed to the eval grader-fixture corpora ONLY -- NOT the repo, not
+# plugins/, not even all of evals/. Real credentials committed anywhere else in the
+# repo still fail the scan. Fixtures under these paths are captured tool output and
+# are never executed, so they cannot carry a live secret by construction.
+#
+# If a future fixture directory needs the same treatment, widen the regex here rather
+# than disabling CKV_SECRET_4 globally.
+# NOTE: providing this file REPLACES super-linter's shipped TEMPLATES/.checkov.yaml,
+# whose entire content is `quiet: true`. Carried over verbatim so output volume is
+# unchanged -- dropping it would start printing every passed check.
+quiet: true
+
+skip-path:
+  - plugins/senzing/evals/.*/grader-fixtures/corpus/.*
