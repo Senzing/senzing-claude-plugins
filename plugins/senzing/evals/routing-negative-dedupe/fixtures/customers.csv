@@ -1,0 +1,7 @@
+id,name,email,phone,address,city,state,zip
+1,Robert Smith,rsmith@example.com,702-555-0143,123 Main St,Las Vegas,NV,89101
+2,Bob Smith,rsmith@example.com,(702) 555-0143,123 Main Street,Las Vegas,NV,89101
+3,Maria Garcia,mgarcia@example.com,702-555-0198,77 Fremont Ave,Las Vegas,NV,89102
+4,Maria L Garcia,maria.garcia@example.com,702-555-0198,77 Fremont Avenue,Las Vegas,NV,89102
+5,Ahmed Khan,akhan@example.com,702-555-0121,16 Desert Inn Rd,Las Vegas,NV,89109
+6,Jennifer Lopez,jlopez@example.com,702-555-0190,5 Lake Mead Pkwy,Henderson,NV,89015

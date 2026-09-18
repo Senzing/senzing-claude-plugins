@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: analyze
+context:
+  # Puts crm.csv + billing.csv into the run's empty workspace (needs --scaffold). Without real
+  # input files a run that says "I can't find those files" does no work yet passes every
+  # MUST-NOT criterion — that is the hole this fixture closes.
+  scaffold_script: scaffold.sh
