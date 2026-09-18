@@ -6,6 +6,15 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Every push stacked ANOTHER full run alongside the one already in flight: ci.yml was
+# the only workflow in this repo without a concurrency group. That was survivable when
+# CI was cheap, but the behavioral-eval job now spends real API budget -- roughly $6-9
+# per run -- so two overlapping pushes meant paying twice to grade the same branch, and
+# the superseded run's result is worthless the moment the newer commit lands.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
