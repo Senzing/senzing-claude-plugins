@@ -1,13 +1,15 @@
 ---
 name: analyze
 description: >
-  Map, load, and resolve the user's own data with their installed Senzing, then report the
-  results. Use when the user points at data files (CSV/JSON/Parquet) and wants entity
-  resolution, deduplication, a resolved dataset, or "who is who" answers — e.g. "resolve my
-  customer list", "dedupe these files", "find duplicates", "match these two lists", "record
-  linkage", "build a golden record", "MDM", "load this into Senzing and show me the entities".
-  Runs real Senzing SDK code via Bash against the user's own licensed Senzing; it never
-  simulates results and never sends records off the machine.
+  Answer "who is who" in the user's own data files, end to end: map to the Entity Spec, load into a
+  throwaway scratch repository, resolve, then deliver a shareable report. Use when the user points
+  at CSV/JSON/Parquet files and wants deduplication, record linkage, a resolved dataset, or entity
+  resolution — e.g. "resolve my customer list", "dedupe these files", "find duplicates", "match
+  these two lists", "load this into Senzing and show me the entities". Also the entry point for
+  mapping alone, when the user wants only Senzing-ready JSON or has no Senzing installed. Runs real
+  SDK code locally via Bash; records never leave the machine and results are never simulated. Not
+  for data already loaded in Senzing (use report), sample data (use demo), or a named cookbook use
+  case (use recipes).
 argument-hint: "[path/to/data ...]"
 allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
 ---

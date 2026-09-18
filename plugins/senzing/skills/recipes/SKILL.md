@@ -1,13 +1,12 @@
 ---
 name: recipes
 description: >
-  Cook a Senzing solution from the Senzing Cookbook — a curated, step-by-step recipe you pick and
-  Claude walks through, end to end. Use when the user wants a guided, opinionated build for a use
-  case (fraud, customer-360, compliance/exclusion screening, PPP-loan exploration) rather than an
-  open-ended task — e.g. "show me the recipes", "run the customer 360 recipe", "cook the healthcare
-  exclusion recipe", "walk me through a Senzing cookbook recipe", "senzing recipes". With no recipe
-  named it lists the catalog and helps you choose; with one named it stands up the kitchen, loads
-  the ingredients, and drives each cook/plate/plus step in order against your own Senzing.
+  Run a recipe from the Senzing Cookbook — a chef-authored, step-by-step solution for a named use
+  case that Claude drives end to end against the user's own Senzing. Use when the user names a
+  recipe or a cookbook use case (fraud, customer-360, compliance / exclusion screening, PPP-loan
+  exploration), or asks e.g. "show me the recipes", "run the customer 360 recipe", "senzing
+  recipes". With no recipe named it lists the catalog and helps them choose. Not for the user's own
+  ad-hoc data files (use analyze) or a quick demonstration on sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
 allowed-tools: Bash, Read, Write, WebFetch, Task, Skill, mcp__plugin_senzing_senzing__*
 ---

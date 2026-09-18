@@ -1,10 +1,12 @@
 ---
 name: report
 description: >
-  Explore and report on entities in an already-loaded Senzing instance. Use when the user has
-  data in Senzing already and wants to understand it — e.g. "why did these two resolve?", "show
-  me my biggest entities", "build me a dashboard of resolved entities", "run some ER quality
-  checks". Generates and runs read-only search/why/how and reporting SQL, then renders the result.
+  Explore and report on entities ALREADY loaded in the user's Senzing — why records resolved,
+  largest entities, match quality, dashboards — using read-only search/why/how calls and reporting
+  SQL, rendered as a shareable result. Use when the data is already in Senzing — e.g. "why did
+  these two resolve?", "show me my biggest entities", "dashboard of my resolved entities", "run
+  some ER quality checks". Read-only: never loads or mutates. Not for starting from data files
+  (use analyze) or writing reporting code into a project (use build).
 argument-hint: "[question]"
 allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
 ---

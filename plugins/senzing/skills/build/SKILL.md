@@ -1,11 +1,13 @@
 ---
 name: build
 description: >
-  Generate correct, compilable Senzing SDK integration code and write it into the user's project.
-  Use when the user wants to add Senzing to their app or service — e.g. "add Senzing search to my
-  Python service", "scaffold a Senzing loader", "how do I initialize the V4 SDK", "write the
-  Senzing add-record code". Emits code from real indexed snippets with source-URL provenance, and
-  can run it against the user's own Senzing to prove it works.
+  Generate correct, compilable Senzing SDK code for the user's own application and write it into
+  their project. Use when the user wants to add Senzing to an app or service — e.g. "add Senzing
+  search to my Python service", "scaffold a Senzing loader", "write the add-record code", "wire up
+  the V4 SDK in Java". Emits code from real indexed snippets with source-URL provenance, and can
+  run it against the user's own Senzing to prove it works. Not for answering a question about the
+  SDK when no code is wanted (use ask), dashboards over already-loaded data (use report), or
+  resolving data files (use analyze).
 argument-hint: "[language] [workflow]"
 allowed-tools: Bash, Read, Write, Skill, mcp__plugin_senzing_senzing__*
 ---
