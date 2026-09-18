@@ -139,7 +139,23 @@ jobs:
       - name: Run eval suite (same script as local)
         if: steps.gate.outputs.has_key == 'true'
         # run.sh: asserts every case dir on disk was discovered, fails on the early-access gate
-        # message, propagates the --threshold exit code. Budgets are env-tunable in the script.
+        # message, propagates the --threshold exit code.
+        #
+        # BUDGET IS SET HERE, DELIBERATELY, NOT LEFT TO THE SCRIPT DEFAULT.
+        # This job spends real money on every PR. run.sh defaults to 2 runs and a
+        # $75 ceiling; that is a sane local/manual default but far too loose to
+        # fire automatically on every pull request. Only the two cheapest cases
+        # have ever been measured ($1.33 and $0.20) — the analyze-class cases,
+        # which drive mapping + load + report, have never been run end to end, so
+        # the true suite cost is still unknown.
+        #
+        # Until it is measured: PRs get a single run and a tight ceiling; main and
+        # manual dispatch get the fuller budget. Raise these once there is a real
+        # number, not before. A run that trips the ceiling reports `partial`, which
+        # run.sh surfaces — so an exceeded budget is visible, not silent.
+        env:
+          EVAL_RUNS: ${{ github.event_name == 'pull_request' && '1' || '2' }}
+          EVAL_MAX_COST_USD: ${{ github.event_name == 'pull_request' && '15' || '40' }}
         run: bash plugins/senzing/evals/run.sh
 
       - name: Upload eval results (JSON, log, HTML report)
