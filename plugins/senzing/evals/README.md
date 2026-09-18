@@ -56,7 +56,7 @@ be pattern-matched — and where it needs a Senzing ground truth (what SENZ0033 
 attributes exist) it says **"matches what `explain_error_code` / the tool returned"**, never a
 restated fact that would go stale.
 
-**Keep `llm` rubrics judgeable from what the judge can see.** With `focus: trace` the judge gets
+**Keep `llm` rubrics assessable from what the judge can see.** With `focus: trace` the judge gets
 only the first and last 12 messages; a rubric that says "every name must appear in a tool result"
 is unverifiable once the middle is elided, and a strict judge votes FAIL on a correct run (the first
 real `ask-routing` run scored 6/7 for exactly that reason — grounded, URLs cited, still FAIL). Every

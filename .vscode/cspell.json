@@ -5,6 +5,7 @@
     "allowlist",
     "allowlisted",
     "Anthropic",
+    "bubblewrap",
     "Caskroom",
     "CCLA",
     "claude",
@@ -48,6 +49,7 @@
     "Senzing",
     "senzingsdk",
     "shellcheck",
+    "socat",
     "sous",
     "SUPPORTPATH",
     "szBuildVersion",
@@ -61,5 +63,8 @@
   "ignorePaths": [
     ".git/**",
     "evals/results/**"
+  ],
+  "ignoreRegExpList": [
+    "/^\\s*(?:pattern|[a-z_]*match)\\s*:\\s*['\"].*['\"]\\s*$/gm"
   ]
 }

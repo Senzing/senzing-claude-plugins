@@ -16,7 +16,7 @@ bad()  { printf '\033[31mFAIL\033[0m %s\n' "$*"; fail=1; }
 echo "== 1. JSON parses =="
 while IFS= read -r f; do
   if python3 -m json.tool "$f" >/dev/null 2>&1; then ok "$f"; else bad "$f (invalid JSON)"; python3 -m json.tool "$f" 2>&1 | head -3; fi
-done < <(find . -name '*.json' -not -path './.git/*' -not -path './evals/results/*' | sort)
+done < <(find . -name '*.json' -not -path './.git/*' -not -path './plugins/*/evals/results/*' | sort)
 
 echo; echo "== 2. Hook scripts (bash -n + shellcheck) =="
 while IFS= read -r s; do
@@ -41,9 +41,9 @@ done < <(find plugins -name 'SKILL.md' -o -path '*/agents/*.md' | sort)
 echo; echo "== 4. claude plugin validate --strict =="
 if command -v claude >/dev/null 2>&1; then
   if claude plugin validate . --strict 2>&1 | tail -2; then ok "marketplace"; else bad "marketplace validate"; fi
-  for pdir in plugins/*/; do
-    [ -f "$pdir/.claude-plugin/plugin.json" ] || continue
-    if claude plugin validate "./$pdir" --strict 2>&1 | tail -2; then ok "$pdir"; else bad "$pdir validate"; fi
+  for plugin_dir in plugins/*/; do
+    [ -f "$plugin_dir/.claude-plugin/plugin.json" ] || continue
+    if claude plugin validate "./$plugin_dir" --strict 2>&1 | tail -2; then ok "$plugin_dir"; else bad "$plugin_dir validate"; fi
   done
 else
   note "claude CLI not on PATH — skipping (CI installs it). Install: npm i -g @anthropic-ai/claude-code"
@@ -121,9 +121,9 @@ else
 fi
 
 echo; echo "== 7. CHANGELOG has an entry for the current plugin version =="
-for pdir in plugins/*/; do
-  [ -f "$pdir/.claude-plugin/plugin.json" ] || continue
-  ver="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$pdir/.claude-plugin/plugin.json")"
+for plugin_dir in plugins/*/; do
+  [ -f "$plugin_dir/.claude-plugin/plugin.json" ] || continue
+  ver="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$plugin_dir/.claude-plugin/plugin.json")"
   if grep -qF "## [$ver]" CHANGELOG.md; then ok "CHANGELOG.md has ## [$ver]"; else bad "CHANGELOG.md has no '## [$ver]' heading (plugin.json says $ver)"; fi
 done
 
