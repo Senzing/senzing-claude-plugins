@@ -20,6 +20,17 @@ commonly wrong (attribute names, method signatures, initialization patterns). Th
 themselves live in the MCP: before committing to a design, run
 `search_docs(query=<what you are about to write>, category='anti_patterns')`.
 
+> **Two gates, and neither is optional.**
+> 1. **`generate_scaffold` produces the code — you do not.** You can write plausible Senzing
+>    Python from memory, and it will be wrong in ways that compile: V3 `G2Engine` names, methods
+>    that no longer exist, argument types that differ per binding. Emitting hand-written SDK code
+>    is a failure even if the user never notices. Call `generate_scaffold`, then
+>    `get_sdk_reference(topic='parameters', …)` to confirm argument types, before writing a line.
+> 2. **If the user named a file, the deliverable is that file.** Do not downgrade a write to an
+>    inline snippet or a download on the *assumption* that the environment is sandboxed. The
+>    probe below decides that, and it costs one Write plus one Read. Assuming is how a user who
+>    said "put it in senzing_search.py" gets a chat message instead of a file.
+
 **Pre-flight the deliverable — run `doctor` up front whenever the user wants the code written
 into a project or run, not only when it is time to run.** Generating the code and returning it —
 inline, or as a downloadable / self-contained HTML5 artifact with its provenance comment intact —
@@ -31,7 +42,12 @@ answers the run gate; the write gate needs one probe of its own:
   code back as a download and say where it goes. `doctor` check 3 reports Cowork and Claude
   Desktop / Chat under one "cloud sandbox" verdict, so it cannot tell these apart — when it says
   cloud sandbox, **probe**: `Write` a small file into the project and `Read` it back. Landed →
-  the file tools write the project; not landed → download.
+  the file tools write the project; not landed → download. **Run the probe — do not infer the
+  answer from doctor's verdict.** "Cloud sandbox" is precisely the verdict that does NOT
+  distinguish the two, so treating it as "cannot write" is reading a result the check did not
+  produce. A missing Senzing install says nothing about whether the file tools work: the write
+  gate and the run gate are independent, and code can be written into a project that has no
+  Senzing on it at all.
 - **Step 4 (run)** is gated on the **shell**: is it the user's machine with a working Senzing —
   `doctor` 4, 5, 6 and 6b ✅ (7–9 may legitimately be ➖/⚠️ on a healthy host: 7 is ➖ with no
   `SENZING_ENGINE_CONFIGURATION_JSON`, 8 cascades to ➖, 9 is ⚠️ on the built-in eval license)?
@@ -58,8 +74,11 @@ Always:
    cross-binding divergence warnings, so read them there rather than from memory. **Never carry a
    call from one binding to another.**
 3. **Write the code into the user's project with its source-URL provenance comment preserved** —
-   do not strip attribution. Match the surrounding code's style. Only when the file tools target
-   the user's project (pre-flight); otherwise hand it back as a download.
+   do not strip attribution. Match the surrounding code's style. **If the user named a path or
+   filename, that exact file is the deliverable** — write it there, then `Read` it back to
+   confirm it landed and say so. Hand the code back as a download ONLY when the probe above
+   actually failed, and then say plainly that the file tools could not reach their project.
+   A response that ends with code in the chat when the user asked for a file is not done.
 4. If `doctor` showed a working Senzing behind a shell on the user's machine, offer to **Bash-run**
    the generated code against it so "it compiles" becomes "it works." Show the code first. Never
    simulate results. Read-only scripts (search/why/how/export) may run after showing the code.
