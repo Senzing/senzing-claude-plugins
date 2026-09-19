@@ -22,10 +22,14 @@ You are grounded by the **Senzing MCP server** (the bundled `senzing` MCP). Grou
   signatures, and code come from the Senzing MCP tools (`get_capabilities`, `search_docs`,
   `mapping_workflow`, `sdk_guide`, `generate_scaffold`, `reporting_guide`, …). If unsure, call
   the tool — do not guess.
-- **Never simulate entity resolution.** If Senzing isn't installed/running, say so and hand off to
-  the **`install`** skill — it surfaces the license agreement and verifies with `doctor`; do not
-  route around it by calling `sdk_guide(topic="install")` directly. Do not fabricate scores,
-  matches, or merges.
+- **Never simulate entity resolution.** Do not fabricate scores, matches, or merges. No Senzing on
+  this host does **not** change what happens next: the run still maps (step 3) and stops at the
+  *mapping-only exit*, which is the one and only place the **`install`** skill is offered (it
+  surfaces the license agreement and verifies with `doctor`; never route around it via
+  `sdk_guide(topic="install")`). **Installing is never a question asked before `start` has been
+  called, and "install now, or mapping only?" is never a choice put to the user** — mapping is not
+  optional, and installing is a follow-on they can take once the JSONL exists. Whether an install
+  would succeed here is not a question this run has to answer.
 - **PII stays local.** The customer's records are only ever touched by SDK code you run locally
   via Bash. Never paste real records into a hosted tool call.
 
@@ -66,6 +70,21 @@ State the resolved input list to the user before proceeding — informational, n
    shell that can write a workspace (needed for step 3). This flow builds its **own fresh scratch
    repository**, so a configured production database is **not** required. **No SDK is not a
    stop** — mapping (step 3) still runs; see the *mapping-only exit* after step 3.
+
+   **`doctor`'s verdict is information, not a decision.** `doctor` names the `install` skill when
+   it finds no Senzing — that is addressed to *you*, and your answer is already fixed by this
+   procedure: not now; step 3 first, `install` (if at all) at the mapping-only exit. Do not relay
+   it to the user as a question, do not recommend installing, and do not spend a probe deciding
+   whether an install is feasible — that answer cannot change what you do next.
+
+   **Hard rule: the turn may not end before `mapping_workflow` `start` has returned.** Once you
+   hold the input file paths, every open question — install or not, which host, which workspace,
+   which language — is one you ask **after** the mapping, in the same message that delivers it.
+   Ending the turn to ask one first delivers nothing: in a non-interactive context (a scripted
+   run, an eval, a queued job) no answer is ever coming, and with a user at the keyboard the
+   answer still does not change the mapping, which needs no SDK, no license and no install. State
+   the assumption you are proceeding under and go. Exactly two exceptions: no input data was given
+   at all, and a `senzing-poc-plan.md` row you need reads `TBD — decided by`.
 2. **Agree a workspace — and confirm the shell can actually write to it.** Default `~/sz-workspace`
    (or `$SZ_WORKSPACE` if set). **Do not assume the shell and the file tools share one filesystem,
    or that the default path is writable** — some hosts sandbox the shell to a different filesystem
@@ -149,10 +168,18 @@ State the resolved input list to the user before proceeding — informational, n
    can't run shell commands against the workspace, **map in the current context instead**
    (which has the shell). Never let completion depend on delegation succeeding.
 
-   **Mapping-only exit.** Stop here — and say so — when **either** `doctor` reported no importable
-   SDK **or** the user asked only for Senzing-ready JSON. Deliver the validated JSONL file(s) and a
-   field → attribute summary per source (the mapping decisions from step 3), then offer the
-   `install` skill to go on to load and resolve. Do not describe what resolution *would* show.
+   **Mapping-only exit — where a no-SDK run ENDS.** Stop here — and say so — when **either**
+   `doctor` reported no importable SDK **or** the user asked only for Senzing-ready JSON. Deliver
+   the validated JSONL file(s) and a field → attribute summary per source (the mapping decisions
+   from step 3), then offer the `install` skill to go on to load and resolve — **as the closing
+   line of a completed delivery, never as a question the delivery waits on.**
+   Do not describe what resolution *would* show — **and do not substitute your own duplicate-
+   spotting for it.** Even a heavily-caveated "these two are almost certainly the same person" or
+   "you likely have 5 real customers, not 6" is an invented match and an invented entity count: it
+   is the exact hallucination this skill exists to prevent, and labelling it "my own read of the
+   raw data" rather than Senzing's does not make it safe — the user cannot audit it, and it is the
+   number they will remember. If asked "who is who", answer that resolving it requires the engine,
+   and stop there.
 4. **Load into a fresh, isolated scratch repository — NOT their production Senzing.** Resolving a
    dataset must not pollute the user's real entity repo, so **by default create a dedicated scratch
    Senzing repository**: a fresh SQLite instance in the workspace, initialized empty — the same
