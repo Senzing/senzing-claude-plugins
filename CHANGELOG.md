@@ -69,6 +69,18 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
 
 ### Fixed
 
+- **The `demo-scratch-repo` eval case contradicted itself twice**, and the plugin was being
+  marked down for obeying it. (a) The prompt says "before you execute anything that loads data,
+  show me the plan and the exact commands", while the grader FAILed any plan that "asks for
+  confirmation before loading into the scratch repository" — so a run that produced a correct
+  scratch-SQLite plan with production untouched still lost the judge 3-0 for ending with "shall I
+  run it?". The grader now scores the real property (never offering production as a target, never
+  treating the throwaway repo as a decision the user must approve) and states that the handshake
+  this prompt asks for is not a gate. (b) The prompt asserts a green doctor and a configured
+  production Postgres, but the macOS eval sandbox has neither, so roughly one run in two correctly
+  refused to plan on a premise it could see was false and lost four graders as collateral. The
+  context block now says to take it as given and not re-probe the shell. No threshold was lowered.
+
 - **The behavioral eval job had never once executed.** It was green because
   `ANTHROPIC_API_KEY` was unset, so it SKIPPED. With the secret set it ran for the first
   time and reported 4/14 — which turned out to measure the runner, not the plugin (below).
