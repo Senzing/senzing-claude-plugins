@@ -47,6 +47,7 @@
     "pyenv",
     "PYEOF",
     "PYTHONPATH",
+    "pyyaml",
     "quickstarts",
     "readlink",
     "RESOURCEPATH",
