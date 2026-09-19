@@ -141,6 +141,15 @@ echo; echo "== 9. Eval case frontmatter parses as YAML =="
 # shipped with `description: "How long will a Senzing POC take?" routes to ...` -- a double-
 # quoted scalar with text after the closing quote -- so the case never loaded and was never
 # graded, and nothing on the free static tier said so. Section 3 only covers SKILL.md/agents.
+# PyYAML is the only third-party dependency this script uses. Guard it the same way
+# jq/shellcheck/claude are guarded above -- unguarded, a runner without PyYAML turns
+# every eval prompt.md into an unexplained ModuleNotFoundError wall instead of the
+# "X not installed" line this file uses everywhere else. CI installs it explicitly
+# (see the `static` job) so the gate never silently skips where it must run.
+if ! python3 -c 'import yaml' 2>/dev/null; then
+  bad "PyYAML not installed — cannot validate eval frontmatter (pip install pyyaml)"
+  note "this gate is the only thing that catches an eval case that silently never loads"
+else
 while IFS= read -r pm; do
   if python3 - "$pm" <<'PYEOF'
 import sys, yaml
@@ -162,6 +171,7 @@ if "description" not in data:
 PYEOF
   then ok "$pm"; else bad "$pm"; fi
 done < <(find plugins -path '*/evals/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+fi
 
 echo
 if [ "$fail" -eq 0 ]; then printf '\033[32mAll static checks passed.\033[0m\n'; else printf '\033[31mChecks failed.\033[0m\n'; fi

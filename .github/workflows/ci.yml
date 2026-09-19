@@ -34,6 +34,14 @@ jobs:
         # `claude plugin validate --strict` is a local manifest check (no auth needed).
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Install PyYAML
+        # check.sh section 9 parses every eval prompt.md frontmatter, which is the only
+        # gate that catches a case silently failing to load (poc-planner-how-long shipped
+        # that way and was never graded). The script now guards the import, so without
+        # this step the gate would DEGRADE TO A FAILURE line rather than run -- install it
+        # explicitly so the check actually executes where it matters.
+        run: python3 -m pip install --quiet pyyaml
+
       - name: Run static checks (same script as local pre-commit)
         run: bash scripts/check.sh
 
