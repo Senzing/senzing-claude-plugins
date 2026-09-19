@@ -1,0 +1,15 @@
+{
+  "session_id": "fixture-session",
+  "transcript_path": "/nonexistent/transcript.jsonl",
+  "cwd": "__DIR__",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "__FILE__",
+    "content": "(not used by the hook; it reads the file on disk)"
+  },
+  "tool_response": {
+    "filePath": "__FILE__",
+    "success": true
+  }
+}

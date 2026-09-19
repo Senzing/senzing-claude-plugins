@@ -1,16 +1,16 @@
 ---
 name: doctor
 description: >
-  Diagnose a Senzing environment before anything runs. Use automatically before the first Senzing
-  operation of a session, and whenever an SDK script fails to import/init/connect, or the user
-  asks "is my Senzing set up?", "check my Senzing environment", "why won't Senzing start". The
-  shared up-front preflight for every skill: checks network/allowlist reachability
-  (mcp.senzing.com + raw.githubusercontent.com), the host shell, the SDK install, engine
-  configuration, database reachability, license, AND whether this host can serve a live interactive
-  app or only a self-contained artifact — returning grounded, actionable fixes instead of a raw
-  traceback — or wants Senzing installed or set up in the first place — e.g. "install Senzing",
-  "set up Senzing on this machine", "get me started with Senzing".
-allowed-tools: Bash, Read, mcp__plugin_senzing_senzing__*
+  Check whether this machine can do the Senzing task at hand — SDK, engine config, database,
+  license, network reachability, AND what kind of result this host can actually deliver (a live
+  app the user drives, a self-contained artifact, or information only). Every skill that runs or
+  builds something calls this FIRST, so it fails early with a fix instead of late with a
+  traceback. Use when the user asks "is my Senzing set up?", "check my Senzing environment", "why
+  won't Senzing start", "does my Senzing actually work?", or when a script fails to import or
+  initialize with no Senzing error code in hand. Not for a specific SENZ error code or message
+  (use troubleshoot), not for installing Senzing (use install), and not for showing that Senzing
+  works on sample data (use demo).
+allowed-tools: Bash, Read, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Senzing doctor — environment preflight
@@ -25,41 +25,319 @@ duplicated in each skill.
 **Inputs.** Takes no arguments — run the probe directly (any `$ARGUMENTS` are ignored). If invoked
 because the user asked to *install* Senzing, skip straight to the install path below.
 
-Run a minimal Bash probe and check, in order. The first two decide whether anything can work at
-all and whether the intended result is even deliverable here, so they run **even when no local SDK
-is present**:
+**If `./senzing-poc-plan.md` exists, read it before asking the user anything.** It is the handoff
+artifact `/senzing:poc-planner` writes, and its header declares a consumer contract. Parse by the
+`## N.` headings and take `platform_id`, `languages` and `database` from the `## 2.` yaml block
+rather than re-asking or choosing for them. **Any value you need whose text begins
+`TBD — decided by` is an undecided row: stop, name the row and its owner, and send the user back
+to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the plan somewhere
+else, they must tell you the path.
 
-1. **Grounding reachable (network / allowlist).** Probe `https://mcp.senzing.com/` **and**
-   `https://raw.githubusercontent.com/` (e.g. `curl -fsSI`). `mcp.senzing.com` is the source of
-   truth for *everything* (grounding, SDK downloads, sample data) — nothing works without it;
-   `raw.githubusercontent.com` serves recipes and indexed code examples. Sandboxed hosts (Claude
-   Desktop / Chat, Cowork) often block these — if either is unreachable, stop and ask the user to
-   **allowlist that domain now**.
-2. **Interactive-outcome capability.** Can this host serve a **live app the user drives** — a
-   writable shell *plus* the ability to build/run a local server the user can reach at
-   `localhost`? Claude Code on the user's machine can. A cloud sandbox (Claude Desktop / Chat,
-   Cowork) can run the code and hand back a **self-contained interactive HTML5 (or PDF) artifact**,
-   but **can't expose `localhost`** — so any outcome that must be a *live server* needs Claude
-   Code. Determine which you are and report it, so skills that can end in an interactive app
-   (`recipes`, `build`, `demo`) offer the artifact substitution or recommend Claude Code **before**
-   a long run — never after.
-3. **Host shell + writable workspace.** Can Bash create a workspace and write a file? A shell-less
-   or reduced-tool surface (e.g. a spawned sub-agent with a trimmed tool set) can't run the SDK
-   path — say so plainly.
-4. **SDK importable** — can the target language import the Senzing SDK (`senzing` / `Sz*`)?
-5. **Engine configuration** — is `SENZING_ENGINE_CONFIGURATION_JSON` (or the equivalent config)
-   present and parseable?
-6. **Database reachable** — does the configured repository (SQLite/PostgreSQL) accept a
-   connection?
-7. **License valid** — is the Senzing license present and unexpired?
+## Division of labor — do not duplicate the MCP
 
-Report the result as a **compact status table** — one row per check, `✅ / ⚠️ / ❌` with a
-one-line status — so caller and user see viability at a glance. For any failure: map it through
-`explain_error_code` / `sdk_guide` and return a **specific fix** (e.g. *"allowlist
-`mcp.senzing.com`"*, or *"`SENZING_ENGINE_CONFIGURATION_JSON` points at a Postgres that isn't
-accepting connections — start it / fix the host, here's the setting"*), never a raw stack trace.
-Checks 1–3 are host-level and pass/fail independently of whether Senzing is installed; a green
-host with no SDK is a valid state (the caller may only need grounding or code generation).
+This skill owns **workflow and host mechanics**: what to probe, in what order, on this machine —
+platform detection, package-manager layout, loader paths, SIP behavior, and how to grade the
+result. The MCP server cannot know those about the host in front of you.
 
-If there is **no** Senzing installed at all, say so plainly and offer `sdk_guide(topic="install")`
-plus the `request-eval-license` path — do not attempt to run resolution.
+**The MCP owns every Senzing fact** — install commands, config keys and their correct values,
+database prerequisites, error meanings, limits. When you need one, **call the tool**
+(`sdk_guide`, `explain_error_code`, `search_docs`) instead of restating it here. Senzing facts
+copied into this file go stale silently and then confidently mislead; the MCP's do not.
+
+## Status vocabulary — read this FIRST
+
+Emit exactly one glyph per row. The difference between "broken" and "not applicable" is the
+entire point of this skill; a preflight that cries wolf on a healthy host trains people to
+ignore it.
+
+| | Meaning |
+|---|---|
+| ✅ | Works. |
+| ⚠️ | Works, but degraded, unsupported-by-policy, or not persisted. |
+| ❌ | **Present and misbehaving, AND the user can act on it.** |
+| ➖ | **Not applicable, not installed, or not reached.** Not a failure. |
+
+**Rules that override any instinct to report a failure:**
+
+- **Not installed is ➖, never ❌.** ❌ is reserved for something that IS there and IS misbehaving.
+- **Cascade: if a prerequisite is ➖ or ❌, every check downstream of it is ➖** — never repeat the
+  same failure as a second ❌. Dependency chain: 4 → 5 → 6 → {6b, 9}; 7 → 8. So when 4 is ➖,
+  cascade **5, 6, 6b and 9** to ➖ — but **7–8 still grade**: a config can exist on a host with
+  no SDK, and it is graded on its own terms. **Check 9 (license) depends only on 6, NOT on
+  7/8** — a license is readable with the in-process, no-database connection (check 6b) and no
+  user config.
+- **Broken but NOT user-fixable** (no admin rights, locked-down host) → ⚠️ with the blocker named.
+  ❌ promises the user an action; do not promise one that does not exist.
+- **Never report ❌ from an absence you did not verify in the platform-correct location.** That
+  single mistake produced a false "there is no Senzing on this Mac" on a machine with Senzing
+  4.5.0 installed via Homebrew.
+
+## Step 0 — establish the ground truth before any check
+
+```bash
+uname -s        # Darwin | Linux | MINGW*/MSYS*/CYGWIN*
+uname -m        # arm64 | x86_64 | aarch64
+```
+
+Nothing below is meaningful until you know this. **Do not use the macOS row on Linux, and do not
+default to Python because it is the usual choice.** Then make **two deliberate `sdk_guide`
+calls** — one cannot do it, because the platform id and the language-scoped facts come from
+different responses:
+
+1. **Platform id.** `sdk_guide(topic="install")` with **no** arguments returns the platform
+   decision tree. Map the host onto one of *its* ids — `uname` alone cannot: it says `Linux`,
+   not which package manager, and its output is not a valid id. If the host matches none
+   cleanly (a distribution the tree does not name, an ambiguous package manager, an
+   architecture the tree says has no native build), ask the user or take the tree's Docker
+   option — do not guess an id. (`install` step 1 does exactly this; keep the two in lockstep.)
+2. **Language-scoped facts.** `sdk_guide(topic="install", platform=<id>, language=<l>)` for the
+   language the user named. If none was named yet, pick a **provisional** candidate without
+   running check 6: call `sdk_guide(topic="initialize", platform=<id>)` with **no** `language`
+   — it returns the language decision tree — and take the first option not labeled community
+   whose `blocked_platforms` does not list this platform id. Check 6's toolchain scan and
+   tiebreak may revise the choice; if it does, re-call this step for the revised language
+   before grading 4–9. Keep the response: `install.platform.env_vars`, `.default_paths`,
+   `.gotchas` and `.post_install`, plus `install.engine_config` / `install.engine_config_notes`
+   and any `compatibility_notes`, are the Senzing facts checks 4–9 read — loader variables, the
+   library verify command, config keys, the license probe. Never read them from this file or
+   from memory.
+
+   **If the response has no `install` block** (only `compatibility_notes` + `next_steps`), that
+   binding is unsupported on this platform — the server withholds paths and env vars rather
+   than hand you facts for a combination it does not support. Record that verdict for check 6,
+   then **re-call with a language the notes mark supported** so you still hold the platform's
+   `install` block for checks 4–9. Do not fill the gap from memory — that is exactly the
+   failure this preflight exists to remove.
+
+   **If the `sdk_guide` call itself fails** — a tool error, a timeout, or a shape with none of
+   `install`, `compatibility_notes`, or a `needs_input` decision tree — retry once; if it still
+   fails, report it as its **own** row, **Step 0 ⚠️** "grounding tool `sdk_guide` failed —
+   <error or the top-level keys you got>" (not user-fixable, so ⚠️ per the rule above — and not
+   check 1's verdict: check 1 grades reachability by its own `curl` + `get_capabilities`
+   probes, which can be healthy while one tool misbehaves). Grade checks 1–3 normally (they
+   need no Senzing facts) and mark 4–9 ➖ "not reached — no grounding". Do **not** continue on
+   remembered paths or filenames; a preflight that guesses is worse than one that stops.
+
+Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on
+the user's machine (or a Claude Code **cloud/remote** session — the same variables are set but
+the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/version` containing
+`microsoft` → container or WSL2. Neither → likely a cloud sandbox.
+
+## The checks
+
+1. **Grounding reachable.** Two DIFFERENT networks — do not conflate them:
+   - *MCP connectivity*: a successful `get_capabilities` call. This is the one that matters for
+     grounding, and it can work while Bash egress is blocked (and vice versa).
+   - *Bash egress*: `curl -fsSI https://mcp.senzing.com/` and `https://raw.githubusercontent.com/`.
+     Treat **any HTTP response as reachable** — only DNS failure, connection refused, or timeout
+     is unreachable. (A bare root returning 3xx/4xx is fine; `-f` fails only on ≥400, and
+     `raw.githubusercontent.com` currently answers 301.)
+
+   `mcp.senzing.com` unreachable → ❌ "allowlist mcp.senzing.com" and **stop** — SDK downloads,
+   sample data and resources all need it. `raw.githubusercontent.com` unreachable → ⚠️ only;
+   examples and recipes fall back to each response's `access_steps` / `download_resource`. **Do
+   not stop for it.**
+
+2. **Host shell + writable workspace.**
+   ```bash
+   d=$(mktemp -d) && echo ok > "$d/probe" && cat "$d/probe" && rm -rf "$d"
+   ```
+   No shell → ➖ everything below; say so plainly (a spawned sub-agent with a trimmed tool set
+   cannot run the SDK path).
+
+3. **Interactive-outcome capability.** Using the Step 0 signals: Claude Code on the user's machine
+   can serve a live `localhost` app ✅. Container/WSL2 → ⚠️ "reachable only via port-forward".
+   Cloud sandbox (Claude Desktop / Chat, Cowork) → ⚠️ "artifact only, cannot expose localhost" —
+   **not ❌; nothing is broken.** Report it so `recipes` / `build` / `demo` offer the
+   self-contained HTML artifact, or recommend Claude Code, *before* a long run.
+
+   **Probe budget: ONE attempt per question, then record the answer and move on.** Where a check
+   needs a write probe, it is exactly one `Write` of a small file into the **current project
+   directory** and one `Read` back. Landed → the file tools write the project. Did not land →
+   they do not. Both are answers; neither is a reason to keep looking. Do NOT go hunting through
+   `$TMPDIR`, `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second
+   opinion — a probe that failed in the project directory has already told you what `build`,
+   `analyze` and `demo` need to know, and those skills only ever write into the project.
+   **`doctor` is a preflight, not the task.** It runs before real work and its whole value is
+   being fast. A caller invoked `analyze` or `build`, not `doctor`; spending the turn budget on
+   environment forensics means the actual job never happens, which is a worse outcome than any
+   verdict you could have refined. If a question resists one probe, report it ⚠️ with what you
+   saw and hand back.
+
+4. **Locate the install — IN THE PLATFORM'S OWN LOCATION.**
+
+   | Platform | Where |
+   |---|---|
+   | macOS (arm64) | Homebrew: `brew list \| grep -i senzing`, `$(brew --prefix)/opt/senzing` |
+   | macOS (x86_64) | Check `sdk_guide`'s platform tree / `compatibility_notes` for whether a native build exists for this architecture. If it says none → ➖ "no native build for this architecture"; offer Docker. Do NOT hunt `/usr/local/opt/senzing`. |
+   | Windows | Scoop: `scoop list`, `scoop prefix senzingsdk` |
+   | Linux | `/opt/senzing`; `dpkg -l 'senzingsdk*'` or `rpm -qa 'senzingsdk*'` |
+
+   Also honour whatever install-root environment variable `sdk_guide`'s `env_vars` names for this
+   platform (an already-set one on the host is a strong hint where the install is).
+
+   Confirm by **running the verify command from the Step 0 response** — the `post_install` line
+   that lists the library, and, where present, the `gotchas` entry that says what to `test -f`
+   (some platforms carry only the `post_install` line) — never by the absence of one directory.
+
+   **You may not grade this check without having RUN the row above for this platform.** Not
+   finding Senzing is a finding that requires evidence exactly as much as finding it does: ➖
+   "not installed" asserts that you looked in the platform's own location and it was not there.
+   Concluding it from the Step 0 response, from the absence of an environment variable, or from
+   a failed import is inference, not a probe — and it is wrong on precisely the hosts that matter
+   (an install under a non-default prefix, or one whose env vars are simply not exported into
+   this shell). Run the command, then report the glyph.
+   Those carry the library filename and where it sits under the install root; do not supply
+   either from memory, they change with the SDK. Read the
+   **version from the package manager** (`brew list --versions`, `dpkg-query -W 'senzingsdk*'`,
+   `rpm -q 'senzingsdk*'`, `scoop list`) — host mechanics, legitimately ours.
+
+   **Which build is active:** `$(brew --prefix)/opt/senzing` is a *symlink* overwritten by
+   whichever cask installed last. `readlink` it — the target names the cask — and compare with
+   `brew list --versions` for each installed cask; `brew info` is per-cask and can disagree with
+   the symlink. ⚠️ if the active cask is `senzingsdk-staging` (pre-release) or if both casks are
+   installed — report both versions.
+
+   Nothing found → **➖ "not installed"**, offer the **`install`** skill (it owns the install
+   workflow, including the license agreement), cascade **5, 6, 6b and 9** to ➖ (7–8 still
+   grade — a config can exist on a host with no SDK), and do not attempt resolution.
+
+5. **Loader path.** Derive it, never hardcode it (`sdk_guide` flags a hardcoded path as an
+   **error**-severity anti-pattern). The variable names and their values for this platform come
+   from the `sdk_guide` response's `env_vars` — including which are required and which are only
+   needed when the loader cannot find the library on its own. On macOS, root the value in the
+   resolved cask symlink from check 4 (`$(brew --prefix)/opt/senzing/…`), not a literal path; on
+   Windows, Scoop already puts the library directory on `PATH`.
+
+   > ⚠ **macOS SIP strips `DYLD_*` from Apple-signed binaries.** `/usr/bin/python3`, `/bin/bash`,
+   > `/bin/sh`, `/usr/bin/java` — and anything launched *through* them — never see it. So:
+   > probe with the interpreter that **owns the package**
+   > (`python3 -c 'import senzing_core, sys; print(senzing_core.__file__)'`; if that resolves to
+   > `/usr/bin/python3`, switch to the Homebrew/pyenv/venv one), set the loader variable **on the
+   > same command line**, and **never wrap the probe in `bash -c`**. A `dlopen` failure that
+   > survives *that* is real; one that does not is ⚠️ "loader path not persisted — add the export
+   > to `~/.zshrc`".
+
+6. **SDK importable — support and function are SEPARATE facts.**
+   - *Support*: the Step 0 language-scoped call, `sdk_guide(topic="install", platform=<p>,
+     language=<l>)`, one per candidate language → `compatibility_notes`. ⚠ That field appears
+     only **when `language` is passed and there is a caveat**: a supported binding comes back
+     with the `install` block and no `compatibility_notes` at all; an unsupported one comes back
+     with `compatibility_notes` and **no `install` block**. Its wording is deliberately
+     discouraging ("not supported on macOS… use Docker or WSL2"); it settles **support**, not
+     **function**.
+   - *Function*: the actual import, with check 5 applied. The Python probe below is the one
+     example this file carries; for Java, C#, Rust and TypeScript the minimal load/import is a
+     Senzing fact — take it from `sdk_guide(topic="initialize", platform=<p>, language=<l>)` or
+     `generate_scaffold(workflow="initialize", language=<l>)`, never invent an import line or
+     class name.
+
+   | Support | Probe | Report |
+   |---|---|---|
+   | supported | passes | ✅ |
+   | unsupported | passes | ⚠️ "loads, but not a shipped binding on this platform — unsupported" — **not ❌** |
+   | unsupported | fails | ➖ "unsupported binding; use \<supported language\> or Docker" |
+   | supported | fails | ❌ with the fix |
+
+   **Determine which bindings exist by listing what the install actually ships — do not infer it
+   from a table or from memory:** `ls` the SDK directory the Step 0 response points at — for
+   Python the path its `env_vars` gives for `PYTHONPATH`; for Java the jar path in its Java
+   `gotchas` entry, where one exists; for other bindings whatever `env_vars` / `gotchas` name.
+   If the response names no SDK directory for a binding (not every platform's response carries
+   a Java-specific `env_vars` or `gotchas` entry), say so rather than inventing a path — this
+   listing step is then not executable for that binding, and function is settled by the import
+   probe alone. What is listed
+   there is what the SDK ships on this platform; anything importable that is *not* listed there
+   arrived some other way (typically a package manager such as pip).
+
+   ⛔ **A binding that imports but is not shipped by the install is not a working Senzing setup.**
+   A package-manager-installed binding can load the SDK library and appear to work while
+   `compatibility_notes` says the platform is unsupported for that language. Report it as ⚠️
+   **"package-installed binding, not shipped by the SDK on this platform — unsupported"** and
+   steer to a language `compatibility_notes` marks supported, or Docker/WSL2.
+
+   Tell the two apart by where the module resolves — e.g. for Python,
+   `python3 -c 'import senzing_core; print(senzing_core.__file__)'`: inside the install tree
+   `sdk_guide` located ⇒ shipped by the SDK; under `site-packages` (or the equivalent for another
+   language's package manager) ⇒ package-installed.
+
+   Conversely, when the binding **is** shipped by the install, do not package-install a second
+   copy: expose the shipped one with the variable `sdk_guide`'s `env_vars` names for it (for
+   Python that failure looks like `ModuleNotFoundError`, not a `dlopen` error).
+
+   Which bindings are supported on which platforms is `compatibility_notes`' answer, per language
+   — do not keep a matrix here.
+
+   **Check the toolchain too** — choosing a language with no compiler yields an unusable ✅:
+   Java `java -version` + the jar(s) in the shipped Java SDK directory · C# `dotnet --version` +
+   the shipped .NET SDK directory · TypeScript `node -v` · Rust `cargo -V`.
+
+   **No language named?** Pick an *officially supported* one with a working toolchain, and say
+   which you chose. Tiebreak when both Java and C# qualify: prefer whichever the user's project
+   already has a build file for (`pom.xml`/`build.gradle` vs `*.csproj`); absent that, Java.
+
+6b. **Engine self-test — the check that separates "install healthy" from "user config wrong".**
+   Use the in-process, no-database connection that `sdk_guide`'s `engine_config_notes` describe
+   (take the exact connection string and its version floor from there): it **needs no database
+   and no `SENZING_ENGINE_CONFIGURATION_JSON`**. Build the factory, register a data source, add two
+   records, read the entity back — code via the `generate_scaffold` workflows `initialize` **+
+   `add_records` + `query`** (the primary route; `initialize` alone returns factory, priming,
+   purge and config-registry snippets and has **no** add-record or get-entity code — take the
+   add and the read-back from the other two). `sdk_guide(topic="full_pipeline", …)` is a
+   fallback only: it ignores `record_count` and returns the threaded production loader plus a
+   REDO snippet that is a **continuous daemon** (an endless loop that sleeps when the queue is
+   empty) with no get-entity read-back — take only its per-record redo call from the loop body,
+   never run it as-is, or the self-test hangs. Never hand-written. ✅ on success; on failure run
+   `explain_error_code` against the returned SENZ code and report that, never a raw traceback.
+
+7. **Engine configuration.** Grade `SENZING_ENGINE_CONFIGURATION_JSON` as a *convention*, not a
+   requirement — the Step 0 response's `engine_config_notes` say why; do not restate it here.
+   Grades independently of checks 4–6 (a config can exist on a host with no SDK):
+   - unset → **➖** (expected on a machine nobody has pointed at a repository yet — never ❌)
+   - set but not valid JSON → ❌
+   - set and parseable → verify every path-valued key in its pipeline section **exists on disk**
+     (the Step 0 response's `default_paths` / `engine_config` name the keys and the correct
+     values for this platform — do not hardcode either here). A wrong support-data path passes
+     every other check and then fails at engine init while the product API still works.
+   > ⛔ **Do not copy the shipped `sz_engine_config.ini` as-is** — `sdk_guide`'s `gotchas` for
+   > this platform say why and give the correct `SUPPORTPATH`. Grade a config derived from it by
+   > the on-disk check above, not by where it came from.
+
+8. **Database reachable.** ➖ when check 7 is ➖, or when the connection is the in-process one from
+   check 6b (nothing to reach). Otherwise parse the connection string from the config and test
+   it with the matching client — `sqlite3 <path> .tables` for a SQLite file (proves the file
+   exists *and* has a schema), `psql` for PostgreSQL, `mysql` for MySQL; the clients are host
+   mechanics, legitimately ours. ⚠ A SQLite repository file is **not** auto-created. The
+   connection-string formats, the schema-creation step and the per-database prerequisites are
+   Senzing facts — read them from `engine_config_notes` or
+   `sdk_guide(topic="configure", platform=…, language=…)` rather than reproducing them here;
+   they change with the SDK, this file does not.
+
+9. **License.** Depends on check 6 only. Probe the license through the product API using the
+   minimal in-process config from check 6b — no database, no user config required. Get the call
+   from `sdk_guide(topic="information", language=…)` and the response's field names from
+   `get_sdk_reference(topic="response_schemas", filter="license")` — do not name the method or
+   its fields from memory.
+   > ⚠ The tools describe the response's **shape** (`get_sdk_reference` lists its fields), not
+   > what the SDK does when no license is configured — do not assert that here. Grade by the
+   > record the probe returns; it is the observable.
+
+   No customer on the record → ⚠️ built-in eval; report the record limit it returns. **Do not
+   prompt for a license unless the user actually has more records than that limit.** Expiry in the
+   past → ❌; offer `submit_feedback(category="license_request")` for a free eval. Otherwise ✅,
+   stating the record limit and expiry. For what happens at the limit call
+   `explain_error_code(9000)` rather than restating it.
+
+## Reporting
+
+One row per check, in order, each with a glyph and a one-line status. For any ❌ or ⚠️, map the
+cause through `explain_error_code` / `sdk_guide` and give a **specific, runnable fix** — never a
+raw stack trace. Checks 1–3 are host-level and resolve independently of whether Senzing is
+installed: **a green host with no SDK is a valid, healthy state** (the caller may only need
+grounding or code generation).
+
+## Installing
+
+If there is no Senzing here, or the user asked to install one, hand off to the **`install`**
+skill — it owns the install workflow. Come back to `doctor` afterwards to verify: an installer
+exiting zero is not proof the SDK loads.

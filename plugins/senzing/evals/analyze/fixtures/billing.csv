@@ -1,0 +1,6 @@
+acct_no,name,billing_email,billing_phone,addr_line1,addr_city,addr_state,postal
+B-88001,SMITH ROBERT,rsmith@example.com,7025550143,123 MAIN ST,LAS VEGAS,NV,89101
+B-88002,Garcia Maria,mgarcia@example.com,702-555-0198,77 Fremont Ave,Las Vegas,NV,89102
+B-88003,Liz Chen,lchen@example.com,702-555-0166,900 Sahara Blvd #4,Las Vegas,NV,89104
+B-88004,A. Khan,ahmed.khan@example.com,702-555-0121,16 Desert Inn Road,Las Vegas,NV,89109
+B-88005,Jennifer Lopez,jlopez@example.com,702-555-0190,5 Lake Mead Pkwy,Henderson,NV,89015

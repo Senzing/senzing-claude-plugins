@@ -1,0 +1,8 @@
+schema_version: "1.1"
+name: analyze-multi-file-join
+context:
+  # Puts customers.csv + orders.csv into the run's empty workspace (needs --scaffold). The two
+  # files share customer_id — a join that only a SINGLE mapping_workflow over both files can
+  # see. The `analyze` skill once ran one workflow PER FILE (fixed in plugin commit 4a537cf);
+  # no other case has two related files, so nothing would catch a regression back to that.
+  scaffold_script: scaffold.sh
