@@ -47,6 +47,13 @@ else, they must tell you the path.
    host verdict is never a reason to skip `sdk_guide`: the steps are Senzing facts that live in
    the MCP, so answering "run it elsewhere" without them leaves the user with nothing to run and
    an unsurfaced license.
+   **Never END THE TURN on the host question.** "Ask if unsure" means carry the question
+   alongside the work, not instead of it: do steps 1-3 first, then close with the question and
+   what changes depending on their answer. Stopping to ask before you have fetched anything
+   leaves the user with a question and nothing else — and in any non-interactive context (a
+   scripted run, an eval, a queued job) no answer is coming, so the install simply never
+   happens. When the signals are ambiguous, state the assumption you are proceeding under,
+   deliver the steps, and let them correct you.
 
 1. **Establish the host — never assume it.**
    ```bash
