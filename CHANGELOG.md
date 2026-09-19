@@ -6,9 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.37.3] - 2026-09-18
+## [1.37.4] - 2026-09-19
 
-Plugin-only release on MCP server v1.37.3. Branch `fix-doctor-platform-gate`.
+Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
 
 ### Added
 
@@ -58,7 +58,7 @@ Plugin-only release on MCP server v1.37.3. Branch `fix-doctor-platform-gate`.
 
 ### Changed
 
-- Synced to MCP server **v1.37.3**, a security release closing CVE-2026-14456 (HIGH) in `libssl3t64` on both deployed images. Tool surface unchanged. Note the new CI gate compares `plugin.json` against the **live** agent-card, so a plugin version bump must now follow the server deploy rather than lead it — this branch was blocked by that gate until the bump, which is the gate working as designed.
+- Synced to MCP server **v1.37.4**, which carries the v1.37.3 security fix (CVE-2026-14456, HIGH, `libssl3t64` on both deployed images) plus a batch of field-reported corrections: `get_sample_data` no longer blocking a guided download, `brianmacy/sz-cpp-sdk` indexed as a community C++ SDK, a search-index chunker that was blind to level-1 `#` headings (10,968 → 11,217 chunks corpus-wide), `plan-a-poc` no longer inventing PoC success criteria, and `sdk_guide(full_pipeline)` honouring `record_count`. Tool surface unchanged. Note the CI gate compares `plugin.json` against the **live** agent-card, so a plugin version bump must follow the server deploy rather than lead it — this branch was blocked by that gate until the bump, which is the gate working as designed.
 
 
 - **`ask`** names `poc-planner` in its Not-for clause, no longer claims to be the only skill
@@ -113,7 +113,7 @@ Plugin-only release on MCP server v1.37.3. Branch `fix-doctor-platform-gate`.
   `run.sh` exited 0 when the CLI produced no result JSON.
 - **checkov false positive blocked the PR.** Its secrets scan walks the whole repo and flagged
   documented placeholder connection strings (`sqlite3://na:na@…`) in captured MCP fixtures.
-- **CHANGELOG `[1.37.3]` was a bad merge** — duplicate `Added`/`Changed`/`Fixed` blocks and an
+- **This CHANGELOG section was a bad merge** — duplicate `Added`/`Changed`/`Fixed` blocks and an
   orphaned 1.37.2 prose line nested inside it.
 
 - **`/senzing:recipes` was dead in production.** Both configured catalog refs 404'd (`recipes.md` on `main`, and a `cookbook-import` branch deleted after merge); the real catalog is `cookbook.md` on `main`. Every run stopped at the catalog fetch and told the user to allowlist a domain that was never blocked. The ref-fallback list was built to survive a branch *move* and cannot survive a file *rename*. Also removed instructions to parse YAML frontmatter that recipes do not have.
