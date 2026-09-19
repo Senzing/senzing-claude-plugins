@@ -298,6 +298,12 @@ jobs:
         # the CLI's scaffold dirs live under /tmp, and the nesting is deeper than 4.
         # It reported "collected 0" and the artifact shipped without traces, so the
         # first macOS failure had to be diagnosed from grader `evidence` alone.
+        #
+        # The depth-8 fix STILL collected zero, for a second reason: on macOS `/tmp` is
+        # a SYMLINK to /private/tmp, and `find` does not follow symlinks without -L. The
+        # CLI's scaffold dirs are `/private/tmp/e-XXXXXX/out/trace.jsonl`. Hence -L plus
+        # /private/tmp explicitly, and the fallback listing looks for `e-*` too, which
+        # is what the dirs are actually named on macOS (not `claude-eval-*`).
         run: |
           dest=plugins/senzing/evals/results/traces
           mkdir -p "$dest"
@@ -305,12 +311,12 @@ jobs:
           while IFS= read -r t; do
             n=$((n + 1))
             cp "$t" "$dest/trace-$n.jsonl" 2>/dev/null || true
-          done < <(find "${TMPDIR:-/tmp}" /tmp -maxdepth 8 -name 'trace.jsonl' 2>/dev/null | sort -u)
+          done < <(find -L "${TMPDIR:-/tmp}" /tmp /private/tmp -maxdepth 8 -name 'trace.jsonl' 2>/dev/null | sort -u)
           echo "collected $n trace file(s) into $dest"
           if [ "$n" -eq 0 ]; then
             echo "::warning::no trace.jsonl found — a CI-only failure will not be diagnosable from this artifact"
             echo "searched: ${TMPDIR:-<unset>} and /tmp"
-            find /tmp -maxdepth 1 -name 'claude-eval-*' 2>/dev/null | head -5 || true
+            find -L /tmp /private/tmp -maxdepth 1 \( -name 'claude-eval-*' -o -name 'e-*' \) 2>/dev/null | head -5 || true
           fi
           # A tool-name histogram in the log itself, so the answer is visible without
           # downloading anything.
