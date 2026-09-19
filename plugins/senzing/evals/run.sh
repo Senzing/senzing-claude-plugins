@@ -62,12 +62,15 @@ ERROR: ANTHROPIC_API_KEY is unset or is a placeholder.
 
 Set it in $HOME/.env -- outside every repo, so it cannot be committed:
 
-  read -rs -p 'ANTHROPIC_API_KEY: ' K \
+  printf 'ANTHROPIC_API_KEY: ' && read -rs K \
     && printf 'ANTHROPIC_API_KEY=%s\n' "$K" > "$HOME/.env" \
     && chmod 600 "$HOME/.env" && unset K
 
 That form prompts for the value, so the key never reaches shell history or a
-terminal transcript. Do NOT paste a literal key onto a command line: a
+terminal transcript. It uses a separate printf for the prompt because read's
+-p flag is bash-only -- under zsh (the default shell on macOS) `read -p`
+fails with "no coprocess" and the && chain silently aborts, leaving whatever
+was in the file before. Do NOT paste a literal key onto a command line: a
 documented example string was copied verbatim into $HOME/.env once already,
 and a non-empty placeholder is worse than an empty one -- it survives a bare
 emptiness check and then fails as an opaque auth error far from the cause.
