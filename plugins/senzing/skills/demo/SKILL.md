@@ -101,6 +101,12 @@ second report.
      went into a **throwaway scratch repository** and which storage backed it (the SQLite file, or
      `internal://`). A viewer of the result must never be left wondering whether a demo touched a
      real repository of theirs — and "I used a scratch repo" is the sentence that answers it.
+   - **Never preempt the engine with your own duplicate-spotting.** Before the load has run you
+     have no results, so naming likely matches invents them. Do not print a record id, name,
+     email, or pair as a "these look like a match" preview, *even heavily caveated* — a run did
+     exactly this, naming two name-variant pairs by DOB and license number before resolving
+     anything. The demo's whole claim is that Senzing found it; a guess in the same message
+     dilutes the one thing being demonstrated.
 3. **Deliver analytics — required; the demo is not complete until this ships.** A demo is
    **load → analytics**, not load alone. Over the **real** results, use `reporting_guide` for the
    report/entity-view + visualization patterns and produce BOTH:

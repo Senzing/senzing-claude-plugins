@@ -1,0 +1,25 @@
+{
+  "_comment": "A run that errored before grading has an EMPTY grader list. Nothing failed, so a naive all-passed check calls the deterministic gate clean and the suite goes green having measured nothing -- the same class of silent pass that let the suite run zero cases for months. It must be rc 2 (structurally unusable), never rc 0.",
+  "costUsd": 0.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 0, "overallScore": 0 },
+  "cases": [
+    {
+      "name": "errored",
+      "aggregates": { "score": 0 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "skill-fired", "type": "tool_used" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": "the Bash sandbox could not start on this machine",
+            "graders": []
+          }
+        ]
+      }
+    }
+  ]
+}

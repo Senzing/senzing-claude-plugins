@@ -336,8 +336,51 @@ raw stack trace. Checks 1–3 are host-level and resolve independently of whethe
 installed: **a green host with no SDK is a valid, healthy state** (the caller may only need
 grounding or code generation).
 
+### Who asked — and where the turn goes next
+
+**Establish this before you report, because it decides whether the table is the answer or a
+footnote.**
+
+- **The user asked for `doctor`** ("is my Senzing set up?", `/senzing:doctor`) → the table IS
+  the deliverable. Report it and stop.
+- **Another skill invoked you as its preflight** (`analyze`, `demo`, `report`, `recipes`,
+  `build`, `install`) → the table is an **intermediate result, not a destination**. Post it and
+  **carry straight on with the caller's procedure in the same turn.** Do not end the turn on the
+  verdict, do not close with a question, and do not offer `install` — the caller's own procedure
+  already decides what a missing SDK means for it, and in `analyze`'s case the answer is
+  explicitly "map anyway, offer install at the end".
+
+**This is the most expensive way this skill fails, and it does not look like a failure.** In the
+eval suite it showed up as `mapping_workflow called 0x` on `analyze`, `analyze-multi-file-join`
+and `routing-negative-dedupe` — 19 failing assertions across the CI runs on record. The trace is
+always the same: `analyze` fires, invokes `doctor`, `doctor` probes the host, finds no SDK, and
+the run's final message is this skill's status table. The user asked to dedupe a file and got an
+environment report. Nothing errored, every row was correct, and the actual job never started.
+
+A no-SDK verdict is the caller's cue to take its degraded path — **never** a reason to stop
+short of it. When you hand back, say so in one line ("preflight done — SDK not installed;
+continuing with the mapping") so the next step is visibly yours to take, then take it.
+
+### Probe budget
+
+One command per question, not one per doubt. The whole preflight is a handful of shell calls:
+Step 0's `uname`, the reachability curl, one write probe (check 3's rule — in the project
+directory, once), the platform's own install-location command (check 4), and the SDK/engine/
+license probes once an install is found. A question that resists its one probe is reported ⚠️
+with what you saw.
+
+A preflight that spends a dozen Bash calls re-asking the same question — five ways to find a
+writable directory, three ways to list Homebrew casks — has burned the caller's turn budget on
+forensics. That is not thoroughness; it is how `demo` reached the end of its turns having
+probed the host beautifully and never called `sdk_guide`.
+
 ## Installing
 
 If there is no Senzing here, or the user asked to install one, hand off to the **`install`**
 skill — it owns the install workflow. Come back to `doctor` afterwards to verify: an installer
 exiting zero is not proof the SDK loads.
+
+**Only when the user asked for `doctor`.** Invoked as another skill's preflight, "no SDK" is a
+row in the table you hand back, not an offer you make — see *Who asked* above. `analyze` in
+particular has its own rule that installing is never the question put before the mapping, so
+relaying the offer from here derails it.

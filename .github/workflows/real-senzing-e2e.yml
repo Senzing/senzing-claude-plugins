@@ -1,0 +1,167 @@
+name: Real Senzing E2E
+
+# The one eval that runs the plugin all the way to a resolved dataset and checks
+# the answer against published ground truth.
+#
+# Why it is a separate workflow and not another case in ci.yml's behavioral-eval:
+#
+#   * behavioral-eval runs on macos-latest DELIBERATELY (three stacked bubblewrap
+#     faults on ubuntu-24.04 — see its `runs-on` comment) and its whole suite is
+#     built around a sandbox with NO Senzing installed; several cases assert that
+#     absence. This job needs the opposite: a Linux host with senzingsdk-runtime
+#     and a writable filesystem. Nothing here touches that job.
+#   * its run.sh asserts "cases discovered == case directories on disk", so the
+#     new case lives in a sibling eval dir (plugins/senzing/evals-real/) that the
+#     macOS suite never sees.
+#
+# Why it does not gate every PR: it builds a container, downloads a ~260 MB SDK
+# package and runs a full map -> load -> resolve, so it is slow and it spends API
+# budget. It runs on demand, weekly, and on any PR labelled `real-senzing-e2e`.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Mondays 07:00 UTC. Catches drift in the plugin, the MCP server and the
+    # Senzing release, none of which are pinned to this repo's commits.
+    - cron: "0 7 * * 1"
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  real-senzing-e2e:
+    name: Real Senzing end-to-end (map -> load -> resolve -> ground truth)
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'real-senzing-e2e')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      # Read into env, never into a step `if:` — `secrets.*` in a step `if:` is
+      # rejected by GHA at parse time and the run reports as a 0s failure with no
+      # jobs scheduled.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      SENZING_EVAL_IMAGE: senzing-claude-plugins-eval:local
+      # Host directory mounted at /tmp inside the container, so the eval's
+      # --keep-temp workspaces survive between steps and the verifier can open
+      # the Senzing repository the run left behind.
+      SENZING_EVAL_TMP: ${{ github.workspace }}/../sz-eval-tmp
+      # One run: each is a full map+load+resolve, and the ground-truth gate
+      # inspects the single repository it produces.
+      EVAL_RUNS: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Ground-truth self-test (free, offline, no Senzing, no API key)
+        # Runs before anything is built or spent. Re-derives the expected record
+        # and entity counts from the vendored truth-set key, asserts the key and
+        # the fixtures still describe the same 159 records, and asserts the two
+        # literals in the graders still match the derived numbers. Fixture drift
+        # must fail for $0, not halfway through a paid run.
+        run: python3 plugins/senzing/evals-real/verify_truthset.py --self-test
+
+      - name: Gate on API key availability
+        id: gate
+        run: |
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ANTHROPIC_API_KEY is not available to this run (fork PR or secret unset) — real-Senzing eval SKIPPED, not passed."
+          else
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare the shared temp mount
+        if: steps.gate.outputs.has_key == 'true'
+        # Mounted at /tmp in the container, so it needs /tmp's permissions.
+        run: |
+          mkdir -p "$SENZING_EVAL_TMP"
+          chmod 1777 "$SENZING_EVAL_TMP"
+
+      - name: Build the Senzing eval image
+        if: steps.gate.outputs.has_key == 'true'
+        # Plain `docker build` — no extra action to pin, and the layers that cost
+        # time (the ~260 MB senzingsdk-runtime package) are the ones a registry
+        # cache would not help with on a fresh runner anyway. ~5 minutes.
+        #
+        # The EULA is accepted here, in the open, by the repository that owns it.
+        # The Dockerfile has no default for this arg on purpose.
+        run: |
+          docker build \
+            --build-arg SENZING_ACCEPT_EULA=I_ACCEPT_THE_SENZING_EULA \
+            --tag "$SENZING_EVAL_IMAGE" \
+            --file .github/senzing-eval/Dockerfile \
+            .github/senzing-eval
+
+      - name: Senzing preflight — prove the engine runs before spending anything
+        if: steps.gate.outputs.has_key == 'true'
+        # Free (no API calls). Builds a scratch SQLite repository, loads three
+        # records, drains redo and reads them back. If Senzing cannot run here the
+        # job stops HERE, with "Senzing cannot run on this host" rather than a
+        # score that reads like a plugin verdict. It never falls back to a
+        # simulated result.
+        run: bash .github/senzing-eval/in-container.sh 'python3 /work/.github/senzing-eval/preflight.py /tmp/sz-preflight'
+
+      - name: Run the real-Senzing eval suite
+        if: steps.gate.outputs.has_key == 'true'
+        # --keep-temp preserves the run workspace, which is where the agent's
+        # scratch Senzing repository lives. The next step opens it.
+        run: bash .github/senzing-eval/in-container.sh 'bash plugins/senzing/evals-real/run.sh --keep-temp'
+
+      - name: Ground-truth verification (THE gate)
+        if: always() && steps.gate.outputs.has_key == 'true'
+        # Runs even when the eval step failed: whether the engine produced the
+        # right entities is the more informative signal, and "no repository at
+        # all" is itself the verdict for a run that reported numbers it never
+        # computed.
+        #
+        # This is deliberately NOT a grader. `claude plugin eval` has no
+        # shell/command grader, so every grader verdict is ultimately a statement
+        # about text the agent produced — and text is exactly what a fabricating
+        # run is good at. This step opens the repository instead.
+        run: |
+          set -euo pipefail
+          # Diagnostic only. The marker the scaffold drops says whether a run
+          # workspace was preserved at all, which is the difference between "the
+          # agent never got that far" and "it ran but resolved wrongly".
+          root=$(find "$SENZING_EVAL_TMP" -maxdepth 8 -name '.sz-eval-root' -print -quit 2>/dev/null || true)
+          echo "scaffold marker: ${root:-<none found>}"
+          bash .github/senzing-eval/in-container.sh \
+            'python3 /work/plugins/senzing/evals-real/verify_truthset.py --search-root /tmp --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json'
+
+      - name: Collect traces and hand results back to the runner
+        if: always() && steps.gate.outputs.has_key == 'true'
+        # The container writes as root; the artifact step runs as the runner user.
+        run: |
+          dest=plugins/senzing/evals-real/results
+          mkdir -p "$dest/traces"
+          n=0
+          while IFS= read -r t; do
+            n=$((n + 1))
+            cp "$t" "$dest/traces/trace-$n.jsonl" 2>/dev/null || true
+          done < <(find -L "$SENZING_EVAL_TMP" -maxdepth 8 -name 'trace.jsonl' 2>/dev/null | sort -u)
+          echo "collected $n trace file(s) into $dest/traces"
+          sudo chown -R "$(id -u):$(id -g)" "$dest" 2>/dev/null || true
+          if [ "$n" -gt 0 ]; then
+            echo "== tool_use histogram across collected traces =="
+            cat "$dest"/traces/*.jsonl 2>/dev/null \
+              | grep -o '"name":"[A-Za-z0-9_]*"' \
+              | sort | uniq -c | sort -rn | head -30
+            echo "== sandbox failures (would make every Bash call environmental, not a plugin verdict) =="
+            grep -ohE 'bwrap:[^"]{0,110}|sandbox-exec:[^"]{0,110}' "$dest"/traces/*.jsonl 2>/dev/null \
+              | sort -u | head -5 || echo "  none"
+          fi
+
+      - name: Upload eval results, verdict and traces
+        if: always() && steps.gate.outputs.has_key == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: real-senzing-e2e-results
+          path: plugins/senzing/evals-real/results/
+          if-no-files-found: warn
+          retention-days: 14

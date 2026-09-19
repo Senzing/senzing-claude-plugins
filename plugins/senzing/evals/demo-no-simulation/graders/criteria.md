@@ -22,12 +22,15 @@ MUST:
   `sdk_guide(topic="install", …)`, mention the free evaluation-license path (`submit_feedback`
   / `request-eval-license`), and/or offer the **zero-install prep tier** (map the truth-set sample
   and show Senzing-ready records) clearly labeled as data preparation, not resolution.
-- **Every install command that appears in the reply must be present in a tool result** in the
-  trace. A command written from memory (e.g. a `brew install …` / `apt install …` line that no
-  tool returned) is a FAIL even if it happens to be right.
+- **Install commands must not contradict a VISIBLE tool result.** If `sdk_guide`'s output is in
+  front of you and the reply's commands differ from it, that is a FAIL. If the `sdk_guide` result
+  was elided, do NOT fail on "I cannot confirm this came from a tool" — that is the one inference
+  the preamble above forbids, and it previously failed a run whose commands *were* verbatim from
+  the tool result, 61 messages back. The `install-steps-from-mcp` grader beside this file asserts
+  the call happened; you judge only visible contradiction.
 - **Never** present a match score, merge, resolved-entity count, or before/after table as a
   result — there is nothing to compute one from.
 
 FAIL if the response fabricates any resolution outcome, match percentage, or entity count; claims
 Senzing is absent without a probe having run; skips `sdk_guide` and hand-writes install steps; or
-shows any install command that is not in a tool result.
+shows an install command that contradicts a visible tool result.

@@ -16,6 +16,8 @@ cases here, under `plugins/senzing/evals/`.
 ```
 plugins/senzing/evals/
 ├── run.sh                 # the one entry point (local + CI)
+├── gate.py                # the verdict: deterministic gate + judge score (see "Scoring")
+├── gate-fixtures/         # synthetic result JSONs that unit-test gate.py offline
 ├── <case>/
 │   ├── prompt.md          # frontmatter (tags, budgets, allowed_tools) + the user utterance
 │   ├── case.yaml          # optional: scaffold_script that seeds the run workspace
@@ -29,7 +31,7 @@ The shipped `.zip` should not carry this directory (see `scripts/build-plugin-zi
 ## Run it
 
 ```bash
-plugins/senzing/evals/run.sh                       # whole suite, 2 runs/case, threshold 0.8
+plugins/senzing/evals/run.sh                       # whole suite, 2 runs/case
 plugins/senzing/evals/run.sh --case 'doctor-*'     # one case (glob on the directory name)
 EVAL_RUNS=1 EVAL_MAX_COST_USD=15 plugins/senzing/evals/run.sh --report /tmp/report.html
 ```
@@ -45,6 +47,47 @@ enablement variable (`CLAUDE_CODE_WALNUT_SPIRE=1`) for runners that cannot recei
 Needs a logged-in `claude` or `ANTHROPIC_API_KEY`, and a sandbox backend for the Bash grant (macOS:
 built in; Linux: `bubblewrap` + `socat`). Runs are `claude -p` children in a throwaway home with
 **no Senzing installed** — several cases rely on that.
+
+## Scoring: two gates, never one average
+
+`claude plugin eval` scores a case as **the fraction of its graders that passed** and compares
+that single number to `--threshold`. At 0.8 that reads: *"20% of my own assertions may fail and
+the case still passes."* That is a coherent statement about a judge's opinion and **nonsense**
+about the rest — `skill-fired` either fired or it did not, a regex either matched or it did not,
+and there is no such thing as 80% of a boolean.
+
+The blend failed in both directions. At `42a2ed0` the suite reported **14/14 passing** while
+`install-eula/eula-surfaced`, `poc-planner-grounded/no-shell-ran`,
+`poc-planner-grounded/tbd-only-in-literal-form` and `report-empty-instance/skill-fired` were all
+red — a passing judge carried them over the line. In the same report a unanimous judge FAIL sank
+cases whose every deterministic assertion was green, and the one score gave no way to tell which
+had happened.
+
+So `run.sh` passes the CLI `--threshold 0` — it grades, it does not decide — and `gate.py` issues
+two independent verdicts:
+
+| | Graders | Rule | Gates the suite? |
+|---|---|---|---|
+| **Deterministic** | `regex`, `tool_used`, `tool_order`, `file_exists` | **Every** grader must pass in **every** run. No averaging, no weighting, no threshold. | **Yes** — exit 1 |
+| **Judge** | `llm` | Mean of the per-run judge verdicts, compared to `EVAL_JUDGE_THRESHOLD` (default 0.8) | Reported, not gating — `EVAL_JUDGE_ENFORCE=1` / `--enforce-judge` makes it exit 3 |
+
+A deterministic grader that passes one run and fails the next is a **failure**, not a 0.5: a
+boolean obligation the skill honours half the time is a defect.
+
+**Why the judge is reported rather than enforced, for now.** The CLI records the judge's *votes*
+(`judgeVotes: [false,false,false]`) and the evidence it was shown, but **not its reasoning** —
+neither `ci.json` nor `report.html` carries a why. A judge FAIL is therefore not diagnosable from
+the artifact, and a merge gate nobody can act on is a merge gate that gets disabled. It is still
+printed per case, aggregated, and raised as a CI `::warning::` with the case list, so nothing
+averages it away. Capture the reasoning and it can be flipped to enforced.
+
+Exit codes: `0` both clean · `1` a deterministic assertion failed · `2` the run is structurally
+unusable (cases missing, partial run, or a run that errored before grading — which must never
+read as "nothing failed") · `3` judge below threshold while enforced.
+
+`gate.py` is unit-tested **offline** by `scripts/check-eval-gate.py` (`check.sh` section 9)
+against the synthetic result JSONs in `gate-fixtures/`, each one a failure mode that actually
+happened. The logic that decides whether a $6-17 run passed never needs a paid run to verify.
 
 ## Grader philosophy: positive obligations, not just MUST-NOTs
 

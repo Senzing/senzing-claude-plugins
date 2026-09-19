@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Real-Senzing end-to-end eval (`plugins/senzing/evals-real/`, `.github/workflows/real-senzing-e2e.yml`).**
+  The behavioral suite has never tested `analyze` past step 3 of 7 and structurally could not — it
+  runs on a macOS host with no Senzing, and its own `analyze` case says so ("The sandbox has no
+  Senzing, so the run ends by saying so"). No grader anywhere asserted an entity count, a match
+  score, a why/how result or a report. The new `resolve-truthset` case goes the full distance on a
+  Linux container that really has `senzingsdk-runtime`: one `mapping_workflow` over all three
+  truth-set CSVs, mapper run, load into a fresh on-disk SQLite scratch repository, redo queue
+  drained, entities counted.
+  The verdict is **not** a grader — `claude plugin eval` has no shell grader, so every grader is a
+  statement about text the agent produced, and text is what a fabricating run is good at. A job
+  step opens the repository the run left behind with the real V4 SDK and checks it against
+  Senzing's own published ground-truth key (`Senzing/truth-sets`, pinned): 159 records, **85**
+  entities, the exact cluster partition, and an empty redo queue. Both numbers are derived from
+  the key at run time, never frozen literals; `ground-truth/PROVENANCE.md` records the pin, the
+  derivation and its limits. No repository found is a FAIL, never a skip. A free offline
+  self-test re-derives the expectation (and cross-checks the two literals the graders carry)
+  before any budget is spent, and a free Senzing preflight proves the engine resolves on the host
+  before that. 159 records sits inside the 500-record no-license ceiling, so no license or
+  credential is involved.
+  Separate workflow and separate eval directory on purpose: the macOS `behavioral-eval` job and
+  its suite are untouched, and it does not gate every PR (`workflow_dispatch`, weekly, or the
+  `real-senzing-e2e` label).
+
 ## [1.37.4] - 2026-09-19
 
 Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.

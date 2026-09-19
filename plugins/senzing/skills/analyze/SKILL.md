@@ -180,6 +180,14 @@ State the resolved input list to the user before proceeding — informational, n
    raw data" rather than Senzing's does not make it safe — the user cannot audit it, and it is the
    number they will remember. If asked "who is who", answer that resolving it requires the engine,
    and stop there.
+   **Name no records.** The rule is not "assert no match" — it is "name no candidate". Do not
+   print a record id, a person or company name, an email, or a pair, *even as an illustration of
+   what you are declining to say*: "the two 'Smith' rows share a phone, but that's a guess" is the
+   banned thing, not an exemption from it. A caveat does not travel with the sentence; the names
+   do. This has already produced a wrong answer — a run named three Robert Smith records as one
+   person when the file held a deliberate decoy: a different Robert Smith, different email,
+   different city, different date of birth. Say which FIELDS would drive resolution if you must
+   say anything; never which ROWS.
 4. **Load into a fresh, isolated scratch repository — NOT their production Senzing.** Resolving a
    dataset must not pollute the user's real entity repo, so **by default create a dedicated scratch
    Senzing repository**: a fresh SQLite instance in the workspace, initialized empty — the same

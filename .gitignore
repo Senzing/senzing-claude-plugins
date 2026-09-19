@@ -20,3 +20,12 @@ dist/
 
 # Behavioral eval output (`claude plugin eval ... --json evals/results/ci.json`)
 **/evals/results/
+# Real-Senzing eval output (sibling suite; same shape, different eval dir)
+**/evals-real/results/
+
+# Local credentials. THIS REPO IS PUBLIC — without this rule a `git add -A`
+# after dropping an ANTHROPIC_API_KEY into .env.local publishes it. The eval
+# runner loads .env.local so the suite can be run locally instead of only
+# through CI (a CI-only eval costs ~55 min of queue per iteration).
+.env
+.env.*

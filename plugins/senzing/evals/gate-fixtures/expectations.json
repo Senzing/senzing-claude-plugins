@@ -1,0 +1,83 @@
+{
+  "_comment": [
+    "What gate.py must do with each fixture. `rc` is the process exit code:",
+    "0 = both gates clean, 1 = a deterministic assertion failed, 2 = the run is",
+    "structurally unusable (cases missing / partial / a run errored), 3 = judge below",
+    "threshold while --enforce-judge is on. Checked offline by scripts/check-eval-gate.py",
+    "(check.sh section 10) so the split's logic never needs a paid eval run to verify."
+  ],
+  "checks": [
+    {
+      "name": "a passing judge may not carry a failing deterministic assertion",
+      "fixture": "masked-deterministic.json",
+      "expected_cases": 1,
+      "rc": 1,
+      "must_contain": [
+        "masked-by-the-judge/skill-fired",
+        "DETERMINISTIC gate: 1 assertion(s) failed"
+      ],
+      "must_not_contain": ["pass\n"]
+    },
+    {
+      "name": "a deterministic grader that passes one run and fails the other is a failure",
+      "fixture": "flaky-deterministic.json",
+      "expected_cases": 1,
+      "rc": 1,
+      "must_contain": [
+        "flaky-across-runs/eula-surfaced  failed 1 of 2 run(s) (#1)",
+        "DETERMINISTIC gate  0/1 cases clean"
+      ]
+    },
+    {
+      "name": "a dissenting judge is reported as its own number, not a deterministic failure",
+      "fixture": "judge-only.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "must_contain": [
+        "DETERMINISTIC gate  1/1 cases clean",
+        "judge-dissents  judge 0.00",
+        "reported, not gating"
+      ],
+      "must_not_contain": ["DETERMINISTIC gate: "]
+    },
+    {
+      "name": "--enforce-judge turns the same dissent into a hard failure with its own exit code",
+      "fixture": "judge-only.json",
+      "expected_cases": 1,
+      "enforce_judge": true,
+      "rc": 3,
+      "must_contain": ["FAIL (judge)", "enforced"]
+    },
+    {
+      "name": "both gates clean passes, and tool_order counts as deterministic",
+      "fixture": "all-clean.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "must_contain": ["clean                                2/2 ok    1.00  pass"]
+    },
+    {
+      "name": "fewer cases than exist on disk is a layout regression, not a pass",
+      "fixture": "all-clean.json",
+      "expected_cases": 2,
+      "rc": 2,
+      "must_contain": ["only 1 of 2 cases were discovered"]
+    },
+    {
+      "name": "a run that errored before grading may not pass vacuously",
+      "fixture": "run-error.json",
+      "expected_cases": 1,
+      "rc": 2,
+      "must_contain": [
+        "RUN ERROR errored",
+        "had a run that errored before grading"
+      ]
+    },
+    {
+      "name": "a partial run fails even when everything it did grade passed",
+      "fixture": "partial-run.json",
+      "expected_cases": 1,
+      "rc": 2,
+      "must_contain": ["partial run: max cost reached"]
+    }
+  ]
+}

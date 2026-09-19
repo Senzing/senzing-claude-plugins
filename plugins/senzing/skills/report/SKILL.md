@@ -5,9 +5,12 @@ description: >
   largest entities, match quality, dashboards — using read-only search/why/how calls and reporting
   SQL, rendered as a shareable result. Use when the data is already in Senzing — e.g. "why did
   these two resolve?", "show me my biggest entities", "dashboard of my resolved entities", "run
-  some ER quality checks". Read-only: never loads or mutates. Runs doctor first to confirm this
-  host can deliver the result. Not for starting from data files (use analyze) or writing reporting
-  code into a project (use build).
+  some ER quality checks". Use it even when there may be nothing loaded — a brand-new, empty or
+  unknown-size repository is this skill's job too, because establishing the entity count and
+  refusing rather than inventing one IS the work. "The repository is empty" is a reason to run
+  this skill, never a reason to answer the question without it. Read-only: never loads or
+  mutates. Runs doctor first to confirm this host can deliver the result. Not for starting from
+  data files (use analyze) or writing reporting code into a project (use build).
 argument-hint: "[question]"
 allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
 ---

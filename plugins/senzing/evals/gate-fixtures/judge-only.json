@@ -1,0 +1,32 @@
+{
+  "_comment": "The other direction: every deterministic assertion is green and only the judge dissents. The old blended score sank the case with no way to tell which kind of grader failed. Reported, not gating, unless --enforce-judge.",
+  "costUsd": 1.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 0, "overallScore": 0.75 },
+  "cases": [
+    {
+      "name": "judge-dissents",
+      "aggregates": { "score": 0.75 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "skill-fired", "type": "tool_used" },
+        { "name": "no-shell-ran", "type": "tool_used" },
+        { "name": "plan-written", "type": "file_exists" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "graders": [
+              { "name": "criteria", "passed": false, "judgeVotes": [false, false, false] },
+              { "name": "skill-fired", "passed": true },
+              { "name": "no-shell-ran", "passed": true },
+              { "name": "plan-written", "passed": true }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -134,7 +134,16 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 # would burn a paid eval run; a fabricated plan the graders pass is a grader that does nothing.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 
-echo; echo "== 9. Eval case frontmatter parses as YAML =="
+echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
+# The suite's verdict is two independent gates, computed by plugins/senzing/evals/gate.py:
+# deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
+# llm judge is scored separately. That logic decides whether a $6-17 run is a pass, so it is
+# unit-tested here against synthetic result JSONs -- including the two failure modes that
+# actually shipped: a passing judge masking a failed deterministic assertion, and a run that
+# errored before grading being read as "nothing failed".
+if python3 scripts/check-eval-gate.py; then ok "eval scoring split"; else bad "eval scoring split"; fi
+
+echo; echo "== 10. Eval case frontmatter parses as YAML =="
 # Why: `claude plugin eval` silently DROPS a case whose frontmatter will not parse -- it
 # prints one "✗ ... invalid YAML frontmatter" line and carries on. run.sh's discovery gate
 # catches the resulting count mismatch, but only DURING a paid run. poc-planner-how-long
@@ -170,7 +179,26 @@ if "description" not in data:
     sys.exit("missing: description")
 PYEOF
   then ok "$pm"; else bad "$pm"; fi
-done < <(find plugins -path '*/evals/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+done < <(find plugins -path '*/evals*/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+fi
+
+echo; echo "== 11. Spelling (cspell — same config CI uses) =="
+# CI runs senzing-factory/build-resources cspell.yaml against .vscode/cspell.json.
+# check.sh did NOT, so a run could pass every local gate and still be blocked by
+# Spellcheck on the PR. That is not a cosmetic gap in this repo: every push fires
+# a behavioral eval costing $6-17 and ~55 minutes, so two unknown dictionary
+# words buy a full eval cycle. Local and CI must agree before the push, not after.
+if command -v npx >/dev/null 2>&1; then
+  if npx --yes --quiet cspell@8 lint --no-progress --config .vscode/cspell.json \
+       --no-must-find-files "**/*" 2>/dev/null; then
+    ok "cspell: no unknown words"
+  else
+    bad "cspell found unknown words (add real terms to .vscode/cspell.json words[])"
+    npx --yes --quiet cspell@8 lint --no-progress --config .vscode/cspell.json \
+      --no-must-find-files "**/*" 2>&1 | grep -E 'Unknown word' | head -20
+  fi
+else
+  note "npx not available — SKIPPED. CI still runs this; unknown words will block the PR."
 fi
 
 echo

@@ -1,0 +1,35 @@
+{
+  "_comment": "A boolean obligation honoured in one run and not the other. Averaging over runs would call this 0.5 and a case-level threshold would wave it through; the deterministic gate requires every run.",
+  "costUsd": 1.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 1, "overallScore": 0.75 },
+  "cases": [
+    {
+      "name": "flaky-across-runs",
+      "aggregates": { "score": 0.75 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "eula-surfaced", "type": "regex" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "graders": [
+              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              { "name": "eula-surfaced", "passed": true }
+            ]
+          },
+          {
+            "error": null,
+            "graders": [
+              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              { "name": "eula-surfaced", "passed": false, "explanation": "pattern not found in last_message" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

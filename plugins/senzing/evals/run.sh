@@ -8,19 +8,60 @@
 # disk, (2) refuses to treat the early-access gate message as a pass, and (3) propagates the
 # CLI's threshold exit code.
 #
+#
+# Scoring is NOT the CLI's blended average — see gate.py next to this file. Deterministic
+# graders (regex / tool_used / file_exists / tool_order) must ALL pass in EVERY run; the llm
+# judge is scored separately against its own threshold and can neither mask nor be masked by
+# them. The CLI is therefore run with `--threshold 0`: it grades, gate.py decides.
+#
 # Usage: plugins/senzing/evals/run.sh [--case <glob>] [extra claude-plugin-eval args...]
-# Env:   EVAL_RUNS (default 2)  EVAL_THRESHOLD (default 0.8)  EVAL_MAX_COST_USD (default 75)
+# Env:   EVAL_RUNS (default 2)  EVAL_MAX_COST_USD (default 75)
+#        EVAL_JUDGE_THRESHOLD (default 0.8; EVAL_THRESHOLD honored as the old name)
+#        EVAL_JUDGE_ENFORCE=1 makes the judge score a hard gate too (default: reported only)
 #        EVAL_CONCURRENCY (default 3)  EVAL_JSON (default <evals>/results/ci.json)
 #        EVAL_MODEL (default sonnet)   EVAL_JUDGE_MODEL (default sonnet)
 # Needs: ANTHROPIC_API_KEY (or a logged-in claude), the sandbox backend for Bash grants
 #        (macOS: built in; Linux: bubblewrap + socat), and network to mcp.senzing.com.
 set -euo pipefail
 
+# Load local credentials so the suite can be run WITHOUT pushing to CI.
+# A CI-only eval means every iteration costs a push plus ~55 minutes of queue,
+# which is how a one-line fix turned into an hour repeatedly. Run it here first.
+#
+# ~/.env is the standard location across the Senzing MCP repos, and it is
+# deliberately OUTSIDE every checkout: this repo is public, so a key living in
+# the tree is one `git add -A` away from being published. The in-repo
+# .env.local is honored second for per-repo overrides and is gitignored.
+# CI has neither file and uses the ANTHROPIC_API_KEY repo secret instead.
+for _env_file in "$HOME/.env" "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/.env.local"; do
+  if [ -f "$_env_file" ]; then
+    echo "loading credentials from ${_env_file/#$HOME/~}"
+    set -a
+    # shellcheck disable=SC1090
+    . "$_env_file"
+    set +a
+  fi
+done
+
+if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+  if [ "${CI:-}" = "true" ]; then
+    echo "ERROR: ANTHROPIC_API_KEY is unset in CI." >&2
+    echo "This job must FAIL rather than skip — an eval that passes by not running" >&2
+    echo "is how this suite stayed green for its entire existence. Set the secret." >&2
+    exit 1
+  fi
+  echo "ERROR: ANTHROPIC_API_KEY is unset." >&2
+  echo "Put it in ~/.env (preferred; outside every repo) as:" >&2
+  echo "  ANTHROPIC_API_KEY=sk-ant-..." >&2
+  exit 1
+fi
+
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 plugin_dir="$(dirname "$here")"
 eval_dir_name="$(basename "$here")"
 results_dir="$here/results"
 json_out="${EVAL_JSON:-$results_dir/ci.json}"
+judge_threshold="${EVAL_JUDGE_THRESHOLD:-${EVAL_THRESHOLD:-0.8}}"
 mkdir -p "$results_dir" "$(dirname "$json_out")"
 
 # Every immediate child directory holding a prompt.md or case.yaml is a case.
@@ -65,7 +106,14 @@ args=(
   --model "${EVAL_MODEL:-sonnet}"
   --judge-model "${EVAL_JUDGE_MODEL:-sonnet}"
   --runs "${EVAL_RUNS:-2}"
-  --threshold "${EVAL_THRESHOLD:-0.8}"
+  # Deliberately 0 — the CLI must NOT issue the verdict. Its --threshold is compared against
+  # a single blended score: the fraction of a case's graders that passed, judge and
+  # deterministic averaged together. At 0.8 that said "20% of my own assertions may fail",
+  # which is a coherent statement about a judge's opinion and nonsense about `skill-fired`.
+  # It let a passing judge carry a FAILING deterministic assertion over the line (at 42a2ed0
+  # the suite reported 14/14 with four deterministic assertions red). gate.py below splits
+  # the two and owns the exit code; 0 here keeps the CLI grading and out of the deciding.
+  --threshold 0
   --max-cost-usd "${EVAL_MAX_COST_USD:-75}"
   --no-publish
   --json "$json_out"
@@ -95,27 +143,19 @@ if [ ! -s "$json_out" ]; then
   exit 1
 fi
 
-# Discovery gate + human-readable summary. Exit 1 if fewer cases ran than exist on disk.
-python3 - "$json_out" "$expected" "${EVAL_THRESHOLD:-0.8}" <<'PY'
-import json, sys
-path, expected, threshold = sys.argv[1], int(sys.argv[2]), float(sys.argv[3])
-r = json.load(open(path))
-cases = r.get("cases", [])
-agg = r.get("aggregates", {})
-print(f"\n{'CASE':<28}{'SCORE':>7}  STATUS")
-for c in cases:
-    score = (c.get("aggregates") or {}).get("score")
-    s = "n/a" if score is None else f"{score:.2f}"
-    ok = score is not None and score >= threshold
-    print(f"{c.get('name',''):<28}{s:>7}  {'pass' if ok else 'FAIL'}")
-print(f"\ncases run={len(cases)} expected={expected} passed={agg.get('casesPassed')}/{agg.get('casesTotal')} "
-      f"overall={agg.get('overallScore')} cost=${r.get('costUsd')} partial={r.get('partial')} ({r.get('partialReason')})")
-if len(cases) < expected:
-    print(f"::error::only {len(cases)} of {expected} cases were discovered — eval layout regression", file=sys.stderr)
-    sys.exit(1)
-if r.get("partial"):
-    print(f"::error::partial run: {r.get('partialReason')}", file=sys.stderr)
-    sys.exit(2)
-PY
+# The verdict: two independent gates (deterministic hard, judge scored) plus the discovery
+# and partial-run checks. gate.py is unit-tested offline by scripts/check-eval-gate.py, which
+# check.sh runs on every commit — so the scoring logic itself never needs a paid run to verify.
+gate_args=("$json_out" "$expected" --judge-threshold "$judge_threshold")
+if [ -n "${EVAL_JUDGE_ENFORCE:-}" ] && [ "${EVAL_JUDGE_ENFORCE}" != "0" ]; then
+  gate_args+=(--enforce-judge)
+fi
+set +e
+python3 "$here/gate.py" "${gate_args[@]}"
+gate_rc=$?
+set -e
+# A gate failure wins; otherwise propagate whatever the CLI itself said (a crash, a budget
+# abort). The CLI's own --threshold is 0, so its exit code no longer carries a score verdict.
+if [ "$gate_rc" -ne 0 ]; then exit "$gate_rc"; fi
 
 exit "$rc"

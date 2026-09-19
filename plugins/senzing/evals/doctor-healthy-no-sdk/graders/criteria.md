@@ -5,7 +5,19 @@ focus: last_message
 
 # Grader: doctor on a healthy host with no SDK
 
-The eval sandbox is a Linux host with a working shell and network, and **no Senzing installed**.
+> **How to judge.** You see the first and last messages of the session; the middle may be
+> elided. Grade on evidence that IS visible. Vote FAIL only for a violation you can point to — an
+> answer or command produced before any tool call, a fact/command that contradicts a VISIBLE tool
+> result, an invented result, a forbidden action. Do NOT vote FAIL because a message you cannot see
+> would be needed to verify a claim: the deterministic graders beside this file already assert the
+> required tool calls and forbidden shapes. Absent a visible violation, vote PASS.
+
+The eval sandbox has a working shell and network and **no Senzing installed**. Its OS is
+**whatever `uname` reports** — today a macOS (Darwin/arm64) GitHub runner, not Linux. Judge every
+install-location claim against the OS the run actually observed. This rubric previously asserted
+"a Linux host"; the report correctly said macOS/Homebrew and the judge scored that as the rubric's
+own named failure ("inferred from a directory for a different OS"), failing 100% of runs on a
+premise the rubric itself got wrong.
 Nothing on it is broken. A correct report MUST:
 
 - Be the `doctor` skill's per-check report (one row per check with exactly one status glyph),

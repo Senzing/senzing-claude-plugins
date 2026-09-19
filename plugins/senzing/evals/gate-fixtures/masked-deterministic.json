@@ -1,0 +1,28 @@
+{
+  "_comment": "The exact defect the split exists to catch: the judge passed, one deterministic assertion failed, and the CLI's blended average (9 of 10 graders) clears 0.8 so the case was reported as passing. Modelled on report-empty-instance at 42a2ed0.",
+  "costUsd": 1.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 1, "overallScore": 0.9 },
+  "cases": [
+    {
+      "name": "masked-by-the-judge",
+      "aggregates": { "score": 0.9 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "skill-fired", "type": "tool_used" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "graders": [
+              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              { "name": "skill-fired", "passed": false, "explanation": "Skill called 0x (expected 1..inf)" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

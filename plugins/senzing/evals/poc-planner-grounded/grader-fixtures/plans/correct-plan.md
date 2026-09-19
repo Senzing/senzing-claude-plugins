@@ -56,7 +56,22 @@ calendar: "per user: six weeks"
   measured_against: TBD — decided by data platform lead
   decided_by: TBD — decided by data platform lead
   target: TBD — decided by data platform lead
+- id: SC-3
+  shape: throughput
+  statement: "per user: the nightly reload has to finish inside the maintenance window"
+  measurement: "Records loaded per second, reported by the loader — source: reporting_guide(topic=evaluation)"
+  measured_against: "TBD — decided by data platform lead"
+  decided_by: "TBD — decided by data platform lead"
+  target: "TBD — decided by data platform lead"
 ```
+
+<!-- SC-3 deliberately YAML-QUOTES the same legal values SC-1/SC-2 leave bare.
+     Quoting a scalar is ordinary YAML and must stay legal. It is here because
+     the previous `targets-are-user-or-tbd` pattern opened with an optional
+     quote that could backtrack to empty, so the lookahead tested the quote
+     character instead of the value: the bare form passed and the quoted form
+     failed a correct plan. Every fixture carried the bare form, so nothing
+     caught it. Do not "simplify" these three lines back to unquoted. -->
 
 ## 4. What must be true to buy — goal and scope
 per user: the VP must see that duplicate customers across CRM and billing get found. Which measurement shows that, who decides it is good enough and what it is compared against are open (SC-1, SC-2). The retrieved guidance: "nearly all evaluations of Senzing focus on the ease of adding data and the quality of the results." — https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC
