@@ -70,8 +70,21 @@ State the resolved input list to the user before proceeding — informational, n
    (or `$SZ_WORKSPACE` if set). **Do not assume the shell and the file tools share one filesystem,
    or that the default path is writable** — some hosts sandbox the shell to a different filesystem
    than the file tools see. Verify by having the shell create the directory and write a probe file;
-   if the default isn't writable, pick a directory the shell reports as writable. Whichever path you
-   settle on, pass it as `data.workspace_dir` on `mapping_workflow`'s `start` — the returned `state`
+   if the default isn't writable, pick a directory the shell reports as writable.
+
+   **This step does NOT gate step 3.** `mapping_workflow`'s `start` is an MCP call over paths you
+   have already listed — it writes nothing and needs no workspace, no SDK and no shell. Give the
+   probe **one attempt**; whatever it says, go straight to step 3 and settle the workspace before
+   the mapper scripts (which DO write) actually run.
+   **If the shell can write nowhere, that is an answer, not a dead end.** Some hosts deny every
+   shell write — plain redirect, `mkdir`, even a scripted `writeFile` — in `$TMPDIR`, home and cwd
+   alike, while the **file tools still write normally**, because they are a different path out of
+   the sandbox. So: say plainly that the shell is read-only, use the file tools (`Write`) for the
+   mapped JSONL and the state file, and carry on. Hunting for a writable directory until the turn
+   budget runs out is the one outcome that helps nobody — it ends with no mapping, no report, and
+   nothing the user can act on.
+
+   Whichever path you settle on, pass it as `data.workspace_dir` on `mapping_workflow`'s `start` — the returned `state`
    carries `workspace_dir` from then on, and the state-capture hook resolves the same directory from
    that field (nothing needs to be exported or passed per command). Always write the returned
    `state` to `{workspace}/.sz-state.json` yourself (step 3) — that self-written file is the
