@@ -43,16 +43,35 @@ for _env_file in "$HOME/.env" "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." &&
   fi
 done
 
-if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+# Reject a placeholder as firmly as an empty value. A literal "sk-ant-..." is
+# WORSE than nothing: it is non-empty, so a bare -z check passes it through and
+# the run dies later on an opaque auth error instead of here with the fix.
+case "${ANTHROPIC_API_KEY:-}" in
+  ''|*...|*YOUR_KEY*|*xxx*|*XXX*|sk-ant-placeholder*) _key_ok=0 ;;
+  *) _key_ok=1 ;;
+esac
+if [ "$_key_ok" -eq 0 ]; then
   if [ "${CI:-}" = "true" ]; then
     echo "ERROR: ANTHROPIC_API_KEY is unset in CI." >&2
     echo "This job must FAIL rather than skip — an eval that passes by not running" >&2
     echo "is how this suite stayed green for its entire existence. Set the secret." >&2
     exit 1
   fi
-  echo "ERROR: ANTHROPIC_API_KEY is unset." >&2
-  echo "Put it in ~/.env (preferred; outside every repo) as:" >&2
-  echo "  ANTHROPIC_API_KEY=sk-ant-..." >&2
+  cat >&2 <<'NO_KEY_HELP'
+ERROR: ANTHROPIC_API_KEY is unset or is a placeholder.
+
+Set it in $HOME/.env -- outside every repo, so it cannot be committed:
+
+  read -rs -p 'ANTHROPIC_API_KEY: ' K \
+    && printf 'ANTHROPIC_API_KEY=%s\n' "$K" > "$HOME/.env" \
+    && chmod 600 "$HOME/.env" && unset K
+
+That form prompts for the value, so the key never reaches shell history or a
+terminal transcript. Do NOT paste a literal key onto a command line: a
+documented example string was copied verbatim into $HOME/.env once already,
+and a non-empty placeholder is worse than an empty one -- it survives a bare
+emptiness check and then fails as an opaque auth error far from the cause.
+NO_KEY_HELP
   exit 1
 fi
 
