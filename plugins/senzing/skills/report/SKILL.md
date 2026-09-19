@@ -1,12 +1,15 @@
 ---
 name: report
 description: >
-  Explore and report on entities in an already-loaded Senzing instance. Use when the user has
-  data in Senzing already and wants to understand it — e.g. "why did these two resolve?", "show
-  me my biggest entities", "build me a dashboard of resolved entities", "run some ER quality
-  checks". Generates and runs read-only search/why/how and reporting SQL, then renders the result.
+  Explore and report on entities ALREADY loaded in the user's Senzing — why records resolved,
+  largest entities, match quality, dashboards — using read-only search/why/how calls and reporting
+  SQL, rendered as a shareable result. Use when the data is already in Senzing — e.g. "why did
+  these two resolve?", "show me my biggest entities", "dashboard of my resolved entities", "run
+  some ER quality checks". Read-only: never loads or mutates. Runs doctor first to confirm this
+  host can deliver the result. Not for starting from data files (use analyze) or writing reporting
+  code into a project (use build).
 argument-hint: "[question]"
-allowed-tools: Bash, Read, Write, Task, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Report over an already-loaded Senzing
@@ -16,9 +19,27 @@ No mapping, no load — the data is already resolved. Grounded by the **Senzing 
 **Inputs.** `$ARGUMENTS` may carry the question (e.g. "why did A and B resolve?", "biggest
 entities"). If none is given, ask what they want to see before running anything.
 
-1. Pre-flight with `doctor` (engine reachable, entities present). If the instance has **no entities
-   loaded**, say so and offer `/senzing:analyze` to load data first — do not report on an empty
-   instance.
+1. Pre-flight with `doctor`, then close the two gaps it leaves for this skill:
+   - **Engine configuration.** `doctor` grades an unset `SENZING_ENGINE_CONFIGURATION_JSON` as ➖
+     (not applicable) and cascades its database check to ➖ — so on a loaded repository whose
+     config lives anywhere else it comes back green with **no reachable database**. If the config
+     row is ➖, **ask the user for the engine configuration** (or where their application loads it
+     from) before doing anything else. A skill cannot re-invoke `doctor`'s database check, so
+     verify the database yourself, directly, with the matching client — `sqlite3 <path> .tables`
+     for a SQLite file, `psql` for PostgreSQL, `mysql` for MySQL — before running anything.
+   - **Entities present.** `doctor` never counts entities, and neither does
+     `sdk_guide(topic="information")` — its snippets are version, license, repository info,
+     repository performance and (Python only) stats. Get the count from `reporting_guide`: the
+     `export` pattern (`reporting_guide(topic="export", language=…)`) streams every resolved
+     entity — Bash-run it and count the rows. It works on any **persisted** connection (SQLite,
+     PostgreSQL, …). If the config is `internal://` there is nothing a new process can report
+     on — `engine_config_notes` says that store lives only in the process that loaded it, so a
+     Bash-run export opens an empty store and counts 0 for the wrong reason; say so and offer
+     `/senzing:analyze` with a SQLite scratch repository instead of grading it as empty. The
+     `reports` SQL counts entities too, but only against the mart tables it describes, which
+     exist only if the user built them — use it when they have. Show the number. **Zero →
+     refuse**: say so and offer `/senzing:analyze` to load data first. Never report on an empty
+     instance.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,

@@ -6,6 +6,15 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Every push stacked ANOTHER full run alongside the one already in flight: ci.yml was
+# the only workflow in this repo without a concurrency group. That was survivable when
+# CI was cheap, but the behavioral-eval job now spends real API budget -- roughly $6-9
+# per run -- so two overlapping pushes meant paying twice to grade the same branch, and
+# the superseded run's result is worthless the moment the newer commit lands.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -25,6 +34,14 @@ jobs:
         # `claude plugin validate --strict` is a local manifest check (no auth needed).
         run: npm install -g @anthropic-ai/claude-code
 
+      - name: Install PyYAML
+        # check.sh section 9 parses every eval prompt.md frontmatter, which is the only
+        # gate that catches a case silently failing to load (poc-planner-how-long shipped
+        # that way and was never graded). The script now guards the import, so without
+        # this step the gate would DEGRADE TO A FAILURE line rather than run -- install it
+        # explicitly so the check actually executes where it matters.
+        run: python3 -m pip install --quiet pyyaml
+
       - name: Run static checks (same script as local pre-commit)
         run: bash scripts/check.sh
 
@@ -43,7 +60,16 @@ jobs:
           claude plugin marketplace add "$PWD"
           claude plugin install senzing@senzing
           claude plugin details senzing | tee details.txt
-          grep -q "Skills (7)" details.txt
+          # Derive the expected skill count from the tree instead of hard-coding it, and
+          # assert every skill NAME is listed — a count alone cannot catch a mis-named
+          # directory that quietly drops one skill and picks up another.
+          n=$(find plugins/senzing/skills -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+          echo "expecting Skills ($n)"
+          grep -q "Skills ($n)" details.txt
+          for d in plugins/senzing/skills/*/; do
+            name=$(basename "$d")
+            grep -qw -- "$name" details.txt || { echo "::error::skill '$name' not listed in plugin details"; exit 1; }
+          done
           grep -q "MCP servers (1)" details.txt
 
   mcp-urls:
@@ -57,7 +83,7 @@ jobs:
       - name: Check every mcpServers URL in the repo
         run: |
           set -euo pipefail
-          urls=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' . \
+          urls=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' plugins/ \
                  | sed -E 's/.*"url"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/' | sort -u)
           [ -n "$urls" ] || { echo "No mcpServers URL found"; exit 1; }
           for u in $urls; do
@@ -68,26 +94,244 @@ jobs:
               echo "::error::MCP endpoint unreachable or erroring: $u ($code)"; exit 1
             fi
           done
+      - name: Live MCP server version matches plugin.json
+        # "<500" above lets a 404 from a moved path pass. The A2A agent card on the same
+        # host is a hard check: it must parse AND its version must equal the plugin's
+        # (the plugin version mirrors the MCP server version; a trailing -N is a
+        # plugin-only patch on the same server version and is stripped before comparing).
+        run: |
+          set -euo pipefail
+          host=$(grep -rho '"url"[[:space:]]*:[[:space:]]*"[^"]*"' --include='*.mcp.json' --include='.mcp.json' plugins/ \
+                 | sed -E 's/.*"url"[[:space:]]*:[[:space:]]*"(https?:\/\/[^\/"]+).*/\1/' | sort -u | head -1)
+          [ -n "$host" ] || { echo "::error::could not derive MCP host from .mcp.json"; exit 1; }
+          card="$host/.well-known/agent-card.json"
+          live=$(curl -sf --max-time 20 "$card" | jq -r '.version // empty')
+          [ -n "$live" ] || { echo "::error::agent card missing or did not parse: $card"; exit 1; }
+          want=$(jq -r .version plugins/senzing/.claude-plugin/plugin.json | sed -E 's/-[0-9]+$//')
+          echo "live server=$live  plugin.json=$want  ($card)"
+          if [ "$live" != "$want" ]; then
+            echo "::error::plugin.json version $want does not match live MCP server $live — sync plugin.json (mcp-version-sync.yml) or wait for the server deploy"; exit 1
+          fi
 
   behavioral-eval:
-    name: Behavioral eval (early-access; gated on API key)
-    runs-on: ubuntu-latest
-    # `claude plugin eval` is early-access and needs model access. Runs only when an
-    # API key secret is configured; never blocks the PR while the feature is gated.
-    if: ${{ github.event_name == 'workflow_dispatch' }}
-    continue-on-error: true
+    name: Behavioral eval (claude plugin eval)
+    # macOS, deliberately — the ONLY job in this workflow not on ubuntu.
+    #
+    # The eval grants Bash to the agent under test, which requires a sandbox. On
+    # ubuntu-24.04 that sandbox is bubblewrap, and it failed three separate ways here,
+    # each invisible until the one above it was cleared:
+    #   1. AppArmor denies the unprivileged user namespace -> loopback RTM_NEWADDR
+    #   2. the runner image has no /run/shm                -> Can't mount tmpfs
+    #   3. the CLI's own sandbox home construction         -> "Can't create file at
+    #      /tmp/claude-eval-XXXX/home/.aws: Is a directory"
+    # Faults 1 and 2 were fixable here. Fault 3 is inside the CLI's sandbox setup and
+    # is not reachable from this repo; removing the runner's ~/.aws does not clear it.
+    # With Bash dead, every shell-dependent case (doctor, install, analyze, demo) was
+    # graded on a machine it could not touch and reported as a plugin failure.
+    #
+    # macOS has its sandbox built in — no bubblewrap, none of the three faults. The
+    # same suite passes these cases there (verified locally: analyze, doctor and
+    # install all 0.81-1.00 on macOS while scoring 0.50-0.75 on the ubuntu runner with
+    # identical code and pinned models). Public repo, so macOS minutes are not billed.
+    runs-on: macos-latest
+    timeout-minutes: 90
+    # Gates the PR on plugin BEHAVIOR (skill routing, MCP grounding, no-simulation, scratch-repo
+    # default) whenever an API key is available. It degrades to a SKIP — never a silent pass —
+    # only when the secret is genuinely absent (fork PRs: GitHub withholds secrets). Every other
+    # problem fails the job: zero cases discovered, the early-access gate, a threshold miss.
+    #
+    # History: this job used to be `if: workflow_dispatch` + `continue-on-error: true`, and it ran
+    # `claude plugin eval ./plugins/senzing` while the cases lived at the repo root — the CLI only
+    # discovers `<plugin>/evals/`, so ZERO cases ever ran and nothing could fail. The suite now
+    # lives under plugins/senzing/evals/ and run.sh asserts the discovered count.
+    env:
+      # Read into env (not a step `if:`) — `secrets.*` in a step `if:` is rejected by GHA at
+      # parse time, and an empty secret must produce a visible skip, not a parse failure.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Pinned deliberately — see the install step. Keep in step with local dev.
+      CLAUDE_CLI_VERSION: "2.1.259"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
-      - name: Run eval suite
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Gate on API key availability
+        id: gate
         run: |
           if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-            echo "No ANTHROPIC_API_KEY secret set — skipping behavioral eval."; exit 0
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ANTHROPIC_API_KEY is not available to this run (fork PR or secret unset) — behavioral eval SKIPPED, not passed."
+          else
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
           fi
-          # Threshold gate on activation/behavior cases under ./evals (see evals/README.md).
-          claude plugin eval ./plugins/senzing --threshold 0.8 --json evals/results/ci.json
+
+      - name: Install Claude Code CLI
+        if: steps.gate.outputs.has_key == 'true'
+        # The CLI is PINNED. It used to be unpinned, which silently introduced a second
+        # variable: CI resolved 2.1.277 while local dev ran 2.1.259. That is not
+        # cosmetic -- run.sh probes `--help` and only appends --trust-plugin and
+        # --concurrency when the CLI advertises them, so the two environments ran
+        # DIFFERENT FLAGS as well as different code, and "it passes locally but fails in
+        # CI" was unfalsifiable. Bump this deliberately, with a re-run, never implicitly
+        # on whatever npm serves today.
+        #
+        # No sandbox backend to install: macOS provides it. That is the point of running
+        # this job here rather than on ubuntu (see the runs-on comment above).
+        run: |
+          npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}"
+          claude --version
+
+      - name: Canary — one cheap case must actually reach the Senzing MCP
+        if: steps.gate.outputs.has_key == 'true'
+        # THE GATE THAT WOULD HAVE SAVED A DAY, second attempt.
+        #
+        # A full run ($6, ~7 min) once reported 4/14 and was read as a plugin-quality
+        # problem. It was not: the agent had NO Senzing MCP tools in session at all.
+        # The server CONNECTED (all 31 of its prompts registered as slash commands)
+        # while its TOOLS never arrived, so every `tool_used` grader failed for purely
+        # environmental reasons.
+        #
+        # My first attempt at this gate used a synthetic `claude -p --mcp-config`
+        # probe and asserted on the init event's tools[]. That was WRONG and would
+        # have blocked every run: the identical probe reports 0 mcp__ tools on a
+        # developer Mac where the eval itself registers all 13. A standalone `claude -p`
+        # does not load the MCP the way `plugin eval` does (plugin-sourced server,
+        # different registration timing), so it cannot answer this question.
+        #
+        # The only trustworthy signal is the eval's own loading path. So: run ONE cheap
+        # case for ONE run, and require a real `mcp__` tool_use in its trace. ~$0.30 to
+        # protect a ~$6 run, and it fails with "environmental" rather than a score that
+        # looks like a plugin verdict.
+        run: |
+          set -o pipefail
+          EVAL_RUNS=1 EVAL_JSON=/tmp/canary.json \
+            bash plugins/senzing/evals/run.sh --case ask-routing --keep-temp || true
+          python3 - <<'CANARY'
+          import glob, json, os, sys
+
+          traces = glob.glob(os.path.join(os.environ.get('TMPDIR', '/tmp'), '**', 'trace.jsonl'),
+                             recursive=True)
+          if not traces:
+              print('::warning::canary produced no trace; cannot verify MCP reachability')
+              sys.exit(0)
+
+          seen = set()
+          for t in traces:
+              try:
+                  blob = open(t, encoding='utf-8', errors='replace').read()
+              except OSError:
+                  continue
+              for chunk in blob.split('"name":"')[1:]:
+                  name = chunk.split('"', 1)[0]
+                  if name.startswith('mcp__'):
+                      seen.add(name)
+
+          # The canary case (ask-routing) deliberately runs NO shell, so a green canary
+          # said nothing about Bash: the previous run passed this gate and then logged 63
+          # `bwrap:` failures across the suite. Check the traces for sandbox errors too.
+          # Not bwrap-specific: macOS uses a different sandbox, and the point is to
+          # catch ANY sandbox failure before paying for the suite. The previous version
+          # also only scanned the canary's own trace -- and the canary case (ask-routing)
+          # deliberately runs no shell, so it could never have seen a shell failure. It
+          # now matches the sandbox error shapes both backends produce.
+          bwrap_errs = set()
+          for t in traces:
+              try:
+                  blob = open(t, encoding='utf-8', errors='replace').read()
+              except OSError:
+                  continue
+              for i in range(len(blob)):
+                  for marker in ('bwrap:', 'sandbox-exec:', 'Operation not permitted'):
+                      if blob.startswith(marker, i):
+                          bwrap_errs.add(blob[i:i + 110].split('\\')[0].strip())
+          if bwrap_errs:
+              print('::error::The Bash sandbox is broken on this runner — bwrap failed:')
+              for e in sorted(bwrap_errs)[:5]:
+                  print(f'  {e}')
+              print('::error::Every Bash call in the suite would fail, so doctor/install/'
+                    'analyze/demo would be graded on a machine they cannot touch. '
+                    'Refusing to spend the eval budget.')
+              sys.exit(1)
+
+          if seen:
+              print(f'canary OK — {len(seen)} Senzing MCP tool(s) invoked, no bwrap errors:')
+              for n in sorted(seen):
+                  print(f'  {n}')
+              sys.exit(0)
+
+          print('::error::The canary case completed without invoking a single mcp__* tool. '
+                'The Senzing MCP is not reachable from the eval session on this runner, so the '
+                'full suite would grade an agent that cannot call the tools under test and every '
+                'tool_used grader would fail environmentally. Refusing to spend the eval budget.')
+          sys.exit(1)
+          CANARY
+
+      - name: Run eval suite (same script as local)
+        if: steps.gate.outputs.has_key == 'true'
+        # run.sh: asserts every case dir on disk was discovered, fails on the early-access gate
+        # message, propagates the --threshold exit code.
+        #
+        # Budget is left at run.sh's defaults (2 runs, $75). That figure is a
+        # RUNAWAY GUARD, not a spend estimate — the suite is small, and the two
+        # cases measured so far came to $1.53 combined. Do not tighten it as a
+        # cost-saving measure: a ceiling low enough to bind does not save money,
+        # it truncates a legitimate run into a `partial` and reports a false
+        # failure. Tune it only if a real runaway is ever observed.
+        #
+        # --keep-temp preserves each run's scaffold dir, which is where the CLI writes
+        # trace.jsonl. Without it the temp dir is cleaned and a CI failure is
+        # undiagnosable from the artifact: ci.json records WHICH graders failed but not
+        # which tools were actually invoked. That gap cost a full debugging cycle -- CI
+        # said every `tool_used` MCP grader failed while every `regex`-on-trace one
+        # passed, and there was no way to tell "the MCP was never called" from "it was
+        # called differently than the grader expected".
+        run: bash plugins/senzing/evals/run.sh --keep-temp
+
+      - name: Collect traces for diagnosis
+        if: always() && steps.gate.outputs.has_key == 'true'
+        # Best-effort: the temp dirs are outside the workspace. Copy just the trace
+        # files (small, JSONL) next to the results so they ride along in the artifact.
+        #
+        # Search BOTH $TMPDIR and /tmp, and go deeper. The first version searched only
+        # `${TMPDIR:-/tmp}` at maxdepth 4, which silently collected ZERO traces on the
+        # macOS runner -- macOS sets TMPDIR to a per-user /var/folders/... path while
+        # the CLI's scaffold dirs live under /tmp, and the nesting is deeper than 4.
+        # It reported "collected 0" and the artifact shipped without traces, so the
+        # first macOS failure had to be diagnosed from grader `evidence` alone.
+        #
+        # The depth-8 fix STILL collected zero, for a second reason: on macOS `/tmp` is
+        # a SYMLINK to /private/tmp, and `find` does not follow symlinks without -L. The
+        # CLI's scaffold dirs are `/private/tmp/e-XXXXXX/out/trace.jsonl`. Hence -L plus
+        # /private/tmp explicitly, and the fallback listing looks for `e-*` too, which
+        # is what the dirs are actually named on macOS (not `claude-eval-*`).
+        run: |
+          dest=plugins/senzing/evals/results/traces
+          mkdir -p "$dest"
+          n=0
+          while IFS= read -r t; do
+            n=$((n + 1))
+            cp "$t" "$dest/trace-$n.jsonl" 2>/dev/null || true
+          done < <(find -L "${TMPDIR:-/tmp}" /tmp /private/tmp -maxdepth 8 -name 'trace.jsonl' 2>/dev/null | sort -u)
+          echo "collected $n trace file(s) into $dest"
+          if [ "$n" -eq 0 ]; then
+            echo "::warning::no trace.jsonl found — a CI-only failure will not be diagnosable from this artifact"
+            echo "searched: ${TMPDIR:-<unset>} and /tmp"
+            find -L /tmp /private/tmp -maxdepth 1 \( -name 'claude-eval-*' -o -name 'e-*' \) 2>/dev/null | head -5 || true
+          fi
+          # A tool-name histogram in the log itself, so the answer is visible without
+          # downloading anything.
+          if [ "$n" -gt 0 ]; then
+            echo "== tool_use histogram across collected traces =="
+            cat "$dest"/*.jsonl 2>/dev/null \
+              | grep -o '"name":"[A-Za-z0-9_]*"' \
+              | sort | uniq -c | sort -rn | head -30
+          fi
+
+      - name: Upload eval results (JSON, log, HTML report)
+        if: always() && steps.gate.outputs.has_key == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: behavioral-eval-results
+          path: plugins/senzing/evals/results/
+          if-no-files-found: warn
+          retention-days: 14

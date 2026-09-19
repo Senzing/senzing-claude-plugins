@@ -1,0 +1,7 @@
+customer_id,full_name,email,phone,street,city,state,zip,dob
+C-1001,Robert Smith,rsmith@example.com,702-555-0143,123 Main St,Las Vegas,NV,89101,1978-03-12
+C-1002,Bob Smith,robert.smith@example.com,(702) 555-0143,123 Main Street,Las Vegas,NV,89101,03/12/1978
+C-1003,Maria Garcia,mgarcia@example.com,702-555-0198,77 Fremont Ave,Las Vegas,NV,89102,1985-11-02
+C-1004,Elizabeth Chen,lchen@example.com,,900 Sahara Blvd Apt 4,Las Vegas,NV,89104,1990-07-30
+C-1005,Ahmed Khan,akhan@example.com,702-555-0121,16 Desert Inn Rd,Las Vegas,NV,89109,1969-01-19
+C-1006,Robert Smith,rob.smith@example.net,702-555-0177,41 Paradise Rd,Henderson,NV,89014,1990-09-05

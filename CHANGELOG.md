@@ -4,6 +4,221 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+## [1.37.4] - 2026-09-19
+
+Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
+
+### Added
+
+- **`poc-planner` skill** — plan a proof of concept *with* the user; explicitly not a project
+  plan. A facilitator, not a generator: it retrieves Senzing's own PoC guidance, asks the
+  rightsizing questions (data, systems, people — plus hardware available, performance to
+  demonstrate, and platform), assembles the corpus's sizing / database / platform / load material
+  against the user's stated constraints with every item attributed, and works through what must
+  be true for a buy decision. Writes `./senzing-poc-plan.md` as a handoff artifact: fixed
+  headings, a YAML constraint block (`volume_records`, `database`, `platform_id`, `languages`,
+  `data_sources[]`…), individually-addressable `SC-n` success criteria, and the machine-detectable
+  `TBD — decided by <owner>` literal so a downstream skill can tell decided from undecided and
+  refuse to fill the difference. Never calls `doctor` (planning needs the MCP reachable, not a
+  working install); never invokes a sibling skill (hand-off means naming the next command); never
+  offers to generate a truth set; where tools disagree on license terms it quotes each and lists
+  the discrepancy rather than reconciling. Deterministic file-level graders catch the common
+  fabrication shapes (week-numbered schedule, metric thresholds, hardware verdicts, hedged TBDs,
+  a `guidance:` hint under a target); a file-focused judge covers the rest (phase structure, role
+  titles, extrapolation).
+- **Offline grader fixture check (`scripts/check-poc-graders.py`, `check.sh` section 8).** Runs
+  every `not_contains` grader against the verbatim tool output the plan is required to quote
+  (Hardware Sizing FAQ, `reporting_guide(quality)`, the PoC article, Database Tuning, both
+  `sdk_guide` results, the `submit_feedback` terms) and against a correct and a fabricated plan
+  fixture. Caught two false-fails before the first paid run: a bare-percentage grader fired on
+  seventeen quotable corpus figures, and the proposed hardware-recommendation pattern missed its
+  own example.
+- **`ask`** — the entry point for questions. Routes to the MCP and writes nothing. Added because every other skill is a *doer*: a plain question either matched nothing or matched a skill that would start writing files, and two independent weak-model reviews said they would answer Senzing questions from stale training data instead.
+- **`install`** — install and set up Senzing. Reproduces no install commands; detects the host, takes the official steps from `sdk_guide`, surfaces the EULA, then verifies with `doctor`. Previously buried at the end of `doctor`'s description where the command picker truncated it.
+- Explicit "Not for X — use Y" boundaries on every skill description. Weak-model routing measured 17/20 → 20/20.
+
+
+- **`ask` skill** — answer any Senzing question grounded solely in the hosted MCP. The only
+  skill that works on an information-only host (no shell, no Senzing install), so it now leads
+  the session banner.
+- **`install` skill** — install / set up Senzing on the current machine, split out of `doctor`.
+- **Hook fixture tests in `scripts/check.sh` (section 6).** A REAL `mapping_workflow`
+  PostToolUse payload (content-array shape, `[REMINDER: …]` footer intact) is fed to
+  `capture_state.sh` and the state file must appear; a `Write` payload is fed to
+  `check_provenance.sh` and hook JSON must appear on stdout; `session_start.sh` must run with
+  `HOME` unset. Fixtures live in `plugins/senzing/hooks/fixtures/`. Also: every `SKILL.md`
+  `name:` must equal its directory (section 5), and `CHANGELOG.md` must have a `## [<version>]`
+  heading for the version in `plugin.json` (section 7).
+- **CI: live server version check.** The "MCP endpoint reachable" job accepted any status
+  below 500, so a 404 from a moved path passed. It now also fetches
+  `/.well-known/agent-card.json` on the MCP host and requires its `version` to equal
+  `plugin.json`'s (a `-N` plugin-patch suffix is stripped first).
+
+### Changed
+
+- Synced to MCP server **v1.37.4**, which carries the v1.37.3 security fix (CVE-2026-14456, HIGH, `libssl3t64` on both deployed images) plus a batch of field-reported corrections: `get_sample_data` no longer blocking a guided download, `brianmacy/sz-cpp-sdk` indexed as a community C++ SDK, a search-index chunker that was blind to level-1 `#` headings (10,968 → 11,217 chunks corpus-wide), `plan-a-poc` no longer inventing PoC success criteria, and `sdk_guide(full_pipeline)` honouring `record_count`. Tool surface unchanged. Note the CI gate compares `plugin.json` against the **live** agent-card, so a plugin version bump must follow the server deploy rather than lead it — this branch was blocked by that gate until the bump, which is the gate working as designed.
+
+
+- **`ask`** names `poc-planner` in its Not-for clause, no longer claims to be the only skill
+  that works on an information-only host, and now grounds arithmetic as well as retrieval: it
+  may not extrapolate a retrieved sizing figure into a new one, and a plan-shaped question that
+  lands there is answered from the PoC guidance only with `TBD — decided by <owner>` for anything
+  no tool or user supplied.
+
+### Fixed
+
+- **The `demo-scratch-repo` eval case contradicted itself twice**, and the plugin was being
+  marked down for obeying it. (a) The prompt says "before you execute anything that loads data,
+  show me the plan and the exact commands", while the grader FAILed any plan that "asks for
+  confirmation before loading into the scratch repository" — so a run that produced a correct
+  scratch-SQLite plan with production untouched still lost the judge 3-0 for ending with "shall I
+  run it?". The grader now scores the real property (never offering production as a target, never
+  treating the throwaway repo as a decision the user must approve) and states that the handshake
+  this prompt asks for is not a gate. (b) The prompt asserts a green doctor and a configured
+  production Postgres, but the macOS eval sandbox has neither, so roughly one run in two correctly
+  refused to plan on a premise it could see was false and lost four graders as collateral. The
+  context block now says to take it as given and not re-probe the shell. No threshold was lowered.
+
+- **The behavioral eval job had never once executed.** It was green because
+  `ANTHROPIC_API_KEY` was unset, so it SKIPPED. With the secret set it ran for the first
+  time and reported 4/14 — which turned out to measure the runner, not the plugin (below).
+- **CI graded an agent with no MCP tools and no working shell.** Two independent runner
+  faults: `ubuntu-24.04` denies bubblewrap its user namespace
+  (`kernel.apparmor_restrict_unprivileged_userns=1`), so every Bash call died with
+  `bwrap: loopback: Failed RTM_NEWADDR` — 52 of them, `pwd` included; and the runner has no
+  `/run/shm`, so once that was cleared the sandbox still failed with
+  `Can't mount tmpfs on /newroot/run/shm`. Both are now fixed and asserted before any spend.
+- **Four eval graders could not fail.** Every `regex`/`target: trace` MCP-grounding grader
+  matched the tool NAMES in each skill's own `allowed-tools:` frontmatter (and, for
+  `article-actually-retrieved`, a literal hard-coded in `poc-planner/SKILL.md` as the query to
+  run) — so they passed 2/2 in runs with zero MCP calls. All four are now `tool_used`.
+- **One eval grader could not pass.** `poc-guidance-searched` required `min: 3` matching
+  `search_docs` calls, but its regex missed `"Selecting the right data"` — one of the three
+  queries the skill itself prescribes. A model following the skill verbatim scored 2.
+- **`poc-planner` could never write a plan.** `poc-planner-elicits` requires no file and
+  `poc-planner-grounded` requires `senzing-poc-plan.md` to exist; the skill had no branch
+  between them and step 2 blocked unconditionally on an answer, so the grounded contract was
+  unsatisfiable. Now an explicit ELICIT/DRAFT mode.
+- **`analyze` step 5 hung the run.** It told the model to Bash-run the `sdk_guide(topic="redo")`
+  snippet, which is a `while True` daemon that sleeps forever — so a successful load never
+  reached the entity count. Now a bounded loop, mirroring `doctor` check 6b.
+- **`install` could ping-pong with `doctor` forever.** Step 5 had no branch for a failed
+  verification, and `brew install --cask senzingsdk` exits 0 while installing nothing when the
+  EULA variable is unset.
+- **`build` skipped the MCP and refused to deliver.** It generated SDK code without
+  `generate_scaffold`/`get_sdk_reference`, and downgraded an explicit "put it in
+  senzing_search.py" to an inline snippet by assuming a sandbox instead of running the probe.
+- **`troubleshoot` answered from training data.** One run explained an error code in two turns
+  without calling `explain_error_code`; the mandatory call is now a gate above the procedure.
+- **`poc-planner` said "these six keys only" while listing seven** (`id`, `shape`, `statement`,
+  `measurement`, `measured_against`, `decided_by`, `target`) in the skill, the grader and its
+  prompt — a weak model drops one, most likely `decided_by`.
+- **`poc-planner` promised a consumer contract nobody honored.** Nothing read
+  `senzing-poc-plan.md`; `analyze`, `doctor` and `install` now do, and stop on any
+  `TBD — decided by` row they need.
+- **An eval case silently never ran.** `poc-planner-how-long/prompt.md` had invalid YAML
+  frontmatter (a double-quoted scalar with text after the closing quote), so `claude plugin
+  eval` dropped it — 13 of 14 discovered.
+- **Two gates that could not fail.** `check.sh` never parsed eval `prompt.md` frontmatter, and
+  `run.sh` exited 0 when the CLI produced no result JSON.
+- **checkov false positive blocked the PR.** Its secrets scan walks the whole repo and flagged
+  documented placeholder connection strings (`sqlite3://na:na@…`) in captured MCP fixtures.
+- **This CHANGELOG section was a bad merge** — duplicate `Added`/`Changed`/`Fixed` blocks and an
+  orphaned 1.37.2 prose line nested inside it.
+
+- **`/senzing:recipes` was dead in production.** Both configured catalog refs 404'd (`recipes.md` on `main`, and a `cookbook-import` branch deleted after merge); the real catalog is `cookbook.md` on `main`. Every run stopped at the catalog fetch and told the user to allowlist a domain that was never blocked. The ref-fallback list was built to survive a branch *move* and cannot survive a file *rename*. Also removed instructions to parse YAML frontmatter that recipes do not have.
+- **The state-capture hook had never written a file.** Four independent defects, including that the MCP returns a content array rather than a parsed object, that the `workflow_id` it keyed filenames on does not exist in the response, and that a `[REMINDER: …]` footer shares the text block with the JSON. It exited 0 regardless, so nothing ever surfaced it. Now covered by six fixture tests.
+- **The eval suite was never discovered and could never fail.** Cases lived at repo root while `claude plugin eval` looks under the plugin; the job was additionally `workflow_dispatch` + `continue-on-error`. Moved, gated, and grown from 4 cases to 11.
+- **`analyze` drove one `mapping_workflow` per file.** The tool takes a `file_paths` array and does explicit multi-schema analysis, so per-file workflows could never see a cross-file join — multi-file runs silently produced worse mappings with no error. Parallel sub-agents also clobbered each other's fixed-name files in a shared workspace.
+- **`demo` loaded the user's production repository by default**, inverting its own description, the README and `analyze`.
+- **The EULA gate could be bypassed** — three skills routed around `install` straight to `sdk_guide(topic="install")`.
+- **`build` required `doctor` checks 4–9 green**, which is unreachable on a healthy machine (7 is ➖ when the config env var is unset, 8 cascades, 9 is ⚠️ on the built-in eval license).
+- **`report` claimed the entity count works on `internal://`**, which the MCP contradicts — that store lives only in the process that loaded it, so a Bash-run export counts zero.
+- Numerous restated Senzing facts replaced with tool calls, per the rule that the MCP owns facts and the plugin owns workflow.
+
+
+- **`capture_state.sh` had never written a state file — three independent defects.**
+  (1) It read `.tool_response.state`, but an MCP tool's `tool_response` is a CallToolResult
+  content array `[{"type":"text","text":"<json>\n\n[REMINDER: …]"}]`; the path matched
+  nothing, so the hook exited 0 silently on every call. (2) It named the file
+  `.sz-state-<workflow_id>.json`, but a `mapping_workflow` state is
+  `{step, step_name, file_paths, workspace_dir}` — there is no `workflow_id` — so even a
+  working writer and the skills' reader disagreed on the name. (3) It resolved the workspace
+  from `SZ_WORKSPACE`/`HOME`, which a hook inherits from the Claude Code process, not from the
+  Bash tool's environment. Proof: `~/sz-workspace` has hosted mapping runs since 2026-08-21
+  and contained zero `.sz-state-*` files; the old hook fed the captured payload writes
+  nothing, the new one writes the state. Now: parse the content array, strip the footer,
+  take `workspace_dir` **from the state itself**, and write `<workspace_dir>/.sz-state.json`
+  (write-then-rename). The `analyze` skill and `field-mapper` agent read that exact path.
+- **`check_provenance.sh` nudged nobody.** It wrote to stderr and exited 0; for a
+  PostToolUse hook that reaches neither the model nor the user. It now emits
+  `{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":…}}` on stdout.
+  Its trigger also fired on the bare word `senzing` (a comment `# no senzing here` tripped
+  it); it now matches SDK symbols only (`senzing_core`, `from senzing`, `com.senzing`,
+  `Senzing.Sdk`, `sz_rust_sdk`, `@senzing/`, the `Sz*` class family).
+- **`session_start.sh` crashed under `set -u` when `HOME` was unset**
+  (`HOME: unbound variable`, exit 1). Uses `${HOME:-/tmp}`. Banner now lists `ask` and
+  `install`.
+- **`doctor` reported a healthy machine as broken** and its interactive-outcome capability
+  gate was restored; `demo` is now explicitly `analyze` on sample data; running generated
+  code from `build` is optional, not assumed.
+- **CI `install-smoke` hard-coded `Skills (9)`.** The count is derived from the skills
+  directory, and every skill name must appear in `claude plugin details` output.
+- `.gitignore` now ignores `**/evals/results/` (behavioral-eval output, wherever the evals tree lives).
+
+## [1.37.2] - 2026-09-18
+
+Version sync to MCP server v1.37.2 (`plugin.json` only). Server headline: boot-time
+self-smoke turns Fly's rolling deploy into a per-machine canary; rollbacks no longer replace
+every machine at once. Also: `troubleshoot` stops hard-coding the error-code count
+(`450+`) — the literal had drifted to three different values across three repos in one day.
+
+## [1.37.1] - 2026-09-17
+
+Version sync to MCP server v1.37.1 (`plugin.json` only). Server headline: TypeScript SDK doc
+examples restored in `find_examples` (they vanished on every clean build).
+
+## [1.37.0] - 2026-09-17
+
+Version sync to MCP server v1.37.0 (`plugin.json` only). Server headline: rmcp 3.4.0; three
+more `senzing` repos indexed (incl. the Cookbook, which `recipes` consumes); crawler prefers
+origin-served markdown.
+
+## [1.36.1] - 2026-09-03
+
+Version sync to MCP server v1.36.1 (`plugin.json` only). Server headline: `sdk_guide`'s dead
+EULA link (`senzing.com/senzing-eula` → `senzing.com/end-user-license-agreement/`) fixed.
+
+## [1.35.5] - 2026-09-01
+
+Version sync to MCP server v1.35.5 (`plugin.json` only). Server headline: reindex of the
+refreshed upstream Windows Quickstart; refreshed committed SDK snippets from
+`code-snippets-v4`.
+
+## [1.35.4] - 2026-09-01
+
+Version sync to MCP server v1.35.4 (`plugin.json` only). Server headline: full
+`senzing.com/releases` history captured (multi-`<article>` fix).
+
+## [1.35.3] - 2026-09-01
+
+Version sync to MCP server v1.35.3 (`plugin.json` only). Server headline: Senzing 4.4.0
+Feature Store & Advisory Locking configuration guide indexed for `search_docs`.
+
+## [1.35.1] - 2026-08-29
+
+Version sync to MCP server v1.35.1 (`plugin.json` only). Server headline: `senzing.com/releases`
+served from a committed fallback (Cloudflare blocks datacenter IPs); CORD 250k eval samples.
+(v1.35.0 was superseded before a plugin sync landed.)
+
+## [1.33.0] - 2026-08-20
+
+Version sync to MCP server v1.33.0 (`plugin.json` only). Server headline: `needs_input`
+clarification responses no longer read as empty; eval-license duration corrected (10-day).
+(v1.34.x had no plugin sync.)
+
 ## [1.32.9-3] - 2026-08-14
 
 Plugin-only patch on MCP server v1.32.9 (no server change).

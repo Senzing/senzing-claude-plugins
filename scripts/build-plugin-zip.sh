@@ -41,6 +41,10 @@ fi
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 cp -R "$PLUGIN_DIR" "$STAGE/$PLUGIN_NAME"
+# The eval suite lives INSIDE the plugin because `claude plugin eval` only
+# discovers cases at <plugin>/evals/ — but it is a development artifact and
+# must not ship to customers.
+rm -rf "$STAGE/$PLUGIN_NAME/evals"
 find "$STAGE" -name '.DS_Store' -delete
 
 mkdir -p "$OUT_DIR"

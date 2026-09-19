@@ -1,0 +1,133 @@
+# Hardware Sizing FAQ
+
+Frequently asked questions about hardware sizing and capacity planning for Senzing entity resolution deployments.
+
+## Why can't you give me a simple sizing formula?
+
+Senzing is an analytic workload driven by the data itself. The amount of work depends on the data and how connected it is. For example, 1 billion records that have nothing in common will stream in quickly with minimal resource usage. But 1 billion records that represent 1 million entities with an average of 1,000 records per entity — plus connections between entities — will have substantial work to do. The same record count can require vastly different hardware depending on data characteristics.
+
+## What is the fixed disk overhead?
+
+The Senzing runtime (binaries, Docker image, configuration, templates) requires approximately 5 GB of disk space before any data is loaded. This is a fixed cost regardless of record count.
+
+## What are the minimum hardware specifications?
+
+These are minimums for POC/evaluation environments (SQLite, local development, testing). They are sufficient to ETL data, load into SQLite, and run snapshots/exports/reports for up to around 1 million records:
+
+- 16 GB RAM
+- 4 modern CPU cores
+- 100 GB SSD or NVMe storage
+
+These are NOT production minimums — production sizing should be calculated from the back-of-the-napkin formulas below based on actual record count. Small deployments (thousands of records) require far less than these specifications.
+
+## What are the back-of-the-napkin starting points?
+
+These are steady-state estimates that are typically well over actual needs — use them as conservative starting points, not precise requirements:
+
+| Resource                      | Estimate                             | Notes                                                              |
+|-------------------------------|--------------------------------------|--------------------------------------------------------------------|
+| Database IOPS per record      | 100-200 IOPS                         | Steady-state read+write combined                                   |
+| Database storage per record   | ~20 KB                               | Varies with feature count per record                               |
+| Database buffer pool memory   | Minimum 10% of total DB storage size | Bare floor to cache top index layers; allocate as much as possible |
+| Engine-to-database core ratio | 2 engine cores : 1 database core     | Engine is CPU-bound, DB is I/O-bound                               |
+| Engine RAM per process        | ~4 GB base                           | Fixed overhead per engine process                                  |
+| Engine RAM per thread         | 0.5-1 GB per thread                  | On top of the per-process base                                     |
+| Throughput per engine core    | ~5-10 records/second                 | Steady-state with connected data                                   |
+
+## What are the three phases of initial data loading?
+
+Since Senzing loading is transactional, initial data loading goes through three distinct phases with very different resource profiles:
+
+### Phase 1: Empty database, fast streaming
+
+There is little in the database, so there are no read I/O operations — everything fits in the buffer pools. There is also little to match against, so minimal entity resolution work is done. Records per second will be much higher and resource needs much lower than steady state. The data is practically streaming in.
+
+### Phase 2: Data fits in memory, substantial matching work
+
+Everything still fits in database buffer pools (no read I/O), but there is now substantial data to match against. The engine is doing real entity resolution work — comparing incoming records against existing entities, evaluating candidates, and resolving matches. Throughput drops from Phase 1 but I/O is still not a factor.
+
+### Phase 3: Data exceeds buffer pools, I/O becomes a factor
+
+The database can no longer fit entirely in buffer pools, so read I/O begins. Combined with the substantial matching work against the significant connected data already loaded, this phase sees a slow increase in system load. The I/O workload gradually shifts to approximately a 4:1 read-to-write ratio as more data must be fetched from disk for candidate evaluation.
+
+## How does throughput change across the three phases?
+
+Phase 1 throughput can be 10-100x higher than Phase 3 throughput depending on data connectivity. When planning hardware, size for Phase 3 steady-state performance — Phases 1 and 2 will naturally run faster on the same hardware.
+
+## What is the most common sizing mistake?
+
+Undersizing database I/O. Senzing entity resolution is I/O intensive in steady state. Spinning disks, network-attached storage, and shared storage systems typically cannot provide the IOPS needed for good performance. Use local SSD (NVMe preferred) for the database, or provisioned IOPS cloud storage (e.g., AWS gp3 with tuned IOPS, Azure Premium SSD).
+
+## How do I validate my hardware is adequate?
+
+Use the `check_repository_performance` SDK diagnostic function to benchmark your storage and database configuration. It tests how many auto-commit inserts can be performed within a given time window, giving you a baseline for I/O throughput. See the Database Tuning documentation and SDK reference for usage details and expected output targets.
+
+## How many threads per engine core should I use?
+
+This depends on how much I/O latency exists between the engine and database. The engine threads spend time waiting on database round-trips, so more latency means more threads can overlap usefully:
+
+| Environment                       | Threads per engine core | Why                                              |
+|-----------------------------------|-------------------------|--------------------------------------------------|
+| On-premises, local high-IOPS DB   | 2-4                     | Low latency, less I/O wait to overlap            |
+| Cloud containers against cloud DB | 4-8                     | Higher network latency, more overlap opportunity |
+
+The general range is 2-8 threads per engine core across most environments.
+
+Like all numbers in this FAQ, these are back-of-the-napkin starting points. The optimal thread count depends on the specific hardware, data characteristics, and database latency of each environment. Tune by increasing threads until throughput plateaus or database becomes saturated.
+
+## Sample sizing calculations
+
+Apply the back-of-the-napkin formulas to different record counts. All examples assume 1 engine process with local SSD storage. The ~5 GB runtime disk overhead applies to all scenarios.
+
+### 1,000 records (small test / POC)
+
+| Resource       | Calculation                   | Result         |
+|----------------|-------------------------------|----------------|
+| Disk (runtime) | Fixed overhead                | ~5 GB          |
+| Disk (data)    | 1,000 × 20 KB                 | 20 MB          |
+| Database IOPS  | 1,000 × 200 IOPS ÷ 120 sec    | ~1,700 IOPS    |
+| Buffer pool    | 10% of 20 MB                  | 2 MB (trivial) |
+| Engine RAM     | 4 GB base + 1 thread × 0.5 GB | ~4.5 GB        |
+| Engine cores   | 1 core at 5-10 rec/sec        | 1 core         |
+| Database cores | 1 engine core ÷ 2             | 1 core         |
+| Load time      | 1,000 ÷ 10 rec/sec            | ~2 minutes     |
+
+**Runs on any modern machine.** A laptop, a small VM, or a Raspberry Pi with enough RAM would work. SQLite is fine for this scale. Any SSD easily handles the IOPS.
+
+### 100,000 records (pilot / proof of concept)
+
+| Resource       | Calculation                    | Result      |
+|----------------|--------------------------------|-------------|
+| Disk (runtime) | Fixed overhead                 | ~5 GB       |
+| Disk (data)    | 100,000 × 20 KB                | 2 GB        |
+| Database IOPS  | 100,000 × 200 IOPS ÷ 3,600 sec | ~5,600 IOPS |
+| Buffer pool    | 10% of 2 GB                    | 200 MB      |
+| Engine RAM     | 4 GB base + 3 threads × 0.5 GB | ~5.5 GB     |
+| Engine cores   | 3 cores at 10 rec/sec          | 3 cores     |
+| Database cores | 3 engine cores ÷ 2             | 2 cores     |
+| Load time      | 100,000 ÷ 30 rec/sec (3 cores) | ~55 minutes |
+
+**Any development workstation or small cloud VM.** SQLite works but PostgreSQL or MSSQL gives better concurrency for multi-threaded loading. Standard SSD handles the IOPS comfortably.
+
+### 1,000,000 records (production entry point)
+
+| Resource       | Calculation                        | Result       |
+|----------------|------------------------------------|--------------|
+| Disk (runtime) | Fixed overhead                     | ~5 GB        |
+| Disk (data)    | 1,000,000 × 20 KB                  | 20 GB        |
+| Database IOPS  | 1,000,000 × 200 IOPS ÷ 3,600 sec   | ~56,000 IOPS |
+| Buffer pool    | 10% of 20 GB (more is better)      | 2 GB minimum |
+| Engine RAM     | 4 GB base + 28 threads × 1 GB      | ~32 GB       |
+| Engine cores   | 28 cores at 10 rec/sec             | 28 cores     |
+| Database cores | 28 engine cores ÷ 2                | 14 cores     |
+| Load time      | 1,000,000 ÷ 280 rec/sec (28 cores) | ~60 minutes  |
+
+**A production server or cloud instance (48 cores, 64 GB RAM, 50 GB NVMe).** PostgreSQL or MSSQL recommended. Allocate as much buffer pool memory as possible to keep database indexes cached. NVMe or provisioned IOPS (gp3 with tuned IOPS) required at ~56K IOPS.
+
+### Important caveats
+
+- These estimates use the conservative steady-state (Phase 3) numbers. Phases 1 and 2 run significantly faster, so actual load times will be shorter than shown.
+- All numbers assume average data connectivity. Highly connected data (many records per entity, many relationships) will require more resources. Disconnected data will require less.
+- The throughput estimates (5-10 records/second per core) are conservative. Many deployments see 2-5x better performance depending on data characteristics and hardware.
+- For deployments above 1 million records, scale horizontally with additional engine cores and processes. Use the same formulas with more cores to keep load times under 8 hours.
+- For production deployments at scale, contact Senzing for architecture guidance specific to your data and use case.

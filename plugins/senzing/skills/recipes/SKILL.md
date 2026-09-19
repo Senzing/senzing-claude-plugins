@@ -1,15 +1,16 @@
 ---
 name: recipes
 description: >
-  Cook a Senzing solution from the Senzing Cookbook — a curated, step-by-step recipe you pick and
-  Claude walks through, end to end. Use when the user wants a guided, opinionated build for a use
-  case (fraud, customer-360, compliance/exclusion screening, PPP-loan exploration) rather than an
-  open-ended task — e.g. "show me the recipes", "run the customer 360 recipe", "cook the healthcare
-  exclusion recipe", "walk me through a Senzing cookbook recipe", "senzing recipes". With no recipe
-  named it lists the catalog and helps you choose; with one named it stands up the kitchen, loads
-  the ingredients, and drives each cook/plate/plus step in order against your own Senzing.
+  Run a recipe from the Senzing Cookbook — a chef-authored, step-by-step solution that Claude
+  drives end to end against the user's own Senzing. Use when the user names a recipe or one of its
+  use cases (fraud, customer-360, compliance / exclusion screening, PPP-loan exploration), or asks
+  e.g. "show me the recipes", "run the customer 360 recipe", "senzing recipes". With no recipe
+  named it lists the catalog and helps them choose. Runs doctor first — a
+  recipe ends in a served result, so a host that cannot deliver one must be caught before the cook,
+  not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
+  sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
-allowed-tools: Bash, Read, Write, WebFetch, Task, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Bash, Read, Write, WebFetch, Agent, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Cook a Senzing Cookbook recipe
@@ -21,31 +22,39 @@ You are the **sous-chef** — you interpret and *run* each prompt, backed by the
 
 ## Recipe source
 
-<!-- REF: recipes are migrating from the `cookbook-import` branch to `main` in senzing/recipes.
-     RECIPE_REFS is tried in order so the skill self-heals across the merge — no plugin
-     re-release needed at the moment it lands. Once `main` is canonical and the branch is
-     retired, drop `cookbook-import` from the list. -->
-- `RECIPE_REFS = [main, cookbook-import]` — candidate refs, highest priority first.
-- **Resolve the ref once, at the start of the run:** try each ref in order and pick the **first**
-  whose catalog fetches successfully (a non-empty `200`) —
-  `curl -fsSL "https://raw.githubusercontent.com/senzing/recipes/<ref>/recipes.md"` (`-f` fails on
-  `404`, so "first that succeeds" is well-defined). Call the winner `REF` and use it for **every**
-  URL for the rest of the run, so catalog, recipe, and ingredients all come from one source.
-- Raw base: `https://raw.githubusercontent.com/senzing/recipes/${REF}/`
-- Catalog: `<raw base>/recipes.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
+<!-- The cookbook lives on `main` in senzing/recipes. The catalog file is `cookbook.md`.
+     Both were wrong here once already: this skill shipped pointing at a `cookbook-import`
+     branch (since deleted) AND at `recipes.md` (which has never existed on main), so every
+     run died at the catalog fetch with a misleading "cookbook unreachable" message. If the
+     catalog 404s again, verify the real filename in the repo before adding a fallback ref —
+     the failure mode last time was a file RENAME, which no amount of ref-juggling fixes. -->
+- Raw base: `https://raw.githubusercontent.com/senzing/recipes/main/`
+- Catalog: `<raw base>/cookbook.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
   ingredients: `<raw base>/ingredients/<...>`
-- If **no** ref yields a catalog, tell the user the cookbook is unreachable (and to allow
-  `raw.githubusercontent.com`); do **not** reconstruct recipes from memory.
+- If the catalog does not pass the fetch validation below, say the cookbook is unreachable **and
+  quote the URL and status you got** — do not just tell the user to allow a domain, because a
+  `404` is a wrong path, not a blocked network. Never reconstruct recipes from memory.
 
-**Fetch verbatim.** Use Bash `curl -fsSL "<url>"` to pull the exact markdown into context — the
-recipe's inline prompt blocks must be run **word-for-word** (their hard rules matter). If `curl`
-is unavailable or blocked, fall back to `WebFetch`; if both fail, ask the user to allow
-`raw.githubusercontent.com`, and do **not** reconstruct a recipe from memory.
+**Fetch verbatim — to a file, and validate it before trusting it.** Use Bash
+`curl -fsSL "<url>" -o "<workspace>/<name>.md"` to pull the exact markdown. `-f` rejects only HTTP
+≥ 400: it happily passes an **empty body**, and a `200` that is really an HTML error page. So
+before parsing anything, assert all three:
+- the file is non-empty (`test -s`);
+- its first non-blank line is a `# ` heading — **not** `<!DOCTYPE` or `<html`. (Both the catalog
+  and the recipes open with an H1; neither has YAML frontmatter.);
+- it contains at least one `## ` section heading.
 
-**Parse it as Markdown, not by line-grep.** A recipe is YAML frontmatter + a body of `## ` (H2)
-sections. A `#` inside a fenced code block is **not** a heading (it's a comment in an example
-prompt). Skip the internal frontmatter keys (`version`, `senzing_version`) and the `## Changelog`
-section — neither is part of the cook.
+A file that fails any check is a **failed fetch**, not a recipe: retry once via `WebFetch` (same
+checks); if that fails too, quote the URL and the status you got. Never parse it as recipe steps.
+Then read the validated file into context — the recipe's inline prompt blocks must be run
+**word-for-word** (their hard rules matter). If
+`curl` is unavailable or blocked, fall back to `WebFetch` (same validation); if both fail, ask the
+user to allow `raw.githubusercontent.com`, and do **not** reconstruct a recipe from memory.
+
+**Parse it as Markdown, not by line-grep.** A recipe is an `# ` title followed by `## ` (H2)
+sections — there is **no YAML frontmatter**, so do not look for any. A `#` inside a fenced code
+block is **not** a heading (it's a comment in an example prompt). Skip the `## Changelog`
+section — it is not part of the cook.
 
 ## Ground rules (non-negotiable)
 
@@ -53,8 +62,8 @@ section — neither is part of the cook.
   baked into every prompt. All Senzing facts, attributes, SDK signatures, and code come from the
   MCP tools (`get_capabilities`, `search_docs`, `mapping_workflow`, `sdk_guide`,
   `generate_scaffold`, `reporting_guide`, …) — never from memory.
-- **Never simulate entity resolution.** If Senzing isn't installed/running, say so and pivot to
-  install via the `doctor` skill — never fabricate scores, matches, or merges.
+- **Never simulate entity resolution.** If Senzing isn't installed/running, say so and hand off to
+  the `install` skill — never fabricate scores, matches, or merges.
 - **PII stays local.** Repo ingredients are synthetic and safe. If the user swaps in their own
   data, its records are only ever touched by SDK code you run locally via Bash — never pasted into
   a hosted tool call. Bake that into the load prompt.
@@ -73,8 +82,11 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    (`mcp.senzing.com` + `raw.githubusercontent.com` allowlisted), host shell writable, Senzing
    deployable (SDK / license / DB), and **interactive-outcome capability**. Act on its verdict
    before cooking:
-   - **Senzing can't deploy** → help install (`doctor` → `sdk_guide(topic="install")`; free 10-day
-     eval via `submit_feedback`); don't cook over a Senzing that won't stand up.
+   - **Senzing can't deploy** → hand off to the **`install`** skill (it surfaces the license
+     agreement, runs the official steps, and verifies with `doctor`; do not route around it via
+     `sdk_guide(topic="install")` directly — if an evaluation license is needed,
+     `submit_feedback(category='license_request')`'s description states the current terms). Don't
+     cook over a Senzing that won't stand up.
    - **A source is blocked** → stop and ask the user to allowlist that domain now (for recipe text
      you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
    - **No live-app surface here** (cloud sandbox, chat-only host, or a reduced sub-agent) → say so
@@ -84,11 +96,16 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      live-server plate. Don't pretend the plate will render where it can't.
 
    (Browsing the catalog is fine to attempt either way; committing to cook is not.)
-2. **Pick a recipe.** If no recipe was named (or the match is unclear), `curl` the catalog
-   (`recipes.md`) and present it: for each entry show **title · use_case · difficulty · kitchen ·
-   estimated time · author** and its "what you'll make" line, then ask which to cook. If one was
-   named, skip to step 3.
-3. **Load the recipe.** `curl` `recipes/<id>.md`. Read the frontmatter and body. Show the user the
+2. **Pick a recipe.** If no recipe was named (or the match is unclear), fetch and validate the
+   catalog (`cookbook.md`) per *Fetch verbatim* and present it. Each entry is an
+   `### [Title](recipes/<id>.md)` heading, an italic metadata line of ` · `-separated fields
+   (currently category · difficulty · where it runs · rough duration · author), and a
+   `**What you'll make:**` line. Show the title, that metadata line as-is, and the
+   what-you'll-make line — render the fields the catalog actually carries rather than a fixed
+   list, so a change upstream degrades to "one fewer field" instead of a wrong label. Then ask
+   which to cook. If one was named, skip to step 3.
+3. **Load the recipe.** Fetch and validate `recipes/<id>.md` per *Fetch verbatim*. Read the
+   title and body. Show the user the
    recipe's identity up front: **title, the mission, a one-line take from the Chef's Note,
    difficulty, kitchen, estimated time**, and surface the recipe's own "before you cook" reminders
    (use your most capable model; *your result will look different each run*; the video is
@@ -97,8 +114,10 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    deployment and host capability were already cleared in pre-flight):
    - **Kitchen:** stand up the platform the recipe targets (`local`, `aws`, …) per its *Setup*/*Prep*
      prompt.
-   - **Language:** **do not assume Python** — its binding is Linux-only. Confirm the implementation
-     language the recipe/user wants before generating any code.
+   - **Language:** **do not assume Python.** Confirm the implementation language the recipe/user
+     wants before generating any code, and check it is supported on this platform via
+     `sdk_guide(topic="install", platform=…, language=…)` → `compatibility_notes` — do not carry
+     the support matrix from memory.
    - **Ingredients:** if the recipe uses repo-provided ingredients, `curl` them from
      `<raw base>/ingredients/<...>` into the workspace before the Cook step. If the user brings
      their own data, take the paths, keep PII local, and note where the mapping will differ.
@@ -129,7 +148,7 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    resolved truth across every view — **gate each merge/split, confirm before it writes, never
    automatic.**
 7. **Wrap up.** Summarize what was built and why it matters, per the recipe's *Wrap Up*, and link
-   the demo **video** if the frontmatter carries one.
+   the demo **video** if the recipe links one (it appears inline, near the top).
 
 Outcome: the recipe's finished dish — a real, loaded, resolved Senzing solution on the user's
 machine, served through its place setting, built by driving the chef's prompts and grounded in the
