@@ -43,13 +43,23 @@ for _env_file in "$HOME/.env" "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." &&
   fi
 done
 
-# Reject a placeholder as firmly as an empty value. A literal "sk-ant-..." is
-# WORSE than nothing: it is non-empty, so a bare -z check passes it through and
-# the run dies later on an opaque auth error instead of here with the fix.
+# Validate the key POSITIVELY -- it must look like a real Anthropic key --
+# rather than blocklisting placeholder shapes. A blocklist only catches the
+# junk you thought of: a `pbpaste` that had the wrong thing on the clipboard
+# wrote 347 characters of prose here, which matched no placeholder pattern,
+# passed a bare -z check, and would have failed later as an opaque auth error
+# far from the cause. Anthropic keys are `sk-ant-` + a long opaque tail and
+# contain no whitespace, so require exactly that.
+_key_ok=1
 case "${ANTHROPIC_API_KEY:-}" in
-  ''|*...|*YOUR_KEY*|*xxx*|*XXX*|sk-ant-placeholder*) _key_ok=0 ;;
-  *) _key_ok=1 ;;
+  sk-ant-*) : ;;
+  *) _key_ok=0 ;;
 esac
+# Reject embedded whitespace/newlines (a multi-line paste) and absurd lengths.
+case "${ANTHROPIC_API_KEY:-}" in *[[:space:]]*) _key_ok=0 ;; esac
+if [ "${#ANTHROPIC_API_KEY}" -lt 40 ] || [ "${#ANTHROPIC_API_KEY}" -gt 300 ]; then
+  _key_ok=0
+fi
 if [ "$_key_ok" -eq 0 ]; then
   if [ "${CI:-}" = "true" ]; then
     echo "ERROR: ANTHROPIC_API_KEY is unset in CI." >&2
