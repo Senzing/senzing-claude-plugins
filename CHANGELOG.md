@@ -31,6 +31,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   its suite are untouched, and it does not gate every PR (`workflow_dispatch`, weekly, or the
   `real-senzing-e2e` label).
 
+- **Sandbox preflight (`.github/senzing-eval/sandbox-preflight.sh`).** Proves the agent's Bash
+  tool can actually run a command in the eval container before any eval budget is spent. It
+  drives the real pinned CLI with the sandbox on through its own public settings keys
+  (`sandbox.enabled`, `sandbox.failIfUnavailable`) and asserts the observable — a shell command
+  ran and its output came back — by having it read a nonce the model cannot know, so a model that
+  never touched Bash cannot echo the marker back and turn it green. Haiku, ~$0.016, against the
+  $0.53 and 2.5 minutes it protects. Verified in both directions before shipping: exits 0 with
+  the nonce, exits 1 with the nonce file removed.
+
+### Fixed
+
+- **The real-Senzing E2E scored the plugin 0.44 twice for a broken container, not a broken
+  plugin.** Every Bash call the agent made died before running, with
+  `bwrap: Can't mount tmpfs on /newroot/run/shm: No such file or directory`, so it correctly
+  refused to invent an entity count and the graders scored the refusal. Three defects, all fixed:
+  (a) the image gave itself `/run/shm` as a *symlink* to `/dev/shm`; bwrap populates its new root
+  after `pivot_root`, when `/dev` does not exist there, and the symlink also slips past
+  `ensure_dir()` (stat fails on the dangling link, mkdir returns EEXIST and reads as success) so
+  setup dies at the mount instead. It is a real directory now. (b) Nothing asserted the sandbox —
+  the Senzing preflight proves the *engine* runs, which is a different question. There is a
+  sandbox preflight now (above). (c) The job's own diagnostics could not read their own input:
+  the `--keep-temp` workspace is left root-owned with its modes closed, so the host-side `find`
+  for the scaffold marker and the trace files silently came back empty on both runs — which
+  disabled the `grep 'bwrap:'` check that would have named the real fault. Both now run inside
+  the container.
+
 ## [1.37.4] - 2026-09-19
 
 Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
@@ -114,7 +140,11 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
   (`kernel.apparmor_restrict_unprivileged_userns=1`), so every Bash call died with
   `bwrap: loopback: Failed RTM_NEWADDR` — 52 of them, `pwd` included; and the runner has no
   `/run/shm`, so once that was cleared the sandbox still failed with
-  `Can't mount tmpfs on /newroot/run/shm`. Both are now fixed and asserted before any spend.
+  `Can't mount tmpfs on /newroot/run/shm`. Fault 1 was cleared by moving the job into a
+  `--privileged` container. **Correction (see Unreleased): the claim that both were "fixed and
+  asserted before any spend" was wrong on both counts.** The fix for fault 2 gave the image a
+  `/run/shm` *symlink*, which does not satisfy the mount, and nothing asserted the sandbox at
+  all — there was no sandbox preflight until the entry under Unreleased added one.
 - **Four eval graders could not fail.** Every `regex`/`target: trace` MCP-grounding grader
   matched the tool NAMES in each skill's own `allowed-tools:` frontmatter (and, for
   `article-actually-retrieved`, a literal hard-coded in `poc-planner/SKILL.md` as the query to

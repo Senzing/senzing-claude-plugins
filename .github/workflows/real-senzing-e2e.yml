@@ -114,6 +114,18 @@ jobs:
         # simulated result.
         run: bash .github/senzing-eval/in-container.sh 'python3 /work/.github/senzing-eval/preflight.py /tmp/sz-preflight'
 
+      - name: Sandbox preflight — prove the agent's Bash tool works before spending
+        if: steps.gate.outputs.has_key == 'true'
+        # ~$0.016. Runs the real pinned CLI with the sandbox on and asserts that a
+        # shell command ran and its output came back, reading a nonce the model
+        # cannot know.
+        #
+        # This is the check that was missing. The Senzing preflight above proves
+        # the ENGINE runs; nothing proved the agent could reach a shell. Two full
+        # runs were spent and reported as plugin scores of 0.44 while every Bash
+        # call was dying at `bwrap: Can't mount tmpfs on /newroot/run/shm`.
+        run: bash .github/senzing-eval/in-container.sh 'bash /work/.github/senzing-eval/sandbox-preflight.sh /tmp/sz-sandbox-probe'
+
       - name: Run the real-Senzing eval suite
         if: steps.gate.outputs.has_key == 'true'
         # --keep-temp preserves the run workspace, which is where the agent's
