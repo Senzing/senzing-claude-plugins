@@ -1,0 +1,19 @@
+# Trivy misconfiguration suppressions. Each entry carries its reason: a
+# suppression without one is indistinguishable from a gate someone silenced
+# because it was inconvenient.
+
+# .github/senzing-eval/Dockerfile — ephemeral CI test fixture, never deployed,
+# never network-facing, run --privileged by necessity (the sandbox that
+# `claude plugin eval` needs for its Bash grant requires an unprivileged user
+# namespace). Switching to a non-root USER is a genuine improvement and is
+# tracked as a follow-up, but it moves /work ownership and the sandbox HOME and
+# there is no Docker daemon available to verify it. Shipping an untested
+# container change to satisfy a scanner trades a documented risk for an
+# undocumented one.
+AVD-DS-0002
+
+# A HEALTHCHECK is meaningless for a batch container that runs one command and
+# exits — nothing orchestrates it and nothing consumes the status. Adding a
+# no-op probe to turn a scanner green is exactly the gate-that-cannot-fail
+# pattern this PR exists to remove.
+AVD-DS-0026

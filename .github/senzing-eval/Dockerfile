@@ -11,6 +11,25 @@
 #
 # Node base because `claude plugin eval` ships as an npm package; the Senzing
 # packages go on top via the official apt repository.
+# Two Trivy misconfig findings are suppressed for this file in .trivyignore,
+# with the reasons recorded there and repeated here:
+#
+# DS-0002 (no non-root USER) and DS-0026 (no HEALTHCHECK) are suppressed here
+# deliberately, with reasons, rather than silenced globally:
+#
+# DS-0002 - this image is an ephemeral CI test fixture. It is never deployed,
+#   never network-facing, and is run `--privileged` by necessity: the sandbox
+#   `claude plugin eval` needs for its Bash grant requires an unprivileged user
+#   namespace, and clearing that was the whole reason the sibling job had to
+#   leave ubuntu. It also apt-installs the Senzing SDK at build time. Switching
+#   to a non-root USER is a real improvement and is tracked as a follow-up, but
+#   it changes /work ownership and the sandbox's HOME, and there is no Docker
+#   daemon available to verify it -- shipping an untested container change to
+#   satisfy a scanner would trade a documented risk for an undocumented one.
+#
+# DS-0026 - a HEALTHCHECK is meaningless for a batch container that runs one
+#   command and exits. Adding a no-op probe to turn a scanner green is exactly
+#   the kind of gate-that-cannot-fail this PR exists to remove.
 FROM node:22-bookworm-slim
 
 # Senzing EULA. Installing the SDK requires accepting it, and the only correct way
