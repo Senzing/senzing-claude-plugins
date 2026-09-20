@@ -134,7 +134,7 @@ jobs:
         run: bash .github/senzing-eval/in-container.sh 'bash plugins/senzing/evals-real/run.sh --keep-temp'
 
       - name: Collect traces, and fail ENVIRONMENTAL if the sandbox never ran
-        id: envgate
+        id: env_gate
         if: always() && steps.gate.outputs.has_key == 'true'
         # ORDER MATTERS, and it is the whole point of this step sitting HERE, ahead of the
         # ground-truth verification rather than after it. Whether the sandbox ran at all is a
@@ -200,6 +200,21 @@ jobs:
           if [ -n "$sandbox_errs" ]; then
             echo "== sandbox failures =="
             printf '%s\n' "$sandbox_errs"
+            # Free forensics, no API call. `--keep-temp` leaves the harness's own
+            # sandbox HOME on the bind mount, and root inside the container can
+            # read it. The standing question about the `.aws` fault is who creates
+            # that path and what it is, which nobody has looked at because until
+            # now nothing could read the tree. Strictly diagnostic: it must never
+            # change whether this step fails.
+            bash .github/senzing-eval/in-container.sh '
+              echo "-- image HOME:"; ls -la /root 2>&1 | head -20
+              echo "-- image /root/.aws:"; ls -lad /root/.aws 2>&1
+              for h in /tmp/claude-eval-*/home; do
+                echo "-- harness HOME $h:"; ls -la "$h" 2>&1 | head -30
+                echo "-- $h/.aws:"; ls -lad "$h/.aws" 2>&1
+                ls -la "$h/.aws" 2>&1 | head -10
+              done
+            ' || echo "  (forensics unavailable)"
             echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the agent's Bash sandbox failed, so no shell command ran and nothing about the plugin was measured. Any case score printed above is meaningless. Fix the image or the harness; do NOT change a skill, an eval case, a grader or an expected count in response to this."
             exit 1
           fi
@@ -213,7 +228,7 @@ jobs:
         # skipped, loudly, by the step below.
         if: always() && steps.gate.outputs.has_key == 'true'
           && steps.sandbox.outcome == 'success'
-          && steps.envgate.outcome == 'success'
+          && steps.env_gate.outcome == 'success'
         # Runs even when the eval step failed: whether the engine produced the
         # right entities is the more informative signal, and "no repository at
         # all" is itself the verdict for a run that reported numbers it never
@@ -244,7 +259,7 @@ jobs:
 
       - name: Ground-truth verification SKIPPED — nothing was measured
         if: always() && steps.gate.outputs.has_key == 'true'
-          && (steps.sandbox.outcome != 'success' || steps.envgate.outcome != 'success')
+          && (steps.sandbox.outcome != 'success' || steps.env_gate.outcome != 'success')
         run: |
           echo "::notice::Ground-truth verification was deliberately SKIPPED. The agent's Bash sandbox failed, so the eval never created a Senzing repository — the only database on disk is the preflight's own three records. Any verdict derived from it (\"159 of 159 ground-truth records are not in the repository\", \"SzUnknownDataSourceError (2207) ... CUSTOMERS does not exist\") would be an artefact of that, and has twice been misread as a plugin defect. The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; do NOT change a skill, an eval case, a grader or an expected count."
 
