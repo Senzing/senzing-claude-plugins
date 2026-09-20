@@ -80,7 +80,40 @@ probe() {
     --permission-mode dontAsk \
     --settings "$settings" \
     --strict-mcp-config \
-    --output-format json 2>&1
+    --output-format stream-json --verbose 2>&1
+}
+
+# Raw tool results, not the model's prose about them. The first failing run of
+# this probe reported only the assistant's paraphrase -- "the command failed
+# both within the sandbox (seccomp permission error) and when attempting to
+# disable the sandbox" -- which is a summary of an error nobody can grep for,
+# written by the same model whose tool access is in question. `--output-format
+# json` returns just that final text; stream-json carries every tool_result, so
+# the failure names itself.
+tool_errors() {
+  python3 - "$1" <<'PYEOF'
+import json, sys
+seen = []
+for line in sys.argv[1].splitlines():
+    line = line.strip()
+    if not line.startswith("{"):
+        continue
+    try:
+        msg = json.loads(line)
+    except ValueError:
+        continue
+    content = (msg.get("message") or {}).get("content")
+    if msg.get("type") == "user" and isinstance(content, list):
+        for block in content:
+            if block.get("type") == "tool_result":
+                text = json.dumps(block.get("content"))
+                if block.get("is_error") or "Exit code" in text or "denied" in text:
+                    seen.append(text[:400])
+    for denial in msg.get("permission_denials") or []:
+        seen.append("permission_denied: " + json.dumps(denial.get("tool_input"))[:300])
+for item in dict.fromkeys(seen):
+    print(item)
+PYEOF
 }
 
 out=""
@@ -96,14 +129,25 @@ for attempt in 1 2; do
   echo "sandbox probe attempt $attempt did not return the nonce; retrying once" >&2
 done
 
-echo "---- probe output ----" >&2
-printf '%s\n' "$out" >&2
-echo "----------------------" >&2
+errors="$(tool_errors "$out" || true)"
 
-if printf '%s' "$out" | grep -q 'bwrap:'; then
-  echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the Bash sandbox is broken in this container, so nothing about the plugin was measured. Every Bash call the eval agent makes will fail the same way. Fix the image or the harness, never the plugin or the graders." >&2
+echo "---- tool errors ----" >&2
+printf '%s\n' "${errors:-<none captured>}" >&2
+echo "---- full probe output ----" >&2
+printf '%s\n' "$out" >&2
+echo "---------------------------" >&2
+
+sandbox_marker="$(printf '%s' "$out" | grep -oE 'bwrap:[^"]{0,140}|sandbox-exec:[^"]{0,140}' | sort -u | head -3 || true)"
+if [ -n "$sandbox_marker" ]; then
+  printf 'sandbox backend said: %s\n' "$sandbox_marker" >&2
+  echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the Bash sandbox backend failed in this container, so nothing about the plugin was measured. Every Bash call the eval agent makes will fail the same way, and the ground-truth verification downstream is skipped because its input would be the preflight's own repository. Fix the image or the harness, never the plugin or the graders." >&2
   exit 1
 fi
 
-echo "::error::Sandbox preflight INCONCLUSIVE — the probe never returned the nonce and reported no sandbox error, so nothing here proves the agent can run a shell command. Treating that as a failure is deliberate: an unproven sandbox is exactly the state that produced two runs of false plugin verdicts." >&2
+if [ -n "$errors" ]; then
+  echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the agent's Bash tool did not return the probe's output, and reported the raw errors printed above (no bwrap/sandbox-exec marker among them, no bwrap/sandbox-exec marker, so this is NOT the /run/shm or .aws sandbox-setup fault and should not be assumed to be). Nothing about the plugin was measured; the ground-truth verification downstream is skipped. Fix the image or the harness, never the plugin or the graders." >&2
+  exit 1
+fi
+
+echo "::error::Sandbox preflight INCONCLUSIVE — the probe never returned the nonce, reported no sandbox-backend marker, and produced no tool error to quote, so nothing here proves the agent can run a shell command. Treating that as a failure is deliberate: an unproven sandbox is exactly the state that produced two runs of false plugin verdicts. The ground-truth verification downstream is skipped for the same reason." >&2
 exit 1

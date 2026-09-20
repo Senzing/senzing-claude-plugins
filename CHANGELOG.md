@@ -56,6 +56,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **A broken sandbox no longer gets the last word from the ground-truth verifier.** The
+  environmental determination now runs BEFORE the ground-truth step, and the verifier is skipped
+  outright when the sandbox never ran — with a notice saying why, rather than silently. Run the
+  wrong way round, the job printed `FAIL — 159 of 159 ground-truth records are not in the
+  repository (SzUnknownDataSourceError (2207) … [CUSTOMERS] does not exist)` first and the
+  environmental truth second, on a run where the agent never obtained a shell: the verifier had
+  found the *preflight's* own three-record database and dutifully reported that the truth set was
+  not in it. That output was read as a plugin defect twice, the second time with the full log
+  open. Whether the sandbox ran is a question about the measurement; whether the entities are
+  right is a question about the product, and the second is meaningless until the first answers
+  yes. The truth also being in the log is not good enough when the lie is louder and comes first.
+
+- **The sandbox preflight now quotes raw tool errors instead of the model's prose about them.**
+  Its first real failure reported only the assistant's paraphrase — "the command failed both
+  within the sandbox (seccomp permission error) and when attempting to disable the sandbox" — a
+  summary of an error nobody can grep for, written by the same model whose tool access was in
+  question. It now runs with `--output-format stream-json` and prints every failing `tool_result`
+  and permission denial, and it distinguishes three outcomes: a sandbox-backend marker
+  (`bwrap:`/`sandbox-exec:`), a raw tool error with no such marker (explicitly NOT to be assumed
+  to be the `/run/shm` or `.aws` fault), and genuinely inconclusive.
+
 - **`recipes` stopped at the doctor verdict and asked, instead of taking the degraded path.**
   CI caught it as `recipes-named` failing four assertions in 2 of 2 runs: `doctor` probed the host
   beautifully, reported no SDK, and the run's final message was the status table plus "which would

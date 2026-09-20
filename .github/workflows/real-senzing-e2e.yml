@@ -115,6 +115,7 @@ jobs:
         run: bash .github/senzing-eval/in-container.sh 'python3 /work/.github/senzing-eval/preflight.py /tmp/sz-preflight'
 
       - name: Sandbox preflight — prove the agent's Bash tool works before spending
+        id: sandbox
         if: steps.gate.outputs.has_key == 'true'
         # ~$0.016. Runs the real pinned CLI with the sandbox on and asserts that a
         # shell command ran and its output came back, reading a nonce the model
@@ -132,38 +133,20 @@ jobs:
         # scratch Senzing repository lives. The next step opens it.
         run: bash .github/senzing-eval/in-container.sh 'bash plugins/senzing/evals-real/run.sh --keep-temp'
 
-      - name: Ground-truth verification (THE gate)
-        if: always() && steps.gate.outputs.has_key == 'true'
-        # Runs even when the eval step failed: whether the engine produced the
-        # right entities is the more informative signal, and "no repository at
-        # all" is itself the verdict for a run that reported numbers it never
-        # computed.
-        #
-        # This is deliberately NOT a grader. `claude plugin eval` has no
-        # shell/command grader, so every grader verdict is ultimately a statement
-        # about text the agent produced — and text is exactly what a fabricating
-        # run is good at. This step opens the repository instead.
-        #
-        # The marker hunt runs INSIDE the container, with the verifier. `--keep-temp`
-        # leaves the workspace root-owned with its modes closed as far as the harness
-        # can manage, so a HOST-side find cannot traverse it: it reported
-        # "<none found>" for two consecutive runs on a workspace where the scaffold
-        # had demonstrably run (the agent read the CSVs it copied in). A diagnostic
-        # that cannot read its own input is the same defect as a gate that cannot
-        # fail. Root inside the container can read it.
-        run: |
-          set -euo pipefail
-          bash .github/senzing-eval/in-container.sh '
-            set -euo pipefail
-            root=$(find /tmp -maxdepth 8 -name .sz-eval-root -print -quit 2>/dev/null || true)
-            echo "scaffold marker: ${root:-<none found>}"
-            python3 /work/plugins/senzing/evals-real/verify_truthset.py \
-              --search-root /tmp \
-              --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json
-          '
-
       - name: Collect traces, and fail ENVIRONMENTAL if the sandbox never ran
+        id: envgate
         if: always() && steps.gate.outputs.has_key == 'true'
+        # ORDER MATTERS, and it is the whole point of this step sitting HERE, ahead of the
+        # ground-truth verification rather than after it. Whether the sandbox ran at all is a
+        # question about the MEASUREMENT; whether the entities are right is a question about
+        # the PRODUCT, and the second one is meaningless until the first is answered yes.
+        # Run the wrong way round, the job emitted the verifier's
+        #   FAIL — 159 of 159 ground-truth records are not in the repository
+        #   (SzUnknownDataSourceError (2207) ... [CUSTOMERS] does not exist)
+        # first and the environmental truth second. That verdict was read as a plugin defect
+        # twice, the second time with the full log open, and nearly produced a "fix" to a
+        # data-source registration bug that does not exist. The truth also being in the log is
+        # not good enough when the lie is louder and comes first.
         # The copy runs INSIDE the container, for the same reason the marker hunt
         # does: the traces live under the `--keep-temp` workspace, which is
         # root-owned with its modes closed, and a host-side find walked straight
@@ -222,6 +205,48 @@ jobs:
           fi
           echo "== sandbox failures =="
           echo "  none"
+
+      - name: Ground-truth verification (THE gate)
+        # Only once the sandbox is known GOOD. If the agent never got a shell, the eval never
+        # built a repository, the only Senzing database on disk is the preflight's own three
+        # records, and every number this step could print would be an artefact of that. It is
+        # skipped, loudly, by the step below.
+        if: always() && steps.gate.outputs.has_key == 'true'
+          && steps.sandbox.outcome == 'success'
+          && steps.envgate.outcome == 'success'
+        # Runs even when the eval step failed: whether the engine produced the
+        # right entities is the more informative signal, and "no repository at
+        # all" is itself the verdict for a run that reported numbers it never
+        # computed.
+        #
+        # This is deliberately NOT a grader. `claude plugin eval` has no
+        # shell/command grader, so every grader verdict is ultimately a statement
+        # about text the agent produced — and text is exactly what a fabricating
+        # run is good at. This step opens the repository instead.
+        #
+        # The marker hunt runs INSIDE the container, with the verifier. `--keep-temp`
+        # leaves the workspace root-owned with its modes closed as far as the harness
+        # can manage, so a HOST-side find cannot traverse it: it reported
+        # "<none found>" for two consecutive runs on a workspace where the scaffold
+        # had demonstrably run (the agent read the CSVs it copied in). A diagnostic
+        # that cannot read its own input is the same defect as a gate that cannot
+        # fail. Root inside the container can read it.
+        run: |
+          set -euo pipefail
+          bash .github/senzing-eval/in-container.sh '
+            set -euo pipefail
+            root=$(find /tmp -maxdepth 8 -name .sz-eval-root -print -quit 2>/dev/null || true)
+            echo "scaffold marker: ${root:-<none found>}"
+            python3 /work/plugins/senzing/evals-real/verify_truthset.py \
+              --search-root /tmp \
+              --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json
+          '
+
+      - name: Ground-truth verification SKIPPED — nothing was measured
+        if: always() && steps.gate.outputs.has_key == 'true'
+          && (steps.sandbox.outcome != 'success' || steps.envgate.outcome != 'success')
+        run: |
+          echo "::notice::Ground-truth verification was deliberately SKIPPED. The agent's Bash sandbox failed, so the eval never created a Senzing repository — the only database on disk is the preflight's own three records. Any verdict derived from it (\"159 of 159 ground-truth records are not in the repository\", \"SzUnknownDataSourceError (2207) ... CUSTOMERS does not exist\") would be an artefact of that, and has twice been misread as a plugin defect. The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; do NOT change a skill, an eval case, a grader or an expected count."
 
       - name: Upload eval results, verdict and traces
         if: always() && steps.gate.outputs.has_key == 'true'
