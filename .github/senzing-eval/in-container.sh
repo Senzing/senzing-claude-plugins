@@ -34,8 +34,13 @@ fi
 # Hand ownership back on the way out. `exec` is dropped so the trap can run;
 # the container's exit status is preserved and re-raised explicitly.
 _host_uid="$(id -u)"; _host_gid="$(id -g)"
-# shellcheck disable=SC2329  # invoked indirectly via the EXIT trap below
+# Invoked indirectly by the EXIT trap below, which shellcheck cannot see. The
+# code it reports under differs by version -- SC2329 "never invoked" on 0.11+,
+# SC2317 "unreachable command" on the older apt build CI installs -- so disable
+# both, on the declaration AND inside the body, or local and CI disagree.
+# shellcheck disable=SC2329
 _restore_ownership() {
+  # shellcheck disable=SC2317
   docker run --rm --volume "$PWD:/work" --workdir /work \
     "$SENZING_EVAL_IMAGE" chown -R "${_host_uid}:${_host_gid}" /work >/dev/null 2>&1 || true
 }
