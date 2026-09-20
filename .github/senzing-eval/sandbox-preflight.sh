@@ -21,9 +21,20 @@
 # the same `--permission-mode dontAsk` the eval harness is observed to use, and
 # asserts the OBSERVABLE: a shell command ran and its output came back.
 #
-# This is not bit-for-bit the harness's own sandbox invocation -- the harness
-# builds its own workspace and tool grants. What it shares is the part that
-# broke: the `[Sandbox Linux]` bwrap backend setting up its mounts in this image.
+# It runs under the SAME HOME SHAPE the real run uses, and that is not cosmetic.
+# The first version of this script ran with the container's own HOME=/root and
+# PASSED in the very job where every one of the agent's Bash calls died --
+# because the harness does not use the container's HOME. It builds its own, and
+# the fault lives there:
+#
+#   trace init:  cwd = /tmp/claude-eval-dMKT9y/home/cwd
+#   every Bash:  bwrap: Can't create file at /tmp/claude-eval-dMKT9y/home/.aws:
+#                Is a directory
+#
+# So the probe mirrors that layout exactly: a throwaway HOME at <workdir>/home
+# with the working directory at <workdir>/home/cwd, under the same bind-mounted
+# /tmp the harness's temp dir lands on. A preflight that cannot reproduce the
+# fault it exists to catch is a gate that cannot fail.
 #
 # The probe reads a NONCE the model cannot know. A marker quoted in the prompt
 # would let a model that never touched Bash echo it straight back and turn this
@@ -45,10 +56,15 @@ set -euo pipefail
 
 workdir="${1:-/tmp/sz-sandbox-probe}"
 rm -rf "$workdir"
-mkdir -p "$workdir"
+mkdir -p "$workdir/home/cwd"
+
+# Mirror the harness: HOME is a throwaway directory it builds under TMPDIR, and
+# the session's cwd is <home>/cwd. Exporting HOME is the whole point -- see the
+# header.
+export HOME="$workdir/home"
 
 nonce="sandbox-$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
-nonce_file="$workdir/nonce.txt"
+nonce_file="$HOME/cwd/nonce.txt"
 printf '%s\n' "$nonce" > "$nonce_file"
 
 prompt="Use the Bash tool to run exactly this command: cat ${nonce_file}
@@ -57,7 +73,7 @@ Then reply with nothing but the command's output. Do not use any other tool."
 settings='{"sandbox":{"enabled":true,"failIfUnavailable":true}}'
 
 probe() {
-  cd "$workdir" && claude \
+  cd "$HOME/cwd" && claude \
     --print "$prompt" \
     --model haiku \
     --allowedTools Bash \
@@ -85,7 +101,7 @@ printf '%s\n' "$out" >&2
 echo "----------------------" >&2
 
 if printf '%s' "$out" | grep -q 'bwrap:'; then
-  echo "::error::Sandbox preflight FAILED — the Bash sandbox is broken in this container. Every Bash call the eval agent makes will fail the same way, and the suite would report that as a plugin score. Fix the image, not the plugin." >&2
+  echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the Bash sandbox is broken in this container, so nothing about the plugin was measured. Every Bash call the eval agent makes will fail the same way. Fix the image or the harness, never the plugin or the graders." >&2
   exit 1
 fi
 

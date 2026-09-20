@@ -162,7 +162,7 @@ jobs:
               --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json
           '
 
-      - name: Collect traces and hand results back to the runner
+      - name: Collect traces, and fail ENVIRONMENTAL if the sandbox never ran
         if: always() && steps.gate.outputs.has_key == 'true'
         # The copy runs INSIDE the container, for the same reason the marker hunt
         # does: the traces live under the `--keep-temp` workspace, which is
@@ -186,21 +186,42 @@ jobs:
             done < <(find -L /tmp -maxdepth 8 -name trace.jsonl 2>/dev/null | sort -u)
             echo "collected $n trace file(s) into $dest/traces"
           ' || echo "::warning::trace collection failed — the analysis below has nothing to read"
-          # Diagnostics only: never turn this step into a second way for the job to
-          # fail. The gate is the step above.
+          # The COPY is best-effort -- a docker hiccup here must not invent a
+          # failure. What is not best-effort is the sandbox check at the bottom.
           n=0
           if [ -d "$dest/traces" ]; then
             n=$(find "$dest/traces" -name 'trace-*.jsonl' | wc -l | tr -d ' ')
           fi
-          if [ "$n" -gt 0 ]; then
-            echo "== tool_use histogram across collected traces =="
-            cat "$dest"/traces/*.jsonl 2>/dev/null \
-              | grep -o '"name":"[A-Za-z0-9_]*"' \
-              | sort | uniq -c | sort -rn | head -30 || echo "  none"
-            echo "== sandbox failures (would make every Bash call environmental, not a plugin verdict) =="
-            grep -ohE 'bwrap:[^"]{0,110}|sandbox-exec:[^"]{0,110}' "$dest"/traces/*.jsonl 2>/dev/null \
-              | sort -u | head -5 || echo "  none"
+          if [ "$n" -eq 0 ]; then
+            exit 0
           fi
+          echo "== tool_use histogram across collected traces =="
+          cat "$dest"/traces/*.jsonl 2>/dev/null \
+            | grep -o '"name":"[A-Za-z0-9_]*"' \
+            | sort | uniq -c | sort -rn | head -30 || echo "  none"
+
+          # THE ENVIRONMENTAL GATE.
+          #
+          # A sandbox error in the traces means the agent's Bash tool never ran a
+          # command, so NOTHING about the plugin was measured -- and the suite
+          # still prints a score, because every grader is a statement about text.
+          # That score is a lie with a number on it. It has now been read as a
+          # plugin defect three separate times, once with the log open.
+          #
+          # So this is not a diagnostic any more. `bwrap:` or `sandbox-exec:` in a
+          # trace fails the job under its own name: ENVIRONMENTAL, explicitly not
+          # a verdict on the plugin, and never a reason to touch a skill, a case
+          # or a grader.
+          sandbox_errs="$(grep -ohE 'bwrap:[^"]{0,110}|sandbox-exec:[^"]{0,110}' \
+            "$dest"/traces/*.jsonl 2>/dev/null | sort -u | head -5 || true)"
+          if [ -n "$sandbox_errs" ]; then
+            echo "== sandbox failures =="
+            printf '%s\n' "$sandbox_errs"
+            echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the agent's Bash sandbox failed, so no shell command ran and nothing about the plugin was measured. Any case score printed above is meaningless. Fix the image or the harness; do NOT change a skill, an eval case, a grader or an expected count in response to this."
+            exit 1
+          fi
+          echo "== sandbox failures =="
+          echo "  none"
 
       - name: Upload eval results, verdict and traces
         if: always() && steps.gate.outputs.has_key == 'true'

@@ -38,7 +38,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   ran and its output came back — by having it read a nonce the model cannot know, so a model that
   never touched Bash cannot echo the marker back and turn it green. Haiku, ~$0.016, against the
   $0.53 and 2.5 minutes it protects. Verified in both directions before shipping: exits 0 with
-  the nonce, exits 1 with the nonce file removed.
+  the nonce, exits 1 with the nonce file removed. It runs under the same HOME shape the
+  harness builds (`<tmp>/home`, cwd at `<tmp>/home/cwd`) rather than the container's own
+  `HOME=/root` — the first version did the latter and passed in the very job where every one
+  of the agent's Bash calls died, because the fault lives in the harness's constructed HOME.
+
+### Changed
+
+- **A sandbox failure now fails the real-Senzing E2E as ENVIRONMENTAL, not as a plugin score.**
+  When the agent's Bash sandbox is broken, no shell command runs, nothing about the plugin is
+  measured — and `claude plugin eval` still prints a case score, because every grader is
+  ultimately a statement about text the agent produced. That score is a lie with a number on it,
+  and it was read as a plugin defect three separate times, once with the log open. `bwrap:` or
+  `sandbox-exec:` in a collected trace now fails the job under its own name, with wording that
+  says it is not a verdict on the plugin and is never a reason to change a skill, an eval case, a
+  grader or an expected count.
 
 ### Fixed
 
