@@ -153,7 +153,13 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
 
    **Probe budget: ONE attempt per question, then record the answer and move on.** Where a check
    needs a write probe, it is exactly one `Write` of a small file into the **current project
-   directory** and one `Read` back. Landed → the file tools write the project. Did not land →
+   directory** and one `Read` back. **Name that file exactly `.senzing-doctor-probe.tmp`** and
+   delete it as soon as you have read it back. The name is pinned, not stylistic: `doctor` is
+   invoked by skills whose eval cases assert that the run wrote no file, and those cases exclude
+   this one exact path so they can still fail on any other `Write` — see
+   `plugins/senzing/evals/recipes-named/graders/no-file-written.md`, which carries the matching
+   note. A probe under any other name is indistinguishable from a deliverable and will fail them.
+   Landed → the file tools write the project. Did not land →
    they do not. Both are answers; neither is a reason to keep looking. Do NOT go hunting through
    `$TMPDIR`, `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second
    opinion — a probe that failed in the project directory has already told you what `build`,
