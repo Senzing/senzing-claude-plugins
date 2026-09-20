@@ -82,20 +82,36 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    (`mcp.senzing.com` + `raw.githubusercontent.com` allowlisted), host shell writable, Senzing
    deployable (SDK / license / DB), and **interactive-outcome capability**. Act on its verdict
    before cooking:
-   - **Senzing can't deploy** → hand off to the **`install`** skill (it surfaces the license
-     agreement, runs the official steps, and verifies with `doctor`; do not route around it via
-     `sdk_guide(topic="install")` directly — if an evaluation license is needed,
-     `submit_feedback(category='license_request')`'s description states the current terms). Don't
-     cook over a Senzing that won't stand up.
-   - **A source is blocked** → stop and ask the user to allowlist that domain now (for recipe text
-     you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
-   - **No live-app surface here** (cloud sandbox, chat-only host, or a reduced sub-agent) → say so
-     plainly: the recipe's *Plate* can't be a live `localhost` server here. Offer the honest
-     substitution — map → load → resolve **plus a self-contained interactive HTML5 artifact** you
-     deliver as a download — and recommend running the recipe in **Claude Code** for the literal
-     live-server plate. Don't pretend the plate will render where it can't.
 
-   (Browsing the catalog is fine to attempt either way; committing to cook is not.)
+   **A red verdict is a cue to take the degraded path, not permission to stop and ask.** This is
+   the way this step fails, it does not look like a failure, and CI has caught it: `doctor` probed
+   the host beautifully, reported no SDK, and the run's final message was the status table plus
+   "which would you like?" — so the recipe was never fetched and `install` was never reached. The
+   user asked to cook and got an environment report and a menu. `doctor` says the same thing about
+   itself: "A no-SDK verdict is the caller's cue to take its degraded path — **never** a reason to
+   stop short of it." Say what you found in one line, then **take the path below in the same
+   turn**. None of these bullets is a question, and a host that is merely sandboxed or reduced is
+   not a reason to abandon the request.
+   - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so the user
+     learns what it needs, then hand off to the **`install`** skill without asking first (it
+     surfaces the license agreement, runs the official steps, and verifies with `doctor`; do not
+     route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
+     needed, `submit_feedback(category='license_request')`'s description states the current
+     terms). Don't cook over a Senzing that won't stand up, and don't stop at the diagnosis
+     either.
+   - **A source is blocked** → this one IS a stop: ask the user to allowlist that domain now (for
+     recipe text you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
+     Nothing downstream works without it, which is what makes it different from the bullets
+     around it.
+   - **No live-app surface here** (cloud sandbox, chat-only host, or a reduced sub-agent) → say so
+     plainly: the recipe's *Plate* can't be a live `localhost` server here. Then **make** the
+     honest substitution — map → load → resolve **plus a self-contained interactive HTML5
+     artifact** you deliver as a download — and mention that **Claude Code** gives the literal
+     live-server plate. Substitute the plate; do not put the substitution to the user as a choice
+     and wait. Don't pretend the plate will render where it can't.
+
+   (Browsing the catalog, and fetching the recipe the user named, are fine to attempt either way;
+   committing to cook is not.)
 2. **Pick a recipe.** If no recipe was named (or the match is unclear), fetch and validate the
    catalog (`cookbook.md`) per *Fetch verbatim* and present it. Each entry is an
    `### [Title](recipes/<id>.md)` heading, an italic metadata line of ` · `-separated fields

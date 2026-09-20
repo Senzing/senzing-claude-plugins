@@ -56,6 +56,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`recipes` stopped at the doctor verdict and asked, instead of taking the degraded path.**
+  CI caught it as `recipes-named` failing four assertions in 2 of 2 runs: `doctor` probed the host
+  beautifully, reported no SDK, and the run's final message was the status table plus "which would
+  you like — attempt the install here, or move this to a local session?". The recipe was never
+  fetched and `install` was never reached, so `correct-recipe-fetched`, `doctor-before-recipe` and
+  `install-steps-from-mcp` all failed for one reason. `doctor/SKILL.md` already says it — "a no-SDK
+  verdict is the caller's cue to take its degraded path, never a reason to stop short of it" — but
+  `recipes` step 1 said only "hand off to the `install` skill", never *without asking*, and the
+  bullet below it ("Offer the honest substitution…") read as an invitation to negotiate. Step 1 now
+  states that a red verdict is a cue, not a question; the no-Senzing path fetches the named recipe
+  and hands off to `install` in the same turn; the no-live-app path *makes* the substitution rather
+  than offering it; and the one bullet that genuinely is a stop (a blocked source) says why it is
+  different.
+
+- **An eval assertion contradicted its own case and could not pass.** `recipes-named` requires
+  `doctor` to run (`doctor-invoked`) while `doctor/SKILL.md` requires `doctor` to probe workspace
+  writability with the `Write` tool — and `no-file-written` forbade `Write` outright. No model
+  could pass it; CI observed exactly the predicted `Write` 1x of a probe file removed by the next
+  Bash call. The probe filename is now pinned (`.senzing-doctor-probe.tmp`) in `doctor/SKILL.md`,
+  and the graders exclude that ONE exact path and nothing else, so any other `Write` still fails
+  them. The pin and the exclusions carry notes pointing at each other. Applied to the three cases
+  whose skills document that they run `doctor` first (`recipes-named`, `recipes-catalog`,
+  `report-empty-instance`); the four cases whose skills never invoke `doctor` keep the unqualified
+  `max: 0`.
+
 - **The real-Senzing E2E scored the plugin 0.44 twice for a broken container, not a broken
   plugin.** Every Bash call the agent made died before running, with
   `bwrap: Can't mount tmpfs on /newroot/run/shm: No such file or directory`, so it correctly
