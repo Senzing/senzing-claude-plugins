@@ -93,6 +93,19 @@ RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}" \
 
 # Fault 2 of the three that killed the ubuntu behavioral-eval attempt: the runner
 # image had no /run/shm, so the sandbox could not mount its tmpfs. Give it one.
-RUN mkdir -p /dev/shm && ln -sfn /dev/shm /run/shm
+#
+# It must be a real DIRECTORY, not a symlink to /dev/shm. A symlink looks like it
+# works and does not:
+#
+#   bwrap: Can't mount tmpfs on /newroot/run/shm: No such file or directory
+#
+# bwrap's ensure_dir() on the target does stat() (follows the link -> fails) then
+# mkdir() (the link exists -> EEXIST, treated as success), so setup sails past the
+# only check that would have caught it and dies at the mount(2) instead. The link
+# target is ABSOLUTE, and by the time bwrap populates the new root its own "/" is
+# the staging tmpfs holding newroot/ and oldroot/ -- which has no /dev at all -- so
+# /newroot/run/shm resolves to a /dev/shm that does not exist there. A plain
+# directory has no indirection to resolve. 1777 matches /dev/shm's own mode.
+RUN mkdir -p /dev/shm /run/shm && chmod 1777 /dev/shm /run/shm
 
 WORKDIR /work
