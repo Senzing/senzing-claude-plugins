@@ -153,6 +153,11 @@ def find_repo(search_root: Path) -> tuple[Path, int]:
 # Engine queries (real SDK, no mocks)
 # --------------------------------------------------------------------------
 def engine_for(repo_db: Path):
+    """Open the repo and return (factory, engine).
+
+    The factory is returned deliberately. It owns the engine and destroys it on
+    collection, so a caller that keeps only the engine gets a dead handle.
+    """
     """Create an SzEngine bound to `repo_db`. Import failure is a hard stop."""
     try:
         from senzing_core import SzAbstractFactoryCore  # noqa: PLC0415
@@ -174,8 +179,13 @@ def engine_for(repo_db: Path):
             "SQL": {"CONNECTION": f"sqlite3://na:na@{repo_db}"},
         }
     )
+    # The factory OWNS the engine: when the factory is collected it destroys it.
+    # Returning only the engine let `factory` go out of scope here, so the first
+    # real CI run died with
+    #   SzSdkError: engine object has been destroyed and can no longer be used
+    # Hand the factory back with the engine so the caller keeps it alive.
     factory = SzAbstractFactoryCore("verify_truthset", settings, verbose_logging=False)
-    return factory.create_engine()
+    return factory, factory.create_engine()
 
 
 def entity_id_per_record(engine, records) -> tuple[dict[tuple[str, str], str], list[str]]:
@@ -307,7 +317,9 @@ def verify(repo_db: Path, out_path: Path | None) -> int:
     fixture_records = read_fixture_records(FIXTURE_DIR)
     expected_entities = len(partition(key))
 
-    engine = engine_for(repo_db)
+    # Keep the factory bound for the whole verification: it owns the engine and
+    # destroys it when collected. `_factory` is intentionally unused.
+    _factory, engine = engine_for(repo_db)
     resolved, missing = entity_id_per_record(engine, set(key))
     repo_entity_ids = all_entity_ids(engine)
     redo_backlog = int(engine.count_redo_records())
