@@ -131,34 +131,60 @@ jobs:
         # shell/command grader, so every grader verdict is ultimately a statement
         # about text the agent produced — and text is exactly what a fabricating
         # run is good at. This step opens the repository instead.
+        #
+        # The marker hunt runs INSIDE the container, with the verifier. `--keep-temp`
+        # leaves the workspace root-owned with its modes closed as far as the harness
+        # can manage, so a HOST-side find cannot traverse it: it reported
+        # "<none found>" for two consecutive runs on a workspace where the scaffold
+        # had demonstrably run (the agent read the CSVs it copied in). A diagnostic
+        # that cannot read its own input is the same defect as a gate that cannot
+        # fail. Root inside the container can read it.
         run: |
           set -euo pipefail
-          # Diagnostic only. The marker the scaffold drops says whether a run
-          # workspace was preserved at all, which is the difference between "the
-          # agent never got that far" and "it ran but resolved wrongly".
-          root=$(find "$SENZING_EVAL_TMP" -maxdepth 8 -name '.sz-eval-root' -print -quit 2>/dev/null || true)
-          echo "scaffold marker: ${root:-<none found>}"
-          bash .github/senzing-eval/in-container.sh \
-            'python3 /work/plugins/senzing/evals-real/verify_truthset.py --search-root /tmp --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json'
+          bash .github/senzing-eval/in-container.sh '
+            set -euo pipefail
+            root=$(find /tmp -maxdepth 8 -name .sz-eval-root -print -quit 2>/dev/null || true)
+            echo "scaffold marker: ${root:-<none found>}"
+            python3 /work/plugins/senzing/evals-real/verify_truthset.py \
+              --search-root /tmp \
+              --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json
+          '
 
       - name: Collect traces and hand results back to the runner
         if: always() && steps.gate.outputs.has_key == 'true'
-        # The container writes as root; the artifact step runs as the runner user.
+        # The copy runs INSIDE the container, for the same reason the marker hunt
+        # does: the traces live under the `--keep-temp` workspace, which is
+        # root-owned with its modes closed, and a host-side find walked straight
+        # past it. It collected 0 traces on two consecutive runs -- which silently
+        # disabled the bwrap check below, the one line in this job that would have
+        # said "the sandbox is broken" instead of letting a 0.44 read as a plugin
+        # verdict. in-container.sh's EXIT trap hands /work back to the runner uid
+        # afterwards, so the host-side analysis below can read what it copied.
         run: |
+          set -euo pipefail
           dest=plugins/senzing/evals-real/results
-          mkdir -p "$dest/traces"
+          bash .github/senzing-eval/in-container.sh '
+            set -euo pipefail
+            dest=/work/plugins/senzing/evals-real/results
+            mkdir -p "$dest/traces"
+            n=0
+            while IFS= read -r t; do
+              n=$((n + 1))
+              cp "$t" "$dest/traces/trace-$n.jsonl" 2>/dev/null || true
+            done < <(find -L /tmp -maxdepth 8 -name trace.jsonl 2>/dev/null | sort -u)
+            echo "collected $n trace file(s) into $dest/traces"
+          ' || echo "::warning::trace collection failed — the analysis below has nothing to read"
+          # Diagnostics only: never turn this step into a second way for the job to
+          # fail. The gate is the step above.
           n=0
-          while IFS= read -r t; do
-            n=$((n + 1))
-            cp "$t" "$dest/traces/trace-$n.jsonl" 2>/dev/null || true
-          done < <(find -L "$SENZING_EVAL_TMP" -maxdepth 8 -name 'trace.jsonl' 2>/dev/null | sort -u)
-          echo "collected $n trace file(s) into $dest/traces"
-          sudo chown -R "$(id -u):$(id -g)" "$dest" 2>/dev/null || true
+          if [ -d "$dest/traces" ]; then
+            n=$(find "$dest/traces" -name 'trace-*.jsonl' | wc -l | tr -d ' ')
+          fi
           if [ "$n" -gt 0 ]; then
             echo "== tool_use histogram across collected traces =="
             cat "$dest"/traces/*.jsonl 2>/dev/null \
               | grep -o '"name":"[A-Za-z0-9_]*"' \
-              | sort | uniq -c | sort -rn | head -30
+              | sort | uniq -c | sort -rn | head -30 || echo "  none"
             echo "== sandbox failures (would make every Bash call environmental, not a plugin verdict) =="
             grep -ohE 'bwrap:[^"]{0,110}|sandbox-exec:[^"]{0,110}' "$dest"/traces/*.jsonl 2>/dev/null \
               | sort -u | head -5 || echo "  none"
