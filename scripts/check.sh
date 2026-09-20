@@ -190,12 +190,12 @@ echo; echo "== 11. Spelling (cspell — same config CI uses) =="
 # words buy a full eval cycle. Local and CI must agree before the push, not after.
 if command -v npx >/dev/null 2>&1; then
   if npx --yes --quiet cspell@8 lint --no-progress --config .vscode/cspell.json \
-       --no-must-find-files "**/*" 2>/dev/null; then
+       --no-must-find-files "**/*" "**/.*" 2>/dev/null; then
     ok "cspell: no unknown words"
   else
     bad "cspell found unknown words (add real terms to .vscode/cspell.json words[])"
     npx --yes --quiet cspell@8 lint --no-progress --config .vscode/cspell.json \
-      --no-must-find-files "**/*" 2>&1 | grep -E 'Unknown word' | head -20
+      --no-must-find-files "**/*" "**/.*" 2>&1 | grep -E 'Unknown word' | head -20
   fi
 else
   note "npx not available — SKIPPED. CI still runs this; unknown words will block the PR."
