@@ -41,8 +41,11 @@ entities"). If none is given, ask what they want to see before running anything.
      `/senzing:analyze` with a SQLite scratch repository instead of grading it as empty. The
      `reports` SQL counts entities too, but only against the mart tables it describes, which
      exist only if the user built them — use it when they have. Show the number. **Zero →
-     refuse**: say so and offer `/senzing:analyze` to load data first. Never report on an empty
-     instance.
+     refuse**: say so and offer `/senzing:analyze` to load data first. To be explicit, because
+     "report" is both this skill's name and the thing it emits: **you DO run this skill on an
+     empty repository** — running it is how the zero becomes established fact instead of a guess.
+     What you must never do is emit entity findings, counts or a dashboard from an empty one.
+     Run, establish zero, say so, hand off. Never decline to run because you suspect it is empty.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,

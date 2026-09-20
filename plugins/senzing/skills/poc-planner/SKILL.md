@@ -82,9 +82,16 @@ license terms here or from memory — call the tool named in each step and cite 
    no new number.** "your 755k sits between those rows", "brackets your total", "nearest your
    volume", "between that example and the 1,000,000-record one" — all banned: the reader takes
    the interpolated sizing away as advice, which is the harm the rule exists to prevent, and the
-   no-new-number wording let it straight through. Quote the example rows as they stand and let
-   the user place themselves. Equally, do not SUM their stated per-source counts into a total
-   (400k + 350k + 5k = "755,000") and then carry it in §2 — §2 holds their facts, and a total
+   no-new-number wording let it straight through. Quote the tool's example rows as an isolated block with the tool's own
+   attribution, and state the user's numbers separately: **never put their volume in the same
+   table, list or adjacent bullets as a quoted sizing example.** Co-location delivers the
+   interpolation with no interpretive words at all, which is the harm — a sorted table is not a
+   loophole just because it contains no sentence. And the total ban applies everywhere you
+   write, not only in the plan file: a total stated once in chat is still a total they never
+   gave you. Adding up the user's OWN stated per-source counts is fine and often necessary —
+   `sdk_guide(topic="load")` takes a single integer `record_count`, and the license-limit
+   material only appears when you pass their real total. What is banned is inventing a figure
+   from Senzing's numbers, not doing arithmetic on theirs — §2 holds their facts, and a total
    they never said is yours, not theirs; if a
    figure sits next to interpretive words in the tool result ("very high", "may indicate"),
    quote the words too or leave the figure out. Quote only what bears on the user's **target

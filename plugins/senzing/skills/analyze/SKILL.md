@@ -180,7 +180,17 @@ State the resolved input list to the user before proceeding — informational, n
    raw data" rather than Senzing's does not make it safe — the user cannot audit it, and it is the
    number they will remember. If asked "who is who", answer that resolving it requires the engine,
    and stop there.
-   **Name no records.** The rule is not "assert no match" — it is "name no candidate". Do not
+   **Name no candidates in your own words.** This governs sentences and tables YOU construct
+   about likely matches. It does NOT govern the mechanical Senzing-ready JSONL deliverable, which
+   necessarily contains real names and emails — shipping that file is required, not a violation.
+   The rule is not "assert no match" — it is "name no candidate", and a candidate is anything a
+   reader could use to find the pair: an id, a name, an email, a phone VALUE, a row number, a
+   line index, or a position. "the two Smith rows", "rows 4 and 9", and "they share
+   702-555-0142" are equally banned. You may name the FIELD ("this file contains shared phone
+   numbers") — never a value, row or index, and **never a count**: "4 of the 6 rows share an
+   email" names no row and is still an invented entity count, the same fabrication in arithmetic
+   form. This list is not a set of examples to reason around; anything a reader could use to
+   identify or size a candidate cluster is banned. Do not
    print a record id, a person or company name, an email, or a pair, *even as an illustration of
    what you are declining to say*: "the two 'Smith' rows share a phone, but that's a guess" is the
    banned thing, not an exemption from it. A caveat does not travel with the sentence; the names

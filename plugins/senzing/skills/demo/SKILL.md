@@ -70,10 +70,20 @@ second report.
    terms — do not quote a duration from memory.) Offer to resume the demo the moment install
    completes. If the user can't or won't install now, offer the zero-install tier: pull the
    sample via `get_sample_data` (see step 2 for the download), validate it with `analyze_record`,
-   and show the validated Senzing-ready records plus 2-3 record pairs that clearly describe the
-   same person across sources. Label it plainly: *"This is the data Senzing would consume — actual
+   and show the validated Senzing-ready records. **Do not select or preview which records look
+   alike — that is the engine's job, not yours, with or without an SDK present.** Picking the
+   pairs yourself is the same invented-match the rule in step 2 bans; having no SDK makes it
+   worse, not permitted, because nothing can check you. If asked to show duplicates exist, point
+   at the dataset's own description from `get_sample_data`. Label it plainly: *"This is the data Senzing would consume — actual
    resolution requires an installed Senzing, which I can set up for you."* Never present any
    match, score, or merge as a result.
+**Never name a match before Senzing has found one — in EVERY branch, including the
+zero-install tier.** Until the engine has returned results you have no results: printing a record
+id, name, email, DOB or pair as a "these look alike" preview invents them, and a caveat does not
+make it safe. Pick nothing by resemblance; say which FIELDS Senzing would resolve on. This governs
+step 1 as much as step 2 — having no SDK makes a guess worse, not permitted, because nothing can
+check it.
+
 2. With a working Senzing, run the `analyze` flow on sample data — same steps, same gates:
    - **Get the data — the full file, not the preview — and this is the one flow where *you*
      download it.** `get_sample_data` returns a handful of inline records to show the shape plus
@@ -97,11 +107,14 @@ second report.
      count) before going on.
    - **Drain the redo queue** as `analyze` step 5 does — get the probe from the MCP, drain to 0,
      report the number processed — before taking any entity count.
-   - **Name the target in the write-up.** The closing message must say, in words, that the data
+   - **Name the storage target in the write-up** — the repository, never a record. These two
+     rules sit next to each other and must not be confused: you MUST name where the data went,
+     and you must NOT name what is in it. The closing message must say, in words, that the data
      went into a **throwaway scratch repository** and which storage backed it (the SQLite file, or
      `internal://`). A viewer of the result must never be left wondering whether a demo touched a
      real repository of theirs — and "I used a scratch repo" is the sentence that answers it.
-   - **Never preempt the engine with your own duplicate-spotting.** Before the load has run you
+   - **Never name a RECORD** (the rule above is about naming the STORAGE; this one is about its
+     contents). **Never preempt the engine with your own duplicate-spotting.** Before the load has run you
      have no results, so naming likely matches invents them. Do not print a record id, name,
      email, or pair as a "these look like a match" preview, *even heavily caveated* — a run did
      exactly this, naming two name-variant pairs by DOB and license number before resolving
