@@ -27,7 +27,21 @@ if [ "$#" -ne 1 ]; then
   exit 2
 fi
 
-exec docker run --rm \
+# The container runs as root against a BIND-MOUNTED workspace, so anything it
+# creates under /work lands on the host owned by root -- and the next HOST step
+# then cannot write there. That is not hypothetical: the first real run died on
+#   mkdir: cannot create directory '.../results/traces': Permission denied
+# Hand ownership back on the way out. `exec` is dropped so the trap can run;
+# the container's exit status is preserved and re-raised explicitly.
+_host_uid="$(id -u)"; _host_gid="$(id -g)"
+# shellcheck disable=SC2329  # invoked indirectly via the EXIT trap below
+_restore_ownership() {
+  docker run --rm --volume "$PWD:/work" --workdir /work \
+    "$SENZING_EVAL_IMAGE" chown -R "${_host_uid}:${_host_gid}" /work >/dev/null 2>&1 || true
+}
+trap _restore_ownership EXIT
+
+docker run --rm \
   --privileged \
   --shm-size=2g \
   --volume "$PWD:/work" \
@@ -44,3 +58,5 @@ exec docker run --rm \
   --env EVAL_JUDGE_MODEL \
   "$SENZING_EVAL_IMAGE" \
   bash -c "$1"
+_rc=$?
+exit "$_rc"
