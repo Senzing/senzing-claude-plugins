@@ -17,7 +17,14 @@ name: Real Senzing E2E
 #
 # Why it does not gate every PR: it builds a container, downloads a ~260 MB SDK
 # package and runs a full map -> load -> resolve, so it is slow and it spends API
-# budget. It runs on demand, weekly, and on any PR labelled `real-senzing-e2e`.
+# budget. It runs on EVERY pull request, plus weekly and on demand.
+#
+# It was originally label-gated. That was wrong for the same reason the opt-in
+# behavioral eval was wrong: this is the ONLY test anywhere that runs the plugin
+# all the way to a resolved dataset and checks the entity count against ground
+# truth. Everything else proves routing and grounding on a host with no Senzing.
+# A gate that runs only when someone remembers a label does not protect the one
+# property it exists to protect.
 
 on:
   workflow_dispatch:
@@ -26,7 +33,7 @@ on:
     # Senzing release, none of which are pinned to this repo's commits.
     - cron: "0 7 * * 1"
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    types: [opened, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -38,7 +45,6 @@ permissions:
 jobs:
   real-senzing-e2e:
     name: Real Senzing end-to-end (map -> load -> resolve -> ground truth)
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'real-senzing-e2e')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
