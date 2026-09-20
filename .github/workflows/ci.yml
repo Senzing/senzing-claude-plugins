@@ -148,6 +148,14 @@ jobs:
       # Read into env (not a step `if:`) — `secrets.*` in a step `if:` is rejected by GHA at
       # parse time, and an empty secret must produce a visible skip, not a parse failure.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Pinned, not left to the default. Sonnet is the model these skills are
+      # required to work well on (strong models are the ceiling, Haiku is input
+      # only), so it is the model the gate must grade. run.sh already defaults
+      # to sonnet, but a default is not a guarantee: --model previously resolved
+      # to whatever the environment produced, which made a local pass and a CI
+      # pass two different measurements of two different models.
+      EVAL_MODEL: sonnet
+      EVAL_JUDGE_MODEL: sonnet
       # Pinned deliberately — see the install step. Keep in step with local dev.
       CLAUDE_CLI_VERSION: "2.1.259"
     steps:
