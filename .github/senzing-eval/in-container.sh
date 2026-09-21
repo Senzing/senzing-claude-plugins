@@ -31,8 +31,8 @@ fi
 # creates under /work lands on the host owned by root -- and the next HOST step
 # then cannot write there. That is not hypothetical: the first real run died on
 #   mkdir: cannot create directory '.../results/traces': Permission denied
-# Hand ownership back on the way out. `exec` is dropped so the trap can run;
-# the container's exit status is preserved and re-raised explicitly.
+# Hand ownership back on the way out. `exec` is dropped so the EXIT trap can run,
+# and the container's exit status is captured and re-raised explicitly below.
 _host_uid="$(id -u)"; _host_gid="$(id -g)"
 # Invoked indirectly by the EXIT trap below, which shellcheck cannot see. The
 # code it reports under differs by version -- SC2329 "never invoked" on 0.11+,
@@ -46,6 +46,14 @@ _restore_ownership() {
 }
 trap _restore_ownership EXIT
 
+# `|| _rc=$?` rather than a bare `docker run`: under `set -e` a failing container
+# would terminate the script on that line, so the two lines after it would never
+# run. The trap fires either way, but the exit status would then be bash's
+# implicit one rather than a deliberate one, and anything added between the run
+# and the exit (a log tail, a summary) would be silently dead code on exactly the
+# path that needs it. Capturing the status makes both the trap and the exit code
+# explicit, and keeps the container's status the script's status.
+_rc=0
 docker run --rm \
   --privileged \
   --shm-size=2g \
@@ -62,6 +70,5 @@ docker run --rm \
   --env EVAL_MODEL \
   --env EVAL_JUDGE_MODEL \
   "$SENZING_EVAL_IMAGE" \
-  bash -c "$1"
-_rc=$?
+  bash -c "$1" || _rc=$?
 exit "$_rc"

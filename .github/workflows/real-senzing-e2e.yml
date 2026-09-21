@@ -91,6 +91,7 @@ jobs:
           chmod 1777 "$SENZING_EVAL_TMP"
 
       - name: Build the Senzing eval image
+        id: build
         if: steps.gate.outputs.has_key == 'true'
         # Plain `docker build` — no extra action to pin, and the layers that cost
         # time (the ~260 MB senzingsdk-runtime package) are the ones a registry
@@ -106,6 +107,7 @@ jobs:
             .github/senzing-eval
 
       - name: Senzing preflight — prove the engine runs before spending anything
+        id: preflight
         if: steps.gate.outputs.has_key == 'true'
         # Free (no API calls). Builds a scratch SQLite repository, loads three
         # records, drains redo and reads them back. If Senzing cannot run here the
@@ -260,8 +262,36 @@ jobs:
       - name: Ground-truth verification SKIPPED — nothing was measured
         if: always() && steps.gate.outputs.has_key == 'true'
           && (steps.sandbox.outcome != 'success' || steps.env_gate.outcome != 'success')
+        # This notice used to blame the Bash sandbox unconditionally, which is wrong for
+        # every skip it does not cause. The sandbox step carries `if: has_key == true` and
+        # nothing else, so ANY earlier failure — the image build, the Senzing engine
+        # preflight — leaves it `skipped`, and a skipped sandbox is not a broken sandbox.
+        # A notice that names the wrong cause is the same defect this job exists to remove:
+        # a loud, confident, wrong first line. So name the step that actually went red,
+        # reading the outcomes rather than assuming one.
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          PREFLIGHT_OUTCOME: ${{ steps.preflight.outcome }}
+          SANDBOX_OUTCOME: ${{ steps.sandbox.outcome }}
+          ENV_GATE_OUTCOME: ${{ steps.env_gate.outcome }}
         run: |
-          echo "::notice::Ground-truth verification was deliberately SKIPPED. The agent's Bash sandbox failed, so the eval never created a Senzing repository — the only database on disk is the preflight's own three records. Any verdict derived from it (\"159 of 159 ground-truth records are not in the repository\", \"SzUnknownDataSourceError (2207) ... CUSTOMERS does not exist\") would be an artefact of that, and has twice been misread as a plugin defect. The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; do NOT change a skill, an eval case, a grader or an expected count."
+          set -euo pipefail
+          # Common to every branch: the run produced no repository of its own, so no number
+          # derived from the disk is a statement about the plugin.
+          artefact="Any verdict derived from the database on disk (\"159 of 159 ground-truth records are not in the repository\", \"SzUnknownDataSourceError (2207) ... CUSTOMERS does not exist\") would be an artefact of the failure above — the only database there is the Senzing preflight's own three records. That has twice been misread as a plugin defect."
+          hands_off="do NOT change a skill, an eval case, a grader or an expected count in response to this."
+          echo "step outcomes: build=$BUILD_OUTCOME preflight=$PREFLIGHT_OUTCOME sandbox=$SANDBOX_OUTCOME env_gate=$ENV_GATE_OUTCOME"
+          if [ "$BUILD_OUTCOME" != "success" ]; then
+            echo "::notice::Ground-truth verification was deliberately SKIPPED, and the cause is NOT the agent's Bash sandbox: the eval image build ended '$BUILD_OUTCOME', so every step behind it — including the sandbox probe — was skipped. $artefact Fix the Dockerfile or the build; $hands_off"
+          elif [ "$PREFLIGHT_OUTCOME" != "success" ]; then
+            echo "::notice::Ground-truth verification was deliberately SKIPPED, and the cause is NOT the agent's Bash sandbox: the Senzing engine preflight ended '$PREFLIGHT_OUTCOME' — Senzing itself could not run on this host, so the sandbox probe and the eval were skipped behind it. $artefact Fix the image or the engine configuration; $hands_off"
+          elif [ "$SANDBOX_OUTCOME" = "failure" ]; then
+            echo "::notice::Ground-truth verification was deliberately SKIPPED. The sandbox preflight FAILED: the agent's Bash tool could not run a command, so the eval never created a Senzing repository. $artefact The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; $hands_off"
+          elif [ "$SANDBOX_OUTCOME" != "success" ]; then
+            echo "::notice::Ground-truth verification was deliberately SKIPPED. The sandbox preflight never ran (outcome '$SANDBOX_OUTCOME') because an earlier step in this job did not succeed — read the first red step above, not this line, for the cause. $artefact $hands_off"
+          else
+            echo "::notice::Ground-truth verification was deliberately SKIPPED. The sandbox preflight passed, but the trace analysis then found a sandbox error in the eval's own traces (env_gate ended '$ENV_GATE_OUTCOME'): the agent's Bash tool died mid-run, so no command the eval issued ran and nothing about the plugin was measured. $artefact The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; $hands_off"
+          fi
 
       - name: Upload eval results, verdict and traces
         if: always() && steps.gate.outputs.has_key == 'true'
