@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.7-1] - 2026-09-21
+
+Plugin-only patch on MCP server v1.37.7 (no server change): the eval gate made
+binding, the skill defects it caught, a real-Senzing end-to-end job, and the two
+sandbox faults that job exposed. Everything below was under Unreleased on PR #34.
+
 ### Added
 
 - **Real-Senzing end-to-end eval (`plugins/senzing/evals-real/`, `.github/workflows/real-senzing-e2e.yml`).**
