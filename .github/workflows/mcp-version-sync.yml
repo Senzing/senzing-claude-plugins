@@ -67,18 +67,24 @@ jobs:
           tmp=$(mktemp)
           jq --arg v "$NEW" '.version=$v' plugins/senzing/.claude-plugin/plugin.json > "$tmp"
           mv "$tmp" plugins/senzing/.claude-plugin/plugin.json
+          # scripts/check.sh check 7 requires a '## [<version>]' heading; the stub goes
+          # after any pending [Unreleased] notes, before the previous release (check 7b).
+          bash scripts/changelog-stub.sh "$NEW"
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Open sync PR
         if: steps.bump.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
+          # main requires signed commits; an unsigned bot commit blocks the merge
+          # (plugin #39). Signed via the GitHub API as github-actions[bot].
+          sign-commits: true
           branch: mcp-version-sync/v${{ steps.live.outputs.version }}
           title: "chore: sync to MCP server v${{ steps.live.outputs.version }}"
           commit-message: "chore: sync plugin version to MCP server v${{ steps.live.outputs.version }}"
           body: |
             Automated: the hosted Senzing MCP server is now **v${{ steps.live.outputs.version }}**
-            (this plugin was v${{ steps.ours.outputs.version }}). Bumps the `plugin.json` version.
+            (this plugin was v${{ steps.ours.outputs.version }}). Bumps the `plugin.json` version and adds the CHANGELOG stub.
 
             **This is a version-only sync.** If this MCP release changed the *tool surface*
             (a tool added / removed / renamed, or args changed), the skills' `allowed-tools`,

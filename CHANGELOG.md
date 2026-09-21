@@ -117,6 +117,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   disabled the `grep 'bwrap:'` check that would have named the real fault. Both now run inside
   the container.
 
+## [1.37.7] - 2026-09-21
+
+### Changed
+
+- Bump to MCP server **v1.37.7** (lockstep sync); the plugin carries no code change.
+  Server-side change a plugin user will notice:
+  - Hosted download routes (CORD sample data and SDK packages) now bound per-IP
+    *concurrency* (3 streams per IP per route pool, 10 s wait) instead of request
+    starts; a saturated IP gets `429` with `Retry-After: 10`. Sequential downloads
+    are unaffected.
+
+### Fixed
+
+- `mcp-version-sync.yml` now writes the `## [<version>]` CHANGELOG stub that
+  `scripts/check.sh` (check 7) requires, so automated sync PRs pass static checks
+  instead of failing on the missing heading.
+
+## [1.37.6] - 2026-09-21
+
+### Changed
+
+- Bump to MCP server **v1.37.6** (lockstep sync); the plugin carries no code change.
+  Server-side changes a plugin user will notice:
+  - `mapping_workflow` works when no readable file is present — `file_paths` is a label,
+    and `record_count: 0` means "not measured" rather than an empty source.
+  - `download_resource(inline=true)` returns large files in chunks of at most 48,000
+    characters, reporting `truncated`, `next_offset` and `total_chars`, with an `offset`
+    argument to continue; a batch lists any member too large for one chunk under `oversize`.
+  - Eval harness: the LLM judge now sees every tool result it grades against (a 2,500-char
+    evidence cap had produced false "fabrication" failures), and `WebFetch` is allowed in
+    eval runs.
+
+## [1.37.5] - 2026-09-20
+
+### Changed
+
+- Bump to MCP server **v1.37.5** (lockstep sync). Server-side this release fixes the
+  `mapping_workflow` copy that made models hand-code a mapping instead of calling the
+  tool when they had only a column list and no readable file; the plugin carries no
+  code change.
+
 ## [1.37.4] - 2026-09-19
 
 Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.

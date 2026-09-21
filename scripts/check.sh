@@ -127,6 +127,22 @@ for plugin_dir in plugins/*/; do
   if grep -qF "## [$ver]" CHANGELOG.md; then ok "CHANGELOG.md has ## [$ver]"; else bad "CHANGELOG.md has no '## [$ver]' heading (plugin.json says $ver)"; fi
 done
 
+echo; echo "== 7b. changelog-stub.sh keeps pending [Unreleased] notes out of the sync stub =="
+# The auto-sync PR writes its own ## [x.y.z] stub. If it were spliced directly under
+# [Unreleased], any pending notes there would be misfiled under a release that says
+# "no code change" — so the fixture has pending content and asserts the ordering.
+stub_fixture="$(mktemp)"
+printf '# Changelog\n\n## [Unreleased]\n\n### Added\n\n- pending feature\n\n## [1.0.0] - 2026-01-01\n\n- old\n' > "$stub_fixture"
+if bash scripts/changelog-stub.sh 1.0.1 2026-01-02 "$stub_fixture" \
+   && [ "$(grep -n '^## \[\|^- pending' "$stub_fixture" | cut -d: -f2 | tr '\n' '|')" = "## [Unreleased]|- pending feature|## [1.0.1] - 2026-01-02|## [1.0.0] - 2026-01-01|" ] \
+   && bash scripts/changelog-stub.sh 1.0.1 2026-01-02 "$stub_fixture" 2>/dev/null \
+   && [ "$(grep -c '^## \[1.0.1\]' "$stub_fixture")" = 1 ]; then
+  ok "stub lands after pending notes, before the previous release; idempotent"
+else
+  bad "changelog-stub.sh ordering/idempotence (see scripts/changelog-stub.sh)"; grep -n '^## \[\|^- ' "$stub_fixture"
+fi
+rm -f "$stub_fixture"
+
 echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fixture check) =="
 # Every not_contains grader in the poc-planner-* cases is run against the VERBATIM tool output the
 # skill makes the plan quote (Hardware Sizing FAQ "Phase 1/2/3", reporting_guide ">80%", ...),
