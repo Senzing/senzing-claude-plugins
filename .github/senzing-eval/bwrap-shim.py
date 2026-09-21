@@ -19,7 +19,7 @@ WHY
   Stacking several directory mounts on one point is fine (bwrap 0.8.0); only the
   file/directory mix is fatal.
 
-WHAT THIS DOES
+WHAT THIS DOES (fault 1; fault 2 is documented at the bottom)
   Where one mount point is the target of both directory-sourced and
   file-sourced bind mounts, the file-sourced ones are re-pointed at an empty
   read-only directory, and the bind is forced to its read-only variant
@@ -108,5 +108,53 @@ if ops is not None:
             "[bwrap-shim] re-pointed %d file mask(s) at an empty read-only "
             "directory because the same mount point is also mounted as a "
             "directory: %s\n" % (len(fixed), ", ".join(sorted(set(fixed)))))
+
+# --- fault 2: --cap-drop ALL starves the CLI's own apply-seccomp helper -------
+# Inside the sandbox the CLI runs its bundled helper first:
+#     ARGV0=apply-seccomp /proc/self/fd/3 /bin/bash -c '<command>'
+# to install the seccomp filter that blocks AF_UNIX. Installing it needs
+# CAP_SYS_ADMIN; without it the helper falls back to creating a NESTED user
+# namespace and writing /proc/self/setgroups, which the kernel refuses:
+#     apply-seccomp: write /proc/self/setgroups (nested userns is
+#     capability-restricted; caller must provide CAP_SYS_ADMIN): Permission denied
+# and bwrap exits 1, so every Bash tool call fails (CI run 35655642768, after
+# fault 1 was fixed). bwrap itself created that state: `--cap-drop ALL` leaves
+# CapEff=0000000000000000 inside its user namespace.
+#
+# The CLI's own escape hatch is `sandbox.enableWeakerNestedSandbox`, which drops
+# `--cap-drop ALL` entirely AND swaps `--proc /proc` for `--bind /proc /proc`.
+# It is unreachable here twice over: `claude plugin eval` writes the child's
+# settings itself, and it REFUSES to run when the operator's managed settings
+# set that key ("... enableWeakerNestedSandbox exposes the host /proc").
+#
+# So grant the ONE capability the helper names, keep bwrap's private /proc.
+# Measured inside the sandbox (CI-shaped container):
+#     --cap-drop ALL                          CapEff 0000000000000000  bwrap rc 1
+#     --cap-drop ALL --cap-add CAP_SETGID     CapEff 0000000000000040  bwrap rc 1
+#     --cap-drop ALL --cap-add CAP_SYS_ADMIN  CapEff 0000000000200000  bwrap rc 0
+#     (flag removed entirely)                 CapEff 000001ffffffffff  bwrap rc 0
+# and in both working shapes socket(AF_UNIX) inside the sandbox is still
+# refused, i.e. the filter this restores is genuinely installed. bwrap applies
+# --cap-drop/--cap-add in order, so the add must FOLLOW the drop. The
+# capability is namespace-local to a userns that is still uid-mapped,
+# pid/mount/net isolated and bound by the filesystem plan, inside a single-use
+# CI container that already runs --privileged. Maintainer decision 2026-09-21
+# (narrow cap-add over stripping the drop).
+out, i, granted = [], 0, False
+while i < len(argv):
+    if argv[i] == "--":
+        out.extend(argv[i:])
+        break
+    if argv[i] == "--cap-drop" and i + 1 < len(argv) and argv[i + 1] == "ALL":
+        out.extend(["--cap-drop", "ALL", "--cap-add", "CAP_SYS_ADMIN"])
+        i += 2
+        granted = True
+        continue
+    out.append(argv[i])
+    i += 1
+if granted:
+    argv = out
+    sys.stderr.write("[bwrap-shim] added --cap-add CAP_SYS_ADMIN after --cap-drop ALL "
+                     "so the CLI's apply-seccomp helper can install its filter\n")
 
 os.execv(real, [real] + argv)
