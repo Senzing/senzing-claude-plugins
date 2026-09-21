@@ -30,11 +30,22 @@ So this script splits them:
                         failing with its own message.  It can never mask, or be masked by,
                         the deterministic gate.
 
-Exit codes (highest wins, so a combined failure reports as 1):
+Exit codes.  More than one can apply to a single run; the HIGHEST one is returned, and the
+closing `gate verdict:` line names every gate that tripped.  The code is a LABEL for what to
+read first, not a severity ranking -- every caller treats any non-zero as a failed suite.
+
   0  both gates clean
   1  a deterministic assertion failed
   2  the run is structurally unusable (cases missing, partial run, a run that errored)
-  3  deterministic clean, judge below its threshold
+  3  judge below its threshold, with --enforce-judge
+
+Highest-wins is what the docstring always claimed, but not what the code did: the checks were
+written in order and the deterministic one ran LAST, so its rc=1 silently overwrote the
+structural rc=2.  A run that errored before grading and also had a red assertion therefore
+reported "a deterministic assertion failed" -- a verdict about a measurement that never
+completed, which is exactly the class of confident-but-meaningless number this script exists
+to stop.  Computing the code with max() also makes it independent of the order the checks
+happen to be written in.
 """
 from __future__ import annotations
 
@@ -184,26 +195,28 @@ def main() -> int:
         with open(summary_path, "a", encoding="utf-8") as fh:
             fh.write("### Behavioral eval\n\n```\n" + "\n".join(lines) + "\n```\n")
 
-    rc = 0
+    # (code, label) for every gate that tripped. Collected rather than assigned so the exit
+    # code can be max()'d at the end -- see the module docstring.
+    tripped: list[tuple[int, str]] = []
     if len(cases) < args.expected_cases:
         print(f"::error::only {len(cases)} of {args.expected_cases} cases were discovered — "
               "eval layout regression", file=sys.stderr)
-        rc = 2
+        tripped.append((2, "structural: cases missing"))
     if report.get("partial"):
         print(f"::error::partial run: {report.get('partialReason')}", file=sys.stderr)
-        rc = 2
+        tripped.append((2, "structural: partial run"))
     if error_cases:
         print(f"::error::{len(error_cases)} case(s) had a run that errored before grading — "
               "the suite did not measure the plugin", file=sys.stderr)
-        rc = 2
+        tripped.append((2, "structural: a run errored before grading"))
     if judge_bad_cases:
         level = "error" if args.enforce_judge else "warning"
         print(f"::{level}::JUDGE score: {len(judge_bad_cases)} case(s) below "
               f"{args.judge_threshold:.2f} — "
               + ", ".join(f"{c['name']} ({c['judge']:.2f})" for c in judge_bad_cases),
               file=sys.stderr)
-        if args.enforce_judge and rc == 0:
-            rc = 3
+        if args.enforce_judge:
+            tripped.append((3, "judge below threshold"))
     if det_bad_cases:
         failed = sum(len(c["det_failures"]) for c in det_bad_cases)
         print(f"::error::DETERMINISTIC gate: {failed} assertion(s) failed across "
@@ -211,7 +224,16 @@ def main() -> int:
               + ", ".join(f"{c['name']}/{n}" for c in det_bad_cases
                           for n in sorted(c["det_failures"])),
               file=sys.stderr)
-        rc = 1
+        tripped.append((1, "deterministic assertion failed"))
+
+    if not tripped:
+        return 0
+    rc = max(code for code, _ in tripped)
+    # One line that says what the exit code means AND everything else that was wrong with the
+    # run, so a reader never has to infer the rest from a single number.
+    print(f"::error::gate verdict: exit {rc} — "
+          + "; ".join(f"[{code}] {label}" for code, label in sorted(tripped)),
+          file=sys.stderr)
     return rc
 
 

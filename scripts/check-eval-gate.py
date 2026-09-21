@@ -13,6 +13,9 @@ The fixtures encode the failure modes that actually happened, not hypotheticals:
   * flaky-deterministic   — a boolean obligation honoured in one run and not the other
   * judge-only            — the opposite error: a judge dissent read as a case failure
   * run-error / partial   — a run that graded nothing must never pass vacuously
+  * structural-and-deterministic
+                          — both at once: the exit code must be the highest of the two, so a
+                            run that never completed does not report as an assertion defect
 
 Exit 1 on any mismatch.
 """

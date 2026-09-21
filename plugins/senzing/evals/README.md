@@ -83,7 +83,10 @@ averages it away. Capture the reasoning and it can be flipped to enforced.
 
 Exit codes: `0` both clean · `1` a deterministic assertion failed · `2` the run is structurally
 unusable (cases missing, partial run, or a run that errored before grading — which must never
-read as "nothing failed") · `3` judge below threshold while enforced.
+read as "nothing failed") · `3` judge below threshold while enforced. More than one can apply to
+a single run: the **highest** code is returned and the closing `gate verdict:` line names every
+gate that tripped, so a run that errored *and* had a red assertion reports `2` (fix the run
+first) rather than sending the reader after an assertion the suite never finished measuring.
 
 `gate.py` is unit-tested **offline** by `scripts/check-eval-gate.py` (`check.sh` section 9)
 against the synthetic result JSONs in `gate-fixtures/`, each one a failure mode that actually

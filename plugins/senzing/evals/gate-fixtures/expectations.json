@@ -3,8 +3,9 @@
     "What gate.py must do with each fixture. `rc` is the process exit code:",
     "0 = both gates clean, 1 = a deterministic assertion failed, 2 = the run is",
     "structurally unusable (cases missing / partial / a run errored), 3 = judge below",
-    "threshold while --enforce-judge is on. Checked offline by scripts/check-eval-gate.py",
-    "(check.sh section 10) so the split's logic never needs a paid eval run to verify."
+    "threshold while --enforce-judge is on. When several apply the HIGHEST code is returned.",
+    "Checked offline by scripts/check-eval-gate.py (check.sh section 9) so the split's logic",
+    "never needs a paid eval run to verify."
   ],
   "checks": [
     {
@@ -78,6 +79,17 @@
       "expected_cases": 1,
       "rc": 2,
       "must_contain": ["partial run: max cost reached"]
+    },
+    {
+      "name": "structural + deterministic together report the HIGHEST code (2), not the last one set",
+      "fixture": "structural-and-deterministic.json",
+      "expected_cases": 1,
+      "rc": 2,
+      "must_contain": [
+        "had a run that errored before grading",
+        "DETERMINISTIC gate: 1 assertion(s) failed",
+        "gate verdict: exit 2 — [1] deterministic assertion failed; [2] structural: a run errored before grading"
+      ]
     }
   ]
 }
