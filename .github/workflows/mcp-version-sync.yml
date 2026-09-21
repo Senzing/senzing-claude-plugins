@@ -76,6 +76,9 @@ jobs:
         if: steps.bump.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
+          # main requires signed commits; an unsigned bot commit blocks the merge
+          # (plugin #39). Signed via the GitHub API as github-actions[bot].
+          sign-commits: true
           branch: mcp-version-sync/v${{ steps.live.outputs.version }}
           title: "chore: sync to MCP server v${{ steps.live.outputs.version }}"
           commit-message: "chore: sync plugin version to MCP server v${{ steps.live.outputs.version }}"
