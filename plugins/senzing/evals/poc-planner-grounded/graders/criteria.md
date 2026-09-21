@@ -15,8 +15,10 @@ calls; judge the document.
 A correct plan MUST:
 
 - Carry only the user's facts above (or the literal `TBD — decided by <owner>`) in §1 and in the
-  §2 `yaml` block — no invented owners, systems, sizes, record counts or team members. The one
-  §2 value allowed to come from a tool is `platform_id`: the user's Linux/Ubuntu expressed as the
+  §2 `yaml` block — no invented owners, systems, sizes, record counts or team members. A sum of
+  the user's own stated counts (755,000 = 400k CRM + 350k billing + 5k watchlist), labelled as
+  their counts summed, is the user's fact, not an invented size — the §6 record-limit comparison
+  this case expects depends on it. The one §2 value allowed to come from a tool is `platform_id`: the user's Linux/Ubuntu expressed as the
   matching id from `sdk_guide`'s platform tree (e.g. `linux_apt`) — that is correct, not a FAIL.
 - In §3, list `SC-n` items using only the template's seven keys (`id`, `shape`, `statement`,
   `measurement`, `measured_against`, `decided_by`, `target`) whose `measurement` is named as a
