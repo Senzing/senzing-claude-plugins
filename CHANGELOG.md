@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.5] - 2026-09-20
+
+### Changed
+
+- Bump to MCP server **v1.37.5** (lockstep sync). Server-side this release fixes the
+  `mapping_workflow` copy that made models hand-code a mapping instead of calling the
+  tool when they had only a column list and no readable file; the plugin carries no
+  code change.
+
 ## [1.37.4] - 2026-09-19
 
 Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
