@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   is a label, and `record_count: 0` means "not measured" rather than an empty source.
   `download_resource(inline=true)` returns large files in chunks of at most 48,000 characters,
   reporting `truncated`, `next_offset` and `total_chars`, with an `offset` argument to continue;
-  a batch lists any member too large for one chunk under `oversize`. Also eval-harness fixes.
+  a batch lists any member too large for one chunk under `oversize`. Server-side eval harness: the LLM judge now sees every tool result it grades against (a 2,500-char evidence cap had produced false "fabrication" failures), and `WebFetch` is allowed in eval runs.
 
 ## [1.37.5] - 2026-09-20
 
