@@ -140,12 +140,17 @@ if ops is not None:
 # pid/mount/net isolated and bound by the filesystem plan, inside a single-use
 # CI container that already runs --privileged. Maintainer decision 2026-09-21
 # (narrow cap-add over stripping the drop).
+# Only for invocations that actually run the helper: the CLI puts it in the
+# command after `--` (ARGV0=apply-seccomp ...). A bwrap call without it needs no
+# capability and gets none (review on 1b01914).
+runs_helper = "--" in argv and any(
+    "apply-seccomp" in a for a in argv[argv.index("--") + 1:])
 out, i, granted = [], 0, False
 while i < len(argv):
     if argv[i] == "--":
         out.extend(argv[i:])
         break
-    if argv[i] == "--cap-drop" and i + 1 < len(argv) and argv[i + 1] == "ALL":
+    if runs_helper and argv[i] == "--cap-drop" and i + 1 < len(argv) and argv[i + 1] == "ALL":
         out.extend(["--cap-drop", "ALL", "--cap-add", "CAP_SYS_ADMIN"])
         i += 2
         granted = True

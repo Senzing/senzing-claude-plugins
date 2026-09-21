@@ -57,7 +57,9 @@ case "${ANTHROPIC_API_KEY:-}" in
 esac
 # Reject embedded whitespace/newlines (a multi-line paste) and absurd lengths.
 case "${ANTHROPIC_API_KEY:-}" in *[[:space:]]*) _key_ok=0 ;; esac
-if [ "${#ANTHROPIC_API_KEY}" -lt 40 ] || [ "${#ANTHROPIC_API_KEY}" -gt 300 ]; then
+_key_val="${ANTHROPIC_API_KEY:-}"
+_key_len=${#_key_val}
+if [ "$_key_len" -lt 40 ] || [ "$_key_len" -gt 300 ]; then
   _key_ok=0
 fi
 if [ "$_key_ok" -eq 0 ]; then
