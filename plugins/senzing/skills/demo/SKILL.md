@@ -77,12 +77,13 @@ second report.
    at the dataset's own description from `get_sample_data`. Label it plainly: *"This is the data Senzing would consume — actual
    resolution requires an installed Senzing, which I can set up for you."* Never present any
    match, score, or merge as a result.
-**Never name a match before Senzing has found one — in EVERY branch, including the
-zero-install tier.** Until the engine has returned results you have no results: printing a record
-id, name, email, DOB or pair as a "these look alike" preview invents them, and a caveat does not
-make it safe. Pick nothing by resemblance; say which FIELDS Senzing would resolve on. This governs
-step 1 as much as step 2 — having no SDK makes a guess worse, not permitted, because nothing can
-check it.
+
+   **Never name a match before Senzing has found one — in EVERY branch, including the
+   zero-install tier.** Until the engine has returned results you have no results: printing a
+   record id, name, email, DOB or pair as a "these look alike" preview invents them, and a caveat
+   does not make it safe. Pick nothing by resemblance; say which FIELDS Senzing would resolve on.
+   This governs step 1 as much as step 2 — having no SDK makes a guess worse, not permitted,
+   because nothing can check it.
 
 2. With a working Senzing, run the `analyze` flow on sample data — same steps, same gates:
    - **Get the data — the full file, not the preview — and this is the one flow where *you*

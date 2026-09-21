@@ -198,6 +198,35 @@ PYEOF
 done < <(find plugins -path '*/evals*/*' -name 'prompt.md' -not -path '*/results/*' | sort)
 fi
 
+echo; echo "== 10b. bwrap-shim.py rewrites exactly the two faults, offline (fake bwrap) =="
+# The shim sits over bwrap in the E2E image and rewrites its argument vector.
+# It is safety-critical in both directions: rewrite too little and every Bash
+# call in the eval dies; rewrite too much and the sandbox is weaker than the CLI
+# intended. Exercise it here with a bwrap stand-in that just prints its argv.
+shim_tmp="$(mktemp -d)"
+printf '#!/bin/sh\nprintf "%%s\\n" "$@"\n' > "$shim_tmp/bwrap"; chmod +x "$shim_tmp/bwrap"
+mkdir -p "$shim_tmp/empty-dir" "$shim_tmp/home"
+shim_run() { BWRAP_REAL="$shim_tmp/bwrap" python3 .github/senzing-eval/bwrap-shim.py "$@" 2>/dev/null | tr '\n' ' '; }
+# fault 1: a directory bind and a /dev/null (file) bind at one missing mount point
+out="$(shim_run --ro-bind "$shim_tmp/empty-dir" "$shim_tmp/home/.aws" --ro-bind /dev/null "$shim_tmp/home/.aws" -- /bin/true)"
+case "$out" in
+  *"/dev/null"*) bad "shim left the /dev/null file mask on a mixed mount point: $out" ;;
+  *"--ro-bind"*"$shim_tmp/home/.aws --ro-bind "*"$shim_tmp/home/.aws -- /bin/true"*) ok "fault 1: file mask re-pointed at a directory, bind stays read-only" ;;
+  *) bad "fault 1: unexpected rewrite: $out" ;;
+esac
+# fault 1, writable variant: the re-pointed bind must become read-only
+out="$(shim_run --ro-bind "$shim_tmp/empty-dir" "$shim_tmp/home/.aws" --bind /dev/null "$shim_tmp/home/.aws" -- /bin/true)"
+case "$out" in *"--bind /dev/null"*|*"--bind $shim_tmp"*) bad "shim kept a writable --bind for a re-pointed mask: $out" ;; *) ok "fault 1: --bind forced to --ro-bind" ;; esac
+# fault 2: the cap is added only when the command runs apply-seccomp, and only after the drop
+out="$(shim_run --cap-drop ALL -- /bin/bash -c 'ARGV0=apply-seccomp /proc/self/fd/3 /bin/bash -c true')"
+case "$out" in *"--cap-drop ALL --cap-add CAP_SYS_ADMIN --"*) ok "fault 2: CAP_SYS_ADMIN added after --cap-drop ALL for apply-seccomp" ;; *) bad "fault 2: expected cap-add after cap-drop: $out" ;; esac
+out="$(shim_run --cap-drop ALL -- /bin/true)"
+case "$out" in *"--cap-add"*) bad "shim added a capability to a command that does not run apply-seccomp: $out" ;; *) ok "fault 2: no apply-seccomp, no capability" ;; esac
+# passthrough: an option the shim does not know must leave the vector untouched
+out="$(shim_run --bogus-flag --ro-bind /dev/null "$shim_tmp/home/.aws" --ro-bind "$shim_tmp/empty-dir" "$shim_tmp/home/.aws" -- /bin/true)"
+case "$out" in "--bogus-flag --ro-bind /dev/null "*) ok "unknown option: vector passed through untouched" ;; *) bad "unknown option: shim rewrote a vector it cannot parse: $out" ;; esac
+rm -rf "$shim_tmp"
+
 echo; echo "== 11. Spelling (cspell — same config CI uses) =="
 # CI runs senzing-factory/build-resources cspell.yaml against .vscode/cspell.json.
 # check.sh did NOT, so a run could pass every local gate and still be blocked by

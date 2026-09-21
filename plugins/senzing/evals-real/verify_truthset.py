@@ -349,19 +349,24 @@ def verify(repo_db: Path, out_path: Path | None) -> int:
     if not missing:
         expected_partition = partition(key)
         actual_partition = partition(resolved)
-        over_merged = sorted(
+        # Both directions of the symmetric difference. Neither side is purely
+        # "over" or "under": a split ground-truth cluster shows up as one entry
+        # in expected_not_reproduced and as N fragments in actual_not_expected,
+        # a merge as N entries and one. Name them for what they are.
+        actual_not_expected = sorted(
             sorted(g) for g in actual_partition - expected_partition
         )
-        under_merged = sorted(
+        expected_not_reproduced = sorted(
             sorted(g) for g in expected_partition - actual_partition
         )
-        if over_merged or under_merged:
+        if actual_not_expected or expected_not_reproduced:
             failures.append(
-                f"{len(under_merged)} ground-truth cluster(s) were not reproduced exactly "
-                "— the count alone can be right while the entities are wrong"
+                f"{len(expected_not_reproduced)} ground-truth cluster(s) were not reproduced "
+                f"exactly and {len(actual_not_expected)} actual entity(ies) match no "
+                "ground-truth cluster — the count alone can be right while the entities are wrong"
             )
     else:
-        over_merged, under_merged = [], []
+        actual_not_expected, expected_not_reproduced = [], []
 
     if redo_backlog != 0:
         failures.append(
@@ -381,8 +386,8 @@ def verify(repo_db: Path, out_path: Path | None) -> int:
         "ground_truth_records_resolved": len(resolved),
         "records_not_found": missing[:20],
         "redo_records_queued": redo_backlog,
-        "clusters_not_reproduced": under_merged[:20],
-        "entities_not_in_ground_truth": over_merged[:20],
+        "expected_clusters_not_reproduced": expected_not_reproduced[:20],
+        "actual_entities_not_expected": actual_not_expected[:20],
     }
     return emit(verdict, out_path)
 

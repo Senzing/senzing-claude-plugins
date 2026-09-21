@@ -138,12 +138,24 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    examples and recipes fall back to each response's `access_steps` / `download_resource`. **Do
    not stop for it.**
 
-2. **Host shell + writable workspace.**
-   ```bash
-   d=$(mktemp -d) && echo ok > "$d/probe" && cat "$d/probe" && rm -rf "$d"
-   ```
+2. **Host shell + writable workspace.** Two questions, one probe each. *Shell:* Step 0's
+   `uname` already answered it — it ran, or it did not; do not run a second command to re-ask.
    No shell → ➖ everything below; say so plainly (a spawned sub-agent with a trimmed tool set
-   cannot run the SDK path).
+   cannot run the SDK path). *Workspace:* the question is whether the file tools write the
+   **current project directory** — the only place `build`, `analyze` and `demo` ever write — so a
+   `mktemp -d` in a system temp dir answers nothing. The probe is exactly one `Write` of a small
+   file into the project directory and one `Read` back. **Name that file exactly
+   `.senzing-doctor-probe.tmp`** and delete it as soon as you have read it back. The name is
+   pinned, not stylistic: `doctor` is invoked by skills whose eval cases assert that the run wrote
+   no file, and those cases exclude this one exact path so they can still fail on any other
+   `Write` — see `plugins/senzing/evals/recipes-named/graders/no-file-written.md`, which carries
+   the matching note. A probe under any other name is indistinguishable from a deliverable and
+   will fail them. Landed → the file tools write the project. Did not land → they do not. Both
+   are answers; neither is a reason to keep looking. Do NOT go hunting through `$TMPDIR`,
+   `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second opinion — a probe
+   that failed in the project directory has already told you what the other skills need to know.
+   **Probe budget: ONE attempt per question** — the rule, and why, is stated once under
+   *Probe budget* in **Reporting** below.
 
 3. **Interactive-outcome capability.** Using the Step 0 signals: Claude Code on the user's machine
    can serve a live `localhost` app ✅. Container/WSL2 → ⚠️ "reachable only via port-forward".
@@ -151,19 +163,6 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    **not ❌; nothing is broken.** Report it so `recipes` / `build` / `demo` offer the
    self-contained HTML artifact, or recommend Claude Code, *before* a long run.
 
-   **Probe budget: ONE attempt per question** — the rule, and why it matters, is stated once, in
-   *Probe budget* under **Reporting** below. Where a check needs a write probe, it is exactly one
-   `Write` of a small file into the **current project directory** and one `Read` back. **Name that file exactly `.senzing-doctor-probe.tmp`** and
-   delete it as soon as you have read it back. The name is pinned, not stylistic: `doctor` is
-   invoked by skills whose eval cases assert that the run wrote no file, and those cases exclude
-   this one exact path so they can still fail on any other `Write` — see
-   `plugins/senzing/evals/recipes-named/graders/no-file-written.md`, which carries the matching
-   note. A probe under any other name is indistinguishable from a deliverable and will fail them.
-   Landed → the file tools write the project. Did not land →
-   they do not. Both are answers; neither is a reason to keep looking. Do NOT go hunting through
-   `$TMPDIR`, `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second
-   opinion — a probe that failed in the project directory has already told you what `build`,
-   `analyze` and `demo` need to know, and those skills only ever write into the project.
 
 4. **Locate the install — IN THE PLATFORM'S OWN LOCATION.**
 
@@ -366,7 +365,7 @@ continuing with the mapping") so the next step is visibly yours to take, then ta
 
 **ONE attempt per question, then record the answer and move on** — one command per question, not
 one per doubt. The whole preflight is a handful of shell calls: Step 0's `uname`, the
-reachability curl, one write probe (check 3's rule — in the project directory, once), the
+reachability curl, one write probe (check 2's rule — in the project directory, once), the
 platform's own install-location command (check 4), and the SDK/engine/license probes once an
 install is found. A question that resists its one probe is reported ⚠️
 with what you saw, and you hand back.
