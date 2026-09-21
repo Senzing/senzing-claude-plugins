@@ -205,12 +205,14 @@ echo; echo "== 11. Spelling (cspell — same config CI uses) =="
 # a behavioral eval costing $6-17 and ~55 minutes, so two unknown dictionary
 # words buy a full eval cycle. Local and CI must agree before the push, not after.
 if command -v npx >/dev/null 2>&1; then
-  if npx --yes --quiet cspell@8 lint --no-progress --config .vscode/cspell.json \
+  # --dot: the globs alone skip files inside dot-directories (.github/**), which
+  # let an unknown word in a workflow pass here and fail on the PR (PR #34).
+  if npx --yes --quiet cspell@8 lint --no-progress --dot --config .vscode/cspell.json \
        --no-must-find-files "**/*" "**/.*" 2>/dev/null; then
     ok "cspell: no unknown words"
   else
     bad "cspell found unknown words (add real terms to .vscode/cspell.json words[])"
-    npx --yes --quiet cspell@8 lint --no-progress --config .vscode/cspell.json \
+    npx --yes --quiet cspell@8 lint --no-progress --dot --config .vscode/cspell.json \
       --no-must-find-files "**/*" "**/.*" 2>&1 | grep -E 'Unknown word' | head -20
   fi
 else
