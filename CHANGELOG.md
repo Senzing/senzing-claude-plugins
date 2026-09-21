@@ -11,11 +11,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Bump to MCP server **v1.37.6** (lockstep sync); the plugin carries no code change.
-  Server-side, `mapping_workflow` now works when no readable file is present — `file_paths`
-  is a label, and `record_count: 0` means "not measured" rather than an empty source.
-  `download_resource(inline=true)` returns large files in chunks of at most 48,000 characters,
-  reporting `truncated`, `next_offset` and `total_chars`, with an `offset` argument to continue;
-  a batch lists any member too large for one chunk under `oversize`. Server-side eval harness: the LLM judge now sees every tool result it grades against (a 2,500-char evidence cap had produced false "fabrication" failures), and `WebFetch` is allowed in eval runs.
+  Server-side changes a plugin user will notice:
+  - `mapping_workflow` works when no readable file is present — `file_paths` is a label,
+    and `record_count: 0` means "not measured" rather than an empty source.
+  - `download_resource(inline=true)` returns large files in chunks of at most 48,000
+    characters, reporting `truncated`, `next_offset` and `total_chars`, with an `offset`
+    argument to continue; a batch lists any member too large for one chunk under `oversize`.
+  - Eval harness: the LLM judge now sees every tool result it grades against (a 2,500-char
+    evidence cap had produced false "fabrication" failures), and `WebFetch` is allowed in
+    eval runs.
 
 ## [1.37.5] - 2026-09-20
 
