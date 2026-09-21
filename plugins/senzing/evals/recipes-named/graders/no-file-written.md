@@ -27,3 +27,9 @@ The exclusion and the pinned filename point at each other on purpose — change 
 other. Proven offline against the harness's own JS regex semantics: the probe path does not match
 (in any directory), while a deliverable (`customer-360-plan.md`), the old unpinned probe name
 (`.doctor-probe.tmp`) and a near-miss (`.senzing-doctor-probe.tmp.bak`) all do.
+
+Why `tool: Write` and not Bash: the skill REQUIRES `curl -fsSL "<url>" -o "<workspace>/<name>.md"`
+for the catalog / recipe, so a Bash-level file-write check would forbid the fetch the case also
+asserts (`correct-recipe-fetched` / the catalog grader). What this grader forbids is an
+AUTHORED file — a plan, a mapping, a report — which the model can only produce with `Write`.
+The case's `expected_outcome` says the same (review on 7785bfb).

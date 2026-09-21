@@ -5,8 +5,10 @@ expected_outcome: >
   recipes fires; doctor runs FIRST via real Bash host probes and finds no Senzing SDK on this
   sandbox; the correct recipe file (customer-360-crm-online.md) is fetched from the real cookbook
   — never a wrong id or a hand-recalled one; because Senzing cannot deploy here, the run hands off
-  to sdk_guide(topic=install) instead of cooking, and never starts mapping_workflow, writes a
-  file, or presents any match score, merge, or resolved-entity count as its own result.
+  to sdk_guide(topic=install) instead of cooking, and never starts mapping_workflow, authors a
+  file with `Write` (doctor's pinned probe excepted — the recipe itself is fetched to the
+  workspace with `curl -o`, as the skill requires, and that fetched copy is not a deliverable),
+  or presents any match score, merge, or resolved-entity count as its own result.
 max_turns: 40
 timeout_seconds: 900
 allowed_tools: [Read, Glob, Grep, Skill, Agent, Bash, Write, WebFetch]

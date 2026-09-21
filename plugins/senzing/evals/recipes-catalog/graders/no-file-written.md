@@ -16,3 +16,9 @@ command is not a deliverable; anything else written is, and still fails this gra
 filename and this exclusion point at each other on purpose. See
 `plugins/senzing/evals/recipes-named/graders/no-file-written.md` for the full derivation.
 -->
+
+Why `tool: Write` and not Bash: the skill REQUIRES `curl -fsSL "<url>" -o "<workspace>/<name>.md"`
+for the catalog / recipe, so a Bash-level file-write check would forbid the fetch the case also
+asserts (`correct-recipe-fetched` / the catalog grader). What this grader forbids is an
+AUTHORED file — a plan, a mapping, a report — which the model can only produce with `Write`.
+The case's `expected_outcome` says the same (review on 7785bfb).
