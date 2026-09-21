@@ -140,6 +140,18 @@ State the resolved input list to the user before proceeding — informational, n
      sees your JSONL — **you read the analyzer's findings and self-report the verdict** in the
      advance payload. Report `approve` only when every output is genuinely clean; otherwise
      report the rework verdict it asks for and fix the mapping or the code.
+   - **One feature instance is one object.** The mapping the workflow returns is one line per
+     source field, but the mapper you write must emit one object per *feature*: every part of
+     one name (`NAME_FIRST`, `NAME_LAST`, `NAME_MIDDLE`, `NAME_PREFIX`, `NAME_SUFFIX`, plus its
+     `NAME_TYPE`) in ONE object; every part of one address (`ADDR_LINE1`, `ADDR_CITY`,
+     `ADDR_STATE`, `ADDR_POSTAL_CODE`, `ADDR_COUNTRY`, plus `ADDR_TYPE`) in ONE object;
+     `PHONE_NUMBER` with its `PHONE_TYPE`. `ADDR_FULL` may carry `ADDR_COUNTRY` and `ADDR_TYPE`
+     beside it — only the parsed parts (`ADDR_LINE1`/`CITY`/`STATE`/`POSTAL_CODE`) must not share
+     an object with `ADDR_FULL`. Emitting `{"NAME_FIRST": "Robert"}` and `{"NAME_LAST": "Smith"}`
+     as two objects is two partial names, not one person: on the Senzing demo truth set it turned
+     85 correct entities into 86 wrong ones, with 119 of 159 records differing from Senzing's own
+     mapping by exactly that. The analyzer does not catch it today, so check the output yourself:
+     no record may have name parts or address parts of the same feature in separate objects.
    - After every `mapping_workflow` response, immediately write the returned `state` to
      `{workspace}/.sz-state.json`. On each subsequent call, read `state` from that file and pass it
      verbatim — never reconstruct it from conversation memory.
