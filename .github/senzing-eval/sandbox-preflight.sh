@@ -36,6 +36,13 @@
 # /tmp the harness's temp dir lands on. A preflight that cannot reproduce the
 # fault it exists to catch is a gate that cannot fail.
 #
+# And the layout alone was STILL not enough: this probe printed "Sandbox
+# preflight OK" in the job where every eval Bash call died, because the `.aws`
+# fault is triggered by the eval's OWN sandbox settings (six deny paths), which
+# `--settings '{"sandbox":{"enabled":true}}'` never carries. The probe now
+# injects that same deny list; with it, the fault reproduces deterministically
+# (and the image's bwrap shim makes it pass). See Fault 3 in the Dockerfile.
+#
 # The probe reads a NONCE the model cannot know. A marker quoted in the prompt
 # would let a model that never touched Bash echo it straight back and turn this
 # into a gate that cannot fail -- which is the defect it exists to prevent.
@@ -70,7 +77,24 @@ printf '%s\n' "$nonce" > "$nonce_file"
 prompt="Use the Bash tool to run exactly this command: cat ${nonce_file}
 Then reply with nothing but the command's output. Do not use any other tool."
 
-settings='{"sandbox":{"enabled":true,"failIfUnavailable":true}}'
+# The eval does not run with these two keys alone. It writes its own sandbox
+# settings, and those carry six AWS SSO-cache deny paths under its HOME (see
+# Fault 3 in the Dockerfile). A probe without them PASSED in the very CI job
+# whose every eval Bash call died on that list (run 35525396372): mirroring the
+# HOME shape was not enough, the probe has to mirror the settings. The list is
+# copied from the CLI's own `Vo` table, flat-mapped to [path, dirname(path)].
+settings="$(python3 - "$HOME" "$workdir" <<'PY'
+import json, os, sys
+home, work = sys.argv[1], sys.argv[2]
+sso = [".aws/sso", ".aws/cli/cache", ".aws/boto/cache"]
+deny_write = [os.path.join(home, p) for n in sso for p in (n, os.path.dirname(n))]
+deny_read = [os.path.join(home, n) for n in sso]
+print(json.dumps({"sandbox": {"enabled": True, "failIfUnavailable": True,
+  "filesystem": {"allowWrite": [home, os.path.join(work, "tmp")],
+                 "denyWrite": deny_write, "denyRead": deny_read}}}))
+PY
+)"
+mkdir -p "$workdir/tmp"
 
 probe() {
   cd "$HOME/cwd" && claude \

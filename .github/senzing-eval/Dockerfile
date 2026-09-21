@@ -91,6 +91,27 @@ ENV PYTHONPATH=/opt/senzing/er/sdk/python \
 RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}" \
     && claude --version
 
+# Fault 3: `claude plugin eval` writes its own sandbox settings with six AWS
+# SSO-cache deny paths under its throwaway HOME (<home>/.aws/{sso,cli/cache,
+# boto/cache} and each parent). None exist there, so the sandbox runtime mounts
+# every one of them at the first missing component, <home>/.aws — three as an
+# empty read-only DIRECTORY and one (`<home>/.aws` itself) as /dev/null, a FILE.
+# bwrap creates the directory for the first bind and dies on the file:
+#
+#   bwrap: Can't create file at /tmp/claude-eval-XXXX/home/.aws: Is a directory
+#
+# Reproduced from the eval's own 926-argument bwrap vector (rc 1 → rc 0 with the
+# shim); identical in CLI 2.1.259 and 2.1.278, so this is upstream and the image
+# carries the workaround. The shim re-points file-sourced binds at an empty
+# read-only directory ONLY where the same mount point is also a directory mount;
+# an empty ro directory over <home>/.aws blocks reads, writes and creation
+# beneath it, so no deny is weakened. Anything it cannot parse passes through.
+COPY bwrap-shim.py /usr/bin/bwrap-shim.py
+RUN mv /usr/bin/bwrap /usr/bin/bwrap.real \
+    && chmod +x /usr/bin/bwrap-shim.py \
+    && ln -s /usr/bin/bwrap-shim.py /usr/bin/bwrap \
+    && bwrap --version
+
 # Fault 2 of the three that killed the ubuntu behavioral-eval attempt: the runner
 # image had no /run/shm, so the sandbox could not mount its tmpfs. Give it one.
 #
