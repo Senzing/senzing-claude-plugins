@@ -151,9 +151,9 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    **not ❌; nothing is broken.** Report it so `recipes` / `build` / `demo` offer the
    self-contained HTML artifact, or recommend Claude Code, *before* a long run.
 
-   **Probe budget: ONE attempt per question, then record the answer and move on.** Where a check
-   needs a write probe, it is exactly one `Write` of a small file into the **current project
-   directory** and one `Read` back. **Name that file exactly `.senzing-doctor-probe.tmp`** and
+   **Probe budget: ONE attempt per question** — the rule, and why it matters, is stated once, in
+   *Probe budget* under **Reporting** below. Where a check needs a write probe, it is exactly one
+   `Write` of a small file into the **current project directory** and one `Read` back. **Name that file exactly `.senzing-doctor-probe.tmp`** and
    delete it as soon as you have read it back. The name is pinned, not stylistic: `doctor` is
    invoked by skills whose eval cases assert that the run wrote no file, and those cases exclude
    this one exact path so they can still fail on any other `Write` — see
@@ -164,11 +164,6 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    `$TMPDIR`, `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second
    opinion — a probe that failed in the project directory has already told you what `build`,
    `analyze` and `demo` need to know, and those skills only ever write into the project.
-   **`doctor` is a preflight, not the task.** It runs before real work and its whole value is
-   being fast. A caller invoked `analyze` or `build`, not `doctor`; spending the turn budget on
-   environment forensics means the actual job never happens, which is a worse outcome than any
-   verdict you could have refined. If a question resists one probe, report it ⚠️ with what you
-   saw and hand back.
 
 4. **Locate the install — IN THE PLATFORM'S OWN LOCATION.**
 
@@ -369,16 +364,20 @@ continuing with the mapping") so the next step is visibly yours to take, then ta
 
 ### Probe budget
 
-One command per question, not one per doubt. The whole preflight is a handful of shell calls:
-Step 0's `uname`, the reachability curl, one write probe (check 3's rule — in the project
-directory, once), the platform's own install-location command (check 4), and the SDK/engine/
-license probes once an install is found. A question that resists its one probe is reported ⚠️
-with what you saw.
+**ONE attempt per question, then record the answer and move on** — one command per question, not
+one per doubt. The whole preflight is a handful of shell calls: Step 0's `uname`, the
+reachability curl, one write probe (check 3's rule — in the project directory, once), the
+platform's own install-location command (check 4), and the SDK/engine/license probes once an
+install is found. A question that resists its one probe is reported ⚠️
+with what you saw, and you hand back.
 
-A preflight that spends a dozen Bash calls re-asking the same question — five ways to find a
-writable directory, three ways to list Homebrew casks — has burned the caller's turn budget on
-forensics. That is not thoroughness; it is how `demo` reached the end of its turns having
-probed the host beautifully and never called `sdk_guide`.
+**`doctor` is a preflight, not the task.** It runs before real work and its whole value is being
+fast. A caller invoked `analyze` or `build`, not `doctor`; spending the turn budget on
+environment forensics means the actual job never happens, which is a worse outcome than any
+verdict you could have refined. A preflight that spends a dozen Bash calls re-asking the same
+question — five ways to find a writable directory, three ways to list Homebrew casks — has
+burned the caller's turn budget on forensics. That is not thoroughness; it is how `demo` reached
+the end of its turns having probed the host beautifully and never called `sdk_guide`.
 
 ## Installing
 
