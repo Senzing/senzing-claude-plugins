@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "senzing",
   "displayName": "Senzing",
-  "version": "1.37.6",
-  "description": "An AI coworker for the whole Senzing entity-resolution journey\u2014from ROI and architecture to building, running, and measuring who's who in your data.",
+  "version": "1.37.7",
+  "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data.",
   "author": {
     "name": "Senzing, Inc.",
     "url": "https://senzing.com"

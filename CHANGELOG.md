@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.7] - 2026-09-21
+
+### Changed
+
+- Bump to MCP server **v1.37.7** (lockstep sync); the plugin carries no code change.
+  Server-side change a plugin user will notice:
+  - Hosted download routes (CORD sample data and SDK packages) now bound per-IP
+    *concurrency* (3 streams per IP per route pool, 10 s wait) instead of request
+    starts; a saturated IP gets `429` with `Retry-After: 10`. Sequential downloads
+    are unaffected.
+
+### Fixed
+
+- `mcp-version-sync.yml` now writes the `## [<version>]` CHANGELOG stub that
+  `scripts/check.sh` (check 7) requires, so automated sync PRs pass static checks
+  instead of failing on the missing heading.
+
 ## [1.37.6] - 2026-09-21
 
 ### Changed
