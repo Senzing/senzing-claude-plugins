@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.6] - 2026-09-21
+
+### Changed
+
+- Bump to MCP server **v1.37.6** (lockstep sync); the plugin carries no code change.
+  Server-side, `mapping_workflow` now works when no readable file is present — `file_paths`
+  is a label, and `record_count: 0` means "not measured" rather than an empty source.
+  `download_resource(inline=true)` returns large files in chunks of at most 48,000 characters,
+  reporting `truncated`, `next_offset` and `total_chars`, with an `offset` argument to continue;
+  a batch lists any member too large for one chunk under `oversize`. Also eval-harness fixes.
+
 ## [1.37.5] - 2026-09-20
 
 ### Changed
