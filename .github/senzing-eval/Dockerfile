@@ -46,6 +46,11 @@ ARG CLAUDE_CLI_VERSION=2.1.259
 # The apt-source package. Per sdk_guide: always use senzingrepo, never a
 # hand-written dists/stable URL (that one only serves libssl1.1 builds).
 ARG SENZING_REPO_DEB=senzingrepo_2.0.2-1_all.deb
+# sha256 of that bootstrap .deb, fetched twice from the public S3 path on
+# 2026-09-21 (identical). Packages installed FROM the repo get apt's signature
+# checks; this one file does not, and the image it builds runs --privileged in
+# CI, so it is pinned. Bumping SENZING_REPO_DEB means re-pinning this.
+ARG SENZING_REPO_DEB_SHA256=4636bc30af42ae92ec307382a26e04aea0aad48ab06f177a68e92a36c7fa321b
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -74,6 +79,7 @@ RUN set -eux; \
     fi; \
     cd /tmp; \
     wget -q "https://senzing-production-apt.s3.amazonaws.com/${SENZING_REPO_DEB}"; \
+    echo "${SENZING_REPO_DEB_SHA256}  ${SENZING_REPO_DEB}" | sha256sum -c -; \
     apt-get update; \
     apt-get install -y --no-install-recommends "./${SENZING_REPO_DEB}"; \
     apt-get update; \

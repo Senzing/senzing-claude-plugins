@@ -7,6 +7,10 @@ sz-workspace/
 .claude/*
 !.claude/settings.json
 
+# Python bytecode — a build artifact; one .pyc reached the repo through `git add -A` (PR #34)
+__pycache__/
+*.pyc
+
 # OS / editor cruft
 .DS_Store
 *.swp
