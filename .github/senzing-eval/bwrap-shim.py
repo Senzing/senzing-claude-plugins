@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# cspell:ignore clearenv execv mqueue pidns unsetenv  (bwrap option names)
+# cspell:ignore clearenv execv mqueue pidns unsetenv SETGID setgroups  (bwrap options, kernel names)
 """bwrap wrapper: reconcile mount points that `claude plugin eval` asks for
 both as a file and as a directory.
 
