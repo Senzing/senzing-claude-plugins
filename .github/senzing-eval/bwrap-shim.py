@@ -22,9 +22,11 @@ WHY
 WHAT THIS DOES
   Where one mount point is the target of both directory-sourced and
   file-sourced bind mounts, the file-sourced ones are re-pointed at an empty
-  read-only directory. Nothing is dropped and no deny is weakened: an empty
-  directory bound read-only over <home>/.aws blocks reads, writes and the
-  creation of anything beneath it, exactly as the /dev/null mask intended.
+  read-only directory, and the bind is forced to its read-only variant
+  (--bind -> --ro-bind) regardless of what the runtime emitted. Nothing is
+  dropped and no deny is weakened: an empty directory bound read-only over
+  <home>/.aws blocks reads, writes and the creation of anything beneath it,
+  exactly as the /dev/null mask intended.
   If the argument vector contains anything this does not understand, it is
   passed through untouched.
 """
@@ -91,9 +93,16 @@ if ops is not None:
         empty = tempfile.mkdtemp(prefix="bwrap-shim-empty-")
         os.chmod(empty, 0o555)
         fixed = []
+        RO = {"--bind": "--ro-bind", "--bind-try": "--ro-bind-try",
+              "--dev-bind": "--ro-bind", "--dev-bind-try": "--ro-bind-try"}
         for i, opt, operand in ops:
             if opt in BIND and operand[1] in mixed and not os.path.isdir(operand[0]):
                 argv[i + 1] = empty
+                # A file mask exists to deny; the replacement must be read-only on
+                # the MOUNT, not just by the directory's mode bits — a root process
+                # in the sandbox ignores mode bits. Force the ro variant whatever
+                # the runtime emitted (today it emits --ro-bind; do not rely on it).
+                argv[i] = RO.get(opt, opt)
                 fixed.append(operand[1])
         sys.stderr.write(
             "[bwrap-shim] re-pointed %d file mask(s) at an empty read-only "
