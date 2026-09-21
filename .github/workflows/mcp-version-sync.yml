@@ -67,6 +67,21 @@ jobs:
           tmp=$(mktemp)
           jq --arg v "$NEW" '.version=$v' plugins/senzing/.claude-plugin/plugin.json > "$tmp"
           mv "$tmp" plugins/senzing/.claude-plugin/plugin.json
+          # scripts/check.sh (check 7) requires a '## [<version>]' heading; write the
+          # lockstep stub under [Unreleased] so the sync PR passes static checks.
+          today=$(date -u +%F)
+          awk -v v="$NEW" -v d="$today" '
+            { print }
+            /^## \[Unreleased\]$/ && !done {
+              print ""
+              print "## [" v "] - " d
+              print ""
+              print "### Changed"
+              print ""
+              print "- Bump to MCP server **v" v "** (lockstep sync); the plugin carries no code change."
+              done = 1
+            }' CHANGELOG.md > "$tmp"
+          mv "$tmp" CHANGELOG.md
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Open sync PR
@@ -78,7 +93,7 @@ jobs:
           commit-message: "chore: sync plugin version to MCP server v${{ steps.live.outputs.version }}"
           body: |
             Automated: the hosted Senzing MCP server is now **v${{ steps.live.outputs.version }}**
-            (this plugin was v${{ steps.ours.outputs.version }}). Bumps the `plugin.json` version.
+            (this plugin was v${{ steps.ours.outputs.version }}). Bumps the `plugin.json` version and adds the CHANGELOG stub.
 
             **This is a version-only sync.** If this MCP release changed the *tool surface*
             (a tool added / removed / renamed, or args changed), the skills' `allowed-tools`,
