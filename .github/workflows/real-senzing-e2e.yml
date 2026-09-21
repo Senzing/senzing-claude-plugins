@@ -15,9 +15,10 @@ name: Real Senzing E2E
 #     new case lives in a sibling eval dir (plugins/senzing/evals-real/) that the
 #     macOS suite never sees.
 #
-# Why it does not gate every PR: it builds a container, downloads a ~260 MB SDK
-# package and runs a full map -> load -> resolve, so it is slow and it spends API
-# budget. It runs on EVERY pull request, plus weekly and on demand.
+# Why it is expensive: it builds a container, downloads a ~260 MB SDK package
+# and runs a full map -> load -> resolve, so it is slow and it spends API budget.
+# It still runs on EVERY pull request, plus weekly and on demand; whether it is
+# a REQUIRED status check is a branch-protection setting, not decided here.
 #
 # It was originally label-gated. That was wrong for the same reason the opt-in
 # behavioral eval was wrong: this is the ONLY test anywhere that runs the plugin
@@ -130,6 +131,7 @@ jobs:
         run: bash .github/senzing-eval/in-container.sh 'bash /work/.github/senzing-eval/sandbox-preflight.sh /tmp/sz-sandbox-probe'
 
       - name: Run the real-Senzing eval suite
+        id: eval
         if: steps.gate.outputs.has_key == 'true'
         # --keep-temp preserves the run workspace, which is where the agent's
         # scratch Senzing repository lives. The next step opens it.
@@ -138,6 +140,8 @@ jobs:
       - name: Collect traces, and fail ENVIRONMENTAL if the sandbox never ran
         id: env_gate
         if: always() && steps.gate.outputs.has_key == 'true'
+        env:
+          EVAL_OUTCOME: ${{ steps.eval.outcome }}
         # ORDER MATTERS, and it is the whole point of this step sitting HERE, ahead of the
         # ground-truth verification rather than after it. Whether the sandbox ran at all is a
         # question about the MEASUREMENT; whether the entities are right is a question about
@@ -178,7 +182,17 @@ jobs:
             n=$(find "$dest/traces" -name 'trace-*.jsonl' | wc -l | tr -d ' ')
           fi
           if [ "$n" -eq 0 ]; then
-            exit 0
+            # Zero traces is only benign when the eval never ran (an earlier step
+            # went red and skipped it). If the eval DID run, zero traces means the
+            # bwrap scan below has nothing to read, and a gate with nothing to read
+            # is the "collected 0 traces on two consecutive runs" failure that
+            # silently disabled this check before. Fail it, as ENVIRONMENTAL.
+            if [ "$EVAL_OUTCOME" = "skipped" ]; then
+              echo "no traces and the eval step was skipped — nothing to scan, nothing to judge"
+              exit 0
+            fi
+            echo "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — the eval step ran (outcome: $EVAL_OUTCOME) but no trace.jsonl was collected, so the sandbox scan has nothing to read. Fix trace collection (where the CLI writes trace.jsonl, the find depth, the /tmp mount) before trusting any score above."
+            exit 1
           fi
           echo "== tool_use histogram across collected traces =="
           cat "$dest"/traces/*.jsonl 2>/dev/null \
