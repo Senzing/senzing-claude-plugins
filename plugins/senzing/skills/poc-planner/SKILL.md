@@ -62,10 +62,12 @@ license terms here or from memory — call the tool named in each step and cite 
    (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, nothing after it.
    **Every** occurrence of the token TBD in the document is that full literal, including the
    second one in a sentence and any in prose or a table cell: not `columns TBD.`, not
-   `TBD, see §9`, not `TBD:`, not a bare `TBD` at the end of a line. An abbreviated TBD loses
-   the owner, which is the only part of the literal a downstream skill can act on — it reads as
-   undecided-by-nobody. Write the owner out again, or rewrite the sentence so the literal
-   appears once;
+   `TBD, see §9`, not `TBD:`, not a bare `TBD` at the end of a line, and never TBD as an
+   adjective in a sentence (`the following are TBD, each owned by…`, `X is TBD`). An
+   abbreviated TBD loses the owner, which is the only part of the literal a downstream skill
+   can act on — it reads as undecided-by-nobody. In prose say *undecided* or *open*; the token
+   TBD appears only inside the literal. Write the owner out again, or rewrite the sentence so
+   the literal appears once;
    or (d) a rule of this skill, labelled "(plugin rule)" — only where this file says so. Never
    derive a number from a tool number ("~55 minutes for 100k, so about a day for 750k" is
    fabrication with a citation). Never add a role title, phase or section the template, the
@@ -257,7 +259,11 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    "no file".** If one exists, ask *overwrite, or a new name?* and wait — never overwrite
    silently. Use the template below: all nine headings, exactly as written, no
    others; the two `yaml` blocks with exactly the keys shown, values the user's or the TBD
-   literal. Then the host gate: do the file tools write the user's project? In Claude Code they
+   literal. **Then `Read` the file back and check every occurrence of the token `TBD`**: each
+   one must be the full literal `TBD — decided by <owner>`. A prose use — `recorded in §2 as
+   TBD.`, `the following are TBD,`, `is TBD` — is a defect the next skill cannot act on; rewrite
+   that sentence (say *undecided* or *open*) and `Write` the file again before you finish.
+   Then the host gate: do the file tools write the user's project? In Claude Code they
    do; in Cowork they do (only the shell is sandboxed); in Claude Desktop / Chat there is no
    project on disk — deliver the same document inline / as a download and say where to put it.
    Confirm by `Read`-ing the file back; not landed → deliver inline. Never claim a file was
