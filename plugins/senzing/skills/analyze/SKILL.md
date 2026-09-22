@@ -65,7 +65,16 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
   hard requirement is a file *sample for profiling*, not full materialization.)
 State the resolved input list to the user before proceeding — informational, not a gate.
 
-1. **Pre-flight.** Invoke the `doctor` skill first and keep two things from its verdict: whether
+1. **Pre-flight — `doctor` runs before the first `mapping_workflow` call, every time.** This is
+   the step that gets skipped, and it gets skipped on exactly the hosts where it looks
+   unnecessary: a real Senzing is obviously installed, the data is obviously there, so the run
+   goes straight to mapping. A working SDK is not a reason to skip the preflight — it is the
+   answer the preflight exists to establish, and you do not have it until `doctor` hands it to
+   you. Treat it as a precondition of the `start` call, not an opening formality: if you are
+   about to call `mapping_workflow` and have not invoked `doctor` this run, you are in the wrong
+   order. It costs one skill invocation and it is what steps 3 and 4 are branching on.
+
+   Invoke the `doctor` skill first and keep two things from its verdict: whether
    the SDK is importable and the license valid (needed from step 4 on), and whether this host has a
    shell that can write a workspace (needed for step 3). This flow builds its **own fresh scratch
    repository**, so a configured production database is **not** required. **No SDK is not a
