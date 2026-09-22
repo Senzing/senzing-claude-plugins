@@ -127,7 +127,11 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
 
 1. **Grounding reachable.** Two DIFFERENT networks — do not conflate them:
    - *MCP connectivity*: a successful `get_capabilities` call. This is the one that matters for
-     grounding, and it can work while Bash egress is blocked (and vice versa).
+     grounding, and it can work while Bash egress is blocked (and vice versa). **Call it, every
+     run, and do not substitute another tool for it.** A later `sdk_guide` or `search_docs`
+     answering does prove the server is up, but it is not this probe: check 1 is graded on the
+     one call, it is the cheapest of them, and a run that infers connectivity from whatever it
+     happened to need next leaves the row resting on an accident of what it wanted anyway.
    - *Bash egress*: `curl -fsSI https://mcp.senzing.com/` and `https://raw.githubusercontent.com/`.
      Treat **any HTTP response as reachable** — only DNS failure, connection refused, or timeout
      is unreachable. (A bare root returning 3xx/4xx is fine; `-f` fails only on ≥400, and
@@ -138,12 +142,24 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    examples and recipes fall back to each response's `access_steps` / `download_resource`. **Do
    not stop for it.**
 
-2. **Host shell + writable workspace.**
-   ```bash
-   d=$(mktemp -d) && echo ok > "$d/probe" && cat "$d/probe" && rm -rf "$d"
-   ```
+2. **Host shell + writable workspace.** Two questions, one probe each. *Shell:* Step 0's
+   `uname` already answered it — it ran, or it did not; do not run a second command to re-ask.
    No shell → ➖ everything below; say so plainly (a spawned sub-agent with a trimmed tool set
-   cannot run the SDK path).
+   cannot run the SDK path). *Workspace:* the question is whether the file tools write the
+   **current project directory** — the only place `build`, `analyze` and `demo` ever write — so a
+   `mktemp -d` in a system temp dir answers nothing. The probe is exactly one `Write` of a small
+   file into the project directory and one `Read` back. **Name that file exactly
+   `.senzing-doctor-probe.tmp`** and delete it as soon as you have read it back. The name is
+   pinned, not stylistic: `doctor` is invoked by skills whose eval cases assert that the run wrote
+   no file, and those cases exclude this one exact path so they can still fail on any other
+   `Write` — see `plugins/senzing/evals/recipes-named/graders/no-file-written.md`, which carries
+   the matching note. A probe under any other name is indistinguishable from a deliverable and
+   will fail them. Landed → the file tools write the project. Did not land → they do not. Both
+   are answers; neither is a reason to keep looking. Do NOT go hunting through `$TMPDIR`,
+   `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second opinion — a probe
+   that failed in the project directory has already told you what the other skills need to know.
+   **Probe budget: ONE attempt per question** — the rule, and why, is stated once under
+   *Probe budget* in **Reporting** below.
 
 3. **Interactive-outcome capability.** Using the Step 0 signals: Claude Code on the user's machine
    can serve a live `localhost` app ✅. Container/WSL2 → ⚠️ "reachable only via port-forward".
@@ -151,18 +167,6 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
    **not ❌; nothing is broken.** Report it so `recipes` / `build` / `demo` offer the
    self-contained HTML artifact, or recommend Claude Code, *before* a long run.
 
-   **Probe budget: ONE attempt per question, then record the answer and move on.** Where a check
-   needs a write probe, it is exactly one `Write` of a small file into the **current project
-   directory** and one `Read` back. Landed → the file tools write the project. Did not land →
-   they do not. Both are answers; neither is a reason to keep looking. Do NOT go hunting through
-   `$TMPDIR`, `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second
-   opinion — a probe that failed in the project directory has already told you what `build`,
-   `analyze` and `demo` need to know, and those skills only ever write into the project.
-   **`doctor` is a preflight, not the task.** It runs before real work and its whole value is
-   being fast. A caller invoked `analyze` or `build`, not `doctor`; spending the turn budget on
-   environment forensics means the actual job never happens, which is a worse outcome than any
-   verdict you could have refined. If a question resists one probe, report it ⚠️ with what you
-   saw and hand back.
 
 4. **Locate the install — IN THE PLATFORM'S OWN LOCATION.**
 
@@ -336,8 +340,55 @@ raw stack trace. Checks 1–3 are host-level and resolve independently of whethe
 installed: **a green host with no SDK is a valid, healthy state** (the caller may only need
 grounding or code generation).
 
+### Who asked — and where the turn goes next
+
+**Establish this before you report, because it decides whether the table is the answer or a
+footnote.**
+
+- **The user asked for `doctor`** ("is my Senzing set up?", `/senzing:doctor`) → the table IS
+  the deliverable. Report it and stop.
+- **Another skill invoked you as its preflight** (`analyze`, `demo`, `report`, `recipes`,
+  `build`, `install`) → the table is an **intermediate result, not a destination**. Post it and
+  **carry straight on with the caller's procedure in the same turn.** Do not end the turn on the
+  verdict, do not close with a question, and do not offer `install` — the caller's own procedure
+  already decides what a missing SDK means for it, and in `analyze`'s case the answer is
+  explicitly "map anyway, offer install at the end".
+
+**This is the most expensive way this skill fails, and it does not look like a failure.** In the
+eval suite it showed up as `mapping_workflow called 0x` on `analyze`, `analyze-multi-file-join`
+and `routing-negative-dedupe` — 19 failing assertions across the CI runs on record. The trace is
+always the same: `analyze` fires, invokes `doctor`, `doctor` probes the host, finds no SDK, and
+the run's final message is this skill's status table. The user asked to dedupe a file and got an
+environment report. Nothing errored, every row was correct, and the actual job never started.
+
+A no-SDK verdict is the caller's cue to take its degraded path — **never** a reason to stop
+short of it. When you hand back, say so in one line ("preflight done — SDK not installed;
+continuing with the mapping") so the next step is visibly yours to take, then take it.
+
+### Probe budget
+
+**ONE attempt per question, then record the answer and move on** — one command per question, not
+one per doubt. The whole preflight is a handful of shell calls: Step 0's `uname`, the
+reachability curl, one write probe (check 2's rule — in the project directory, once), the
+platform's own install-location command (check 4), and the SDK/engine/license probes once an
+install is found. A question that resists its one probe is reported ⚠️
+with what you saw, and you hand back.
+
+**`doctor` is a preflight, not the task.** It runs before real work and its whole value is being
+fast. A caller invoked `analyze` or `build`, not `doctor`; spending the turn budget on
+environment forensics means the actual job never happens, which is a worse outcome than any
+verdict you could have refined. A preflight that spends a dozen Bash calls re-asking the same
+question — five ways to find a writable directory, three ways to list Homebrew casks — has
+burned the caller's turn budget on forensics. That is not thoroughness; it is how `demo` reached
+the end of its turns having probed the host beautifully and never called `sdk_guide`.
+
 ## Installing
 
 If there is no Senzing here, or the user asked to install one, hand off to the **`install`**
 skill — it owns the install workflow. Come back to `doctor` afterwards to verify: an installer
 exiting zero is not proof the SDK loads.
+
+**Only when the user asked for `doctor`.** Invoked as another skill's preflight, "no SDK" is a
+row in the table you hand back, not an offer you make — see *Who asked* above. `analyze` in
+particular has its own rule that installing is never the question put before the mapping, so
+relaying the offer from here derails it.

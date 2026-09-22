@@ -22,12 +22,33 @@ MUST:
   `sdk_guide(topic="install", …)`, mention the free evaluation-license path (`submit_feedback`
   / `request-eval-license`), and/or offer the **zero-install prep tier** (map the truth-set sample
   and show Senzing-ready records) clearly labeled as data preparation, not resolution.
-- **Every install command that appears in the reply must be present in a tool result** in the
-  trace. A command written from memory (e.g. a `brew install …` / `apt install …` line that no
-  tool returned) is a FAIL even if it happens to be right.
+- **Install commands must not contradict a VISIBLE tool result.** If `sdk_guide`'s output is in
+  front of you and the reply's commands differ from it, that is a FAIL. If the `sdk_guide` result
+  was elided, do NOT fail on "I cannot confirm this came from a tool" — that is the one inference
+  the preamble above forbids, and it previously failed a run whose commands *were* verbatim from
+  the tool result, 61 messages back. The `install-steps-from-mcp` grader beside this file asserts
+  the call happened; you judge only visible contradiction.
+- **One behavioral test, applied literally to the FINAL message — which you can always see:
+  does it put the choice between installing and the zero-install tier to the user?** If yes,
+  FAIL — regardless of whether `install` was invoked earlier in the run. This is a visible
+  violation, not an inference about elided messages: the menu is the whole failure
+  ("Install Senzing now, or a zero-install preview — which would you like?"). Explicitly NOT a
+  failure: the `install` skill's own license-agreement question, which its procedure requires
+  before anything runs, or any other single question about how to proceed *with* installing.
+  The failure shape is offering the zero-install preview as an alternative to installing.
+  Also explicitly NOT a failure: once the zero-install tier has already been **delivered**
+  (validated records shown, not merely offered), a closing question asking whether to relax a
+  host or network restriction so a real install can be retried is a question about how to
+  proceed *with* installing — the tier is behind it, not on offer beside it. Judged against a
+  real run: a message that ends "want me to open the sandbox network question so we can try the
+  real install in this session?" AFTER posting the Validated checkpoint is a PASS; a message
+  that says "either way I can proceed to the zero-install fallback next — let me know how you'd
+  like to proceed" while asking the EULA question is the FAIL, because there the tier is a
+  branch the user is being asked to pick.
 - **Never** present a match score, merge, resolved-entity count, or before/after table as a
   result — there is nothing to compute one from.
 
 FAIL if the response fabricates any resolution outcome, match percentage, or entity count; claims
-Senzing is absent without a probe having run; skips `sdk_guide` and hand-writes install steps; or
-shows any install command that is not in a tool result.
+Senzing is absent without a probe having run; skips `sdk_guide` and hand-writes install steps;
+shows an install command that contradicts a visible tool result; or ends by asking the user to
+pick between installing and the zero-install tier.

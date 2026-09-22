@@ -1,0 +1,29 @@
+{
+  "_comment": "Budget abort mid-suite. Everything graded passed, so both gates are clean -- and the run is still unusable because it did not finish.",
+  "costUsd": 75.0,
+  "partial": true,
+  "partialReason": "max cost reached",
+  "aggregates": { "casesTotal": 1, "casesPassed": 1, "overallScore": 1.0 },
+  "cases": [
+    {
+      "name": "truncated",
+      "aggregates": { "score": 1.0 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "skill-fired", "type": "tool_used" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              { "name": "skill-fired", "passed": true }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

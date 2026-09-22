@@ -8,19 +8,94 @@
 # disk, (2) refuses to treat the early-access gate message as a pass, and (3) propagates the
 # CLI's threshold exit code.
 #
+#
+# Scoring is NOT the CLI's blended average — see gate.py next to this file. Deterministic
+# graders (regex / tool_used / file_exists / tool_order) must ALL pass in EVERY run; the llm
+# judge is scored separately against its own threshold and can neither mask nor be masked by
+# them. The CLI is therefore run with `--threshold 0`: it grades, gate.py decides.
+#
 # Usage: plugins/senzing/evals/run.sh [--case <glob>] [extra claude-plugin-eval args...]
-# Env:   EVAL_RUNS (default 2)  EVAL_THRESHOLD (default 0.8)  EVAL_MAX_COST_USD (default 75)
+# Env:   EVAL_RUNS (default 2)  EVAL_MAX_COST_USD (default 75)
+#        EVAL_JUDGE_THRESHOLD (default 0.8; EVAL_THRESHOLD honored as the old name)
+#        EVAL_JUDGE_ENFORCE=1 makes the judge score a hard gate too (default: reported only)
 #        EVAL_CONCURRENCY (default 3)  EVAL_JSON (default <evals>/results/ci.json)
 #        EVAL_MODEL (default sonnet)   EVAL_JUDGE_MODEL (default sonnet)
 # Needs: ANTHROPIC_API_KEY (or a logged-in claude), the sandbox backend for Bash grants
 #        (macOS: built in; Linux: bubblewrap + socat), and network to mcp.senzing.com.
 set -euo pipefail
 
+# Load local credentials so the suite can be run WITHOUT pushing to CI.
+# A CI-only eval means every iteration costs a push plus ~55 minutes of queue,
+# which is how a one-line fix turned into an hour repeatedly. Run it here first.
+#
+# ~/.env is the standard location across the Senzing MCP repos, and it is
+# deliberately OUTSIDE every checkout: this repo is public, so a key living in
+# the tree is one `git add -A` away from being published. The in-repo
+# .env.local is honored second for per-repo overrides and is gitignored.
+# CI has neither file and uses the ANTHROPIC_API_KEY repo secret instead.
+for _env_file in "$HOME/.env" "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/.env.local"; do
+  if [ -f "$_env_file" ]; then
+    echo "loading credentials from ${_env_file/#$HOME/~}"
+    set -a
+    # shellcheck disable=SC1090
+    . "$_env_file"
+    set +a
+  fi
+done
+
+# Validate the key POSITIVELY -- it must look like a real Anthropic key --
+# rather than blocklisting placeholder shapes. A blocklist only catches the
+# junk you thought of: a `pbpaste` that had the wrong thing on the clipboard
+# wrote 347 characters of prose here, which matched no placeholder pattern,
+# passed a bare -z check, and would have failed later as an opaque auth error
+# far from the cause. Anthropic keys are `sk-ant-` + a long opaque tail and
+# contain no whitespace, so require exactly that.
+_key_ok=1
+case "${ANTHROPIC_API_KEY:-}" in
+  sk-ant-*) : ;;
+  *) _key_ok=0 ;;
+esac
+# Reject embedded whitespace/newlines (a multi-line paste) and absurd lengths.
+case "${ANTHROPIC_API_KEY:-}" in *[[:space:]]*) _key_ok=0 ;; esac
+_key_val="${ANTHROPIC_API_KEY:-}"
+_key_len=${#_key_val}
+if [ "$_key_len" -lt 40 ] || [ "$_key_len" -gt 300 ]; then
+  _key_ok=0
+fi
+if [ "$_key_ok" -eq 0 ]; then
+  if [ "${CI:-}" = "true" ]; then
+    echo "ERROR: ANTHROPIC_API_KEY is unset in CI." >&2
+    echo "This job must FAIL rather than skip — an eval that passes by not running" >&2
+    echo "is how this suite stayed green for its entire existence. Set the secret." >&2
+    exit 1
+  fi
+  cat >&2 <<'NO_KEY_HELP'
+ERROR: ANTHROPIC_API_KEY is unset or is a placeholder.
+
+Set it in $HOME/.env -- outside every repo, so it cannot be committed:
+
+  printf 'ANTHROPIC_API_KEY: ' && read -rs K \
+    && printf 'ANTHROPIC_API_KEY=%s\n' "$K" > "$HOME/.env" \
+    && chmod 600 "$HOME/.env" && unset K
+
+That form prompts for the value, so the key never reaches shell history or a
+terminal transcript. It uses a separate printf for the prompt because read's
+-p flag is bash-only -- under zsh (the default shell on macOS) `read -p`
+fails with "no coprocess" and the && chain silently aborts, leaving whatever
+was in the file before. Do NOT paste a literal key onto a command line: a
+documented example string was copied verbatim into $HOME/.env once already,
+and a non-empty placeholder is worse than an empty one -- it survives a bare
+emptiness check and then fails as an opaque auth error far from the cause.
+NO_KEY_HELP
+  exit 1
+fi
+
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 plugin_dir="$(dirname "$here")"
 eval_dir_name="$(basename "$here")"
 results_dir="$here/results"
 json_out="${EVAL_JSON:-$results_dir/ci.json}"
+judge_threshold="${EVAL_JUDGE_THRESHOLD:-${EVAL_THRESHOLD:-0.8}}"
 mkdir -p "$results_dir" "$(dirname "$json_out")"
 
 # Every immediate child directory holding a prompt.md or case.yaml is a case.
@@ -65,7 +140,14 @@ args=(
   --model "${EVAL_MODEL:-sonnet}"
   --judge-model "${EVAL_JUDGE_MODEL:-sonnet}"
   --runs "${EVAL_RUNS:-2}"
-  --threshold "${EVAL_THRESHOLD:-0.8}"
+  # Deliberately 0 — the CLI must NOT issue the verdict. Its --threshold is compared against
+  # a single blended score: the fraction of a case's graders that passed, judge and
+  # deterministic averaged together. At 0.8 that said "20% of my own assertions may fail",
+  # which is a coherent statement about a judge's opinion and nonsense about `skill-fired`.
+  # It let a passing judge carry a FAILING deterministic assertion over the line (at 42a2ed0
+  # the suite reported 14/14 with four deterministic assertions red). gate.py below splits
+  # the two and owns the exit code; 0 here keeps the CLI grading and out of the deciding.
+  --threshold 0
   --max-cost-usd "${EVAL_MAX_COST_USD:-75}"
   --no-publish
   --json "$json_out"
@@ -75,6 +157,43 @@ args=(
 help_text="$(claude plugin eval --help 2>&1 || true)"
 case "$help_text" in *--trust-plugin*) args+=(--trust-plugin) ;; esac
 case "$help_text" in *--concurrency*)  args+=(--concurrency "${EVAL_CONCURRENCY:-3}") ;; esac
+
+# --keep-temp is LOAD-BEARING, not a debugging nicety. gate.py reads each run's trace.jsonl to
+# prove the Senzing MCP was actually connected in that session, and the CLI writes that trace
+# INSIDE the scaffold dir it deletes on exit unless this flag is set (`--keep-temp  Preserve
+# scaffold dirs for debugging`). gate.py now FAILS a run whose traces it could not read rather
+# than passing on no evidence, so keeping them is part of running the suite -- not something
+# every caller must remember. CI passes it too; this appends it only when neither the caller
+# nor an older CLI already covered it, so the flag is never duplicated and never invented.
+case " $* " in
+  *" --keep-temp "*) : ;;
+  *) case "$help_text" in *--keep-temp*) args+=(--keep-temp) ;; esac ;;
+esac
+
+# CLI FLOOR -- not a style preference, a correctness gate. Every CLI before 2.1.269 wrote
+# its own sandbox config with //tmp and //private/tmp in denyWrite, the PARENT of the
+# //private/tmp/e-XXXX allowWrite roots it had just scaffolded for the run; macOS seatbelt
+# is last-match-wins, so EVERY Bash write in the suite was denied and doctor/install/
+# analyze/demo were graded on a host they could not touch. A stale local CLI must fail
+# loudly here rather than quietly grade a read-only Bash. CI pins the same version.
+min_cli="2.1.269"
+cli_version="$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+# Suffixes are normal ("2.1.278 (Claude Code)"); compare the three numeric fields only.
+_ver_key() { awk -F. '{ printf "%d%03d%03d\n", $1, $2, $3 }' <<<"$1"; }
+if [ -z "$cli_version" ]; then
+  echo "ERROR: could not parse a version from \`claude --version\` (need >= $min_cli)." >&2
+  exit 1
+fi
+if [ "$(_ver_key "$cli_version")" -lt "$(_ver_key "$min_cli")" ]; then
+  echo "ERROR: claude CLI $cli_version is below the $min_cli floor this suite requires." >&2
+  echo "Below $min_cli the CLI denies its own eval scaffold every Bash write (denyWrite" >&2
+  echo "//private/tmp is the parent of the run's allowWrite root, and seatbelt is" >&2
+  echo "last-match-wins), so the skills would be graded on a read-only filesystem." >&2
+  echo "Upgrade: npm install -g @anthropic-ai/claude-code@$min_cli" >&2
+  exit 1
+fi
+echo "== claude CLI $cli_version (floor $min_cli) =="
+
 log="$results_dir/ci.log"
 set +e
 claude plugin eval "${args[@]}" "$@" 2>&1 | tee "$log"
@@ -95,27 +214,19 @@ if [ ! -s "$json_out" ]; then
   exit 1
 fi
 
-# Discovery gate + human-readable summary. Exit 1 if fewer cases ran than exist on disk.
-python3 - "$json_out" "$expected" "${EVAL_THRESHOLD:-0.8}" <<'PY'
-import json, sys
-path, expected, threshold = sys.argv[1], int(sys.argv[2]), float(sys.argv[3])
-r = json.load(open(path))
-cases = r.get("cases", [])
-agg = r.get("aggregates", {})
-print(f"\n{'CASE':<28}{'SCORE':>7}  STATUS")
-for c in cases:
-    score = (c.get("aggregates") or {}).get("score")
-    s = "n/a" if score is None else f"{score:.2f}"
-    ok = score is not None and score >= threshold
-    print(f"{c.get('name',''):<28}{s:>7}  {'pass' if ok else 'FAIL'}")
-print(f"\ncases run={len(cases)} expected={expected} passed={agg.get('casesPassed')}/{agg.get('casesTotal')} "
-      f"overall={agg.get('overallScore')} cost=${r.get('costUsd')} partial={r.get('partial')} ({r.get('partialReason')})")
-if len(cases) < expected:
-    print(f"::error::only {len(cases)} of {expected} cases were discovered — eval layout regression", file=sys.stderr)
-    sys.exit(1)
-if r.get("partial"):
-    print(f"::error::partial run: {r.get('partialReason')}", file=sys.stderr)
-    sys.exit(2)
-PY
+# The verdict: two independent gates (deterministic hard, judge scored) plus the discovery
+# and partial-run checks. gate.py is unit-tested offline by scripts/check-eval-gate.py, which
+# check.sh runs on every commit — so the scoring logic itself never needs a paid run to verify.
+gate_args=("$json_out" "$expected" --judge-threshold "$judge_threshold")
+if [ -n "${EVAL_JUDGE_ENFORCE:-}" ] && [ "${EVAL_JUDGE_ENFORCE}" != "0" ]; then
+  gate_args+=(--enforce-judge)
+fi
+set +e
+python3 "$here/gate.py" "${gate_args[@]}"
+gate_rc=$?
+set -e
+# A gate failure wins; otherwise propagate whatever the CLI itself said (a crash, a budget
+# abort). The CLI's own --threshold is 0, so its exit code no longer carries a score verdict.
+if [ "$gate_rc" -ne 0 ]; then exit "$gate_rc"; fi
 
 exit "$rc"

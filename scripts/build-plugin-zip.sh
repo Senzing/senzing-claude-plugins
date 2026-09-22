@@ -45,6 +45,9 @@ cp -R "$PLUGIN_DIR" "$STAGE/$PLUGIN_NAME"
 # discovers cases at <plugin>/evals/ — but it is a development artifact and
 # must not ship to customers.
 rm -rf "$STAGE/$PLUGIN_NAME/evals"
+# Same for the real-Senzing suite (a sibling eval dir; `--eval-dir` keeps the two
+# apart so the macOS behavioral-eval job never tries to run a case needing an SDK).
+rm -rf "$STAGE/$PLUGIN_NAME/evals-real"
 find "$STAGE" -name '.DS_Store' -delete
 
 mkdir -p "$OUT_DIR"

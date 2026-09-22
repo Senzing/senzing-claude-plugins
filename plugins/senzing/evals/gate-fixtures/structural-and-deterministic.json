@@ -1,0 +1,34 @@
+{
+  "_comment": "BOTH gates trip at once: run 0 errored before grading (structurally unusable, rc 2) and run 1 has a red deterministic assertion (rc 1). The exit code must be the HIGHEST, 2 -- a deterministic verdict drawn from a suite that did not complete is not a trustworthy statement about the plugin, and reporting rc 1 here sends the reader to fix an assertion instead of the run. Before the max() fix the deterministic check ran last and its rc=1 overwrote the structural rc=2, contradicting the documented rule.",
+  "costUsd": 0.5,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 0, "overallScore": 0 },
+  "cases": [
+    {
+      "name": "errored-and-red",
+      "aggregates": { "score": 0 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "skill-fired", "type": "tool_used" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": "the Bash sandbox could not start on this machine",
+            "tracePath": "",
+            "graders": []
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              { "name": "skill-fired", "passed": false, "explanation": "Skill called 0x (expected 1..inf)" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

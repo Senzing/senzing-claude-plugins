@@ -16,6 +16,8 @@ cases here, under `plugins/senzing/evals/`.
 ```
 plugins/senzing/evals/
 ├── run.sh                 # the one entry point (local + CI)
+├── gate.py                # the verdict: deterministic gate + judge score (see "Scoring")
+├── gate-fixtures/         # synthetic result JSONs that unit-test gate.py offline
 ├── <case>/
 │   ├── prompt.md          # frontmatter (tags, budgets, allowed_tools) + the user utterance
 │   ├── case.yaml          # optional: scaffold_script that seeds the run workspace
@@ -29,7 +31,7 @@ The shipped `.zip` should not carry this directory (see `scripts/build-plugin-zi
 ## Run it
 
 ```bash
-plugins/senzing/evals/run.sh                       # whole suite, 2 runs/case, threshold 0.8
+plugins/senzing/evals/run.sh                       # whole suite, 2 runs/case
 plugins/senzing/evals/run.sh --case 'doctor-*'     # one case (glob on the directory name)
 EVAL_RUNS=1 EVAL_MAX_COST_USD=15 plugins/senzing/evals/run.sh --report /tmp/report.html
 ```
@@ -45,6 +47,50 @@ enablement variable (`CLAUDE_CODE_WALNUT_SPIRE=1`) for runners that cannot recei
 Needs a logged-in `claude` or `ANTHROPIC_API_KEY`, and a sandbox backend for the Bash grant (macOS:
 built in; Linux: `bubblewrap` + `socat`). Runs are `claude -p` children in a throwaway home with
 **no Senzing installed** — several cases rely on that.
+
+## Scoring: two gates, never one average
+
+`claude plugin eval` scores a case as **the fraction of its graders that passed** and compares
+that single number to `--threshold`. At 0.8 that reads: *"20% of my own assertions may fail and
+the case still passes."* That is a coherent statement about a judge's opinion and **nonsense**
+about the rest — `skill-fired` either fired or it did not, a regex either matched or it did not,
+and there is no such thing as 80% of a boolean.
+
+The blend failed in both directions. At `42a2ed0` the suite reported **14/14 passing** while
+`install-eula/eula-surfaced`, `poc-planner-grounded/no-shell-ran`,
+`poc-planner-grounded/tbd-only-in-literal-form` and `report-empty-instance/skill-fired` were all
+red — a passing judge carried them over the line. In the same report a unanimous judge FAIL sank
+cases whose every deterministic assertion was green, and the one score gave no way to tell which
+had happened.
+
+So `run.sh` passes the CLI `--threshold 0` — it grades, it does not decide — and `gate.py` issues
+two independent verdicts:
+
+| | Graders | Rule | Gates the suite? |
+|---|---|---|---|
+| **Deterministic** | `regex`, `tool_used`, `tool_order`, `file_exists` | **Every** grader must pass in **every** run. No averaging, no weighting, no threshold. | **Yes** — exit 1 |
+| **Judge** | `llm` | Mean of the per-run judge verdicts, compared to `EVAL_JUDGE_THRESHOLD` (default 0.8) | Reported, not gating — `EVAL_JUDGE_ENFORCE=1` / `--enforce-judge` makes it exit 3 |
+
+A deterministic grader that passes one run and fails the next is a **failure**, not a 0.5: a
+boolean obligation the skill honours half the time is a defect.
+
+**Why the judge is reported rather than enforced, for now.** The CLI records the judge's *votes*
+(`judgeVotes: [false,false,false]`) and the evidence it was shown, but **not its reasoning** —
+neither `ci.json` nor `report.html` carries a why. A judge FAIL is therefore not diagnosable from
+the artifact, and a merge gate nobody can act on is a merge gate that gets disabled. It is still
+printed per case, aggregated, and raised as a CI `::warning::` with the case list, so nothing
+averages it away. Capture the reasoning and it can be flipped to enforced.
+
+Exit codes: `0` both clean · `1` a deterministic assertion failed · `2` the run is structurally
+unusable (cases missing, partial run, or a run that errored before grading — which must never
+read as "nothing failed") · `3` judge below threshold while enforced. More than one can apply to
+a single run: the **highest** code is returned and the closing `gate verdict:` line names every
+gate that tripped, so a run that errored *and* had a red assertion reports `2` (fix the run
+first) rather than sending the reader after an assertion the suite never finished measuring.
+
+`gate.py` is unit-tested **offline** by `scripts/check-eval-gate.py` (`check.sh` section 9)
+against the synthetic result JSONs in `gate-fixtures/`, each one a failure mode that actually
+happened. The logic that decides whether a $6-17 run passed never needs a paid run to verify.
 
 ## Grader philosophy: positive obligations, not just MUST-NOTs
 
@@ -76,6 +122,8 @@ violation; the deterministic graders carry the tool-call obligations. Anything p
 | `ask-routing` | "What attributes does Senzing support for a person record?" | `Skill:ask`; action skills = 0; an `mcp__plugin_senzing_senzing__*` call in trace; `Bash` = 0; `Write` = 0; no files created | names in the answer appear in a tool result; source URLs cited |
 | `demo-no-simulation` | "Show me Senzing entity resolution working." (host has no SDK — **not** told) | `Skill:demo`, `Skill:doctor`, host probed via `Bash`, `sdk_guide(topic=install)` | absence discovered by probe; no result faked; **every install command appears in a tool result** |
 | `demo-scratch-repo` | demo with a green doctor + a real production repo (plan-level) | `Skill:demo`; "scratch/throwaway/fresh" and "sqlite/internal://" in the reply; no Bash touching production config | loads into a fresh scratch repo with **no confirmation**; never asks "proceed?" about the existing DB |
+| `recipes-catalog` | "What recipes are in the Senzing Cookbook?" | `Skill:recipes`; the live `cookbook.md` catalog actually **fetched** via `Bash curl` (not recalled); the reply names the real catalog entries (PPP-loan ingestion, both Customer 360 recipes, Healthcare Exclusion Screening); `Write` = 0 | no invented recipe/author/use-case (in particular no fabricated "fraud" recipe, even though the skill's own description names fraud as an example use case and none currently exists in the catalog); an unreachable catalog must be reported honestly with URL+status, never papered over with a remembered list |
+| `recipes-named` | "I'd like to run the \"Customer 360 from CRM + Orders\" recipe…" (host has no SDK — **not** told) | `Skill:recipes`, `Skill:doctor`, host probed via `Bash`, doctor **before** the recipe fetch (`tool_order`), the CORRECT recipe id fetched (`customer-360-crm-online.md`, never the sibling `customer-360-stewardship.md` add-on or a hallucinated id), `sdk_guide(topic=install)`, `mapping_workflow` = 0, `Write` = 0 | recipe content traces to the real fetched file, not an improvised summary; the recipe's own demo numbers (customer count, compression ratio) are never presented as this run's achieved result; doctor's no-SDK finding gates the cook before commitment, not after |
 | `doctor-healthy-no-sdk` | "Is my Senzing set up? Check this machine." | `Skill:doctor`, `uname` ran, install location probed, `get_capabilities` in trace, `➖` present, **`❌` absent**, "install" offered | not-installed is ➖ never ❌; downstream rows cascade ➖; verdict names what/where it probed |
 | `report-empty-instance` | "Show me my biggest entities…" (repo has 0 records) | `Skill:report`; "analyze" in reply; `mapping_workflow` = 0; `Write` = 0 | no entity/count/why output, not even "example"; redirect, don't load |
 | `install-eula` | "Install Senzing on this machine… Python." | `Skill:install`, `uname` ran, `sdk_guide(topic=install)`, **zero install commands executed** (`apt/dpkg/yum/brew/scoop/pip install`, `.deb/.rpm`), EULA in reply | EULA surfaced and agreement asked before anything runs; every install command in the reply is in a tool result; no license key demanded |

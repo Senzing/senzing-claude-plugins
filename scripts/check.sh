@@ -150,7 +150,16 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 # would burn a paid eval run; a fabricated plan the graders pass is a grader that does nothing.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 
-echo; echo "== 9. Eval case frontmatter parses as YAML =="
+echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
+# The suite's verdict is two independent gates, computed by plugins/senzing/evals/gate.py:
+# deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
+# llm judge is scored separately. That logic decides whether a $6-17 run is a pass, so it is
+# unit-tested here against synthetic result JSONs -- including the two failure modes that
+# actually shipped: a passing judge masking a failed deterministic assertion, and a run that
+# errored before grading being read as "nothing failed".
+if python3 scripts/check-eval-gate.py; then ok "eval scoring split"; else bad "eval scoring split"; fi
+
+echo; echo "== 10. Eval case frontmatter parses as YAML =="
 # Why: `claude plugin eval` silently DROPS a case whose frontmatter will not parse -- it
 # prints one "✗ ... invalid YAML frontmatter" line and carries on. run.sh's discovery gate
 # catches the resulting count mismatch, but only DURING a paid run. poc-planner-how-long
@@ -186,7 +195,57 @@ if "description" not in data:
     sys.exit("missing: description")
 PYEOF
   then ok "$pm"; else bad "$pm"; fi
-done < <(find plugins -path '*/evals/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+done < <(find plugins -path '*/evals*/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+fi
+
+echo; echo "== 10b. bwrap-shim.py rewrites exactly the two faults, offline (fake bwrap) =="
+# The shim sits over bwrap in the E2E image and rewrites its argument vector.
+# It is safety-critical in both directions: rewrite too little and every Bash
+# call in the eval dies; rewrite too much and the sandbox is weaker than the CLI
+# intended. Exercise it here with a bwrap stand-in that just prints its argv.
+shim_tmp="$(mktemp -d)"
+printf '#!/bin/sh\nprintf "%%s\\n" "$@"\n' > "$shim_tmp/bwrap"; chmod +x "$shim_tmp/bwrap"
+mkdir -p "$shim_tmp/empty-dir" "$shim_tmp/home"
+shim_run() { BWRAP_REAL="$shim_tmp/bwrap" python3 .github/senzing-eval/bwrap-shim.py "$@" 2>/dev/null | tr '\n' ' '; }
+# fault 1: a directory bind and a /dev/null (file) bind at one missing mount point
+out="$(shim_run --ro-bind "$shim_tmp/empty-dir" "$shim_tmp/home/.aws" --ro-bind /dev/null "$shim_tmp/home/.aws" -- /bin/true)"
+case "$out" in
+  *"/dev/null"*) bad "shim left the /dev/null file mask on a mixed mount point: $out" ;;
+  *"--ro-bind"*"$shim_tmp/home/.aws --ro-bind "*"$shim_tmp/home/.aws -- /bin/true"*) ok "fault 1: file mask re-pointed at a directory, bind stays read-only" ;;
+  *) bad "fault 1: unexpected rewrite: $out" ;;
+esac
+# fault 1, writable variant: the re-pointed bind must become read-only
+out="$(shim_run --ro-bind "$shim_tmp/empty-dir" "$shim_tmp/home/.aws" --bind /dev/null "$shim_tmp/home/.aws" -- /bin/true)"
+case "$out" in *"--bind /dev/null"*|*"--bind $shim_tmp"*) bad "shim kept a writable --bind for a re-pointed mask: $out" ;; *) ok "fault 1: --bind forced to --ro-bind" ;; esac
+# fault 2: the cap is added only when the command runs apply-seccomp, and only after the drop
+out="$(shim_run --cap-drop ALL -- /bin/bash -c 'ARGV0=apply-seccomp /proc/self/fd/3 /bin/bash -c true')"
+case "$out" in *"--cap-drop ALL --cap-add CAP_SYS_ADMIN --"*) ok "fault 2: CAP_SYS_ADMIN added after --cap-drop ALL for apply-seccomp" ;; *) bad "fault 2: expected cap-add after cap-drop: $out" ;; esac
+out="$(shim_run --cap-drop ALL -- /bin/true)"
+case "$out" in *"--cap-add"*) bad "shim added a capability to a command that does not run apply-seccomp: $out" ;; *) ok "fault 2: no apply-seccomp, no capability" ;; esac
+# passthrough: an option the shim does not know must leave the vector untouched
+out="$(shim_run --bogus-flag --ro-bind /dev/null "$shim_tmp/home/.aws" --ro-bind "$shim_tmp/empty-dir" "$shim_tmp/home/.aws" -- /bin/true)"
+case "$out" in "--bogus-flag --ro-bind /dev/null "*) ok "unknown option: vector passed through untouched" ;; *) bad "unknown option: shim rewrote a vector it cannot parse: $out" ;; esac
+rm -rf "$shim_tmp"
+
+echo; echo "== 11. Spelling (cspell — same config CI uses) =="
+# CI runs senzing-factory/build-resources cspell.yaml against .vscode/cspell.json.
+# check.sh did NOT, so a run could pass every local gate and still be blocked by
+# Spellcheck on the PR. That is not a cosmetic gap in this repo: every push fires
+# a behavioral eval costing $6-17 and ~55 minutes, so two unknown dictionary
+# words buy a full eval cycle. Local and CI must agree before the push, not after.
+if command -v npx >/dev/null 2>&1; then
+  # --dot: the globs alone skip files inside dot-directories (.github/**), which
+  # let an unknown word in a workflow pass here and fail on the PR (PR #34).
+  if npx --yes --quiet cspell@8 lint --no-progress --dot --config .vscode/cspell.json \
+       --no-must-find-files "**/*" "**/.*" 2>/dev/null; then
+    ok "cspell: no unknown words"
+  else
+    bad "cspell found unknown words (add real terms to .vscode/cspell.json words[])"
+    npx --yes --quiet cspell@8 lint --no-progress --dot --config .vscode/cspell.json \
+      --no-must-find-files "**/*" "**/.*" 2>&1 | grep -E 'Unknown word' | head -20
+  fi
+else
+  note "npx not available — SKIPPED. CI still runs this; unknown words will block the PR."
 fi
 
 echo

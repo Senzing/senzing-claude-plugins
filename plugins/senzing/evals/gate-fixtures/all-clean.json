@@ -1,0 +1,31 @@
+{
+  "_comment": "Both gates clean. Also covers tool_order, which must be graded as deterministic and not slip into the fractional bucket.",
+  "costUsd": 1.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 1, "overallScore": 1.0 },
+  "cases": [
+    {
+      "name": "clean",
+      "aggregates": { "score": 1.0 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "retrieved-before-written", "type": "tool_order" },
+        { "name": "skill-fired", "type": "tool_used" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              { "name": "retrieved-before-written", "passed": true },
+              { "name": "skill-fired", "passed": true }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

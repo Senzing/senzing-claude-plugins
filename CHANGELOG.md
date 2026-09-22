@@ -6,6 +6,189 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.7-1] - 2026-09-21
+
+Plugin-only patch on MCP server v1.37.7 (no server change): the eval gate made
+binding, the skill defects it caught, a real-Senzing end-to-end job, and the two
+sandbox faults that job exposed. Everything below was under Unreleased on PR #34.
+
+### Added
+
+- **Real-Senzing end-to-end eval (`plugins/senzing/evals-real/`, `.github/workflows/real-senzing-e2e.yml`).**
+  The behavioral suite has never tested `analyze` past step 3 of 7 and structurally could not — it
+  runs on a macOS host with no Senzing, and its own `analyze` case says so ("The sandbox has no
+  Senzing, so the run ends by saying so"). No grader anywhere asserted an entity count, a match
+  score, a why/how result or a report. The new `resolve-truthset` case goes the full distance on a
+  Linux container that really has `senzingsdk-runtime`: one `mapping_workflow` over all three
+  truth-set CSVs, mapper run, load into a fresh on-disk SQLite scratch repository, redo queue
+  drained, entities counted.
+  The verdict is **not** a grader — `claude plugin eval` has no shell grader, so every grader is a
+  statement about text the agent produced, and text is what a fabricating run is good at. A job
+  step opens the repository the run left behind with the real V4 SDK and checks it against
+  Senzing's own published ground-truth key (`Senzing/truth-sets`, pinned): 159 records, **85**
+  entities, the exact cluster partition, and an empty redo queue. Both numbers are derived from
+  the key at run time, never frozen literals; `ground-truth/PROVENANCE.md` records the pin, the
+  derivation and its limits. No repository found is a FAIL, never a skip. A free offline
+  self-test re-derives the expectation (and cross-checks the two literals the graders carry)
+  before any budget is spent, and a free Senzing preflight proves the engine resolves on the host
+  before that. 159 records sits inside the 500-record no-license ceiling, so no license or
+  credential is involved.
+  Separate workflow and separate eval directory on purpose: the macOS `behavioral-eval` job and
+  its suite are untouched, and it does not gate every PR (`workflow_dispatch`, weekly, or the
+  `real-senzing-e2e` label).
+
+- **Sandbox preflight (`.github/senzing-eval/sandbox-preflight.sh`).** Proves the agent's Bash
+  tool can actually run a command in the eval container before any eval budget is spent. It
+  drives the real pinned CLI with the sandbox on through its own public settings keys
+  (`sandbox.enabled`, `sandbox.failIfUnavailable`) and asserts the observable — a shell command
+  ran and its output came back — by having it read a nonce the model cannot know, so a model that
+  never touched Bash cannot echo the marker back and turn it green. Haiku, ~$0.016, against the
+  $0.53 and 2.5 minutes it protects. Verified in both directions before shipping: exits 0 with
+  the nonce, exits 1 with the nonce file removed. It runs under the same HOME shape the
+  harness builds (`<tmp>/home`, cwd at `<tmp>/home/cwd`) rather than the container's own
+  `HOME=/root` — the first version did the latter and passed in the very job where every one
+  of the agent's Bash calls died, because the fault lives in the harness's constructed HOME.
+
+### Changed
+
+- **A sandbox failure now fails the real-Senzing E2E as ENVIRONMENTAL, not as a plugin score.**
+  When the agent's Bash sandbox is broken, no shell command runs, nothing about the plugin is
+  measured — and `claude plugin eval` still prints a case score, because every grader is
+  ultimately a statement about text the agent produced. That score is a lie with a number on it,
+  and it was read as a plugin defect three separate times, once with the log open. `bwrap:` or
+  `sandbox-exec:` in a collected trace now fails the job under its own name, with wording that
+  says it is not a verdict on the plugin and is never a reason to change a skill, an eval case, a
+  grader or an expected count.
+
+### Fixed
+
+- **The eval graded every skill on a filesystem Bash could not write to — for its whole life.**
+  `claude` 2.1.259 writes its own sandbox config with the run's scaffold in `allowWrite`
+  (`//private/tmp/e-XXXX/home`, `…/tmp`) and `//tmp` + `//private/tmp` — the **parent** of those
+  roots — in `denyWrite`. The macOS seatbelt writer emits allow-then-deny with no `require-not`
+  carve-out and SBPL is last-match-wins, so the broad deny won and `mkdir`/`touch`/`rm`/`curl -o`
+  all failed with `Operation not permitted`, in the project directory and under `$TMPDIR` alike.
+  Even the CLI's own bookkeeping file was denied, so **every** Bash call returned exit 1 whether
+  or not its command had worked. Reproduced locally byte-identical to CI and proven with bare
+  `sandbox-exec`: allow-then-deny denies, deny-then-allow permits, a `require-not` carve-out
+  permits. Fixed upstream in **2.1.278**, which replaces those two entries with narrow per-pid
+  paths; `CLAUDE_CLI_VERSION` is now that, and `run.sh` enforces the same floor so a stale local
+  CLI fails loudly instead of quietly grading a read-only Bash. This was never a plugin defect,
+  and it was present in runs that reported green.
+- **The canary never inspected a single trace, so both of its assertions were dead.** It globbed
+  `$TMPDIR/**/trace.jsonl`, but on macOS `TMPDIR` is `/var/folders/…` while the eval scaffolds
+  under `/private/tmp/e-*` — zero matches on every run, `::warning::canary produced no trace`,
+  then exit 0. It now reads `tracePath` out of the eval's own result JSON (the glob is a fallback
+  only), treats no-traces as a **failure** rather than a pass, and runs a second case: `ask-routing`
+  answers MCP reachability, and the new `sandbox-canary` answers whether Bash can write at all —
+  `ask-routing` deliberately runs no shell, so it could never have seen a shell fault.
+- **A grader whose pattern appears in its own prompt cannot fail.** The first `sandbox-canary`
+  asserted a literal `CANARY_OK` that the prompt told the agent to echo, and it passed on 2.1.259
+  with every write denied: `target: trace` matched the command text, not the output. The shipped
+  case assembles `SANDBOXWRITE_OK` at runtime from parts, so the token can only appear if a write
+  landed and was read back. The other cases were audited for the same shape; none has it.
+- **`nothing-loaded-into-production` failed runs for reading an environment variable.** Its
+  pattern included the bare string `SENZING_ENGINE_CONFIGURATION_JSON`, which `doctor` check 7
+  matches merely by testing whether the variable is set. Narrowing it to the assignment would have
+  been worse: a correct scratch demo **must** export that variable pointing at its new scratch
+  SQLite file. It now matches the production signal only — `add_record`/`addRecord` and a
+  `postgres://` or `postgresql://` connection string.
+- **`demo` ended its turn on a menu instead of taking the degraded path.** With no Senzing present
+  it probed the host correctly and then asked "install, or a zero-install preview — which would
+  you like?", never invoking `install` — in both graded runs, at 16 and 17 turns of a 40 budget.
+  The "a red verdict is a cue to take the degraded path, not permission to stop and ask" rule
+  existed in `recipes` and `doctor` but not in `demo`. `demo` now invokes `install` in the same
+  turn, unasked, and the zero-install tier is what it falls back to **after** `install` ends its
+  turn without a working SDK — not an option put to the user. A new `install-invoked` grader
+  asserts the pivot, because `install-steps-from-mcp` passed in the run where `install` never ran:
+  `doctor`'s own Step 0 calls `sdk_guide(topic="install")`, so that grader was measuring `doctor`'s
+  thoroughness. The rubric carries the matching literal clause, since a run can invoke `install`
+  and still close on the menu.
+- **`demo` re-probed a shell the user had said was not the host.** Step 1 read as an unconditional
+  preflight, so a request for a plan-before-execution got an environment audit that argued with the
+  user's own stated `doctor` result. There is now a plan-first carve-out keyed to the user's own
+  words — it needs both that the plan is wanted before anything executes and that this shell is not
+  the executing host; the model's own impression that the shell looks sandboxed does not qualify.
+  `doctor` is deferred, not waived: it runs on the executing host the moment a command runs.
+- **`recipes` offered the act it forbids.** Both graded runs ended on "which would you like?" over
+  a menu whose options included mapping the ingredients with `mapping_workflow` — the `Cook` step,
+  reached without a Senzing to cook on. `no-mapping-started` passed (nothing was called) while the
+  judge failed the run three votes to none, correctly. The three verdict bullets are now stated as
+  the whole list rather than examples to reason around, offering the forbidden act is called out as
+  the same violation as performing it, and the rubric says "proposes or performs".
+- **`recipes` contradicted itself about confirmation gates.** Step 1 says none of its bullets is a
+  question and to take the path in the same turn, while step 3 ended "Confirm they want to proceed"
+  and step 4 was titled "Setup — confirm before cooking" — the sentence both failing runs hid
+  behind. The skill now has one position: the only gates are loading into the user's existing
+  repository and any merge/split. Confirming a fact against a tool is still required; stopping to
+  ask the user and waiting is not. Loading into a fresh scratch repository is narrated, not gated.
+- **A failed fetch sent `recipes` hunting for a writable directory.** One run spent seven Bash
+  calls re-asking a question its first answer had settled (`$TMPDIR`, `mktemp`, a `python3` open),
+  against `doctor`'s stated budget of one attempt per question. The fetch now gets one `WebFetch`
+  fallback — explicitly a reachability diagnostic, since it returns a summary and the recipe's
+  inline prompt blocks must be run word-for-word — and then stops and reports the URL and status.
+
+- **A broken sandbox no longer gets the last word from the ground-truth verifier.** The
+  environmental determination now runs BEFORE the ground-truth step, and the verifier is skipped
+  outright when the sandbox never ran — with a notice saying why, rather than silently. Run the
+  wrong way round, the job printed `FAIL — 159 of 159 ground-truth records are not in the
+  repository (SzUnknownDataSourceError (2207) … [CUSTOMERS] does not exist)` first and the
+  environmental truth second, on a run where the agent never obtained a shell: the verifier had
+  found the *preflight's* own three-record database and dutifully reported that the truth set was
+  not in it. That output was read as a plugin defect twice, the second time with the full log
+  open. Whether the sandbox ran is a question about the measurement; whether the entities are
+  right is a question about the product, and the second is meaningless until the first answers
+  yes. The truth also being in the log is not good enough when the lie is louder and comes first.
+
+- **The sandbox preflight now quotes raw tool errors instead of the model's prose about them.**
+  Its first real failure reported only the assistant's paraphrase — "the command failed both
+  within the sandbox (seccomp permission error) and when attempting to disable the sandbox" — a
+  summary of an error nobody can grep for, written by the same model whose tool access was in
+  question. It now runs with `--output-format stream-json` and prints every failing `tool_result`
+  and permission denial, and it distinguishes three outcomes: a sandbox-backend marker
+  (`bwrap:`/`sandbox-exec:`), a raw tool error with no such marker (explicitly NOT to be assumed
+  to be the `/run/shm` or `.aws` fault), and genuinely inconclusive.
+
+- **`recipes` stopped at the doctor verdict and asked, instead of taking the degraded path.**
+  CI caught it as `recipes-named` failing four assertions in 2 of 2 runs: `doctor` probed the host
+  beautifully, reported no SDK, and the run's final message was the status table plus "which would
+  you like — attempt the install here, or move this to a local session?". The recipe was never
+  fetched and `install` was never reached, so `correct-recipe-fetched`, `doctor-before-recipe` and
+  `install-steps-from-mcp` all failed for one reason. `doctor/SKILL.md` already says it — "a no-SDK
+  verdict is the caller's cue to take its degraded path, never a reason to stop short of it" — but
+  `recipes` step 1 said only "hand off to the `install` skill", never *without asking*, and the
+  bullet below it ("Offer the honest substitution…") read as an invitation to negotiate. Step 1 now
+  states that a red verdict is a cue, not a question; the no-Senzing path fetches the named recipe
+  and hands off to `install` in the same turn; the no-live-app path *makes* the substitution rather
+  than offering it; and the one bullet that genuinely is a stop (a blocked source) says why it is
+  different.
+
+- **An eval assertion contradicted its own case and could not pass.** `recipes-named` requires
+  `doctor` to run (`doctor-invoked`) while `doctor/SKILL.md` requires `doctor` to probe workspace
+  writability with the `Write` tool — and `no-file-written` forbade `Write` outright. No model
+  could pass it; CI observed exactly the predicted `Write` 1x of a probe file removed by the next
+  Bash call. The probe filename is now pinned (`.senzing-doctor-probe.tmp`) in `doctor/SKILL.md`,
+  and the graders exclude that ONE exact path and nothing else, so any other `Write` still fails
+  them. The pin and the exclusions carry notes pointing at each other. Applied to the three cases
+  whose skills document that they run `doctor` first (`recipes-named`, `recipes-catalog`,
+  `report-empty-instance`); the four cases whose skills never invoke `doctor` keep the unqualified
+  `max: 0`.
+
+- **The real-Senzing E2E scored the plugin 0.44 twice for a broken container, not a broken
+  plugin.** Every Bash call the agent made died before running, with
+  `bwrap: Can't mount tmpfs on /newroot/run/shm: No such file or directory`, so it correctly
+  refused to invent an entity count and the graders scored the refusal. Three defects, all fixed:
+  (a) the image gave itself `/run/shm` as a *symlink* to `/dev/shm`; bwrap populates its new root
+  after `pivot_root`, when `/dev` does not exist there, and the symlink also slips past
+  `ensure_dir()` (stat fails on the dangling link, mkdir returns EEXIST and reads as success) so
+  setup dies at the mount instead. It is a real directory now. (b) Nothing asserted the sandbox —
+  the Senzing preflight proves the *engine* runs, which is a different question. There is a
+  sandbox preflight now (above). (c) The job's own diagnostics could not read their own input:
+  the `--keep-temp` workspace is left root-owned with its modes closed, so the host-side `find`
+  for the scaffold marker and the trace files silently came back empty on both runs — which
+  disabled the `grep 'bwrap:'` check that would have named the real fault. Both now run inside
+  the container.
+
 ## [1.37.7] - 2026-09-21
 
 ### Changed
@@ -130,7 +313,11 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
   (`kernel.apparmor_restrict_unprivileged_userns=1`), so every Bash call died with
   `bwrap: loopback: Failed RTM_NEWADDR` — 52 of them, `pwd` included; and the runner has no
   `/run/shm`, so once that was cleared the sandbox still failed with
-  `Can't mount tmpfs on /newroot/run/shm`. Both are now fixed and asserted before any spend.
+  `Can't mount tmpfs on /newroot/run/shm`. Fault 1 was cleared by moving the job into a
+  `--privileged` container. **Correction (see Unreleased): the claim that both were "fixed and
+  asserted before any spend" was wrong on both counts.** The fix for fault 2 gave the image a
+  `/run/shm` *symlink*, which does not satisfy the mount, and nothing asserted the sandbox at
+  all — there was no sandbox preflight until the entry under Unreleased added one.
 - **Four eval graders could not fail.** Every `regex`/`target: trace` MCP-grounding grader
   matched the tool NAMES in each skill's own `allowed-tools:` frontmatter (and, for
   `article-actually-retrieved`, a literal hard-coded in `poc-planner/SKILL.md` as the query to

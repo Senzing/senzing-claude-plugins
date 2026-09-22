@@ -72,8 +72,19 @@ else, they must tell you the path.
    returns verbatim — install commands, environment variables, and the `direct_download` URLs it
    provides for firewalled environments. Do not hand-write install commands.
 
-3. **Surface the license agreement before running anything.** If the returned steps include a
-   EULA prompt, show it and get explicit agreement first. Do not auto-accept on the user's behalf.
+3. **Surface the license agreement before running anything — unconditionally.** Name it as the
+   Senzing **End User License Agreement (EULA)**, in those words, with the URL the tool returned,
+   show what `sdk_guide` returned about it, and ask for explicit agreement. Do not auto-accept on
+   the user's behalf.
+   **This is not conditional on the returned steps carrying a EULA prompt, and not conditional on
+   the install going ahead.** Every reply that ends your turn owes the user the license
+   agreement — including the ones that end on a blocker rather than on an install: an
+   unsupported platform/language pair, a missing prerequisite (no Docker, no admin rights), a
+   sandboxed host, or a choice of paths you are putting to them. Those are exactly the turns
+   that have shipped without it, because "we are not installing yet" reads as "the license is
+   not due yet". It is due: the user is being asked to choose an install path, and
+   the license is one of the terms they are choosing under. Put the EULA question in the SAME
+   message as the options, not after the choice.
 
 4. **Run the steps** with Bash, showing each command before you run it.
 
@@ -105,6 +116,13 @@ is `explain_error_code`'s answer, not this file's.
 
 ## If it cannot be installed here
 
-A sandboxed host, an unsupported architecture, or a locked-down machine are all legitimate
-outcomes — say so plainly and offer the Docker path instead of half-installing. Never report an
-install as successful without step 5.
+A sandboxed host, an unsupported architecture, an unsupported platform/language pair, a missing
+prerequisite, or a locked-down machine are all legitimate outcomes — say so plainly and offer the
+Docker path instead of half-installing. Never report an install as successful without step 5.
+
+**A blocker does not shorten the turn, it only removes step 4.** You still owe the user steps 1-3
+in that same reply: the host you established, the official steps from `sdk_guide` for the path
+you are recommending, and **the EULA** (step 3). An answer that names a blocker and asks "which
+option would you like?" without the steps and the license leaves them with a question and
+nothing to act on — and in any non-interactive context no answer is coming, so that is where the
+run ends.

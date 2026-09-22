@@ -76,6 +76,7 @@ License: a free 10-day evaluation license covers 250K records (submit_feedback t
 Per source, as the user described: CRM (customers), billing (customers), watchlist (TBD — decided by data platform lead). Mapping is done by the analyze skill's mapping_workflow when ready.
 
 ## 8. The path
+Proposed timeline: a kick-off meeting with the VP and the project sponsor, then the schedule below.
 Weeks 1–2: install and map (install, analyze). Weeks 3–4: load and resolve (analyze). Weeks 5–6: evaluate against §3 with the data steward and DBA (report). Allow roughly two weeks for mapping. Support: support@senzing.com — https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC
 
 ## 9. Provenance and open decisions

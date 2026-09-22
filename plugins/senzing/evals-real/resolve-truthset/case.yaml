@@ -1,0 +1,7 @@
+schema_version: "1.1"
+name: resolve-truthset
+context:
+  # Copies the vendored truth-set CSVs into the run workspace and drops the
+  # marker file the CI verification step uses to find that workspace again.
+  # Needs --scaffold.
+  scaffold_script: scaffold.sh

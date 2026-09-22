@@ -35,7 +35,7 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Install PyYAML
-        # check.sh section 9 parses every eval prompt.md frontmatter, which is the only
+        # check.sh section 10 parses every eval prompt.md frontmatter, which is the only
         # gate that catches a case silently failing to load (poc-planner-how-long shipped
         # that way and was never graded). The script now guards the import, so without
         # this step the gate would DEGRADE TO A FAILURE line rather than run -- install it
@@ -113,6 +113,62 @@ jobs:
             echo "::error::plugin.json version $want does not match live MCP server $live — sync plugin.json (mcp-version-sync.yml) or wait for the server deploy"; exit 1
           fi
 
+  eula-link:
+    name: EULA link live (the install skill's license gate)
+    runs-on: ubuntu-latest
+    # The `install` skill must surface the license agreement BEFORE anything runs, and
+    # `install-eula/graders/eula-surfaced.md` now asserts the URL rather than the word.
+    # A grader can only check what the reply SAYS; it cannot know the page still exists.
+    # That gap is not hypothetical — MCP server v1.36.1 shipped five occurrences of
+    # `senzing.com/senzing-eula`, which 404s, inside sentences that read perfectly.
+    # This job is the other half: the asserted URL must still resolve.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The URL the install eval asserts must still resolve
+        # OFFLINE-SAFE AND CLEARLY LABELLED, on the conventions real-senzing-e2e.yml uses:
+        # only 404/410 — the page is gone — is a plugin verdict. Everything else (no
+        # answer, a timeout, 5xx, or the 403/429 a WAF hands a datacenter IP; senzing.com
+        # sits behind one and has blocked Fly and CI egress before) is ENVIRONMENTAL and
+        # says so, because a network blip must never read as "the plugin points at a dead
+        # link". A runner with no egress at all gets `000` and lands in that branch too.
+        run: |
+          set -uo pipefail
+          grader=plugins/senzing/evals/install-eula/graders/eula-surfaced.md
+          if [ ! -f "$grader" ]; then
+            echo "::error::$grader is gone — the EULA assertion moved. Point this job at its new home; do not delete the check."
+            exit 1
+          fi
+          # Single source of truth: the URL is read out of the grader's own regex, so the
+          # liveness check cannot drift from the string the eval demands.
+          pattern=$(sed -n "s/^pattern:[[:space:]]*'\(.*\)'[[:space:]]*$/\1/p" "$grader" | head -1)
+          if [ -z "$pattern" ]; then
+            echo "::error::no quoted \`pattern:\` line in $grader — cannot derive the URL the eval asserts"
+            exit 1
+          fi
+          # The grader's pattern is a regex; drop its backslash escapes to get the literal.
+          url="https://${pattern//\\/}"
+          echo "asserted by the eval: $url"
+          # --retry writes %{http_code} once PER ATTEMPT, so a retried request prints
+          # "000000"/"500500". Keep the last three characters — the final attempt's code.
+          raw=$(curl -sIL --retry 2 --retry-delay 5 --max-time 30 \
+                     -o /dev/null -w '%{http_code}' "$url" || true)
+          code=$(printf '%s' "$raw" | tail -c 3)
+          [ -n "$code" ] || code=000
+          echo "$url -> HTTP $code"
+          case "$code" in
+            2*|3*)
+              echo "EULA link is live." ;;
+            404|410)
+              echo "::error::DEAD EULA LINK — $url returns HTTP $code. This is the v1.36.1 defect class: the install skill sends users to a page that does not exist. Fix the URL in the skill/MCP source AND in $grader, which asserts it."
+              exit 1 ;;
+            *)
+              echo "::notice::ENVIRONMENTAL (not a plugin verdict) — $url answered HTTP $code, which is a reachability problem on this runner, not a dead link. senzing.com sits behind a WAF that has blocked datacenter egress before, and a runner with no egress reports 000. Only 404/410 fails this job. Do NOT change a skill, a grader or a URL in response to this line."
+              ;;
+          esac
+
   behavioral-eval:
     name: Behavioral eval (claude plugin eval)
     # macOS, deliberately — the ONLY job in this workflow not on ubuntu.
@@ -148,8 +204,33 @@ jobs:
       # Read into env (not a step `if:`) — `secrets.*` in a step `if:` is rejected by GHA at
       # parse time, and an empty secret must produce a visible skip, not a parse failure.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Pinned, not left to the default. Sonnet is the model these skills are
+      # required to work well on (strong models are the ceiling, Haiku is input
+      # only), so it is the model the gate must grade. run.sh already defaults
+      # to sonnet, but a default is not a guarantee: --model previously resolved
+      # to whatever the environment produced, which made a local pass and a CI
+      # pass two different measurements of two different models.
+      EVAL_MODEL: sonnet
+      EVAL_JUDGE_MODEL: sonnet
       # Pinned deliberately — see the install step. Keep in step with local dev.
-      CLAUDE_CLI_VERSION: "2.1.259"
+      # 2.1.269 is chosen between two CLI bugs, both measured on this suite.
+      #   At or below 2.1.268: the CLI writes its own sandbox config with //tmp and
+      #   //private/tmp in denyWrite — the PARENT of the //private/tmp/e-XXXX allowWrite
+      #   roots it scaffolds each eval under. The macOS seatbelt writer emits
+      #   allow-then-deny with no carve-out and SBPL is last-match-wins, so EVERY Bash
+      #   write was denied. 2.1.269 is the earliest release that drops the parent entry
+      #   and substitutes narrow per-uid paths (bisected 2.1.260..2.1.277).
+      #   At 2.1.278: the session no longer waits for the plugin MCP server. The FIRST
+      #   session on a runner stays "pending" and its tools never register — one run made
+      #   five ToolSearch calls, slept 20s and gave up with zero mcp__ calls, and every
+      #   Senzing assertion in it would have read as a skill defect. All 66 traces of the
+      #   last 2.1.259 run were "connected", so this is new behavior, not ours.
+      # 2.1.269 was verified to have both: ask-routing as a FIRST session in a fresh HOME
+      # reported mcp_servers connected with 13 tools and passed 7/7, and sandbox-canary
+      # wrote and read back its file with zero "Operation not permitted".
+      # gate.py fails any run whose session started without the MCP, so if a future bump
+      # reintroduces that, it surfaces as a structural failure and never as a skill score.
+      CLAUDE_CLI_VERSION: "2.1.269"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -181,9 +262,9 @@ jobs:
           npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}"
           claude --version
 
-      - name: Canary — one cheap case must actually reach the Senzing MCP
+      - name: Canary — two cheap cases must reach the MCP and write from Bash
         if: steps.gate.outputs.has_key == 'true'
-        # THE GATE THAT WOULD HAVE SAVED A DAY, second attempt.
+        # THE GATE THAT WOULD HAVE SAVED A DAY, third attempt.
         #
         # A full run ($6, ~7 min) once reported 4/14 and was read as a plugin-quality
         # problem. It was not: the agent had NO Senzing MCP tools in session at all.
@@ -198,72 +279,131 @@ jobs:
         # does not load the MCP the way `plugin eval` does (plugin-sourced server,
         # different registration timing), so it cannot answer this question.
         #
-        # The only trustworthy signal is the eval's own loading path. So: run ONE cheap
-        # case for ONE run, and require a real `mcp__` tool_use in its trace. ~$0.30 to
-        # protect a ~$6 run, and it fails with "environmental" rather than a score that
-        # looks like a plugin verdict.
+        # The second attempt ran the right case and then read the wrong disk. It globbed
+        # $TMPDIR/**/trace.jsonl, but on macOS TMPDIR is /var/folders/... while the eval
+        # scaffolds under /private/tmp/e-*, so it matched ZERO traces on every run, printed
+        # "canary produced no trace" as a ::warning:: and exited 0 (see run 35667715196).
+        # Neither the MCP assertion nor the sandbox scan has ever inspected a trace. Both
+        # now read tracePath out of the eval's own JSON (cases[].arms.<arm>[].tracePath),
+        # the glob is a fallback only, and no traces is a FAILURE: a canary that graded
+        # nothing is not a pass.
+        #
+        # Two cases, both cheap (~$0.36 to protect a ~$6 run):
+        #   ask-routing    — a real mcp__ tool_use must appear in the trace (reachability).
+        #   sandbox-canary — a Bash write must succeed. ask-routing deliberately runs NO
+        #                    shell, so it can never see a shell fault; this case probes the
+        #                    write directly, and assembles its token at runtime so the
+        #                    asserted pattern cannot leak out of the echoed command.
         run: |
           set -o pipefail
-          EVAL_RUNS=1 EVAL_JSON=/tmp/canary.json \
+          EVAL_RUNS=1 EVAL_JSON=/tmp/canary-ask.json \
             bash plugins/senzing/evals/run.sh --case ask-routing --keep-temp || true
+          EVAL_RUNS=1 EVAL_JSON=/tmp/canary-sandbox.json \
+            bash plugins/senzing/evals/run.sh --case sandbox-canary --keep-temp || true
           python3 - <<'CANARY'
           import glob, json, os, sys
 
-          traces = glob.glob(os.path.join(os.environ.get('TMPDIR', '/tmp'), '**', 'trace.jsonl'),
-                             recursive=True)
-          if not traces:
-              print('::warning::canary produced no trace; cannot verify MCP reachability')
-              sys.exit(0)
-
-          seen = set()
-          for t in traces:
+          # The eval records where it wrote each run's trace. Read THAT. The scaffold root
+          # is the CLI's business, not ours, and the previous guess at it matched nothing.
+          def traces_from(result_json):
+              paths = []
               try:
-                  blob = open(t, encoding='utf-8', errors='replace').read()
-              except OSError:
-                  continue
+                  with open(result_json, encoding='utf-8') as fh:
+                      data = json.load(fh)
+              except (OSError, ValueError) as exc:
+                  print(f'::warning::cannot read {result_json}: {exc}')
+                  data = {}
+              for case in data.get('cases') or []:
+                  for runs in (case.get('arms') or {}).values():
+                      for run in runs or []:
+                          tp = run.get('tracePath')
+                          if tp and os.path.exists(tp):
+                              paths.append(tp)
+              if not paths:
+                  # Secondary only — never the sole source. Both plausible scaffold roots.
+                  for root in ('/private/tmp', '/tmp', os.environ.get('TMPDIR') or '/tmp'):
+                      paths += glob.glob(os.path.join(root, 'e-*', '**', 'trace.jsonl'),
+                                         recursive=True)
+              return sorted(set(paths))
+
+          def read_all(paths):
+              blobs = []
+              for path in paths:
+                  try:
+                      with open(path, encoding='utf-8', errors='replace') as fh:
+                          blobs.append(fh.read())
+                  except OSError as exc:
+                      print(f'::warning::cannot read trace {path}: {exc}')
+              return blobs
+
+          ask_traces = traces_from('/tmp/canary-ask.json')
+          box_traces = traces_from('/tmp/canary-sandbox.json')
+
+          failed = False
+          for label, paths in (('ask-routing', ask_traces), ('sandbox-canary', box_traces)):
+              print(f'{label}: {len(paths)} trace(s)')
+              for path in paths:
+                  print(f'  {path}')
+              if not paths:
+                  print(f'::error::the {label} canary produced no trace, so this gate '
+                        'inspected nothing. A canary that graded nothing is not a pass — '
+                        'refusing to spend the eval budget on an unverified runner.')
+                  failed = True
+          if failed:
+              sys.exit(1)
+
+          ask_blobs = read_all(ask_traces)
+          box_blobs = read_all(box_traces)
+
+          # 1. The Senzing MCP must be reachable from the eval session.
+          seen = set()
+          for blob in ask_blobs:
               for chunk in blob.split('"name":"')[1:]:
                   name = chunk.split('"', 1)[0]
                   if name.startswith('mcp__'):
                       seen.add(name)
+          if seen:
+              print(f'MCP OK — {len(seen)} Senzing MCP tool(s) invoked:')
+              for name in sorted(seen):
+                  print(f'  {name}')
+          else:
+              print('::error::The canary case completed without invoking a single mcp__* tool. '
+                    'The Senzing MCP is not reachable from the eval session on this runner, so '
+                    'the full suite would grade an agent that cannot call the tools under test '
+                    'and every tool_used grader would fail environmentally.')
+              failed = True
 
-          # The canary case (ask-routing) deliberately runs NO shell, so a green canary
-          # said nothing about Bash: the previous run passed this gate and then logged 63
-          # `bwrap:` failures across the suite. Check the traces for sandbox errors too.
-          # Not bwrap-specific: macOS uses a different sandbox, and the point is to
-          # catch ANY sandbox failure before paying for the suite. The previous version
-          # also only scanned the canary's own trace -- and the canary case (ask-routing)
-          # deliberately runs no shell, so it could never have seen a shell failure. It
-          # now matches the sandbox error shapes both backends produce.
-          bwrap_errs = set()
-          for t in traces:
-              try:
-                  blob = open(t, encoding='utf-8', errors='replace').read()
-              except OSError:
-                  continue
-              for i in range(len(blob)):
-                  for marker in ('bwrap:', 'sandbox-exec:', 'Operation not permitted'):
-                      if blob.startswith(marker, i):
-                          bwrap_errs.add(blob[i:i + 110].split('\\')[0].strip())
-          if bwrap_errs:
-              print('::error::The Bash sandbox is broken on this runner — bwrap failed:')
-              for e in sorted(bwrap_errs)[:5]:
-                  print(f'  {e}')
+          # 2. Bash must be able to WRITE. The token is assembled at runtime by the case, so
+          #    finding it in the trace means a write actually landed and was read back.
+          if any('SANDBOXWRITE_OK' in blob for blob in box_blobs):
+              print('sandbox OK — Bash wrote a file in the scaffold and read it back')
+          else:
+              print('::error::The sandbox-canary trace does not contain SANDBOXWRITE_OK: Bash '
+                    'could not write to the eval scaffold. This is the CLI deny-parent bug — a '
+                    'denyWrite entry (//tmp, //private/tmp) that is the PARENT of the run\'s own '
+                    'allowWrite scaffold, which last-match-wins seatbelt resolves as denied. '
+                    f'Fixed in CLI 2.1.278; this runner has {os.environ.get("CLAUDE_CLI_VERSION", "?")}. '
+                    'doctor/install/analyze/demo would be graded on a host they cannot touch.')
+              failed = True
+
+          # 3. Any sandbox error in either trace, whichever backend produced it.
+          sandbox_errs = set()
+          for blob in ask_blobs + box_blobs:
+              for marker in ('bwrap:', 'sandbox-exec:', 'Operation not permitted'):
+                  at = blob.find(marker)
+                  while at >= 0:
+                      sandbox_errs.add(blob[at:at + 110].split('\\')[0].strip())
+                      at = blob.find(marker, at + len(marker))
+          if sandbox_errs:
+              print('::error::The Bash sandbox is broken on this runner:')
+              for err in sorted(sandbox_errs)[:5]:
+                  print(f'  {err}')
               print('::error::Every Bash call in the suite would fail, so doctor/install/'
                     'analyze/demo would be graded on a machine they cannot touch. '
                     'Refusing to spend the eval budget.')
-              sys.exit(1)
+              failed = True
 
-          if seen:
-              print(f'canary OK — {len(seen)} Senzing MCP tool(s) invoked, no bwrap errors:')
-              for n in sorted(seen):
-                  print(f'  {n}')
-              sys.exit(0)
-
-          print('::error::The canary case completed without invoking a single mcp__* tool. '
-                'The Senzing MCP is not reachable from the eval session on this runner, so the '
-                'full suite would grade an agent that cannot call the tools under test and every '
-                'tool_used grader would fail environmentally. Refusing to spend the eval budget.')
-          sys.exit(1)
+          sys.exit(1 if failed else 0)
           CANARY
 
       - name: Run eval suite (same script as local)
@@ -286,6 +426,74 @@ jobs:
         # passed, and there was no way to tell "the MCP was never called" from "it was
         # called differently than the grader expected".
         run: bash plugins/senzing/evals/run.sh --keep-temp
+
+      - name: build case — the generated SDK file must actually be valid Python
+        if: always() && steps.gate.outputs.has_key == 'true'
+        # THE `build` OUTPUT WAS NEVER PARSED. Its three file graders are
+        # `file_exists` + `no-v3-names` (not_contains) + `provenance-kept` (a URL), and a
+        # file containing nothing but `# https://example.com` satisfies all three. The
+        # grader vocabulary cannot execute anything, so the only place this can live is a
+        # workflow step — the same move `evals-real` made with verify_truthset.py.
+        #
+        # `build/SKILL.md` makes this the skill's OWN definition of done: "it compiles /
+        # type-checks with the project's own toolchain (e.g. `python -m py_compile` …) —
+        # name the command you ran". So this step runs the criterion the skill claims.
+        #
+        # It reads the scaffold dirs the eval leaves behind: `run.sh` passes `--keep-temp`
+        # (load-bearing, see its comment), which is what lets the "Collect traces" step
+        # below find trace.jsonl under /private/tmp/e-*/ on this runner. The generated file
+        # sits in the same tree, at <scaffold>/home/cwd/.
+        run: |
+          set -uo pipefail
+          grader=plugins/senzing/evals/build/graders/file-written.md
+          if [ ! -f "$grader" ]; then
+            echo "::error::$grader is gone — the build case's file assertion moved. Point this step at its new home; do not delete the check."
+            exit 1
+          fi
+          # Not hard-coded: the filename comes from the grader that asserts it, so the two
+          # cannot drift apart.
+          name=$(sed -n "s/^path:[[:space:]]*[\"']\{0,1\}\([^\"' ]*\)[\"']\{0,1\}[[:space:]]*$/\1/p" "$grader" | head -1)
+          if [ -z "$name" ]; then
+            echo "::error::no \`path:\` line in $grader — cannot tell which generated file to compile"
+            exit 1
+          fi
+          echo "compiling every '$name' left in the kept eval scaffolds"
+          found=0
+          bad=0
+          while IFS= read -r f; do
+            found=$((found + 1))
+            python3 - "$f" <<'PYTHON' || bad=1
+          import ast, sys
+
+          path = sys.argv[1]
+          src = open(path, encoding='utf-8', errors='replace').read()
+          try:
+              tree = ast.parse(src, filename=path)
+          except SyntaxError as exc:
+              print(f'::error::{path} is NOT valid Python: {exc}. This is a plugin verdict: '
+                    'build wrote SDK code that does not parse, and file_exists + no-v3-names + '
+                    'provenance-kept all pass on it. `python -m py_compile` is the build '
+                    "skill's own stated DONE criterion.")
+              sys.exit(1)
+          kinds = (ast.Import, ast.ImportFrom, ast.FunctionDef,
+                   ast.AsyncFunctionDef, ast.ClassDef)
+          if not any(isinstance(node, kinds) for node in ast.walk(tree)):
+              print(f'::error::{path} parses but has no import, function or class in it. A file '
+                    'of comments compiles cleanly, carries a URL (so provenance-kept passes) and '
+                    'mentions no V3 name (so no-v3-names passes) — and is not generated SDK code. '
+                    'That is the exact hole this step exists to close.')
+              sys.exit(1)
+          print(f'ok  {path} — valid Python, contains real SDK code')
+          PYTHON
+          done < <(find -L "${TMPDIR:-/tmp}" /tmp /private/tmp -maxdepth 8 -name "$name" 2>/dev/null | sort -u)
+          echo "compiled $found file(s) named $name"
+          if [ "$found" -eq 0 ]; then
+            echo "::notice::ENVIRONMENTAL (not a plugin verdict) — no '$name' was found under the kept scaffold dirs, so this step compiled nothing and asserts nothing. Whether the build case wrote the file at all is the file-written grader's job and it runs inside the eval. Fix the scaffold retention (--keep-temp) or the search path here; do NOT change a skill, a case or a grader in response to this line."
+            exit 0
+          fi
+          if [ "$bad" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Collect traces for diagnosis
         if: always() && steps.gate.outputs.has_key == 'true'

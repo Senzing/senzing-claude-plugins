@@ -31,6 +31,13 @@ license terms here or from memory — call the tool named in each step and cite 
    "planner" that invents one has fabricated the most consequential part of the document. The
    template below has no schedule section; do not add one. The only time words allowed anywhere
    are the user's own calendar statements (per user) and verbatim, cited quotes from a tool.
+   **Decline without naming a specimen.** Asked outright "how long will a POC take?", say the
+   guidance carries no duration, say whose decision it is and what determines it — and do **not**
+   illustrate the refusal with a number. *"I'm not going to hand you a '2 weeks' or '1 month'
+   estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
+   its numbers, not its verbs. Same for a range, a "not even a ballpark like…", or a duration
+   offered as what you are *not* saying. The only durations that may appear are a cited quote
+   from a tool and the user's own calendar.
 2. **Ask, don't answer.** Success is whatever must be demonstrated for *their* organization to
    reach a buy decision. Where the user has not decided a target, a threshold, a hardware size or
    a platform, the plan records the *question*, who owns it, and the material Senzing provides
@@ -52,7 +59,15 @@ license terms here or from memory — call the tool named in each step and cite 
    (a) **quoted** verbatim from a tool result, with the `source_url` it returned on the same line
    (some MCP-hosted FAQs return a `local://…` id — cite it as returned and name the tool; a tool
    *description* is cited by tool name); (b) **the user's**, written `per user: <their words>`;
-   (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, nothing after it;
+   (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, nothing after it.
+   **Every** occurrence of the token TBD in the document is that full literal, including the
+   second one in a sentence and any in prose or a table cell: not `columns TBD.`, not
+   `TBD, see §9`, not `TBD:`, not a bare `TBD` at the end of a line, and never TBD as an
+   adjective in a sentence (`the following are TBD, each owned by…`, `X is TBD`). An
+   abbreviated TBD loses the owner, which is the only part of the literal a downstream skill
+   can act on — it reads as undecided-by-nobody. In prose say *undecided* or *open*; the token
+   TBD appears only inside the literal. Write the owner out again, or rewrite the sentence so
+   the literal appears once;
    or (d) a rule of this skill, labelled "(plugin rule)" — only where this file says so. Never
    derive a number from a tool number ("~55 minutes for 100k, so about a day for 750k" is
    fabrication with a citation). Never add a role title, phase or section the template, the
@@ -64,7 +79,22 @@ license terms here or from memory — call the tool named in each step and cite 
    states constraints (volume, database, OS, cloud, language), pull everything the tools have
    that bears on each one and present it side by side, each item attributed with its source, as
    *Senzing's material for you to consider*. Then ask what they are committing to and record
-   that. Do not turn a quoted figure into a target, a schedule or a sizing recommendation; if a
+   that. Do not turn a quoted figure into a target, a schedule or a sizing recommendation.
+   **Positioning their volume against a quoted example is extrapolation even though it produces
+   no new number.** "your 755k sits between those rows", "brackets your total", "nearest your
+   volume", "between that example and the 1,000,000-record one" — all banned: the reader takes
+   the interpolated sizing away as advice, which is the harm the rule exists to prevent, and the
+   no-new-number wording let it straight through. Quote the tool's example rows as an isolated block with the tool's own
+   attribution, and state the user's numbers separately: **never put their volume in the same
+   table, list or adjacent bullets as a quoted sizing example.** Co-location delivers the
+   interpolation with no interpretive words at all, which is the harm — a sorted table is not a
+   loophole just because it contains no sentence. And the total ban applies everywhere you
+   write, not only in the plan file: a total stated once in chat is still a total they never
+   gave you. Adding up the user's OWN stated per-source counts is fine and often necessary —
+   `sdk_guide(topic="load")` takes a single integer `record_count`, and the license-limit
+   material only appears when you pass their real total. What is banned is inventing a figure
+   from Senzing's numbers, not doing arithmetic on theirs — §2 holds their facts, and a total
+   they never said is yours, not theirs; if a
    figure sits next to interpretive words in the tool result ("very high", "may indicate"),
    quote the words too or leave the figure out. Quote only what bears on the user's **target
    host** — a tool note about the environment the tool itself runs in (a single-threaded LLM
@@ -87,10 +117,22 @@ license terms here or from memory — call the tool named in each step and cite 
    and counts go into tool calls and into the plan. If the user points at files, `Read` the
    header row only — never a data row. Record people as roles or teams ("the CRM team"), not
    names, unless the user asks for names in the plan. Nothing record-shaped goes to a hosted tool.
-8. **No shell, ever.** This skill runs no command. Wanting one — to profile a file, probe the
-   host, count records — means you are in `analyze`'s or `doctor`'s job: write the hand-off into
-   the plan and stop. Host facts about the POC target come from the user or from `doctor` run
-   **on that host**, never from a probe here.
+8. **No shell, ever — and that includes looking.** This skill runs no command: no `Bash`, not
+   once, not for one line. Wanting one — to profile a file, probe the host, count records —
+   means you are in `analyze`'s or `doctor`'s job: write the hand-off into the plan and stop.
+   Host facts about the POC target come from the user or from `doctor` run **on that host**,
+   never from a probe here.
+   **The one that keeps happening is `ls`.** Step 8 asks whether the plan file already exists,
+   and the reflex is `ls -la ./senzing-poc-plan.md`. That is a shell command and it breaks this
+   rule for a question `Read` already answers — `Read` the path; if it errors, there is no file.
+   **The second one is `grep`, on your own output.** Step 8 asks you to check every `TBD` in the
+   plan you just wrote, and the reflex is `grep -n "TBD" ./senzing-poc-plan.md`. Same rule, same
+   defect: you already have the file — `Read` returned it — so scan the text you are holding.
+   Checking your own work is not an exception to "no shell, ever"; it is the case where the
+   temptation is strongest, because the command looks harmless and the output is your own.
+   Nothing about this skill — checking a path, reading a header row, confirming a write landed —
+   needs a shell, so a single `Bash` call anywhere in the run is a defect even when its output
+   is harmless.
 
 ## Procedure
 
@@ -217,10 +259,18 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
 8. **Write the plan — a handoff artifact.** Path: from `$ARGUMENTS`, else the canonical
    `./senzing-poc-plan.md` in the current project directory (a downstream skill looks there
    first; if the user chose another path, say in the plan and in your final message that the
-   next skill must be told it). If the file exists, ask *overwrite, or a new name?* and wait —
-   never overwrite silently. Use the template below: all nine headings, exactly as written, no
+   next skill must be told it). **`Read` that path to find out whether a file is already there
+   — never `ls`, `test -f` or any other shell call (rule 8); a `Read` that errors IS the answer
+   "no file".** If one exists, ask *overwrite, or a new name?* and wait — never overwrite
+   silently. Use the template below: all nine headings, exactly as written, no
    others; the two `yaml` blocks with exactly the keys shown, values the user's or the TBD
-   literal. Then the host gate: do the file tools write the user's project? In Claude Code they
+   literal. **Then `Read` the file back and check every occurrence of the token `TBD`** — scan the
+   text that `Read` returned; never `grep` it, which is a shell call and a defect under rule 8
+   even though its output is harmless: each
+   one must be the full literal `TBD — decided by <owner>`. A prose use — `recorded in §2 as
+   TBD.`, `the following are TBD,`, `is TBD` — is a defect the next skill cannot act on; rewrite
+   that sentence (say *undecided* or *open*) and `Write` the file again before you finish.
+   Then the host gate: do the file tools write the user's project? In Claude Code they
    do; in Cowork they do (only the shell is sandboxed); in Claude Desktop / Chat there is no
    project on disk — deliver the same document inline / as a download and say where to put it.
    Confirm by `Read`-ing the file back; not landed → deliver inline. Never claim a file was

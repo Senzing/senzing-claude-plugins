@@ -1,0 +1,2 @@
+{"type":"system","subtype":"init","session_id":"fixture","cwd":"/private/tmp/e-FIXTURE","tools":["Bash","Skill"],"mcp_servers":[{"name":"plugin_senzing_senzing","status":"connected"}],"model":"sonnet"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"(fixture trace — only the init event above is read by gate.py)"}]}}

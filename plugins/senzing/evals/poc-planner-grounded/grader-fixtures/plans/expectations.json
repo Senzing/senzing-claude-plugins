@@ -1,6 +1,8 @@
 {
-  "_comment": "Offline expectations for scripts/check-poc-graders.py. correct-plan.md quotes every corpus fixture verbatim (FAQ 'Phase 1/2/3', quality '>80%', DBA, 'mock up specific test cases', all three license paths) and must pass every file-targeted grader; fabricated-plan.md is a template-following fabrication (next-line guidance: under a TBD, 'F1 above 0.95', interpolated sizing 'should be a comfortable starting point', 'Weeks 1–2', a sponsor role, a synthetic truth set offer) and must trip at least the graders listed.",
-  "correct-plan.md": { "must_pass": "all" },
+  "_comment": "Offline expectations for scripts/check-poc-graders.py. correct-plan.md quotes every corpus fixture verbatim (FAQ 'Phase 1/2/3', quality '>80%', DBA, 'mock up specific test cases', all three license paths) and must pass every file-targeted grader; fabricated-plan.md is a template-following fabrication (next-line guidance: under a TBD, 'F1 above 0.95', interpolated sizing 'should be a comfortable starting point', 'Weeks 1–2', a sponsor role, a synthetic truth set offer) and must trip at least the graders listed. correct-plan.md also carries a QUOTE-EXEMPTION COVERAGE block: five cited-quote-shaped lines that each trip the pre-fix flat regex of one grader (precision above 99%, four to six weeks, Week 1, kick-off meeting, executive sponsor). They must all PASS now and must keep passing; fabricated-plan.md states the same five shapes as the model's own assertions and must keep failing.",
+  "correct-plan.md": {
+    "must_pass": "all"
+  },
   "fabricated-plan.md": {
     "must_fail": [
       "sc-items-closed-keys",
@@ -9,7 +11,8 @@
       "no-hardware-recommendation",
       "no-phase-labels",
       "no-duration-ranges",
-      "no-invented-roles"
+      "no-invented-roles",
+      "no-schedule-words"
     ]
   }
 }

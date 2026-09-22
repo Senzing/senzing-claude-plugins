@@ -65,7 +65,16 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
   hard requirement is a file *sample for profiling*, not full materialization.)
 State the resolved input list to the user before proceeding — informational, not a gate.
 
-1. **Pre-flight.** Invoke the `doctor` skill first and keep two things from its verdict: whether
+1. **Pre-flight — `doctor` runs before the first `mapping_workflow` call, every time.** This is
+   the step that gets skipped, and it gets skipped on exactly the hosts where it looks
+   unnecessary: a real Senzing is obviously installed, the data is obviously there, so the run
+   goes straight to mapping. A working SDK is not a reason to skip the preflight — it is the
+   answer the preflight exists to establish, and you do not have it until `doctor` hands it to
+   you. Treat it as a precondition of the `start` call, not an opening formality: if you are
+   about to call `mapping_workflow` and have not invoked `doctor` this run, you are in the wrong
+   order. It costs one skill invocation and it is what steps 3 and 4 are branching on.
+
+   Invoke the `doctor` skill first and keep two things from its verdict: whether
    the SDK is importable and the license valid (needed from step 4 on), and whether this host has a
    shell that can write a workspace (needed for step 3). This flow builds its **own fresh scratch
    repository**, so a configured production database is **not** required. **No SDK is not a
@@ -140,6 +149,18 @@ State the resolved input list to the user before proceeding — informational, n
      sees your JSONL — **you read the analyzer's findings and self-report the verdict** in the
      advance payload. Report `approve` only when every output is genuinely clean; otherwise
      report the rework verdict it asks for and fix the mapping or the code.
+   - **One feature instance is one object.** The mapping the workflow returns is one line per
+     source field, but the mapper you write must emit one object per *feature*: every part of
+     one name (`NAME_FIRST`, `NAME_LAST`, `NAME_MIDDLE`, `NAME_PREFIX`, `NAME_SUFFIX`, plus its
+     `NAME_TYPE`) in ONE object; every part of one address (`ADDR_LINE1`, `ADDR_CITY`,
+     `ADDR_STATE`, `ADDR_POSTAL_CODE`, `ADDR_COUNTRY`, plus `ADDR_TYPE`) in ONE object;
+     `PHONE_NUMBER` with its `PHONE_TYPE`. `ADDR_FULL` may carry `ADDR_COUNTRY` and `ADDR_TYPE`
+     beside it — only the parsed parts (`ADDR_LINE1`/`CITY`/`STATE`/`POSTAL_CODE`) must not share
+     an object with `ADDR_FULL`. Emitting `{"NAME_FIRST": "Robert"}` and `{"NAME_LAST": "Smith"}`
+     as two objects is two partial names, not one person: on the Senzing demo truth set it turned
+     85 correct entities into 86 wrong ones, with 119 of 159 records differing from Senzing's own
+     mapping by exactly that. The analyzer does not catch it today, so check the output yourself:
+     no record may have name parts or address parts of the same feature in separate objects.
    - After every `mapping_workflow` response, immediately write the returned `state` to
      `{workspace}/.sz-state.json`. On each subsequent call, read `state` from that file and pass it
      verbatim — never reconstruct it from conversation memory.
@@ -180,6 +201,24 @@ State the resolved input list to the user before proceeding — informational, n
    raw data" rather than Senzing's does not make it safe — the user cannot audit it, and it is the
    number they will remember. If asked "who is who", answer that resolving it requires the engine,
    and stop there.
+   **Name no candidates in your own words.** This governs sentences and tables YOU construct
+   about likely matches. It does NOT govern the mechanical Senzing-ready JSONL deliverable, which
+   necessarily contains real names and emails — shipping that file is required, not a violation.
+   The rule is not "assert no match" — it is "name no candidate", and a candidate is anything a
+   reader could use to find the pair: an id, a name, an email, a phone VALUE, a row number, a
+   line index, or a position. "the two Smith rows", "rows 4 and 9", and "they share
+   702-555-0142" are equally banned. You may name the FIELD ("this file contains shared phone
+   numbers") — never a value, row or index, and **never a count**: "4 of the 6 rows share an
+   email" names no row and is still an invented entity count, the same fabrication in arithmetic
+   form. This list is not a set of examples to reason around; anything a reader could use to
+   identify or size a candidate cluster is banned. Do not
+   print a record id, a person or company name, an email, or a pair, *even as an illustration of
+   what you are declining to say*: "the two 'Smith' rows share a phone, but that's a guess" is the
+   banned thing, not an exemption from it. A caveat does not travel with the sentence; the names
+   do. This has already produced a wrong answer — a run named three Robert Smith records as one
+   person when the file held a deliberate decoy: a different Robert Smith, different email,
+   different city, different date of birth. Say which FIELDS would drive resolution if you must
+   say anything; never which ROWS.
 4. **Load into a fresh, isolated scratch repository — NOT their production Senzing.** Resolving a
    dataset must not pollute the user's real entity repo, so **by default create a dedicated scratch
    Senzing repository**: a fresh SQLite instance in the workspace, initialized empty — the same
