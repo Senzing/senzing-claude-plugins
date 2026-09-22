@@ -110,6 +110,53 @@ def evaluate_case(case: dict) -> dict:
     }
 
 
+def session_defects(report: dict) -> list[dict]:
+    """Runs whose session never had the Senzing MCP connected.
+
+    A `tool_used: mcp__…` grader cannot tell "the skill declined to call the tool" from
+    "the tool was not in the session", and neither can a judge reading the transcript. The
+    CLI records the answer at the top of every trace: the `system`/`init` event carries
+    `mcp_servers`, each with a `status`. Anything other than `connected` means the agent was
+    graded without the tools under test, which is an invalid measurement, not a plugin
+    verdict — so it fails the run STRUCTURALLY rather than showing up as skill defects.
+
+    Real: CLI 2.1.278 starts a session without waiting for the plugin MCP server, and the
+    first session on a runner can stay `pending` forever — one run burned five ToolSearch
+    calls and twenty seconds of sleeps before giving up with zero `mcp__` calls, and every
+    Senzing assertion in it would have failed as though the skill were at fault. Measured
+    the other way too: all 66 traces of the last 2.1.259 run were `connected`.
+    """
+    defects: list[dict] = []
+    for case in report.get("cases") or []:
+        for arm_runs in (case.get("arms") or {}).values():
+            for idx, run in enumerate(arm_runs or []):
+                path = run.get("tracePath")
+                if not path or not os.path.exists(path):
+                    continue
+                status = None
+                try:
+                    with open(path, encoding="utf-8", errors="replace") as fh:
+                        for line in fh:
+                            if '"subtype":"init"' not in line:
+                                continue
+                            try:
+                                event = json.loads(line)
+                            except ValueError:
+                                continue
+                            if event.get("type") != "system":
+                                continue
+                            for server in event.get("mcp_servers") or []:
+                                if "senzing" in str(server.get("name", "")):
+                                    status = server.get("status")
+                            break
+                except OSError:
+                    continue
+                if status is not None and status != "connected":
+                    defects.append({"case": case.get("name", "?"),
+                                    "run": idx, "status": status})
+    return defects
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("result_json")
@@ -209,6 +256,14 @@ def main() -> int:
         print(f"::error::{len(error_cases)} case(s) had a run that errored before grading — "
               "the suite did not measure the plugin", file=sys.stderr)
         tripped.append((2, "structural: a run errored before grading"))
+    blind = session_defects(report)
+    if blind:
+        print(f"::error::{len(blind)} run(s) started without the Senzing MCP connected, so the "
+              "agent was graded without the tools under test — an invalid measurement, not a "
+              "plugin verdict: "
+              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in blind[:8]),
+              file=sys.stderr)
+        tripped.append((2, "structural: session had no Senzing MCP"))
     if judge_bad_cases:
         level = "error" if args.enforce_judge else "warning"
         print(f"::{level}::JUDGE score: {len(judge_bad_cases)} case(s) below "
