@@ -127,7 +127,11 @@ the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/versio
 
 1. **Grounding reachable.** Two DIFFERENT networks — do not conflate them:
    - *MCP connectivity*: a successful `get_capabilities` call. This is the one that matters for
-     grounding, and it can work while Bash egress is blocked (and vice versa).
+     grounding, and it can work while Bash egress is blocked (and vice versa). **Call it, every
+     run, and do not substitute another tool for it.** A later `sdk_guide` or `search_docs`
+     answering does prove the server is up, but it is not this probe: check 1 is graded on the
+     one call, it is the cheapest of them, and a run that infers connectivity from whatever it
+     happened to need next leaves the row resting on an accident of what it wanted anyway.
    - *Bash egress*: `curl -fsSI https://mcp.senzing.com/` and `https://raw.githubusercontent.com/`.
      Treat **any HTTP response as reachable** — only DNS failure, connection refused, or timeout
      is unreachable. (A bare root returning 3xx/4xx is fine; `-f` fails only on ≥400, and

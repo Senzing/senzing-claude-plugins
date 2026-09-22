@@ -125,6 +125,11 @@ license terms here or from memory — call the tool named in each step and cite 
    **The one that keeps happening is `ls`.** Step 8 asks whether the plan file already exists,
    and the reflex is `ls -la ./senzing-poc-plan.md`. That is a shell command and it breaks this
    rule for a question `Read` already answers — `Read` the path; if it errors, there is no file.
+   **The second one is `grep`, on your own output.** Step 8 asks you to check every `TBD` in the
+   plan you just wrote, and the reflex is `grep -n "TBD" ./senzing-poc-plan.md`. Same rule, same
+   defect: you already have the file — `Read` returned it — so scan the text you are holding.
+   Checking your own work is not an exception to "no shell, ever"; it is the case where the
+   temptation is strongest, because the command looks harmless and the output is your own.
    Nothing about this skill — checking a path, reading a header row, confirming a write landed —
    needs a shell, so a single `Bash` call anywhere in the run is a defect even when its output
    is harmless.
@@ -259,7 +264,9 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    "no file".** If one exists, ask *overwrite, or a new name?* and wait — never overwrite
    silently. Use the template below: all nine headings, exactly as written, no
    others; the two `yaml` blocks with exactly the keys shown, values the user's or the TBD
-   literal. **Then `Read` the file back and check every occurrence of the token `TBD`**: each
+   literal. **Then `Read` the file back and check every occurrence of the token `TBD`** — scan the
+   text that `Read` returned; never `grep` it, which is a shell call and a defect under rule 8
+   even though its output is harmless: each
    one must be the full literal `TBD — decided by <owner>`. A prose use — `recorded in §2 as
    TBD.`, `the following are TBD,`, `is TBD` — is a defect the next skill cannot act on; rewrite
    that sentence (say *undecided* or *open*) and `Write` the file again before you finish.
