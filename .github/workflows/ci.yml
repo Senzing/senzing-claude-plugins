@@ -157,12 +157,24 @@ jobs:
       EVAL_MODEL: sonnet
       EVAL_JUDGE_MODEL: sonnet
       # Pinned deliberately — see the install step. Keep in step with local dev.
-      # 2.1.278 is a FLOOR, not just a pin (run.sh enforces the same one). 2.1.259 wrote
-      # its own sandbox config with //tmp and //private/tmp in denyWrite — the PARENT of
-      # the //private/tmp/e-XXXX allowWrite roots it scaffolds each eval under — and the
-      # macOS seatbelt writer emits allow-then-deny with no carve-out. SBPL is last-match-
-      # wins, so EVERY Bash write in the suite was denied. 2.1.278 narrows those deny paths.
-      CLAUDE_CLI_VERSION: "2.1.278"
+      # 2.1.269 is chosen between two CLI bugs, both measured on this suite.
+      #   At or below 2.1.268: the CLI writes its own sandbox config with //tmp and
+      #   //private/tmp in denyWrite — the PARENT of the //private/tmp/e-XXXX allowWrite
+      #   roots it scaffolds each eval under. The macOS seatbelt writer emits
+      #   allow-then-deny with no carve-out and SBPL is last-match-wins, so EVERY Bash
+      #   write was denied. 2.1.269 is the earliest release that drops the parent entry
+      #   and substitutes narrow per-uid paths (bisected 2.1.260..2.1.277).
+      #   At 2.1.278: the session no longer waits for the plugin MCP server. The FIRST
+      #   session on a runner stays "pending" and its tools never register — one run made
+      #   five ToolSearch calls, slept 20s and gave up with zero mcp__ calls, and every
+      #   Senzing assertion in it would have read as a skill defect. All 66 traces of the
+      #   last 2.1.259 run were "connected", so this is new behavior, not ours.
+      # 2.1.269 was verified to have both: ask-routing as a FIRST session in a fresh HOME
+      # reported mcp_servers connected with 13 tools and passed 7/7, and sandbox-canary
+      # wrote and read back its file with zero "Operation not permitted".
+      # gate.py fails any run whose session started without the MCP, so if a future bump
+      # reintroduces that, it surfaces as a structural failure and never as a skill score.
+      CLAUDE_CLI_VERSION: "2.1.269"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
