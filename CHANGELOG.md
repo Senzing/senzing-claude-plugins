@@ -62,6 +62,72 @@ sandbox faults that job exposed. Everything below was under Unreleased on PR #34
 
 ### Fixed
 
+- **The eval graded every skill on a filesystem Bash could not write to — for its whole life.**
+  `claude` 2.1.259 writes its own sandbox config with the run's scaffold in `allowWrite`
+  (`//private/tmp/e-XXXX/home`, `…/tmp`) and `//tmp` + `//private/tmp` — the **parent** of those
+  roots — in `denyWrite`. The macOS seatbelt writer emits allow-then-deny with no `require-not`
+  carve-out and SBPL is last-match-wins, so the broad deny won and `mkdir`/`touch`/`rm`/`curl -o`
+  all failed with `Operation not permitted`, in the project directory and under `$TMPDIR` alike.
+  Even the CLI's own bookkeeping file was denied, so **every** Bash call returned exit 1 whether
+  or not its command had worked. Reproduced locally byte-identical to CI and proven with bare
+  `sandbox-exec`: allow-then-deny denies, deny-then-allow permits, a `require-not` carve-out
+  permits. Fixed upstream in **2.1.278**, which replaces those two entries with narrow per-pid
+  paths; `CLAUDE_CLI_VERSION` is now that, and `run.sh` enforces the same floor so a stale local
+  CLI fails loudly instead of quietly grading a read-only Bash. This was never a plugin defect,
+  and it was present in runs that reported green.
+- **The canary never inspected a single trace, so both of its assertions were dead.** It globbed
+  `$TMPDIR/**/trace.jsonl`, but on macOS `TMPDIR` is `/var/folders/…` while the eval scaffolds
+  under `/private/tmp/e-*` — zero matches on every run, `::warning::canary produced no trace`,
+  then exit 0. It now reads `tracePath` out of the eval's own result JSON (the glob is a fallback
+  only), treats no-traces as a **failure** rather than a pass, and runs a second case: `ask-routing`
+  answers MCP reachability, and the new `sandbox-canary` answers whether Bash can write at all —
+  `ask-routing` deliberately runs no shell, so it could never have seen a shell fault.
+- **A grader whose pattern appears in its own prompt cannot fail.** The first `sandbox-canary`
+  asserted a literal `CANARY_OK` that the prompt told the agent to echo, and it passed on 2.1.259
+  with every write denied: `target: trace` matched the command text, not the output. The shipped
+  case assembles `SANDBOXWRITE_OK` at runtime from parts, so the token can only appear if a write
+  landed and was read back. The other cases were audited for the same shape; none has it.
+- **`nothing-loaded-into-production` failed runs for reading an environment variable.** Its
+  pattern included the bare string `SENZING_ENGINE_CONFIGURATION_JSON`, which `doctor` check 7
+  matches merely by testing whether the variable is set. Narrowing it to the assignment would have
+  been worse: a correct scratch demo **must** export that variable pointing at its new scratch
+  SQLite file. It now matches the production signal only — `add_record`/`addRecord` and a
+  `postgres://` or `postgresql://` connection string.
+- **`demo` ended its turn on a menu instead of taking the degraded path.** With no Senzing present
+  it probed the host correctly and then asked "install, or a zero-install preview — which would
+  you like?", never invoking `install` — in both graded runs, at 16 and 17 turns of a 40 budget.
+  The "a red verdict is a cue to take the degraded path, not permission to stop and ask" rule
+  existed in `recipes` and `doctor` but not in `demo`. `demo` now invokes `install` in the same
+  turn, unasked, and the zero-install tier is what it falls back to **after** `install` ends its
+  turn without a working SDK — not an option put to the user. A new `install-invoked` grader
+  asserts the pivot, because `install-steps-from-mcp` passed in the run where `install` never ran:
+  `doctor`'s own Step 0 calls `sdk_guide(topic="install")`, so that grader was measuring `doctor`'s
+  thoroughness. The rubric carries the matching literal clause, since a run can invoke `install`
+  and still close on the menu.
+- **`demo` re-probed a shell the user had said was not the host.** Step 1 read as an unconditional
+  preflight, so a request for a plan-before-execution got an environment audit that argued with the
+  user's own stated `doctor` result. There is now a plan-first carve-out keyed to the user's own
+  words — it needs both that the plan is wanted before anything executes and that this shell is not
+  the executing host; the model's own impression that the shell looks sandboxed does not qualify.
+  `doctor` is deferred, not waived: it runs on the executing host the moment a command runs.
+- **`recipes` offered the act it forbids.** Both graded runs ended on "which would you like?" over
+  a menu whose options included mapping the ingredients with `mapping_workflow` — the `Cook` step,
+  reached without a Senzing to cook on. `no-mapping-started` passed (nothing was called) while the
+  judge failed the run three votes to none, correctly. The three verdict bullets are now stated as
+  the whole list rather than examples to reason around, offering the forbidden act is called out as
+  the same violation as performing it, and the rubric says "proposes or performs".
+- **`recipes` contradicted itself about confirmation gates.** Step 1 says none of its bullets is a
+  question and to take the path in the same turn, while step 3 ended "Confirm they want to proceed"
+  and step 4 was titled "Setup — confirm before cooking" — the sentence both failing runs hid
+  behind. The skill now has one position: the only gates are loading into the user's existing
+  repository and any merge/split. Confirming a fact against a tool is still required; stopping to
+  ask the user and waiting is not. Loading into a fresh scratch repository is narrated, not gated.
+- **A failed fetch sent `recipes` hunting for a writable directory.** One run spent seven Bash
+  calls re-asking a question its first answer had settled (`$TMPDIR`, `mktemp`, a `python3` open),
+  against `doctor`'s stated budget of one attempt per question. The fetch now gets one `WebFetch`
+  fallback — explicitly a reachability diagnostic, since it returns a summary and the recipe's
+  inline prompt blocks must be run word-for-word — and then stops and reports the URL and status.
+
 - **A broken sandbox no longer gets the last word from the ground-truth verifier.** The
   environmental determination now runs BEFORE the ground-truth step, and the verifier is skipped
   outright when the sandbox never ran — with a notice saying why, rather than silently. Run the

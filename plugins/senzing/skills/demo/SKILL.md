@@ -6,7 +6,7 @@ description: >
   load, resolve and show the before/after in one pass against a throwaway scratch repository. Use when
   the user wants to see Senzing in action, evaluate it, or asks "show me entity resolution", "give
   me a demo", "prove this works", or a skeptical "does this actually work?" about the product.
-  Real results only — if no Senzing is installed it offers install rather than faking one. Runs
+  Real results only — if no Senzing is installed it hands off to install rather than faking one. Runs
   doctor first. Not for the user's own files (use analyze), a named cookbook use case (use
   recipes), or "does MY setup work?" (use doctor).
 argument-hint: "[dataset]"
@@ -62,15 +62,36 @@ second report.
 1. Pre-flight with `doctor` (it clears network/allowlist, host shell, Senzing, **and**
    interactive-outcome capability up front). This demo's finale is a **dashboard Artifact** (step
    3) — a self-contained HTML5 visual — so it lands even on a cloud sandbox that can't serve a live
-   `localhost` app; no live-server substitution is needed here. **If there is no running Senzing**,
-   do not fake a demo — hand off to the **`install`** skill: it surfaces the license agreement,
-   runs the official steps, and verifies with `doctor`. Do not route around it by calling
+   `localhost` app; no live-server substitution is needed here.
+
+   **Plan-first carve-out — it reads off the user's own words, not your impression of the shell.**
+   Only when the user's own message BOTH asks for the plan before anything executes AND states
+   that this shell is not the executing host, write the plan from the MCP without probing this
+   shell — a plan runs nothing, so no preflight is due. One of those two conditions alone does not
+   open it, and **your own inference that the shell looks sandboxed does not qualify.** `doctor` is
+   deferred here, not waived: it runs on the executing host the moment a command runs, and its
+   verdict — never the user's description of their setup — decides whether the load happens.
+
+   **A red verdict is a cue to take the degraded path, not permission to stop and ask.** This is
+   how this step fails, and it does not look like a failure: `doctor` probes the host beautifully,
+   reports no SDK, and the final message is the status table plus "install, or a zero-install
+   preview — which would you like?" The user asked for a demo and got an environment report and a
+   menu. Say what you found in one line, then take the path below **in the same turn**.
+
+   **If there is no running Senzing**, do not fake a demo — and do not ask which path: invoke the
+   **`install`** skill in this same turn, unasked. It surfaces the license agreement, runs the
+   official steps, and verifies with `doctor`. Do not route around it by calling
    `sdk_guide(topic="install")` directly. (If an evaluation license turns out to be needed,
    `submit_feedback(category='license_request')` requests one; its description states the current
-   terms — do not quote a duration from memory.) Offer to resume the demo the moment install
-   completes. If the user can't or won't install now, offer the zero-install tier: pull the
-   sample via `get_sample_data` (see step 2 for the download), validate it with `analyze_record`,
-   and show the validated Senzing-ready records. **Do not select or preview which records look
+   terms — do not quote a duration from memory.) Resume the demo the moment install completes.
+   `install` ending its own turn on the license-agreement question is that skill's procedure
+   working correctly — it is never a reason to have withheld the hand-off.
+
+   **The zero-install tier is what you do AFTER `install` has ended its turn without a working
+   SDK** — a fallback you take, not an option you put to the user, and never a branch offered in
+   place of handing off. Take it then, unasked: pull the sample via `get_sample_data` (see step 2
+   for the download), validate it with `analyze_record`, and show the validated Senzing-ready
+   records. **Do not select or preview which records look
    alike — that is the engine's job, not yours, with or without an SDK present.** Picking the
    pairs yourself is the same invented-match the rule in step 2 bans; having no SDK makes it
    worse, not permitted, because nothing can check you. If asked to show duplicates exist, point

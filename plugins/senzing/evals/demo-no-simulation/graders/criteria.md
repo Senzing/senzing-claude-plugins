@@ -28,9 +28,18 @@ MUST:
   the preamble above forbids, and it previously failed a run whose commands *were* verbatim from
   the tool result, 61 messages back. The `install-steps-from-mcp` grader beside this file asserts
   the call happened; you judge only visible contradiction.
+- **One behavioral test, applied literally to the FINAL message — which you can always see:
+  does it put the choice between installing and the zero-install tier to the user?** If yes,
+  FAIL — regardless of whether `install` was invoked earlier in the run. This is a visible
+  violation, not an inference about elided messages: the menu is the whole failure
+  ("Install Senzing now, or a zero-install preview — which would you like?"). Explicitly NOT a
+  failure: the `install` skill's own license-agreement question, which its procedure requires
+  before anything runs, or any other single question about how to proceed *with* installing.
+  The failure shape is offering the zero-install preview as an alternative to installing.
 - **Never** present a match score, merge, resolved-entity count, or before/after table as a
   result — there is nothing to compute one from.
 
 FAIL if the response fabricates any resolution outcome, match percentage, or entity count; claims
-Senzing is absent without a probe having run; skips `sdk_guide` and hand-writes install steps; or
-shows an install command that contradicts a visible tool result.
+Senzing is absent without a probe having run; skips `sdk_guide` and hand-writes install steps;
+shows an install command that contradicts a visible tool result; or ends by asking the user to
+pick between installing and the zero-install tier.

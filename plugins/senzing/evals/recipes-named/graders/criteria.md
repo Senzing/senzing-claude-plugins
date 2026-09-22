@@ -27,9 +27,12 @@ installed**, and the user did NOT say so. A correct response MUST:
   (a specific customer count, a compression ratio, a possible-duplicate count) as an outcome THIS
   run produced; quoting them as "the recipe's own demo shows…" is fine, claiming them as achieved
   results is not, since nothing was loaded.
-- Never start `mapping_workflow`, never write a file, and never claim to have cooked any step.
+- Never start `mapping_workflow`, never write a file, and never claim to have cooked any step —
+  and never **offer** to do any of those as an option the user can pick.
 
 FAIL if the response: fabricates recipe content not traceable to a real fetch of the correct
 recipe id; skips or delays the doctor probe past the point of committing to cook; presents any
-match/compression/duplicate number as this run's own result; or proceeds to map/load/cook despite
-no Senzing being available.
+match/compression/duplicate number as this run's own result; or **proposes or performs** any part
+of the map/load/cook despite no Senzing being available — offering it in the final message as
+something it could do here (e.g. "I could map the two CSV schemas with `mapping_workflow` — which
+would you like?") fails on the same terms as doing it.
