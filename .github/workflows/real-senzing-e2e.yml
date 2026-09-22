@@ -1,8 +1,16 @@
 ---
 name: Real Senzing E2E
 
-# The one eval that runs the plugin all the way to a resolved dataset and checks
-# the answer against published ground truth.
+# The one eval that runs the plugin all the way to a resolved dataset and then
+# opens the repository it built to spot-check that the thing basically works.
+#
+# It is a SMOKE TEST, not a validation suite: few checks, coarse, durable. It
+# gates on the plugin's own contract (the records went in, ER ran, the mapped
+# features are really in the engine and are queryable, and the counts the run
+# reported are the engine's). It does NOT gate on the exact entity partition the
+# published truth-set key describes — that is the ENGINE's contract, a legitimate
+# engine/config/tuning change moves it, and gating on it made this job flake. The
+# partition diff is still computed and printed, as an early warning only.
 #
 # Why it is a separate workflow and not another case in ci.yml's behavioral-eval:
 #
@@ -22,8 +30,8 @@ name: Real Senzing E2E
 #
 # It was originally label-gated. That was wrong for the same reason the opt-in
 # behavioral eval was wrong: this is the ONLY test anywhere that runs the plugin
-# all the way to a resolved dataset and checks the entity count against ground
-# truth. Everything else proves routing and grounding on a host with no Senzing.
+# all the way to a resolved dataset and then asks the engine what is actually in
+# it. Everything else proves routing and grounding on a host with no Senzing.
 # A gate that runs only when someone remembers a label does not protect the one
 # property it exists to protect.
 
@@ -45,7 +53,7 @@ permissions:
 
 jobs:
   real-senzing-e2e:
-    name: Real Senzing end-to-end (map -> load -> resolve -> ground truth)
+    name: Real Senzing end-to-end (map -> load -> resolve -> spot check)
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -58,7 +66,7 @@ jobs:
       # --keep-temp workspaces survive between steps and the verifier can open
       # the Senzing repository the run left behind.
       SENZING_EVAL_TMP: ${{ github.workspace }}/../sz-eval-tmp
-      # One run: each is a full map+load+resolve, and the ground-truth gate
+      # One run: each is a full map+load+resolve, and the spot-check gate
       # inspects the single repository it produces.
       EVAL_RUNS: "1"
     steps:
@@ -66,12 +74,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Ground-truth self-test (free, offline, no Senzing, no API key)
-        # Runs before anything is built or spent. Re-derives the expected record
-        # and entity counts from the vendored truth-set key, asserts the key and
-        # the fixtures still describe the same 159 records, and asserts the two
-        # literals in the graders still match the derived numbers. Fixture drift
-        # must fail for $0, not halfway through a paid run.
+      - name: Verifier self-test (free, offline, no Senzing, no API key)
+        # Runs before anything is built or spent. Three things, all for $0:
+        #   * the vendored fixtures and the truth-set key still describe the same
+        #     records (fixture drift must fail here, not halfway through a paid run);
+        #   * no grader and no case file has re-frozen an engine number as a
+        #     literal — a literal both couples the plugin's contract to the
+        #     engine's and is readable by the agent, since the sandbox grants
+        #     Bash and Grep, so it is not an independent oracle;
+        #   * every one of the five gating checks is run against a STUBBED
+        #     repository and proven to FAIL when the thing it asserts is broken.
+        #     A check that cannot fail is worse than no check, and nothing else
+        #     in this job would notice one.
         run: python3 plugins/senzing/evals-real/verify_truthset.py --self-test
 
       - name: Gate on API key availability
@@ -143,8 +157,8 @@ jobs:
         env:
           EVAL_OUTCOME: ${{ steps.eval.outcome }}
         # ORDER MATTERS, and it is the whole point of this step sitting HERE, ahead of the
-        # ground-truth verification rather than after it. Whether the sandbox ran at all is a
-        # question about the MEASUREMENT; whether the entities are right is a question about
+        # end-to-end spot check rather than after it. Whether the sandbox ran at all is a
+        # question about the MEASUREMENT; whether the data really went in is a question about
         # the PRODUCT, and the second one is meaningless until the first is answered yes.
         # Run the wrong way round, the job emitted the verifier's
         #   FAIL — 159 of 159 ground-truth records are not in the repository
@@ -237,7 +251,7 @@ jobs:
           echo "== sandbox failures =="
           echo "  none"
 
-      - name: Ground-truth verification (THE gate)
+      - name: End-to-end spot check (THE gate)
         # Only once the sandbox is known GOOD. If the agent never got a shell, the eval never
         # built a repository, the only Senzing database on disk is the preflight's own three
         # records, and every number this step could print would be an artefact of that. It is
@@ -245,35 +259,53 @@ jobs:
         if: always() && steps.gate.outputs.has_key == 'true'
           && steps.sandbox.outcome == 'success'
           && steps.env_gate.outcome == 'success'
-        # Runs even when the eval step failed: whether the engine produced the
-        # right entities is the more informative signal, and "no repository at
-        # all" is itself the verdict for a run that reported numbers it never
-        # computed.
+        # Runs even when the eval step failed: whether the repository the run built
+        # actually holds resolvable, queryable data is the more informative signal.
+        #
+        # WHAT IT GATES ON is the PLUGIN's contract, five coarse checks: the records
+        # went in and the redo queue drained; entities < records (no target number —
+        # whether Senzing merges A with B is the ENGINE's contract, not ours); the
+        # feature types a couple of known rows supplied are really in the engine, read
+        # back with the all-features flag; one of those rows is findable by searching
+        # its own values; and the counts the run REPORTED are the counts the engine
+        # holds. The exact 85-entity partition from the published truth-set key is
+        # still computed and printed in full, as an early warning of a mapping
+        # regression — but it does NOT gate, because a legitimate engine, config or
+        # tuning change moves it, which is exactly why it flaked (green on 825ea4f and
+        # b431c10, red on 6cb6177, with no mapping-related change between them). Same
+        # standing the llm judge already has in plugins/senzing/evals/gate.py.
         #
         # This is deliberately NOT a grader. `claude plugin eval` has no
         # shell/command grader, so every grader verdict is ultimately a statement
         # about text the agent produced — and text is exactly what a fabricating
         # run is good at. This step opens the repository instead.
         #
-        # The marker hunt runs INSIDE the container, with the verifier. `--keep-temp`
-        # leaves the workspace root-owned with its modes closed as far as the harness
-        # can manage, so a HOST-side find cannot traverse it: it reported
-        # "<none found>" for two consecutive runs on a workspace where the scaffold
-        # had demonstrably run (the agent read the CSVs it copied in). A diagnostic
-        # that cannot read its own input is the same defect as a gate that cannot
-        # fail. Root inside the container can read it.
+        # It runs INSIDE the container for the same reason the trace copy does:
+        # `--keep-temp` leaves the workspace root-owned with its modes closed as far
+        # as the harness can manage, so a HOST-side find cannot traverse it — the
+        # marker hunt reported "<none found>" for two consecutive runs on a workspace
+        # where the scaffold had demonstrably run. Root inside the container can read
+        # it. The hunt now lives in the verifier itself, which scopes the repository
+        # search to the marker's own directory: picking "the SQLite repo with the most
+        # rows anywhere under /tmp" selected the PREFLIGHT's three-record database on a
+        # run that loaded nothing, and the resulting "159 of 159 records are not in the
+        # repository" was read as a plugin defect twice. A missing marker, or no
+        # repository beside it, now exits 78 as an ENVIRONMENTAL failure that says so.
+        #
+        # --reported-from points at the traces the step above collected: check 5
+        # reads the run's OWN final message and compares the numbers in it to the
+        # engine's, so neither side of that comparison is a literal anyone can edit.
         run: |
           set -euo pipefail
           bash .github/senzing-eval/in-container.sh '
             set -euo pipefail
-            root=$(find /tmp -maxdepth 8 -name .sz-eval-root -print -quit 2>/dev/null || true)
-            echo "scaffold marker: ${root:-<none found>}"
             python3 /work/plugins/senzing/evals-real/verify_truthset.py \
               --search-root /tmp \
+              --reported-from /work/plugins/senzing/evals-real/results/traces \
               --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json
           '
 
-      - name: Ground-truth verification SKIPPED — nothing was measured
+      - name: End-to-end spot check SKIPPED — nothing was measured
         if: always() && steps.gate.outputs.has_key == 'true'
           && (steps.sandbox.outcome != 'success' || steps.env_gate.outcome != 'success')
         # This notice used to blame the Bash sandbox unconditionally, which is wrong for
@@ -292,19 +324,19 @@ jobs:
           set -euo pipefail
           # Common to every branch: the run produced no repository of its own, so no number
           # derived from the disk is a statement about the plugin.
-          artefact="Any verdict derived from the database on disk (\"159 of 159 ground-truth records are not in the repository\", \"SzUnknownDataSourceError (2207) ... CUSTOMERS does not exist\") would be an artefact of the failure above — the only database there is the Senzing preflight's own three records. That has twice been misread as a plugin defect."
+          artefact="Any verdict derived from a database on disk (\"N of N submitted records are not in the repository\", \"SzUnknownDataSourceError (2207) ... CUSTOMERS does not exist\") would be an artefact of the failure above — the only database there is the Senzing preflight's own three records. That has twice been misread as a plugin defect. The verifier now scopes its search to the scaffold marker and reports a missing marker as ENVIRONMENTAL for exactly this reason."
           hands_off="do NOT change a skill, an eval case, a grader or an expected count in response to this."
           echo "step outcomes: build=$BUILD_OUTCOME preflight=$PREFLIGHT_OUTCOME sandbox=$SANDBOX_OUTCOME env_gate=$ENV_GATE_OUTCOME"
           if [ "$BUILD_OUTCOME" != "success" ]; then
-            echo "::notice::Ground-truth verification was deliberately SKIPPED, and the cause is NOT the agent's Bash sandbox: the eval image build ended '$BUILD_OUTCOME', so every step behind it — including the sandbox probe — was skipped. $artefact Fix the Dockerfile or the build; $hands_off"
+            echo "::notice::The end-to-end spot check was deliberately SKIPPED, and the cause is NOT the agent's Bash sandbox: the eval image build ended '$BUILD_OUTCOME', so every step behind it — including the sandbox probe — was skipped. $artefact Fix the Dockerfile or the build; $hands_off"
           elif [ "$PREFLIGHT_OUTCOME" != "success" ]; then
-            echo "::notice::Ground-truth verification was deliberately SKIPPED, and the cause is NOT the agent's Bash sandbox: the Senzing engine preflight ended '$PREFLIGHT_OUTCOME' — Senzing itself could not run on this host, so the sandbox probe and the eval were skipped behind it. $artefact Fix the image or the engine configuration; $hands_off"
+            echo "::notice::The end-to-end spot check was deliberately SKIPPED, and the cause is NOT the agent's Bash sandbox: the Senzing engine preflight ended '$PREFLIGHT_OUTCOME' — Senzing itself could not run on this host, so the sandbox probe and the eval were skipped behind it. $artefact Fix the image or the engine configuration; $hands_off"
           elif [ "$SANDBOX_OUTCOME" = "failure" ]; then
-            echo "::notice::Ground-truth verification was deliberately SKIPPED. The sandbox preflight FAILED: the agent's Bash tool could not run a command, so the eval never created a Senzing repository. $artefact The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; $hands_off"
+            echo "::notice::The end-to-end spot check was deliberately SKIPPED. The sandbox preflight FAILED: the agent's Bash tool could not run a command, so the eval never created a Senzing repository. $artefact The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; $hands_off"
           elif [ "$SANDBOX_OUTCOME" != "success" ]; then
-            echo "::notice::Ground-truth verification was deliberately SKIPPED. The sandbox preflight never ran (outcome '$SANDBOX_OUTCOME') because an earlier step in this job did not succeed — read the first red step above, not this line, for the cause. $artefact $hands_off"
+            echo "::notice::The end-to-end spot check was deliberately SKIPPED. The sandbox preflight never ran (outcome '$SANDBOX_OUTCOME') because an earlier step in this job did not succeed — read the first red step above, not this line, for the cause. $artefact $hands_off"
           else
-            echo "::notice::Ground-truth verification was deliberately SKIPPED. The sandbox preflight passed, but the trace analysis then found a sandbox error in the eval's own traces (env_gate ended '$ENV_GATE_OUTCOME'): the agent's Bash tool died mid-run, so no command the eval issued ran and nothing about the plugin was measured. $artefact The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; $hands_off"
+            echo "::notice::The end-to-end spot check was deliberately SKIPPED. The sandbox preflight passed, but the trace analysis then found a sandbox error in the eval's own traces (env_gate ended '$ENV_GATE_OUTCOME'): the agent's Bash tool died mid-run, so no command the eval issued ran and nothing about the plugin was measured. $artefact The ENVIRONMENTAL failure above is the whole story. Fix the image or the harness; $hands_off"
           fi
 
       - name: Upload eval results, verdict and traces

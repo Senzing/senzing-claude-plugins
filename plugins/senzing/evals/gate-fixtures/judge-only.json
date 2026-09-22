@@ -18,6 +18,7 @@
         "with": [
           {
             "error": null,
+            "tracePath": "traces/connected.jsonl",
             "graders": [
               { "name": "criteria", "passed": false, "judgeVotes": [false, false, false] },
               { "name": "skill-fired", "passed": true },

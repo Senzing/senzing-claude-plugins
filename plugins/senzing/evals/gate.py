@@ -36,7 +36,8 @@ read first, not a severity ranking -- every caller treats any non-zero as a fail
 
   0  both gates clean
   1  a deterministic assertion failed
-  2  the run is structurally unusable (cases missing, partial run, a run that errored)
+  2  the run is structurally unusable (cases missing, partial run, a run that errored,
+     a session without the Senzing MCP, or not one session trace the gate could read)
   3  judge below its threshold, with --enforce-judge
 
 Highest-wins is what the docstring always claimed, but not what the code did: the checks were
@@ -110,8 +111,8 @@ def evaluate_case(case: dict) -> dict:
     }
 
 
-def session_defects(report: dict) -> list[dict]:
-    """Runs whose session never had the Senzing MCP connected.
+def session_defects(report: dict, base_dir: str | None = None) -> tuple[list[dict], dict]:
+    """Runs whose session never had the Senzing MCP connected, plus what was actually read.
 
     A `tool_used: mcp__…` grader cannot tell "the skill declined to call the tool" from
     "the tool was not in the session", and neither can a judge reading the transcript. The
@@ -125,13 +126,43 @@ def session_defects(report: dict) -> list[dict]:
     calls and twenty seconds of sleeps before giving up with zero `mcp__` calls, and every
     Senzing assertion in it would have failed as though the skill were at fault. Measured
     the other way too: all 66 traces of the last 2.1.259 run were `connected`.
+
+    THE CHECK MUST NOT FAIL OPEN. Its first version `continue`d on a missing `tracePath` and
+    on a path that no longer existed, so "not one trace could be opened" was indistinguishable
+    from "every session was connected" — a clean structural pass issued on zero evidence. The
+    sibling real-Senzing workflow already hit exactly that: it "collected 0 traces on two
+    consecutive runs — which silently disabled the bwrap check", the one line in that job that
+    would have said the sandbox was broken. So the counts come back with the defects and the
+    caller fails the run when nothing was inspected.
+
+    `counts` is over the runs this gate is entitled to expect a trace from:
+      graded   — runs that did NOT error. An errored run never started a session, and the CLI
+                 writes `"tracePath": ""` for it (measured: every empty tracePath across twelve
+                 real result JSONs belongs to a run with a non-null `error`). Those already
+                 fail structurally as "a run errored before grading"; counting them here would
+                 report the same fault twice under a misleading name.
+      declared — graded runs that carry a non-empty tracePath.
+      read     — declared traces whose file was found and opened. Not "parsed": a trace whose
+                 init event is absent or malformed still proves the gate had the artifact in
+                 hand, which is the claim being defended.
     """
     defects: list[dict] = []
+    counts = {"graded": 0, "declared": 0, "read": 0}
     for case in report.get("cases") or []:
         for arm_runs in (case.get("arms") or {}).values():
             for idx, run in enumerate(arm_runs or []):
+                if run.get("error"):
+                    continue
+                counts["graded"] += 1
                 path = run.get("tracePath")
-                if not path or not os.path.exists(path):
+                if not path:
+                    continue
+                counts["declared"] += 1
+                # tracePath is absolute in CLI output; resolve a relative one against the
+                # result JSON so a results artifact carrying its own traces stays readable.
+                if base_dir and not os.path.isabs(path):
+                    path = os.path.join(base_dir, path)
+                if not os.path.exists(path):
                     continue
                 status = None
                 try:
@@ -151,10 +182,11 @@ def session_defects(report: dict) -> list[dict]:
                             break
                 except OSError:
                     continue
+                counts["read"] += 1
                 if status is not None and status != "connected":
                     defects.append({"case": case.get("name", "?"),
                                     "run": idx, "status": status})
-    return defects
+    return defects, counts
 
 
 def main() -> int:
@@ -168,6 +200,9 @@ def main() -> int:
                          "is not diagnosable from the artifact and cannot be a merge gate yet. "
                          "It is still reported, loudly, and nothing averages it away.")
     ap.add_argument("--quiet", action="store_true", help="omit the per-case table")
+    ap.add_argument("--summary-title", default="Behavioral eval",
+                    help="heading this verdict is filed under in GITHUB_STEP_SUMMARY. Two "
+                         "suites share this scorer; the heading must say which one ran.")
     args = ap.parse_args()
 
     with open(args.result_json, encoding="utf-8") as fh:
@@ -229,6 +264,12 @@ def main() -> int:
         for err in c["errors"]:
             emit(f"    RUN ERROR {c['name']}  {err}")
 
+    blind, traces = session_defects(
+        report, os.path.dirname(os.path.abspath(args.result_json)))
+    emit(f"SESSION traces      {traces['read']}/{traces['graded']} graded run(s) inspected for "
+         f"MCP connectivity ({traces['declared']} declared a tracePath) — "
+         f"{len(blind)} run(s) not connected")
+
     agg = report.get("aggregates") or {}
     emit()
     emit(f"cases run={len(cases)} expected={args.expected_cases} "
@@ -240,7 +281,7 @@ def main() -> int:
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
         with open(summary_path, "a", encoding="utf-8") as fh:
-            fh.write("### Behavioral eval\n\n```\n" + "\n".join(lines) + "\n```\n")
+            fh.write(f"### {args.summary_title}\n\n```\n" + "\n".join(lines) + "\n```\n")
 
     # (code, label) for every gate that tripped. Collected rather than assigned so the exit
     # code can be max()'d at the end -- see the module docstring.
@@ -256,7 +297,17 @@ def main() -> int:
         print(f"::error::{len(error_cases)} case(s) had a run that errored before grading — "
               "the suite did not measure the plugin", file=sys.stderr)
         tripped.append((2, "structural: a run errored before grading"))
-    blind = session_defects(report)
+    # Nothing inspected is not a clean bill of health. See session_defects' docstring: the
+    # first version of this check `continue`d past every unreadable trace and then reported
+    # structural success, which is a verdict about a measurement that never happened.
+    if traces["graded"] and not traces["read"]:
+        print(f"::error::the session gate inspected NOTHING: {traces['graded']} graded run(s), "
+              f"{traces['declared']} with a tracePath, 0 traces readable — so this run carries "
+              "NO evidence that the Senzing MCP was connected in any session. Likely cause: the "
+              "run's temp workspaces were cleaned up before the gate ran (pass --keep-temp to "
+              "`run.sh`), or the CLI stopped recording tracePath. Do not read the verdict above "
+              "as a connectivity pass.", file=sys.stderr)
+        tripped.append((2, "structural: no session traces readable"))
     if blind:
         print(f"::error::{len(blind)} run(s) started without the Senzing MCP connected, so the "
               "agent was graded without the tools under test — an invalid measurement, not a "

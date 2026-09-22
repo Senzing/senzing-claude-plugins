@@ -1,4 +1,16 @@
-# Ground truth — where the number comes from
+# Ground truth — where the number comes from, and why it is not a gate
+
+> **Standing: REPORTED, NOT GATING.** `verify_truthset.py` still reads this key on
+> every run and still prints the full cluster diff against it, because that diff is
+> a valuable early warning of a mapping regression. It does **not** fail the job.
+> Whether Senzing merges A with B is the **ENGINE's** contract, not the plugin's —
+> the "Limits" section below has always said an engine, config or tuning change can
+> legitimately move the number, and gating on it flaked exactly that way (green on
+> `825ea4f` and `b431c10`, red on `6cb6177`, with no mapping-related change in
+> between). What the job gates on instead is five coarse checks of the plugin's own
+> contract; see `../README.md`. The mapping defect this key was indirectly
+> detecting — one feature split across objects — is now caught directly by the
+> feature spot check.
 
 `actual_truthset_key.csv` and the three fixture CSVs under
 `../resolve-truthset/fixtures/` are vendored **verbatim** from the Senzing truth-set
@@ -33,7 +45,10 @@ compares partitions, never id values.
 ## The derived expectation
 
 Computed by `verify_truthset.py` from the files above — **never written as a
-literal in an assertion**:
+literal in a grader or a case file**, and `--self-test` fails if one reappears
+there. (A literal is wrong twice over: it freezes the engine's behavior into the
+plugin's contract, and the eval sandbox grants `Bash` and `Grep`, so a number
+sitting in a grader in this repository is readable by the agent being graded.)
 
 | Quantity | Value | How it is derived |
 |---|---|---|
@@ -43,6 +58,11 @@ literal in an assertion**:
 Every fixture record is keyed and every keyed record is in a fixture (the
 `--self-test` mode asserts exactly that), so there are no unkeyed singletons to
 add. Cluster sizes: 31×1, 43×2, 6×3, 2×4, 2×5, 1×6.
+
+The **record** count is still load-bearing: the gating `data_went_in` check asserts
+that every row of the three fixture CSVs is in the repository and nothing else is.
+That number is ours — it is what we submitted. The **entity** count is the engine's,
+and is only reported.
 
 ## Why 85 is Senzing's own answer, not just an aspiration
 
@@ -85,14 +105,17 @@ key.
   been confirmed here by running the engine; only a real run of this job can do
   that, and that is the point of the job.
 - Engine version, config, or tuning changes could legitimately move the number.
-  When this gate fails, the answer is to find out **which** clusters changed
-  (the verdict JSON names them) and decide regression-or-intended. **Do not
-  re-freeze the expectation to whatever the run produced** — that converts a
-  bug into the specification, which is precisely the failure mode this file
-  exists to prevent.
-- The partition check is strictly stronger than the count. 85 entities that are
-  the *wrong* 85 fails, and the verdict lists the clusters that were not
-  reproduced.
+  That is precisely why the comparison is a **signal and not a gate**: a plugin
+  PR must not go red because the engine improved. When the printed diff changes,
+  find out **which** clusters changed (the verdict JSON names them) and decide
+  regression-or-intended. **Do not re-freeze the expectation to whatever the run
+  produced** — that converts a bug into the specification, which is the failure
+  mode this file exists to prevent — and equally, do not "fix" a moved partition
+  by editing a skill, a case or a grader.
+- The partition comparison is strictly stronger than the count: 85 entities that
+  are the *wrong* 85 shows up in the diff, which lists the clusters that were not
+  reproduced and the entities that match no cluster. Both directions are printed
+  in full, because a truncated diff cannot be acted on.
 
 ## Licensing
 

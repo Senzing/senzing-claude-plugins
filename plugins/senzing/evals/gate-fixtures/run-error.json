@@ -16,6 +16,7 @@
         "with": [
           {
             "error": "the Bash sandbox could not start on this machine",
+            "tracePath": "",
             "graders": []
           }
         ]

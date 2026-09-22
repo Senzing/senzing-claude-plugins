@@ -16,10 +16,12 @@
         "with": [
           {
             "error": "the Bash sandbox could not start on this machine",
+            "tracePath": "",
             "graders": []
           },
           {
             "error": null,
+            "tracePath": "traces/connected.jsonl",
             "graders": [
               { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
               { "name": "skill-fired", "passed": false, "explanation": "Skill called 0x (expected 1..inf)" }

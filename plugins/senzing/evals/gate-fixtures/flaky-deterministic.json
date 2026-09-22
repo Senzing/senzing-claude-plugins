@@ -16,6 +16,7 @@
         "with": [
           {
             "error": null,
+            "tracePath": "traces/connected.jsonl",
             "graders": [
               { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
               { "name": "eula-surfaced", "passed": true }
@@ -23,6 +24,7 @@
           },
           {
             "error": null,
+            "tracePath": "traces/connected.jsonl",
             "graders": [
               { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
               { "name": "eula-surfaced", "passed": false, "explanation": "pattern not found in last_message" }

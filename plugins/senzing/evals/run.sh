@@ -158,6 +158,18 @@ help_text="$(claude plugin eval --help 2>&1 || true)"
 case "$help_text" in *--trust-plugin*) args+=(--trust-plugin) ;; esac
 case "$help_text" in *--concurrency*)  args+=(--concurrency "${EVAL_CONCURRENCY:-3}") ;; esac
 
+# --keep-temp is LOAD-BEARING, not a debugging nicety. gate.py reads each run's trace.jsonl to
+# prove the Senzing MCP was actually connected in that session, and the CLI writes that trace
+# INSIDE the scaffold dir it deletes on exit unless this flag is set (`--keep-temp  Preserve
+# scaffold dirs for debugging`). gate.py now FAILS a run whose traces it could not read rather
+# than passing on no evidence, so keeping them is part of running the suite -- not something
+# every caller must remember. CI passes it too; this appends it only when neither the caller
+# nor an older CLI already covered it, so the flag is never duplicated and never invented.
+case " $* " in
+  *" --keep-temp "*) : ;;
+  *) case "$help_text" in *--keep-temp*) args+=(--keep-temp) ;; esac ;;
+esac
+
 # CLI FLOOR -- not a style preference, a correctness gate. Every CLI before 2.1.269 wrote
 # its own sandbox config with //tmp and //private/tmp in denyWrite, the PARENT of the
 # //private/tmp/e-XXXX allowWrite roots it had just scaffolded for the run; macOS seatbelt

@@ -1,0 +1,37 @@
+{
+  "_comment": "Every run declares a tracePath and not one of them exists -- the shape of a run whose --keep-temp workspaces were cleaned up before the gate ran. The session check has nothing to read, so it can say nothing about MCP connectivity. It used to `continue` past each missing file and report a clean structural pass on zero evidence (the same silent-disable the real-Senzing job hit when it 'collected 0 traces on two consecutive runs'). Both gates are otherwise green here, so rc 2 can only come from the trace check.",
+  "costUsd": 1.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 1, "overallScore": 1.0 },
+  "cases": [
+    {
+      "name": "traces-gone",
+      "aggregates": { "score": 1.0 },
+      "graders": [
+        { "name": "criteria", "type": "llm" },
+        { "name": "skill-fired", "type": "tool_used" }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "tracePath": "traces/does-not-exist-run0.jsonl",
+            "graders": [
+              { "name": "criteria", "passed": true },
+              { "name": "skill-fired", "passed": true }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/does-not-exist-run1.jsonl",
+            "graders": [
+              { "name": "criteria", "passed": true },
+              { "name": "skill-fired", "passed": true }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -2,7 +2,8 @@
   "_comment": [
     "What gate.py must do with each fixture. `rc` is the process exit code:",
     "0 = both gates clean, 1 = a deterministic assertion failed, 2 = the run is",
-    "structurally unusable (cases missing / partial / a run errored), 3 = judge below",
+    "structurally unusable (cases missing / partial / a run errored / not one session trace",
+    "the gate could read), 3 = judge below",
     "threshold while --enforce-judge is on. When several apply the HIGHEST code is returned.",
     "Checked offline by scripts/check-eval-gate.py (check.sh section 9) so the split's logic",
     "never needs a paid eval run to verify."
@@ -79,6 +80,30 @@
       "expected_cases": 1,
       "rc": 2,
       "must_contain": ["partial run: max cost reached"]
+    },
+    {
+      "name": "the real-Senzing case the CLI blended to 0.889 and passed is a deterministic failure here",
+      "fixture": "real-senzing-blended.json",
+      "expected_cases": 1,
+      "rc": 1,
+      "must_contain": [
+        "resolve-truthset/records-loaded-reported",
+        "DETERMINISTIC gate: 1 assertion(s) failed",
+        "cli-blended-score=0.888888888"
+      ]
+    },
+    {
+      "name": "traces declared but none readable is a structural failure, not a silent clean pass",
+      "fixture": "traces-unreadable.json",
+      "expected_cases": 1,
+      "rc": 2,
+      "must_contain": [
+        "SESSION traces      0/2 graded run(s) inspected",
+        "the session gate inspected NOTHING",
+        "--keep-temp",
+        "structural: no session traces readable"
+      ],
+      "must_not_contain": ["DETERMINISTIC gate: "]
     },
     {
       "name": "structural + deterministic together report the HIGHEST code (2), not the last one set",
