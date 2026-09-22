@@ -106,7 +106,10 @@ license terms here or from memory — call the tool named in each step and cite 
    discusses a truth set, quote it and add this labelled note: *"A synthetic or generated truth
    set is dangerous: it is too clean and too regular, it validates the matcher against the
    generator's assumptions rather than reality, and it yields a POC result that looks excellent
-   and predicts nothing about production. Label real records from your own data instead."* Never
+   and predicts nothing about production. Label real records from your own data instead."* The
+   label is literal — carry `(plugin rule)`, or words that say as plainly that this note is the
+   plugin's and not Senzing's, in the same breath as the note. Unlabelled it reads as retrieved
+   Senzing material, which is the one thing every sentence in this plan must never do. Never
    offer to generate, synthesize, augment or fabricate a truth set — if asked, decline, quote the
    note, and point at what the retrieved guidance says about labeling real records. The
    guidance's own rule about mocking up specific test cases is different and is quoted like every
@@ -230,8 +233,13 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    - loading their volume → `sdk_guide(topic="load", language=<theirs>, record_count=<their
      volume>)` — quote what it says about the loading pattern and any license guidance it
      surfaces; do not restate either from memory.
-   Then apply the expectation-vs-resources check the retrieved *Rightsizing* chunk makes — its
-   words against their answers — and say plainly if they mismatch. Close with one question:
+   Then put the expectation-vs-resources check the retrieved *Rightsizing* chunk makes to **them**:
+   quote its words, set their own stated answers beside it, and stop there. **The verdict is
+   theirs.** Write no sentence that grades their resources against their volume — "not obviously
+   mismatched", "should be comfortable", "is a stretch", any of it; this is the principle, not a
+   list to reason around. That is a sizing judgement of your own, and this skill has none, however
+   hedged. Where a figure the check needs is still undecided, say the check cannot be completed
+   against it and leave the TBD standing. Close with one question:
    *"Given this material, what are you committing to for the POC?"* Record the answer in §2
    (`hardware_available`, `performance_required`); otherwise the TBD literal. **Never conclude
    "you need N cores / N GB"** — that sentence may appear only as a verbatim cited quote. **Host

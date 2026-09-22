@@ -80,6 +80,14 @@ threshold not in a tool result or from the user is `TBD — decided by <owner>`;
    from the tool, not from here. Collect the fields, show the user exactly what will be sent,
    and call only after they confirm.
 
+   ⚠ **Attribute every term you restate from that description, in the same sentence.** A duration,
+   a record limit, a cool-off, a rejected-domain rule — anything; this is the principle, not a list
+   to reason around. That description reaches you as the tool's *schema*, so it is the one Senzing
+   fact in this skill with no `source_url` to quote and no tool result anyone can check it against.
+   Say where it came from — "per the `submit_feedback` tool description, …" — or the user is
+   reading a licensing term they cannot tell apart from your memory, which is the thing this skill
+   exists to replace. Never state a term you did not read there.
+
    ⚠ The same method has **different names and argument types in each language binding**. When the
    question names a method, pass `language` and read the divergence warnings — never translate a
    call you saw in another binding.
