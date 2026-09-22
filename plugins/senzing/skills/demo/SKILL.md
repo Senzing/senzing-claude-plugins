@@ -85,7 +85,12 @@ second report.
    `submit_feedback(category='license_request')` requests one; its description states the current
    terms — do not quote a duration from memory.) Resume the demo the moment install completes.
    `install` ending its own turn on the license-agreement question is that skill's procedure
-   working correctly — it is never a reason to have withheld the hand-off.
+   working correctly — it is never a reason to have withheld the hand-off. That question is then the
+   **only** thing that message asks. Do not preview, promise or offer the zero-install tier
+   alongside it: "either way I can proceed to the zero-install fallback next — let me know how
+   you'd like to proceed" is the menu again, one step later, and it makes the license answer a
+   fork instead of an answer. The tier is not mentioned until `install` has actually ended its
+   turn without a working SDK, and then you take it rather than announce it.
 
    **The zero-install tier is what you do AFTER `install` has ended its turn without a working
    SDK** — a fallback you take, not an option you put to the user, and never a branch offered in

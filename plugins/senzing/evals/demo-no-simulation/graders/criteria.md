@@ -36,6 +36,15 @@ MUST:
   failure: the `install` skill's own license-agreement question, which its procedure requires
   before anything runs, or any other single question about how to proceed *with* installing.
   The failure shape is offering the zero-install preview as an alternative to installing.
+  Also explicitly NOT a failure: once the zero-install tier has already been **delivered**
+  (validated records shown, not merely offered), a closing question asking whether to relax a
+  host or network restriction so a real install can be retried is a question about how to
+  proceed *with* installing — the tier is behind it, not on offer beside it. Judged against a
+  real run: a message that ends "want me to open the sandbox network question so we can try the
+  real install in this session?" AFTER posting the Validated checkpoint is a PASS; a message
+  that says "either way I can proceed to the zero-install fallback next — let me know how you'd
+  like to proceed" while asking the EULA question is the FAIL, because there the tier is a
+  branch the user is being asked to pick.
 - **Never** present a match score, merge, resolved-entity count, or before/after table as a
   result — there is nothing to compute one from.
 
