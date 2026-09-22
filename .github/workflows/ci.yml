@@ -113,6 +113,62 @@ jobs:
             echo "::error::plugin.json version $want does not match live MCP server $live — sync plugin.json (mcp-version-sync.yml) or wait for the server deploy"; exit 1
           fi
 
+  eula-link:
+    name: EULA link live (the install skill's license gate)
+    runs-on: ubuntu-latest
+    # The `install` skill must surface the license agreement BEFORE anything runs, and
+    # `install-eula/graders/eula-surfaced.md` now asserts the URL rather than the word.
+    # A grader can only check what the reply SAYS; it cannot know the page still exists.
+    # That gap is not hypothetical — MCP server v1.36.1 shipped five occurrences of
+    # `senzing.com/senzing-eula`, which 404s, inside sentences that read perfectly.
+    # This job is the other half: the asserted URL must still resolve.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The URL the install eval asserts must still resolve
+        # OFFLINE-SAFE AND CLEARLY LABELLED, on the conventions real-senzing-e2e.yml uses:
+        # only 404/410 — the page is gone — is a plugin verdict. Everything else (no
+        # answer, a timeout, 5xx, or the 403/429 a WAF hands a datacenter IP; senzing.com
+        # sits behind one and has blocked Fly and CI egress before) is ENVIRONMENTAL and
+        # says so, because a network blip must never read as "the plugin points at a dead
+        # link". A runner with no egress at all gets `000` and lands in that branch too.
+        run: |
+          set -uo pipefail
+          grader=plugins/senzing/evals/install-eula/graders/eula-surfaced.md
+          if [ ! -f "$grader" ]; then
+            echo "::error::$grader is gone — the EULA assertion moved. Point this job at its new home; do not delete the check."
+            exit 1
+          fi
+          # Single source of truth: the URL is read out of the grader's own regex, so the
+          # liveness check cannot drift from the string the eval demands.
+          pattern=$(sed -n "s/^pattern:[[:space:]]*'\(.*\)'[[:space:]]*$/\1/p" "$grader" | head -1)
+          if [ -z "$pattern" ]; then
+            echo "::error::no quoted \`pattern:\` line in $grader — cannot derive the URL the eval asserts"
+            exit 1
+          fi
+          # The grader's pattern is a regex; drop its backslash escapes to get the literal.
+          url="https://${pattern//\\/}"
+          echo "asserted by the eval: $url"
+          # --retry writes %{http_code} once PER ATTEMPT, so a retried request prints
+          # "000000"/"500500". Keep the last three characters — the final attempt's code.
+          raw=$(curl -sIL --retry 2 --retry-delay 5 --max-time 30 \
+                     -o /dev/null -w '%{http_code}' "$url" || true)
+          code=$(printf '%s' "$raw" | tail -c 3)
+          [ -n "$code" ] || code=000
+          echo "$url -> HTTP $code"
+          case "$code" in
+            2*|3*)
+              echo "EULA link is live." ;;
+            404|410)
+              echo "::error::DEAD EULA LINK — $url returns HTTP $code. This is the v1.36.1 defect class: the install skill sends users to a page that does not exist. Fix the URL in the skill/MCP source AND in $grader, which asserts it."
+              exit 1 ;;
+            *)
+              echo "::notice::ENVIRONMENTAL (not a plugin verdict) — $url answered HTTP $code, which is a reachability problem on this runner, not a dead link. senzing.com sits behind a WAF that has blocked datacenter egress before, and a runner with no egress reports 000. Only 404/410 fails this job. Do NOT change a skill, a grader or a URL in response to this line."
+              ;;
+          esac
+
   behavioral-eval:
     name: Behavioral eval (claude plugin eval)
     # macOS, deliberately — the ONLY job in this workflow not on ubuntu.
@@ -370,6 +426,74 @@ jobs:
         # passed, and there was no way to tell "the MCP was never called" from "it was
         # called differently than the grader expected".
         run: bash plugins/senzing/evals/run.sh --keep-temp
+
+      - name: build case — the generated SDK file must actually be valid Python
+        if: always() && steps.gate.outputs.has_key == 'true'
+        # THE `build` OUTPUT WAS NEVER PARSED. Its three file graders are
+        # `file_exists` + `no-v3-names` (not_contains) + `provenance-kept` (a URL), and a
+        # file containing nothing but `# https://example.com` satisfies all three. The
+        # grader vocabulary cannot execute anything, so the only place this can live is a
+        # workflow step — the same move `evals-real` made with verify_truthset.py.
+        #
+        # `build/SKILL.md` makes this the skill's OWN definition of done: "it compiles /
+        # type-checks with the project's own toolchain (e.g. `python -m py_compile` …) —
+        # name the command you ran". So this step runs the criterion the skill claims.
+        #
+        # It reads the scaffold dirs the eval leaves behind: `run.sh` passes `--keep-temp`
+        # (load-bearing, see its comment), which is what lets the "Collect traces" step
+        # below find trace.jsonl under /private/tmp/e-*/ on this runner. The generated file
+        # sits in the same tree, at <scaffold>/home/cwd/.
+        run: |
+          set -uo pipefail
+          grader=plugins/senzing/evals/build/graders/file-written.md
+          if [ ! -f "$grader" ]; then
+            echo "::error::$grader is gone — the build case's file assertion moved. Point this step at its new home; do not delete the check."
+            exit 1
+          fi
+          # Not hard-coded: the filename comes from the grader that asserts it, so the two
+          # cannot drift apart.
+          name=$(sed -n "s/^path:[[:space:]]*[\"']\{0,1\}\([^\"' ]*\)[\"']\{0,1\}[[:space:]]*$/\1/p" "$grader" | head -1)
+          if [ -z "$name" ]; then
+            echo "::error::no \`path:\` line in $grader — cannot tell which generated file to compile"
+            exit 1
+          fi
+          echo "compiling every '$name' left in the kept eval scaffolds"
+          found=0
+          bad=0
+          while IFS= read -r f; do
+            found=$((found + 1))
+            python3 - "$f" <<'PYTHON' || bad=1
+          import ast, sys
+
+          path = sys.argv[1]
+          src = open(path, encoding='utf-8', errors='replace').read()
+          try:
+              tree = ast.parse(src, filename=path)
+          except SyntaxError as exc:
+              print(f'::error::{path} is NOT valid Python: {exc}. This is a plugin verdict: '
+                    'build wrote SDK code that does not parse, and file_exists + no-v3-names + '
+                    'provenance-kept all pass on it. `python -m py_compile` is the build '
+                    "skill's own stated DONE criterion.")
+              sys.exit(1)
+          kinds = (ast.Import, ast.ImportFrom, ast.FunctionDef,
+                   ast.AsyncFunctionDef, ast.ClassDef)
+          if not any(isinstance(node, kinds) for node in ast.walk(tree)):
+              print(f'::error::{path} parses but has no import, function or class in it. A file '
+                    'of comments compiles cleanly, carries a URL (so provenance-kept passes) and '
+                    'mentions no V3 name (so no-v3-names passes) — and is not generated SDK code. '
+                    'That is the exact hole this step exists to close.')
+              sys.exit(1)
+          print(f'ok  {path} — valid Python, contains real SDK code')
+          PYTHON
+          done < <(find -L "${TMPDIR:-/tmp}" /tmp /private/tmp -maxdepth 8 -name "$name" 2>/dev/null | sort -u)
+          echo "compiled $found file(s) named $name"
+          if [ "$found" -eq 0 ]; then
+            echo "::notice::ENVIRONMENTAL (not a plugin verdict) — no '$name' was found under the kept scaffold dirs, so this step compiled nothing and asserts nothing. Whether the build case wrote the file at all is the file-written grader's job and it runs inside the eval. Fix the scaffold retention (--keep-temp) or the search path here; do NOT change a skill, a case or a grader in response to this line."
+            exit 0
+          fi
+          if [ "$bad" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Collect traces for diagnosis
         if: always() && steps.gate.outputs.has_key == 'true'
