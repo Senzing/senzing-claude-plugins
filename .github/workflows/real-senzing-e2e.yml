@@ -290,7 +290,15 @@ jobs:
         # rows anywhere under /tmp" selected the PREFLIGHT's three-record database on a
         # run that loaded nothing, and the resulting "159 of 159 records are not in the
         # repository" was read as a plugin defect twice. A missing marker, or no
-        # repository beside it, now exits 78 as an ENVIRONMENTAL failure that says so.
+        # repository beside it, now exits 78 as an ENVIRONMENTAL failure that says so —
+        # and so does a repository that IS found and holds DSRC_RECORD rows but reads
+        # back empty through the SDK. That third case is not hypothetical: run
+        # 35730635947 printed "159 of 159 submitted records are not in the repository"
+        # about a database the run's own script had just read 159 records and 85
+        # entities out of, because the verifier's export call carried no
+        # SZ_EXPORT_INCLUDE_* entity-selection flag and so returned nothing without
+        # raising. The flag is fixed; the guard stays, because a populated repository
+        # that reads as empty can never be a plugin verdict.
         #
         # --reported-from points at the traces the step above collected: check 5
         # reads the run's OWN final message and compares the numbers in it to the

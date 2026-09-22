@@ -51,9 +51,12 @@ MODES
   --self-test
       Free, offline, no Senzing. Re-derives the expectation from the vendored key
       and fixtures, asserts they are mutually consistent, asserts no grader has
-      re-frozen an engine number as a literal, and then runs the five gating
-      checks against a STUBBED repository to prove each one can actually FAIL.
-      A check that cannot fail is the defect this file exists to remove.
+      re-frozen an engine number as a literal, runs the five gating checks
+      against a STUBBED repository to prove each one can actually FAIL (a check
+      that cannot fail is the defect this file exists to remove), and exercises
+      the read-fault guard in both directions — a populated repository must read
+      as populated, and a populated repository that reads as EMPTY must be named
+      as a fault in the READ rather than a verdict on the plugin.
 
   --search-root DIR  (or --repo-db FILE)
       Find the scaffold marker under DIR, find the SQLite repository the agent
@@ -404,8 +407,19 @@ class SdkRepository(RepositoryView):
         """
         if self._export_cache is not None:
             return dict(self._export_cache)
+        # SZ_EXPORT_INCLUDE_ALL_ENTITIES is NOT optional decoration: the
+        # SZ_EXPORT_INCLUDE_* flags SELECT WHICH ENTITIES the export emits, and
+        # with none of them set the export succeeds and returns nothing at all.
+        # That is not hypothetical — run 35730635947 shipped with only
+        # SZ_ENTITY_INCLUDE_RECORD_DATA here and reported "159 of 159 submitted
+        # records are not in the repository" against a database the run's own
+        # script had just read 159 records and 85 entities out of. The arithmetic
+        # is in the published flag values: SZ_EXPORT_DEFAULT_FLAGS (3734497) minus
+        # SZ_ENTITY_DEFAULT_FLAGS (3734464) is exactly 33 =
+        # SZ_EXPORT_INCLUDE_ALL_ENTITIES (MULTI_RECORD | SINGLE_RECORD).
         handle = self._engine.export_json_entity_report(
-            self._flags.SZ_ENTITY_INCLUDE_RECORD_DATA
+            self._flags.SZ_EXPORT_INCLUDE_ALL_ENTITIES
+            | self._flags.SZ_ENTITY_INCLUDE_RECORD_DATA
         )
         mapping: dict[Record, str] = {}
         try:
@@ -645,6 +659,56 @@ def run_checks(
 
 
 # --------------------------------------------------------------------------
+# "The read may be at fault" guard
+# --------------------------------------------------------------------------
+def read_fault(
+    engine_records: int,
+    sqlite_records: int,
+    reported: list[str],
+    feature_spot_check: list[dict],
+) -> str | None:
+    """Is this verdict more likely a broken READ than a broken run?
+
+    This job's documented failure mode is a loud, confident, wrong first line:
+    "159 of 159 records are not in the repository" has now been read as a plugin
+    defect THREE times, the third time because the verifier itself asked the
+    engine the wrong question (an export with no entity-selection flag returns
+    nothing and raises nothing). So before a zero is reported as a plugin
+    verdict, it is cross-examined against oracles that do NOT go through the same
+    SDK call:
+
+      * the repository's own DSRC_RECORD table, read straight out of SQLite;
+      * the record counts the run itself reported.
+
+    If either says there is data and the SDK read says there is none, the read is
+    the suspect, and this returns the message to print instead of a verdict.
+    Zero on every oracle is left alone: that IS a run that loaded nothing.
+    """
+    said = set()
+    for text in reported:
+        said |= numbers_near(text, "record")
+    if engine_records == 0 and (sqlite_records > 0 or any(n > 0 for n in said)):
+        return (
+            f"the SDK read returned ZERO records from {sqlite_records} row(s) in the "
+            f"repository's own DSRC_RECORD table"
+            + (f", and the run itself reported record count(s) {sorted(said)}" if said else "")
+            + ". A repository that holds data but reads as empty is a fault in THIS "
+            "verifier or its environment, not in the plugin. Check, in this order: the "
+            "export flags (SZ_EXPORT_INCLUDE_* select which entities are emitted — with "
+            "none set the export returns nothing and raises nothing); CONFIGPATH / "
+            "RESOURCEPATH / SUPPORTPATH and the default config id the run registered; "
+            "and whether this process opened the same file the run wrote."
+        )
+    if feature_spot_check and all(not row["present"] for row in feature_spot_check):
+        return (
+            "every spot-check entity came back with NO features at all. One record "
+            "missing a feature is a mapping defect; all of them missing every feature "
+            "is the all-features flag or the config, i.e. this verifier's read."
+        )
+    return None
+
+
+# --------------------------------------------------------------------------
 # The informational truth-set comparison (NOT a gate)
 # --------------------------------------------------------------------------
 def truthset_signal(in_engine: dict[Record, str]) -> dict:
@@ -712,6 +776,15 @@ def emit(verdict: dict, out_path: Path | None) -> int:
     if verdict["verdict"] == "PASS":
         print("\nPASS — " + verdict["headline"])
         return EXIT_PASS
+    if verdict["verdict"] == "ENVIRONMENTAL":
+        print(
+            "\n::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — "
+            + "; ".join(verdict["failures"])
+            + " Do NOT change a skill, an eval case, a grader or an expected count in "
+            "response to this.",
+            file=sys.stderr,
+        )
+        return EXIT_ENVIRONMENTAL
     print("\n::error::FAIL — " + "; ".join(verdict["failures"]), file=sys.stderr)
     return EXIT_FAIL
 
@@ -832,6 +905,33 @@ def prove_checks_can_fail(rows: list[dict[str, str]]) -> list[str]:
     def report_nothing(view: StubRepository, reported: list[str]) -> None:
         reported.clear()
 
+    # The shape that shipped a FALSE FAIL (run 35730635947): the repository holds
+    # 159 records, the run reported 159, and the SDK read comes back EMPTY because
+    # the export was asked for no entity classes. A populated repository must read
+    # as populated; when it does not, the verdict must name the READ, not the
+    # plugin. Both directions are asserted, because a guard that always fires is
+    # as useless as one that never does.
+    populated = StubRepository(rows)
+    # Verbatim shape of the real run's final message (run 35730635947).
+    said_loaded = [f"## {len(rows)} records -> **85 distinct entities**"]
+    healthy_detail = run_checks(populated, rows, _reported_for(populated))[1]
+    cases = [
+        ("populated repo reads as populated", healthy_detail["engine_record_count"],
+         len(rows), _reported_for(populated), healthy_detail["feature_spot_check"], False),
+        ("populated repo reads as EMPTY (the CI false fail)", 0, len(rows), said_loaded, [], True),
+        ("empty read, empty table, but the run said it loaded", 0, 0, said_loaded, [], True),
+        ("nothing loaded and nothing claimed", 0, 0, [], [], False),
+        ("every spot entity has no features", len(rows), len(rows), _reported_for(populated),
+         [{"record": ["X", "1"], "expected": ["NAME"], "present": []}], True),
+    ]
+    for label, engine_records, sqlite_records, said, spot_features, want_fault in cases:
+        got = read_fault(engine_records, sqlite_records, said, spot_features)
+        if bool(got) != want_fault:
+            problems.append(
+                f"read-fault guard, '{label}': expected "
+                f"{'a read fault' if want_fault else 'no read fault'}, got {got!r}"
+            )
+
     mutate("data_went_in", drop_a_record)
     mutate("data_went_in", leave_redo_queued)
     mutate("er_ran", resolve_nothing)
@@ -902,7 +1002,12 @@ def self_test(out_path: Path | None) -> int:
 # --------------------------------------------------------------------------
 # Verify
 # --------------------------------------------------------------------------
-def verify(repo_db: Path, out_path: Path | None, reported_from: Path | None) -> int:
+def verify(
+    repo_db: Path,
+    out_path: Path | None,
+    reported_from: Path | None,
+    sqlite_records: int,
+) -> int:
     submitted = read_fixture_rows(FIXTURE_DIR)
     reported = final_messages(reported_from) if reported_from is not None else []
     if reported_from is not None and not reported:
@@ -915,17 +1020,30 @@ def verify(repo_db: Path, out_path: Path | None, reported_from: Path | None) -> 
     failures, detail = run_checks(view, submitted, reported)
     signal = truthset_signal(view.record_to_entity())
 
+    # Before any of the above is printed as a statement about the PLUGIN, ask
+    # whether the read itself is the suspect. See read_fault().
+    fault = read_fault(
+        detail["engine_record_count"], sqlite_records, reported, detail["feature_spot_check"]
+    )
+
     verdict = {
         "mode": "verify",
-        "verdict": "FAIL" if failures else "PASS",
+        "verdict": "ENVIRONMENTAL" if fault else ("FAIL" if failures else "PASS"),
         "headline": (
             f"{detail['engine_record_count']} records resolved to "
             f"{detail['engine_entity_count']} entities, the mapped features are queryable, "
             "and the run reported the engine's own numbers"
         ),
-        "failures": [message for _, message in failures],
-        "failed_checks": sorted({check for check, _ in failures}),
+        # A read fault REPLACES the failure list rather than joining it: those
+        # failures are all downstream of the bad read, and printing them as
+        # co-equal is how the wrong first line gets believed.
+        "failures": [fault] if fault else [message for _, message in failures],
+        "failed_checks": [] if fault else sorted({check for check, _ in failures}),
+        "suppressed_by_read_fault": (
+            [message for _, message in failures] if fault else []
+        ),
         "repository": str(repo_db),
+        "repository_dsrc_record_rows": sqlite_records,
         "gating_checks": detail,
         "informational_truthset_signal": signal,
     }
@@ -959,12 +1077,15 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.search_root is not None:
-            repo_db, _loaded = locate_repository(args.search_root)
+            repo_db, sqlite_records = locate_repository(args.search_root)
         else:
             repo_db = args.repo_db
             if not repo_db.is_file():
                 raise Environmental(f"no repository at {repo_db}")
-        return verify(repo_db, args.out, args.reported_from)
+            # The same SQLite oracle locate_repository() uses, so --repo-db gets
+            # the read-fault guard too.
+            sqlite_records = looks_like_senzing_repo(repo_db) or 0
+        return verify(repo_db, args.out, args.reported_from, sqlite_records)
     except Environmental as exc:
         print(
             "::error::ENVIRONMENTAL FAILURE (not a plugin verdict) — "
