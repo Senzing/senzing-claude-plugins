@@ -77,6 +77,8 @@
     "rightsizing",
     "rmcp",
     "sandboxed",
+    "SANDBOXWRITE",
+    "SBPL",
     "seccomp",
     "SENZ",
     "Senzing",

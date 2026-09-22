@@ -157,7 +157,12 @@ jobs:
       EVAL_MODEL: sonnet
       EVAL_JUDGE_MODEL: sonnet
       # Pinned deliberately — see the install step. Keep in step with local dev.
-      CLAUDE_CLI_VERSION: "2.1.259"
+      # 2.1.278 is a FLOOR, not just a pin (run.sh enforces the same one). 2.1.259 wrote
+      # its own sandbox config with //tmp and //private/tmp in denyWrite — the PARENT of
+      # the //private/tmp/e-XXXX allowWrite roots it scaffolds each eval under — and the
+      # macOS seatbelt writer emits allow-then-deny with no carve-out. SBPL is last-match-
+      # wins, so EVERY Bash write in the suite was denied. 2.1.278 narrows those deny paths.
+      CLAUDE_CLI_VERSION: "2.1.278"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -189,9 +194,9 @@ jobs:
           npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}"
           claude --version
 
-      - name: Canary — one cheap case must actually reach the Senzing MCP
+      - name: Canary — two cheap cases must reach the MCP and write from Bash
         if: steps.gate.outputs.has_key == 'true'
-        # THE GATE THAT WOULD HAVE SAVED A DAY, second attempt.
+        # THE GATE THAT WOULD HAVE SAVED A DAY, third attempt.
         #
         # A full run ($6, ~7 min) once reported 4/14 and was read as a plugin-quality
         # problem. It was not: the agent had NO Senzing MCP tools in session at all.
@@ -206,72 +211,131 @@ jobs:
         # does not load the MCP the way `plugin eval` does (plugin-sourced server,
         # different registration timing), so it cannot answer this question.
         #
-        # The only trustworthy signal is the eval's own loading path. So: run ONE cheap
-        # case for ONE run, and require a real `mcp__` tool_use in its trace. ~$0.30 to
-        # protect a ~$6 run, and it fails with "environmental" rather than a score that
-        # looks like a plugin verdict.
+        # The second attempt ran the right case and then read the wrong disk. It globbed
+        # $TMPDIR/**/trace.jsonl, but on macOS TMPDIR is /var/folders/... while the eval
+        # scaffolds under /private/tmp/e-*, so it matched ZERO traces on every run, printed
+        # "canary produced no trace" as a ::warning:: and exited 0 (see run 35667715196).
+        # Neither the MCP assertion nor the sandbox scan has ever inspected a trace. Both
+        # now read tracePath out of the eval's own JSON (cases[].arms.<arm>[].tracePath),
+        # the glob is a fallback only, and no traces is a FAILURE: a canary that graded
+        # nothing is not a pass.
+        #
+        # Two cases, both cheap (~$0.36 to protect a ~$6 run):
+        #   ask-routing    — a real mcp__ tool_use must appear in the trace (reachability).
+        #   sandbox-canary — a Bash write must succeed. ask-routing deliberately runs NO
+        #                    shell, so it can never see a shell fault; this case probes the
+        #                    write directly, and assembles its token at runtime so the
+        #                    asserted pattern cannot leak out of the echoed command.
         run: |
           set -o pipefail
-          EVAL_RUNS=1 EVAL_JSON=/tmp/canary.json \
+          EVAL_RUNS=1 EVAL_JSON=/tmp/canary-ask.json \
             bash plugins/senzing/evals/run.sh --case ask-routing --keep-temp || true
+          EVAL_RUNS=1 EVAL_JSON=/tmp/canary-sandbox.json \
+            bash plugins/senzing/evals/run.sh --case sandbox-canary --keep-temp || true
           python3 - <<'CANARY'
           import glob, json, os, sys
 
-          traces = glob.glob(os.path.join(os.environ.get('TMPDIR', '/tmp'), '**', 'trace.jsonl'),
-                             recursive=True)
-          if not traces:
-              print('::warning::canary produced no trace; cannot verify MCP reachability')
-              sys.exit(0)
-
-          seen = set()
-          for t in traces:
+          # The eval records where it wrote each run's trace. Read THAT. The scaffold root
+          # is the CLI's business, not ours, and the previous guess at it matched nothing.
+          def traces_from(result_json):
+              paths = []
               try:
-                  blob = open(t, encoding='utf-8', errors='replace').read()
-              except OSError:
-                  continue
+                  with open(result_json, encoding='utf-8') as fh:
+                      data = json.load(fh)
+              except (OSError, ValueError) as exc:
+                  print(f'::warning::cannot read {result_json}: {exc}')
+                  data = {}
+              for case in data.get('cases') or []:
+                  for runs in (case.get('arms') or {}).values():
+                      for run in runs or []:
+                          tp = run.get('tracePath')
+                          if tp and os.path.exists(tp):
+                              paths.append(tp)
+              if not paths:
+                  # Secondary only — never the sole source. Both plausible scaffold roots.
+                  for root in ('/private/tmp', '/tmp', os.environ.get('TMPDIR') or '/tmp'):
+                      paths += glob.glob(os.path.join(root, 'e-*', '**', 'trace.jsonl'),
+                                         recursive=True)
+              return sorted(set(paths))
+
+          def read_all(paths):
+              blobs = []
+              for path in paths:
+                  try:
+                      with open(path, encoding='utf-8', errors='replace') as fh:
+                          blobs.append(fh.read())
+                  except OSError as exc:
+                      print(f'::warning::cannot read trace {path}: {exc}')
+              return blobs
+
+          ask_traces = traces_from('/tmp/canary-ask.json')
+          box_traces = traces_from('/tmp/canary-sandbox.json')
+
+          failed = False
+          for label, paths in (('ask-routing', ask_traces), ('sandbox-canary', box_traces)):
+              print(f'{label}: {len(paths)} trace(s)')
+              for path in paths:
+                  print(f'  {path}')
+              if not paths:
+                  print(f'::error::the {label} canary produced no trace, so this gate '
+                        'inspected nothing. A canary that graded nothing is not a pass — '
+                        'refusing to spend the eval budget on an unverified runner.')
+                  failed = True
+          if failed:
+              sys.exit(1)
+
+          ask_blobs = read_all(ask_traces)
+          box_blobs = read_all(box_traces)
+
+          # 1. The Senzing MCP must be reachable from the eval session.
+          seen = set()
+          for blob in ask_blobs:
               for chunk in blob.split('"name":"')[1:]:
                   name = chunk.split('"', 1)[0]
                   if name.startswith('mcp__'):
                       seen.add(name)
+          if seen:
+              print(f'MCP OK — {len(seen)} Senzing MCP tool(s) invoked:')
+              for name in sorted(seen):
+                  print(f'  {name}')
+          else:
+              print('::error::The canary case completed without invoking a single mcp__* tool. '
+                    'The Senzing MCP is not reachable from the eval session on this runner, so '
+                    'the full suite would grade an agent that cannot call the tools under test '
+                    'and every tool_used grader would fail environmentally.')
+              failed = True
 
-          # The canary case (ask-routing) deliberately runs NO shell, so a green canary
-          # said nothing about Bash: the previous run passed this gate and then logged 63
-          # `bwrap:` failures across the suite. Check the traces for sandbox errors too.
-          # Not bwrap-specific: macOS uses a different sandbox, and the point is to
-          # catch ANY sandbox failure before paying for the suite. The previous version
-          # also only scanned the canary's own trace -- and the canary case (ask-routing)
-          # deliberately runs no shell, so it could never have seen a shell failure. It
-          # now matches the sandbox error shapes both backends produce.
-          bwrap_errs = set()
-          for t in traces:
-              try:
-                  blob = open(t, encoding='utf-8', errors='replace').read()
-              except OSError:
-                  continue
-              for i in range(len(blob)):
-                  for marker in ('bwrap:', 'sandbox-exec:', 'Operation not permitted'):
-                      if blob.startswith(marker, i):
-                          bwrap_errs.add(blob[i:i + 110].split('\\')[0].strip())
-          if bwrap_errs:
-              print('::error::The Bash sandbox is broken on this runner — bwrap failed:')
-              for e in sorted(bwrap_errs)[:5]:
-                  print(f'  {e}')
+          # 2. Bash must be able to WRITE. The token is assembled at runtime by the case, so
+          #    finding it in the trace means a write actually landed and was read back.
+          if any('SANDBOXWRITE_OK' in blob for blob in box_blobs):
+              print('sandbox OK — Bash wrote a file in the scaffold and read it back')
+          else:
+              print('::error::The sandbox-canary trace does not contain SANDBOXWRITE_OK: Bash '
+                    'could not write to the eval scaffold. This is the CLI deny-parent bug — a '
+                    'denyWrite entry (//tmp, //private/tmp) that is the PARENT of the run\'s own '
+                    'allowWrite scaffold, which last-match-wins seatbelt resolves as denied. '
+                    f'Fixed in CLI 2.1.278; this runner has {os.environ.get("CLAUDE_CLI_VERSION", "?")}. '
+                    'doctor/install/analyze/demo would be graded on a host they cannot touch.')
+              failed = True
+
+          # 3. Any sandbox error in either trace, whichever backend produced it.
+          sandbox_errs = set()
+          for blob in ask_blobs + box_blobs:
+              for marker in ('bwrap:', 'sandbox-exec:', 'Operation not permitted'):
+                  at = blob.find(marker)
+                  while at >= 0:
+                      sandbox_errs.add(blob[at:at + 110].split('\\')[0].strip())
+                      at = blob.find(marker, at + len(marker))
+          if sandbox_errs:
+              print('::error::The Bash sandbox is broken on this runner:')
+              for err in sorted(sandbox_errs)[:5]:
+                  print(f'  {err}')
               print('::error::Every Bash call in the suite would fail, so doctor/install/'
                     'analyze/demo would be graded on a machine they cannot touch. '
                     'Refusing to spend the eval budget.')
-              sys.exit(1)
+              failed = True
 
-          if seen:
-              print(f'canary OK — {len(seen)} Senzing MCP tool(s) invoked, no bwrap errors:')
-              for n in sorted(seen):
-                  print(f'  {n}')
-              sys.exit(0)
-
-          print('::error::The canary case completed without invoking a single mcp__* tool. '
-                'The Senzing MCP is not reachable from the eval session on this runner, so the '
-                'full suite would grade an agent that cannot call the tools under test and every '
-                'tool_used grader would fail environmentally. Refusing to spend the eval budget.')
-          sys.exit(1)
+          sys.exit(1 if failed else 0)
           CANARY
 
       - name: Run eval suite (same script as local)

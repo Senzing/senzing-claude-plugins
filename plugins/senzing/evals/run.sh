@@ -157,6 +157,31 @@ args=(
 help_text="$(claude plugin eval --help 2>&1 || true)"
 case "$help_text" in *--trust-plugin*) args+=(--trust-plugin) ;; esac
 case "$help_text" in *--concurrency*)  args+=(--concurrency "${EVAL_CONCURRENCY:-3}") ;; esac
+
+# CLI FLOOR -- not a style preference, a correctness gate. Every CLI before 2.1.278 wrote
+# its own sandbox config with //tmp and //private/tmp in denyWrite, the PARENT of the
+# //private/tmp/e-XXXX allowWrite roots it had just scaffolded for the run; macOS seatbelt
+# is last-match-wins, so EVERY Bash write in the suite was denied and doctor/install/
+# analyze/demo were graded on a host they could not touch. A stale local CLI must fail
+# loudly here rather than quietly grade a read-only Bash. CI pins the same version.
+min_cli="2.1.278"
+cli_version="$(claude --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+# Suffixes are normal ("2.1.278 (Claude Code)"); compare the three numeric fields only.
+_ver_key() { awk -F. '{ printf "%d%03d%03d\n", $1, $2, $3 }' <<<"$1"; }
+if [ -z "$cli_version" ]; then
+  echo "ERROR: could not parse a version from \`claude --version\` (need >= $min_cli)." >&2
+  exit 1
+fi
+if [ "$(_ver_key "$cli_version")" -lt "$(_ver_key "$min_cli")" ]; then
+  echo "ERROR: claude CLI $cli_version is below the $min_cli floor this suite requires." >&2
+  echo "Below $min_cli the CLI denies its own eval scaffold every Bash write (denyWrite" >&2
+  echo "//private/tmp is the parent of the run's allowWrite root, and seatbelt is" >&2
+  echo "last-match-wins), so the skills would be graded on a read-only filesystem." >&2
+  echo "Upgrade: npm install -g @anthropic-ai/claude-code@$min_cli" >&2
+  exit 1
+fi
+echo "== claude CLI $cli_version (floor $min_cli) =="
+
 log="$results_dir/ci.log"
 set +e
 claude plugin eval "${args[@]}" "$@" 2>&1 | tee "$log"
