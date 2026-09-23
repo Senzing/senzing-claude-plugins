@@ -27,7 +27,7 @@ mapper: a single-file `mapping_workflow` writes fixed-name files into it (`profi
 `schema_hints.md`, `JOURNAL.md`, `mapping_spec.json`, `<datasource>_sample.jsonl`), you and the
 state-capture hook write `.sz-state.json` there, and a second workflow in the same directory
 overwrites all of them mid-run. Every `{workspace}` below means *your* dedicated directory.
-1. `start` `mapping_workflow` with `file_paths` (just your one file) and `data.workspace_dir`
+1. `start` `mapping_workflow` with `file_paths` (just your one file) and `workspace_dir`
    (your dedicated directory). It is an 8-step guided
    state machine, not a code generator: each response says what to do for the current step and
    what the next `advance` payload must contain. Follow it through profile → plan → map fields.

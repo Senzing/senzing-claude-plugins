@@ -112,7 +112,7 @@ State the resolved input list to the user before proceeding — informational, n
    budget runs out is the one outcome that helps nobody — it ends with no mapping, no report, and
    nothing the user can act on.
 
-   Whichever path you settle on, pass it as `data.workspace_dir` on `mapping_workflow`'s `start` — the returned `state`
+   Whichever path you settle on, pass it as `workspace_dir` on `mapping_workflow`'s `start` — the returned `state`
    carries `workspace_dir` from then on, and the state-capture hook resolves the same directory from
    that field (nothing needs to be exported or passed per command). Always write the returned
    `state` to `{workspace}/.sz-state.json` yourself (step 3) — that self-written file is the
@@ -139,7 +139,7 @@ State the resolved input list to the user before proceeding — informational, n
    runs write `profile_report_<file-stem>.md` per file) — plus this skill's own `.sz-state.json`
    (written by you and the state-capture hook, not by the tool). Two workflows sharing a
    workspace overwrite each other mid-run.
-   - `start` **once**, with **all** `file_paths` and `data.workspace_dir`. Follow the per-step
+   - `start` **once**, with **all** `file_paths` and `workspace_dir`. Follow the per-step
      instructions the responses return — profile the sources, plan the entity structure across
      them, map fields to Entity-Spec attributes — advancing with exactly the payload shape each
      step asks for.
