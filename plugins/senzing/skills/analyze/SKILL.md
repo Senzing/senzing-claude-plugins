@@ -171,6 +171,15 @@ State the resolved input list to the user before proceeding — informational, n
      data source), say what you tried, and ask how to proceed (fix the source data, accept a
      narrower mapping, or drop the file). Do not keep retrying, and do not quietly load the
      clean sources around it.
+   **A column that appears in two schemas and identifies the same real thing is a JOIN KEY, and
+   the dependent schema is a `child` or a relationship — never `payload`.** Say so in the step-2
+   plan, naming the column (`"join_key": "customer_id"`). `payload` is for data that rides along
+   on ONE record; using it for a second file's rows silently flattens a relationship into
+   attributes, so orders stop being orders and the entities they would have linked never link.
+   Graded runs split exactly here: the ones that planned `orders` as a `child` on `customer_id`
+   resolved correctly, and the ones that gave it `payload` produced two unrelated datasets that
+   happened to share a directory — no error, no warning, wrong entities.
+
    **Fan-out is the exception, never the default — and it is decided by evidence, not by a
    guess.** "No shared keys" cannot be judged from filenames or a glance before profiling, and
    misjudging it under-merges silently: zero errors, a clean verdict, wrong entities. So: run the

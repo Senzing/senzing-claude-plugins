@@ -74,3 +74,47 @@ caught three fixes that would have shipped:
 - **Never report a prompt fix as verified without a graded run**, and prefer ≥2
   runs per case — these graders are flaky per-run, not always-red, so a single
   green run is close to no evidence.
+
+## Round 2 — the judge records votes, not reasons. Re-judge to find the clause.
+
+`ci.json` stores `judgeVotes: [false, false, false]` and nothing else, so which
+rubric clause fired is **not** in the artifact. Do not guess it. Extract the
+exact material the judge saw — for a `focus: trace` grader the `evidence` string
+IS the transcript; for a `focus: { source: file }` grader it is the file — and
+re-run the rubric against it **on the judge's own model** (both suites pin
+`EVAL_MODEL=sonnet`), asking it to name the clause and the sentence. Two cases,
+two answers no amount of reading would have produced:
+
+5. **A clause no transcript can ever satisfy.** `ask-license-request` failed 2/2
+   on its first outing for stating the eval-license terms. The terms are real —
+   the run read them from `submit_feedback`'s tool description. But a tool
+   *description* is injected as that tool's **schema**; it is never a tool
+   result, so it appears in no transcript message. The judge saw a visible
+   `ToolSearch` whose visible result carried no terms, and correctly called an
+   invented result. The rubric simultaneously *required* the terms and left the
+   judge no way to see where they came from. Fix on both sides: `ask` now
+   attributes any term to the tool description in the same sentence, and the
+   rubric grades the attribution — the thing that IS visible.
+6. **The skill ordered the act the rubric bans — again.** `poc-planner`'s §6 step
+   said "say plainly if they mismatch" about the *Rightsizing* check. One run
+   obeyed and wrote "not obviously mismatched against 755,000 records" — the
+   plan's own adequacy verdict on the user's volume, which the rubric bans as
+   extrapolation and which the GOOD fixture `correct-plan.md` never does (it
+   quotes, lists their answers, and stops). Same shape as finding 2. The skill
+   was fixed, not the rubric.
+
+Two further rules:
+
+- **Give a file-focused rubric the same "How to judge" preamble as a
+  trace-focused one.** `poc-planner-grounded` was the only `criteria.md` in the
+  suite without one, and it re-litigated in prose the surface prohibitions its
+  34 deterministic siblings already enforce *with the quote exemptions built in*
+  — on a 20k-character, quote-dense document. Name the siblings, say the judge's
+  job is the two things a regex cannot see (is the quote genuine and cited; did
+  the plan add a judgement of its own), and say the template's own empty
+  collections are the template.
+- **The catch-all sentence must not be broader than the bullet above it.**
+  "if it offers to build a truth set" (unqualified) contradicted the §5 bullet
+  that bans only a **synthetic/labelled** one — and would have failed the repo's
+  own `correct-plan.md`, which quotes the guidance's real-data truth-set route.
+  Fourth instance of finding 3.

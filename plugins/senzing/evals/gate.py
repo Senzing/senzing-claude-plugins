@@ -65,8 +65,23 @@ def _fmt(score: float | None) -> str:
     return "  n/a" if score is None else f"{score:5.2f}"
 
 
-def evaluate_case(case: dict) -> dict:
-    """Split one case's graders into the deterministic gate and the judge score."""
+def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
+    """Split one case's graders into the deterministic gate and the judge score.
+
+    ``blind_runs`` are run indices this suite already proved had NO Senzing MCP
+    tools in session. They are excluded rather than graded: a session with no
+    tools cannot exercise the skill, so every assertion about the skill measures
+    the outage, not the plugin. Grading them anyway is how a 2.5-minute
+    CONNECT_TIMEOUT window was reported as 40 plugin assertion failures while
+    the skill under test was behaving exactly as written -- `poc-planner`
+    refused to produce a plan it could not ground, which is its rule 3.
+
+    This does NOT soften the gate. A case whose every run was blind reports
+    `not measured` and still exits non-zero; the suite stays red and the PR
+    stays unmergeable. It only stops issuing a SKILL verdict on a session that
+    had no skill tools.
+    """
+    blind_runs = blind_runs or set()
     types = {g.get("name"): g.get("type") for g in case.get("graders") or []}
     runs = (case.get("arms") or {}).get(SUBJECT_ARM) or []
 
@@ -75,7 +90,11 @@ def evaluate_case(case: dict) -> dict:
     judge_per_run: list[float] = []
     errors: list[str] = []
 
+    blind_skipped: list[int] = []
     for i, run in enumerate(runs):
+        if i in blind_runs:
+            blind_skipped.append(i)
+            continue
         if run.get("error"):
             errors.append(f"run {i}: {run['error']}")
             continue
@@ -108,7 +127,16 @@ def evaluate_case(case: dict) -> dict:
         "judge": judge,
         "judge_runs": len(judge_per_run),
         "errors": errors,
+        "blind_runs": blind_skipped,
+        "measured_runs": len(runs) - len(blind_skipped),
     }
+
+
+# The CLI's own words when a session never got the MCP's tools. Matching the
+# terminal message rather than the init snapshot is what separates "the server
+# was slow to connect" from "this session could not exercise the plugin at all".
+TOOLS_UNAVAILABLE = "failed to connect, so their tools are unavailable"
+CONNECT_TIMEOUT = "CONNECT_TIMEOUT"
 
 
 def session_defects(report: dict, base_dir: str | None = None) -> tuple[list[dict], dict]:
@@ -147,7 +175,7 @@ def session_defects(report: dict, base_dir: str | None = None) -> tuple[list[dic
                  hand, which is the claim being defended.
     """
     defects: list[dict] = []
-    counts = {"graded": 0, "declared": 0, "read": 0}
+    counts = {"graded": 0, "declared": 0, "read": 0, "blind": 0}
     for case in report.get("cases") or []:
         for arm_runs in (case.get("arms") or {}).values():
             for idx, run in enumerate(arm_runs or []):
@@ -165,9 +193,17 @@ def session_defects(report: dict, base_dir: str | None = None) -> tuple[list[dic
                 if not os.path.exists(path):
                     continue
                 status = None
+                blind = False
                 try:
                     with open(path, encoding="utf-8", errors="replace") as fh:
                         for line in fh:
+                            # Terminal evidence beats the init snapshot. `pending`
+                            # at init is a benign race — a run can report pending
+                            # and then make a dozen MCP calls once the handshake
+                            # lands. What proves a session never got tools is the
+                            # CLI saying so later, in a tool result.
+                            if TOOLS_UNAVAILABLE in line or CONNECT_TIMEOUT in line:
+                                blind = True
                             if '"subtype":"init"' not in line:
                                 continue
                             try:
@@ -179,13 +215,18 @@ def session_defects(report: dict, base_dir: str | None = None) -> tuple[list[dic
                             for server in event.get("mcp_servers") or []:
                                 if "senzing" in str(server.get("name", "")):
                                     status = server.get("status")
-                            break
                 except OSError:
                     continue
                 counts["read"] += 1
-                if status is not None and status != "connected":
-                    defects.append({"case": case.get("name", "?"),
-                                    "run": idx, "status": status})
+                if blind:
+                    counts["blind"] += 1
+                    defects.append({"case": case.get("name", "?"), "run": idx,
+                                    "status": status or "unknown", "blind": True})
+                elif status is not None and status != "connected":
+                    # Init said not-connected but the session never complained —
+                    # report it as a soft signal, do NOT exclude its grading.
+                    defects.append({"case": case.get("name", "?"), "run": idx,
+                                    "status": status, "blind": False})
     return defects, counts
 
 
@@ -208,7 +249,21 @@ def main() -> int:
     with open(args.result_json, encoding="utf-8") as fh:
         report = json.load(fh)
 
-    cases = [evaluate_case(c) for c in report.get("cases") or []]
+    # Detect MCP-blind runs BEFORE grading, so a session that never got the
+    # plugin's tools is excluded from the plugin's verdict instead of being
+    # scored by it. Ordering is the whole fix: this used to run after grading,
+    # so the suite could certify a run invalid and still publish its assertions.
+    blind, traces = session_defects(
+        report, os.path.dirname(os.path.abspath(args.result_json)))
+    blind_by_case: dict[str, set[int]] = {}
+    for d in blind:
+        if d.get("blind"):
+            blind_by_case.setdefault(d["case"], set()).add(d["run"])
+
+    cases = [
+        evaluate_case(c, blind_by_case.get(c.get("name", "?")))
+        for c in report.get("cases") or []
+    ]
     lines: list[str] = []
 
     def emit(text: str = "") -> None:
@@ -264,11 +319,14 @@ def main() -> int:
         for err in c["errors"]:
             emit(f"    RUN ERROR {c['name']}  {err}")
 
-    blind, traces = session_defects(
-        report, os.path.dirname(os.path.abspath(args.result_json)))
     emit(f"SESSION traces      {traces['read']}/{traces['graded']} graded run(s) inspected for "
          f"MCP connectivity ({traces['declared']} declared a tracePath) — "
-         f"{len(blind)} run(s) not connected")
+         f"{len(blind)} run(s) not connected, {traces['blind']} of them with NO tools in "
+         f"session (excluded from grading, not scored)")
+    for c in cases:
+        if c.get("blind_runs"):
+            emit(f"    NOT MEASURED {c['name']}  run(s) {c['blind_runs']} had no Senzing MCP "
+                 f"tools — {c['measured_runs']} of {c['runs']} run(s) actually graded")
 
     agg = report.get("aggregates") or {}
     emit()
@@ -308,13 +366,35 @@ def main() -> int:
               "`run.sh`), or the CLI stopped recording tracePath. Do not read the verdict above "
               "as a connectivity pass.", file=sys.stderr)
         tripped.append((2, "structural: no session traces readable"))
-    if blind:
-        print(f"::error::{len(blind)} run(s) started without the Senzing MCP connected, so the "
-              "agent was graded without the tools under test — an invalid measurement, not a "
-              "plugin verdict: "
-              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in blind[:8]),
+    # Only a run that NEVER got tools is a structural failure. A run that merely
+    # said `pending` at init and then made its MCP calls is a benign handshake
+    # race, and failing on it makes the suite red for something that measured
+    # the plugin perfectly well — 13 such runs did exactly that while all 18
+    # cases graded clean. Report the race, gate on the real thing.
+    truly_blind = [d for d in blind if d.get("blind")]
+    raced = [d for d in blind if not d.get("blind")]
+    if raced:
+        print(f"::notice::{len(raced)} run(s) reported the Senzing MCP as not-yet-connected at "
+              "init but went on to use its tools — a handshake race, not a defect: "
+              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in raced[:8]))
+    if truly_blind:
+        print(f"::error::{len(truly_blind)} run(s) had NO Senzing MCP tools for the whole "
+              "session, so the agent could not exercise the plugin — an invalid measurement, "
+              "not a plugin verdict: "
+              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in truly_blind[:8]),
               file=sys.stderr)
         tripped.append((2, "structural: session had no Senzing MCP"))
+
+    # A case with NO measured run is not a pass. Excluding blind runs from the
+    # plugin's verdict must never turn "we could not measure this" into silence
+    # — that would be the one change that actually weakens the gate.
+    unmeasured = [c for c in cases if c.get("measured_runs") == 0 and c.get("runs")]
+    if unmeasured:
+        print("::error::" + f"{len(unmeasured)} case(s) had NO measured run — every run lost the "
+              "Senzing MCP, so nothing about the plugin was tested: "
+              + ", ".join(c["name"] for c in unmeasured), file=sys.stderr)
+        tripped.append((2, "structural: case not measured at all"))
+
     if judge_bad_cases:
         level = "error" if args.enforce_judge else "warning"
         print(f"::{level}::JUDGE score: {len(judge_bad_cases)} case(s) below "

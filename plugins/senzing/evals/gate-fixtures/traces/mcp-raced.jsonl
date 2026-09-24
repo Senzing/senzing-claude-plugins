@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","session_id":"fixture-raced","cwd":"/private/tmp/e-FIXTURE","tools":["Bash","Skill"],"mcp_servers":[{"name":"plugin_senzing_senzing","status":"pending"}],"model":"sonnet"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","name":"mcp__plugin_senzing_senzing__search_docs","input":{"query":"poc methodology"}}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","content":"{\"results\":[{\"title\":\"Senzing PoC guidance\"}]}"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Plan written from retrieved guidance."}]}}

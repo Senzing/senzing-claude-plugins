@@ -4,8 +4,11 @@ tags: [ask, routing, confirmation, side-effects]
 expected_outcome: >
   ask fires and no action skill does; the run collects/echoes the request it would send — the
   name, the work email address and how the user heard of Senzing — and asks for explicit
-  confirmation before sending. This single turn contains no confirmation, so submit_feedback is
-  never called and nothing leaves the machine.
+  confirmation before sending. Any licensing term it restates (duration, record limit, cool-off)
+  is attributed to the `submit_feedback` tool description it came from — that description arrives
+  as the tool's schema, so attribution is the only visible evidence it was not recalled from
+  memory. This single turn contains no confirmation, so submit_feedback is never called and
+  nothing leaves the machine.
 max_turns: 12
 timeout_seconds: 300
 allowed_tools: [Read, Skill]

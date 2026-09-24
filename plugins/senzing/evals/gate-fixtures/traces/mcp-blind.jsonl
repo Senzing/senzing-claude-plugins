@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","session_id":"fixture-blind","cwd":"/private/tmp/e-FIXTURE","tools":["Bash","Skill"],"mcp_servers":[{"name":"plugin_senzing_senzing","status":"pending"}],"model":"sonnet"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","content":"these configured MCP servers failed to connect, so their tools are unavailable for this session: plugin:senzing:senzing (CONNECT_TIMEOUT)"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"The Senzing MCP server failed to connect. I can't write a PoC plan without pulling Senzing's own guidance first."}]}}
