@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.12] - 2026-09-24
+
+### Changed
+
+- Bump to MCP server **v1.37.12** (lockstep sync); the plugin carries no code change.
+
+## [1.37.8] - 2026-09-23
+
+### Changed
+
+- Bump to MCP server **v1.37.8** (lockstep sync); the plugin carries no code change.
+
 ## [1.37.7-1] - 2026-09-21
 
 Plugin-only patch on MCP server v1.37.7 (no server change): the eval gate made

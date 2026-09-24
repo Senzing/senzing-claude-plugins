@@ -9,9 +9,7 @@
     "file_paths": [
       "__WORKSPACE__/../customers.csv"
     ],
-    "data": {
-      "workspace_dir": "__WORKSPACE__"
-    }
+    "workspace_dir": "__WORKSPACE__"
   },
   "tool_response": [
     {
