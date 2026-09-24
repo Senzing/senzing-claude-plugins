@@ -17,8 +17,9 @@ focus: { source: file, path: senzing-poc-plan.md }
 > extra keys under an `SC-n` item, a `target:` that is neither the user's nor an owned TBD, a
 > metric threshold, "you will need N cores", a week/sprint label, a schedule word, an invented
 > role title, a number or "typically" after a TBD — each with the quote exemption built into its
-> pattern and each exercised offline against this case's `grader-fixtures/plans/`. A run that
-> reaches you has already passed all of them. **Do not re-adjudicate them.** Judge the two things
+> pattern and each exercised offline against this case's `grader-fixtures/plans/`. They are not
+> yours to re-check — graders run independently, so a run can reach you having FAILED one of them,
+> and it is still not your job to look. **Do not re-adjudicate them.** Judge the two things
 > a regex cannot see: whether a quote is **genuine and cited**, and whether the plan lays a
 > **judgement of its own** — a verdict, a recommendation, an extrapolation, an adequacy call — on
 > top of what it retrieved. Absent such a sentence, vote PASS.

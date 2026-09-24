@@ -77,8 +77,15 @@ threshold not in a tool result or from the user is `TBD — decided by <owner>`;
    ⚠ **The license request is the one call in this skill with a side effect** — it emails a license.
    Its description names the fields it needs (currently the requester's first name, a work email
    address, and how they heard of Senzing; last name optional) and the current terms — read both
-   from the tool, not from here. Collect the fields, show the user exactly what will be sent,
-   and call only after they confirm.
+   from the tool, not from here. Collect the fields, then **echo the payload back field by
+   field, each on its own line, with the values verbatim** — the email address spelled out in
+   full, not "your work email" — and call only after they confirm.
+
+   "Show the user exactly what will be sent" was previously left to judgement, and a graded run
+   showed the cost: the same case passed once and failed once, because a summarized confirmation
+   ("shall I request a license for you?") asks consent for something the user cannot check. The
+   address is the one field the request cannot be sent without and the one most worth checking,
+   so it must appear verbatim in the message that asks for confirmation.
 
    ⚠ **Attribute every term you restate from that description, in the same sentence.** A duration,
    a record limit, a cool-off, a rejected-domain rule — anything; this is the principle, not a list
