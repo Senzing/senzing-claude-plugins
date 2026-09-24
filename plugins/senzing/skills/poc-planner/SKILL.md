@@ -274,10 +274,18 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    others; the two `yaml` blocks with exactly the keys shown, values the user's or the TBD
    literal. **Then `Read` the file back and check every occurrence of the token `TBD`** — scan the
    text that `Read` returned; never `grep` it, which is a shell call and a defect under rule 8
-   even though its output is harmless: each
-   one must be the full literal `TBD — decided by <owner>`. A prose use — `recorded in §2 as
-   TBD.`, `the following are TBD,`, `is TBD` — is a defect the next skill cannot act on; rewrite
-   that sentence (say *undecided* or *open*) and `Write` the file again before you finish.
+   even though its output is harmless.
+
+   **Check it positively, not by recognizing bad shapes.** For every `TBD` in the file, look at
+   the characters immediately after it: they must be ` — decided by `. Anything else is a defect
+   — a colon, a full stop, a comma, a closing bracket or quote, a line ending. Do not check
+   against a list of wrong forms; the list is always shorter than the ways to be wrong, and this
+   check previously named `TBD.`, `TBD,` and `is TBD` while a plan shipped `stays TBD:`
+   introducing a bullet list, which the rule above already forbade and this step did not catch.
+   One positive test covers every form, including the one nobody thought of.
+
+   A prose use is a defect the next skill cannot act on: rewrite that sentence (say *undecided*
+   or *open*) and `Write` the file again before you finish.
    Then the host gate: do the file tools write the user's project? In Claude Code they
    do; in Cowork they do (only the shell is sandboxed); in Claude Desktop / Chat there is no
    project on disk — deliver the same document inline / as a download and say where to put it.
