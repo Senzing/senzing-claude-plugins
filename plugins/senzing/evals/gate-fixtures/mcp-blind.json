@@ -1,0 +1,63 @@
+{
+ "_comment": "A 2.5-minute mcp.senzing.com CONNECT_TIMEOUT window made 11 of 36 runs start with no Senzing tools in session. The skills behaved correctly -- poc-planner refuses to write a plan it cannot ground -- but the gate scored those sessions anyway and reported 40 plugin assertion failures for an outage it had already detected. Run 0 here is blind: its deterministic graders 'fail' because the tools were absent. Run 1 is connected and clean. gate.py must EXCLUDE run 0 from the plugin verdict, grade the case on run 1, and still exit 2 structurally so the run stays red and unmergeable -- never 0.",
+ "costUsd": 1.0,
+ "partial": false,
+ "partialReason": null,
+ "aggregates": {
+  "casesTotal": 1,
+  "casesPassed": 1,
+  "overallScore": 1.0
+ },
+ "cases": [
+  {
+   "name": "blind-and-good",
+   "aggregates": {
+    "score": 1.0
+   },
+   "graders": [
+    {
+     "name": "skill-fired",
+     "type": "tool_used"
+    },
+    {
+     "name": "guidance-searched",
+     "type": "tool_used"
+    }
+   ],
+   "arms": {
+    "with": [
+     {
+      "error": null,
+      "tracePath": "traces/mcp-blind.jsonl",
+      "graders": [
+       {
+        "name": "skill-fired",
+        "passed": false,
+        "explanation": "mcp__plugin_senzing_senzing__search_docs called 0x (expected 1..inf)"
+       },
+       {
+        "name": "guidance-searched",
+        "passed": false,
+        "explanation": "mcp__plugin_senzing_senzing__get_capabilities called 0x (expected 1..inf)"
+       }
+      ]
+     },
+     {
+      "error": null,
+      "tracePath": "traces/connected.jsonl",
+      "graders": [
+       {
+        "name": "skill-fired",
+        "passed": true
+       },
+       {
+        "name": "guidance-searched",
+        "passed": true
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
