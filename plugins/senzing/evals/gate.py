@@ -366,11 +366,22 @@ def main() -> int:
               "`run.sh`), or the CLI stopped recording tracePath. Do not read the verdict above "
               "as a connectivity pass.", file=sys.stderr)
         tripped.append((2, "structural: no session traces readable"))
-    if blind:
-        print(f"::error::{len(blind)} run(s) started without the Senzing MCP connected, so the "
-              "agent was graded without the tools under test — an invalid measurement, not a "
-              "plugin verdict: "
-              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in blind[:8]),
+    # Only a run that NEVER got tools is a structural failure. A run that merely
+    # said `pending` at init and then made its MCP calls is a benign handshake
+    # race, and failing on it makes the suite red for something that measured
+    # the plugin perfectly well — 13 such runs did exactly that while all 18
+    # cases graded clean. Report the race, gate on the real thing.
+    truly_blind = [d for d in blind if d.get("blind")]
+    raced = [d for d in blind if not d.get("blind")]
+    if raced:
+        print(f"::notice::{len(raced)} run(s) reported the Senzing MCP as not-yet-connected at "
+              "init but went on to use its tools — a handshake race, not a defect: "
+              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in raced[:8]))
+    if truly_blind:
+        print(f"::error::{len(truly_blind)} run(s) had NO Senzing MCP tools for the whole "
+              "session, so the agent could not exercise the plugin — an invalid measurement, "
+              "not a plugin verdict: "
+              + ", ".join(f"{d['case']}#{d['run']} ({d['status']})" for d in truly_blind[:8]),
               file=sys.stderr)
         tripped.append((2, "structural: session had no Senzing MCP"))
 

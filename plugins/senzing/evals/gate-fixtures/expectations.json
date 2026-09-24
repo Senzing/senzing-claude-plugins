@@ -145,6 +145,19 @@
         "DETERMINISTIC gate: ",
         "blind-and-good/skill-fired"
       ]
+    },
+    {
+      "name": "a handshake race (pending at init, then used the MCP) is a notice, not a structural failure",
+      "fixture": "mcp-raced.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "must_contain": [
+        "handshake race, not a defect"
+      ],
+      "must_not_contain": [
+        "structural: session had no Senzing MCP",
+        "NOT MEASURED"
+      ]
     }
   ]
 }

@@ -1,0 +1,39 @@
+{
+ "_comment": "The MUST-NOT-FLAG control for the blind-run exclusion. This run said `pending` at init and then USED the MCP \u2014 a handshake race, not an outage. 13 such runs once turned a suite with 18/18 clean deterministic cases red under 'structural: session had no Senzing MCP'. gate.py must report the race as a notice and exit 0. If this fixture ever returns 2, the structural gate has gone back to classifying from the init snapshot instead of the terminal outcome.",
+ "costUsd": 1.0,
+ "partial": false,
+ "partialReason": null,
+ "aggregates": {
+  "casesTotal": 1,
+  "casesPassed": 1,
+  "overallScore": 1.0
+ },
+ "cases": [
+  {
+   "name": "raced-but-fine",
+   "aggregates": {
+    "score": 1.0
+   },
+   "graders": [
+    {
+     "name": "guidance-searched",
+     "type": "tool_used"
+    }
+   ],
+   "arms": {
+    "with": [
+     {
+      "error": null,
+      "tracePath": "traces/mcp-raced.jsonl",
+      "graders": [
+       {
+        "name": "guidance-searched",
+        "passed": true
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
