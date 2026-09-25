@@ -6,6 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.13-1] - 2026-09-25
+
+Plugin-only patch on MCP server v1.37.13 (no server change).
+
+### Fixed
+
+- **The eval gate stopped attributing MCP outages to the plugin.** A CONNECT_TIMEOUT window left
+  runs with no Senzing tools in session; the skills behaved correctly — `poc-planner` refused to
+  write a plan it could not ground — and the gate reported 40 plugin assertion failures anyway,
+  having already printed "an invalid measurement, not a plugin verdict". Blind runs are now
+  excluded from the plugin verdict rather than scored, classified from the terminal outcome rather
+  than the init snapshot; a handshake race (`pending` at init, then normal MCP use) is a notice
+  rather than a suite failure; and a case with **no** measured run fails structurally so "could not
+  measure" never becomes silence. Nothing relaxed — both directions pinned by fixtures
+  (`mcp-blind.json` → exit 2, `mcp-raced.json` → exit 0).
+- **`ask`**: the license-request confirmation now echoes the payload field by field, values
+  verbatim. "Show the user exactly what will be sent" left the shape to judgement, and a summarized
+  confirmation asks consent for something the user cannot check. Confirmed by a graded run going
+  4/4 from a 1-of-2 flake.
+- **`poc-planner`**: the TBD self-check is positive — the characters after every `TBD` must be
+  ` — decided by `. It previously enumerated three wrong shapes while the rule forbade four, so a
+  plan shipped `stays TBD:` that the rule already prohibited.
+- **`analyze`**: a column appearing in two schemas and identifying the same thing is a join key,
+  and the dependent schema is a child or relationship — never `payload`. Graded runs split exactly
+  there; `payload` flattens a relationship into attributes and the entities that should link never
+  link, with no error.
+- Two judge rubrics made able to point at the violation, and a false claim removed from one preamble — it told the judge
+  that a run reaching it had already passed the deterministic graders, which is untrue since
+  graders run independently.
+
 ## [1.37.13] - 2026-09-24
 
 ### Changed
