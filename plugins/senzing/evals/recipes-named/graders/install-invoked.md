@@ -1,21 +1,32 @@
 ---
-type: tool_used
-tool: Skill
-input_match: '"skill"\s*:\s*"(?:[\w-]+:)?install"'
+type: regex
+pattern: 'senzing\.com/end-user-license-agreement'
+flags: i
+target: last_message
 ---
 
-Why this exists: `install-steps-from-mcp` beside it asserts `sdk_guide(topic="install")`, which
-`doctor`'s own Step 0 calls unconditionally to learn the platform's install location — so it
-passes in a run where the `install` skill was never invoked at all. That is the same blind spot
-`demo-no-simulation` closed with its own `install-invoked.md` sibling; this case had none.
+# Grader: the user was shown the LICENSE AGREEMENT, not made to watch a hand-off
 
-It is not a stylistic preference: `recipes/SKILL.md` ("Senzing can't deploy") says to hand off to
-the **`install`** skill without asking first and explicitly "do not route around it via
-`sdk_guide(topic="install")` directly". The grader beside this one therefore measures the route
-the skill forbids taking alone, and this one measures the route it requires.
+This asserted that the `install` **Skill** was invoked. That is a route, not an outcome, and it
+manufactured flakiness: a run that already held the platform's install steps — `doctor`'s own
+Step 0 calls `sdk_guide(topic="install")` (`skills/doctor/SKILL.md:87`), so they are in context
+before this decision is reached — could deliver the correct result by a shorter path and still
+fail. `install-invoked` failed roughly 1 run in 8 for exactly that, after passing 6 in a row.
 
-Provably able to PASS a correct run: both `recipes-named` sessions in the last full run (f2)
-invoked it — trace-17/53 `{"skill": "senzing:install", "args": "macos_arm — no Senzing SDK
-detected, …"}` and trace-21/57 `{"skill": "senzing:install"}`. Provably able to FAIL: the two
-`recipes-catalog` sessions in that same run (trace-18/54, trace-36/72) invoked only
-`{"skill": "senzing:recipes"}`, so this pattern finds nothing in them.
+But the old grader was proxying something real that nothing else asserted, and dropping it
+outright would have lost the axis. `install/SKILL.md:75-86` surfaces the **EULA, by its URL,
+unconditionally, before anything runs**. `sdk_guide(topic="install")` does not. So the short
+route is only acceptable **if the user still got the license agreement** — and if it did not, that
+is a compliance defect, not a stylistic one.
+
+So assert that instead. The pattern is a verbatim copy of `install-eula/graders/eula-surfaced.md`,
+which is the same obligation measured the same way elsewhere in the suite.
+
+Provably able to PASS by EITHER route: a run that invokes `install` ends on that skill's
+license-agreement question (`skills/demo/SKILL.md:87-92` guarantees it is the final message), and
+a run that hands the steps over directly passes iff it also linked the agreement.
+Provably able to FAIL: any reply that presents install steps without the agreement — which is the
+outcome that actually matters and which nothing deterministic asserted before.
+
+The URL's liveness is checked separately by the `eula-link` job in `.github/workflows/ci.yml`; a
+grader can only assert what the reply says.

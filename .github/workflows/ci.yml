@@ -113,6 +113,57 @@ jobs:
             echo "::error::plugin.json version $want does not match live MCP server $live — sync plugin.json (mcp-version-sync.yml) or wait for the server deploy"; exit 1
           fi
 
+  cookbook-whitelist-drift:
+    name: Cookbook whitelist still matches upstream
+    runs-on: ubuntu-latest
+    # `recipes-catalog` and `recipes-named` graders whitelist recipe FILENAMES from
+    # Senzing/recipes, an upstream repo this plugin does not control. That coupling is
+    # legitimate — naming a recipe that does not exist IS fabrication, and it is the
+    # plugin's own defect — but it fails as a STEP CHANGE, not a probability: the day
+    # upstream adds or renames a recipe, several graders across two eval cases go red
+    # simultaneously with nothing wrong in this repo, and the failure surfaces as an
+    # expensive eval flake rather than as what it is.
+    #
+    # This job is the cheap half. It reads the live cookbook and fails loudly, by name,
+    # the moment the whitelist stops matching — same shape as `eula-link` above, which
+    # exists because a grader can only assert what a reply SAYS, never whether the thing
+    # it names still exists upstream.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The recipe filenames the evals whitelist must still exist upstream
+        run: |
+          set -uo pipefail
+          url="https://raw.githubusercontent.com/Senzing/recipes/main/cookbook.md"
+          body=$(curl -fsSL --retry 3 --retry-delay 5 --max-time 30 "$url") || {
+            echo "::warning::could not fetch $url — skipping drift check rather than failing on a network blip"
+            exit 0
+          }
+          # The exact set the graders encode. Keep in lockstep with
+          # evals/recipes-catalog/graders/no-invented-recipe.md and
+          # evals/recipes-named/graders/correct-recipe-fetched.md.
+          expected="clair-data-ingestion-starter customer-360-crm-online customer-360-stewardship nigel-healthcare-aws-entity-browser"
+          missing=0
+          for r in $expected; do
+            if ! printf '%s' "$body" | grep -q "$r"; then
+              echo "::error::whitelisted recipe '$r' is NO LONGER in the upstream cookbook — the eval graders that name it will fail with no plugin defect. Update the whitelist in both grader files and this job together."
+              missing=$((missing + 1))
+            fi
+          done
+          # Upstream GAINING a recipe is not a failure, but the graders should learn about
+          # it deliberately rather than via a red eval, so say so.
+          found=$(printf '%s' "$body" | grep -oE 'recipes/[A-Za-z0-9._-]+\.md' | sed 's|recipes/||; s|\.md$||' | sort -u)
+          for r in $found; do
+            case " $expected " in
+              *" $r "*) ;;
+              *) echo "::notice::upstream cookbook now lists '$r', which the eval whitelist does not know about. Not a failure — but add it before a run reports it and a grader calls it a fabrication." ;;
+            esac
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          echo "OK: all $(printf '%s' "$expected" | wc -w | tr -d ' ') whitelisted recipes still present upstream"
+
   eula-link:
     name: EULA link live (the install skill's license gate)
     runs-on: ubuntu-latest
