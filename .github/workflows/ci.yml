@@ -5,6 +5,26 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      eval_model:
+        description: >-
+          Subject model for the behavioral eval. Default `sonnet` — the tier the
+          gate grades. Use `opus` to measure the MUST tier, which this suite has
+          never run: the maintainer's ladder is opus and fable MUST pass, sonnet
+          SHOULD, haiku is not expected to, and until now every number quoted
+          about plugin reliability was a sonnet number.
+        required: false
+        default: sonnet
+        type: choice
+        options: [sonnet, opus, haiku]
+      eval_judge_model:
+        description: >-
+          Judge model. Kept separate from the subject on purpose — grading a
+          run with the model that produced it is not an independent check.
+        required: false
+        default: sonnet
+        type: choice
+        options: [sonnet, opus, haiku]
 
 # Every push stacked ANOTHER full run alongside the one already in flight: ci.yml was
 # the only workflow in this repo without a concurrency group. That was survivable when
@@ -261,8 +281,11 @@ jobs:
       # to sonnet, but a default is not a guarantee: --model previously resolved
       # to whatever the environment produced, which made a local pass and a CI
       # pass two different measurements of two different models.
-      EVAL_MODEL: sonnet
-      EVAL_JUDGE_MODEL: sonnet
+      # A workflow_dispatch may override this to measure a different tier; every
+      # other trigger stays pinned to sonnet so the GATE never silently changes
+      # which model it grades.
+      EVAL_MODEL: ${{ inputs.eval_model || 'sonnet' }}
+      EVAL_JUDGE_MODEL: ${{ inputs.eval_judge_model || 'sonnet' }}
       # Pinned deliberately — see the install step. Keep in step with local dev.
       # 2.1.269 is chosen between two CLI bugs, both measured on this suite.
       #   At or below 2.1.268: the CLI writes its own sandbox config with //tmp and
