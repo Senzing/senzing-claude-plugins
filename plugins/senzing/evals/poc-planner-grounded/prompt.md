@@ -2,18 +2,25 @@
 description: A POC planning request with stated constraints routes to poc-planner, retrieves the PoC guidance before writing, assembles sizing/platform/load material from the MCP, and writes a nine-section handoff plan whose every number is the user's, cited, or a TBD literal — with no schedule and nothing run.
 tags: [poc-planner, routing, grounding, provenance, no-fabrication, handoff]
 expected_outcome: >
-  poc-planner fires; no action skill and no doctor fires and the Skill tool is never used for a
-  hand-off; get_capabilities and at least three PoC search_docs calls precede the Write;
-  reporting_guide is called for quality AND evaluation(python), sdk_guide for the platform tree
-  and for load with a record_count, search_docs for sizing; senzing-poc-plan.md exists with
-  exactly nine template headings, the §2 yaml keys carrying the user's PostgreSQL/Linux/Python/
-  volumes (platform_id from sdk_guide's tree is the one tool-derived §2 value), SC-n items with
-  only the template's seven keys whose targets are all TBD literals (the user agreed none), a
-  counted provenance line, a synthetic-truth-set warning, and source URLs; the license material
-  the tools return is quoted per tool and the 755k-vs-250K record-limit constraint is set against
-  the vertical-slice rule rather than resolved; it contains no week/sprint labels, no duration
-  ranges, no metric thresholds, no number or "typically" after a TBD, no invented role titles,
-  no "you will need N cores"; mapping_workflow never starts; no shell runs; no license is requested.
+  poc-planner fires; no other skill fires, and the Skill tool is never used for a hand-off — the
+  final message names exactly one next command. The plan is grounded, not recalled: Senzing's PoC
+  guidance is retrieved before senzing-poc-plan.md is written, and every Senzing statement in the
+  file is a quotation carrying the source it came back with. senzing-poc-plan.md exists with
+  exactly nine template headings; its §2 yaml keys carry the user's PostgreSQL/Linux/Python/
+  volumes, with platform_id — an id from sdk_guide's platform tree, not the user's words — the one
+  tool-derived §2 value; its SC-n items carry only the template's seven keys, their measurements
+  named as Senzing's reporting material names them (quality measures, and evaluation material for
+  Python), and every target is the TBD literal (the user agreed none); §6 sets Senzing's own
+  material beside each constraint the user stated — sizing for their volume, PostgreSQL, the
+  Ubuntu install path, the loading pattern at their real total — each quoted with its source, and
+  ends with the user's commitment or a TBD; the evaluation-license terms are quoted per tool that
+  returned them, with discrepancies listed under §9 open_decisions rather than reconciled, and the
+  755k-vs-250K record-limit constraint is set against the vertical-slice rule rather than
+  resolved; §9 carries a counted provenance line, source URLs, and every open decision; the
+  synthetic-truth-set warning is present and labeled as the plugin's own rule. The file contains
+  no week/sprint labels, no duration ranges, no metric thresholds, no number or "typically" after
+  a TBD, no invented role titles, no "you will need N cores". mapping_workflow never starts; no
+  shell runs; no license is requested.
 max_turns: 40
 timeout_seconds: 900
 allowed_tools: [Read, Skill, Write, Bash]

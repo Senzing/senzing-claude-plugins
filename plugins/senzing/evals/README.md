@@ -119,7 +119,7 @@ violation; the deterministic graders carry the tool-call obligations. Anything p
 | `routing-negative-dedupe` | "Dedupe my customer list in customers.csv" (scaffolded) | `Skill:analyze`; `Skill:demo` **= 0**; `mapping_workflow` on `customers.csv`; `get_sample_data` **= 0** | user's file, not sample data |
 | `build` | "Add Senzing entity search to my Python service… senzing_search.py" | `Skill:build`, `generate_scaffold(language=python)`, `get_sdk_reference`, file exists, `https?://` in file, no `G2*` names in file | SDK names all appear in a tool result; provenance kept; no claimed run |
 | `troubleshoot` | "What does Senzing error 0033E mean…" | `Skill:troubleshoot`, `explain_error_code(…33…)`, `Write` = 0 | answer **matches the tool result** (cause + steps), nothing invented |
-| `ask-routing` | "What attributes does Senzing support for a person record?" | `Skill:ask`; action skills = 0; an `mcp__plugin_senzing_senzing__*` call in trace; `Bash` = 0; `Write` = 0; no files created | names in the answer appear in a tool result; source URLs cited |
+| `ask-routing` | "What attributes does Senzing support for a person record?" | `Skill:ask`; action skills = 0; `search_docs` called ≥ 1 (the tool `ask`'s routing table assigns factual questions to; the earlier trace-wide `mcp__…*` regex could not fail, see `graders/mcp-tool-called.md`); `Write` = 0 (`Bash` is not granted, so no shell grader) | names in the answer appear in a tool result; source URLs cited |
 | `demo-no-simulation` | "Show me Senzing entity resolution working." (host has no SDK — **not** told) | `Skill:demo`, `Skill:doctor`, host probed via `Bash`, `sdk_guide(topic=install)` | absence discovered by probe; no result faked; **every install command appears in a tool result** |
 | `demo-scratch-repo` | demo with a green doctor + a real production repo (plan-level) | `Skill:demo`; "scratch/throwaway/fresh" and "sqlite/internal://" in the reply; no Bash touching production config | loads into a fresh scratch repo with **no confirmation**; never asks "proceed?" about the existing DB |
 | `recipes-catalog` | "What recipes are in the Senzing Cookbook?" | `Skill:recipes`; the live `cookbook.md` catalog actually **fetched** via `Bash curl` (not recalled); the reply names the real catalog entries (PPP-loan ingestion, both Customer 360 recipes, Healthcare Exclusion Screening); `Write` = 0 | no invented recipe/author/use-case (in particular no fabricated "fraud" recipe, even though the skill's own description names fraud as an example use case and none currently exists in the catalog); an unreachable catalog must be reported honestly with URL+status, never papered over with a remembered list |
@@ -147,8 +147,10 @@ required to quote, plus a correct plan that must pass every file grader and a te
 fabricated plan that must trip the listed ones. A grader that fires on quoted corpus text is a
 false-fail in waiting — fix the grader, never weaken the quoting rule. Two checks pass without doing
 the work and are kept only as weak positives paired with the judge: `provenance-kept` (any URL) and
-`synthetic-truth-set-warned` (the word); `retrieval-counted` is a self-reported integer, so
-`poc-guidance-searched` carries `min: 3` as the checkable proxy.
+`synthetic-truth-set-warned` (the word); `retrieval-counted` is a self-reported integer, and
+`poc-guidance-searched` (`min: 1`, lowered from 3 in #46 — a call count is not an outcome) only
+asserts that something was retrieved; order and coverage are `retrieved-before-written` and
+`sizing-material-retrieved`.
 
 `demo-scratch-repo` and `report-empty-instance` are **plan-level**: the sandbox cannot host a real
 Senzing, so the prompt supplies the doctor result and the graders check the decision (scratch repo /
