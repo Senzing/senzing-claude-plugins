@@ -100,6 +100,35 @@ jobs:
             --summary-title "MUST tier (opus subject / sonnet judge)" || rc=$?
           echo "gate.py exit ${rc:-0} — REPORTED, not enforced. Compare against the sonnet gate on the same commit."
 
+      - name: Collect traces beside the results
+        if: steps.gate.outputs.has_key == 'true' && always()
+        # Without this the artifact carries aggregate-result.json and nothing else, and an
+        # opus divergence cannot be diagnosed — which defeats the entire point of running
+        # this tier. The traces do NOT live under results/: `--keep-temp` leaves them in the
+        # CLI's own scaffold dirs (/private/tmp/e-* on macOS, not `claude-eval-*`), so they
+        # have to be copied in deliberately. Mirrors ci.yml's collection step; keep the two
+        # in step.
+        run: |
+          dest=plugins/senzing/evals/results/traces
+          mkdir -p "$dest"
+          n=0
+          while IFS= read -r t; do
+            n=$((n + 1))
+            cp "$t" "$dest/trace-$n.jsonl" 2>/dev/null || true
+          done < <(find -L "${TMPDIR:-/tmp}" /tmp /private/tmp -maxdepth 8 -name 'trace.jsonl' 2>/dev/null | sort -u)
+          echo "collected $n trace file(s) into $dest"
+          if [ "$n" -eq 0 ]; then
+            echo "::warning::no trace.jsonl found — a MUST-tier divergence will not be diagnosable from this artifact"
+          fi
+          # Tool histogram in the log itself: the first question about an opus divergence is
+          # always "what did it do instead", and this answers it without a download.
+          if [ "$n" -gt 0 ]; then
+            echo "== tool_use histogram across collected traces =="
+            cat "$dest"/*.jsonl 2>/dev/null \
+              | grep -o '"name":"[A-Za-z0-9_]*"' \
+              | sort | uniq -c | sort -rn | head -30
+          fi
+
       - name: Upload MUST-tier results
         if: steps.gate.outputs.has_key == 'true' && always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
