@@ -1,0 +1,110 @@
+name: MUST-tier eval (opus)
+
+# The gate in ci.yml grades `sonnet`, and only sonnet — it always has. The model
+# ladder for this plugin is: opus and fable MUST pass, sonnet SHOULD, haiku is
+# not expected to. So the tier the plugin is REQUIRED to work on has never been
+# measured, and every reliability number anyone has quoted about this plugin --
+# including a q ~= 2.1% per-case-run divergence rate -- is a sonnet number that
+# was read as a plugin number.
+#
+# This workflow measures the MUST tier. It is deliberately SEPARATE from ci.yml
+# rather than a model input on it:
+#
+#   * CKV_GHA_7 forbids workflow_dispatch inputs outright ("the build output
+#     cannot be affected by user parameters"). Adding one to ci.yml failed that
+#     check, and suppressing a supply-chain rule to get a measurement is the
+#     wrong trade. This file takes NO inputs -- the model is hardcoded.
+#   * The gate must keep grading exactly one tier. A model knob on the gating
+#     workflow is a knob that eventually gets turned to make a red go away.
+#   * A schedule means the MUST tier is measured whether or not anyone remembers
+#     to ask.
+#
+# NOT a gate. It reports. If opus diverges, that is a finding about skill design
+# -- obligations buried mid-paragraph, competing affordances, hand-offs at the
+# turn-budget edge -- and it deserves a considered fix, not an auto-red on
+# somebody's unrelated PR.
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly, Sunday 06:00 UTC. Off the weekday release path on purpose: this
+    # run costs real API budget and competes for the same macOS runners as the
+    # gate.
+    - cron: "0 6 * * 0"
+
+concurrency:
+  group: must-tier-eval
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  must-tier:
+    name: Behavioral eval on the MUST tier
+    # macos-latest for the same reason ci.yml's eval job uses it: the sandbox
+    # backend the CLI needs is provided by the OS there.
+    runs-on: macos-latest
+    timeout-minutes: 90
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Hardcoded, not parameterized — see the header. This file exists to ask
+      # one question: does the tier that MUST pass, pass?
+      EVAL_MODEL: opus
+      # The judge stays on sonnet. Grading an opus run with opus is not an
+      # independent check, and holding the judge constant is what makes this
+      # result comparable with the gate's.
+      EVAL_JUDGE_MODEL: sonnet
+      # Keep in lockstep with ci.yml. 2.1.269 sits between two CLI bugs, both
+      # measured on this suite — see the long note in ci.yml before bumping.
+      CLAUDE_CLI_VERSION: "2.1.269"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Gate on API key availability
+        id: gate
+        run: |
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::ANTHROPIC_API_KEY unavailable — MUST-tier eval SKIPPED, not passed."
+          else
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Claude Code CLI
+        if: steps.gate.outputs.has_key == 'true'
+        run: |
+          npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}"
+          claude --version
+
+      - name: Run the suite on the MUST tier
+        if: steps.gate.outputs.has_key == 'true'
+        # `|| true` because this REPORTS, it does not gate. The verdict is read
+        # out of the summary below and from the uploaded artifact; a red here
+        # must never block an unrelated PR, and must never be silently ignored
+        # either, which is what the explicit summary line is for.
+        run: bash plugins/senzing/evals/run.sh --keep-temp || true
+
+      - name: Say plainly what the MUST tier did
+        if: steps.gate.outputs.has_key == 'true'
+        run: |
+          set -uo pipefail
+          latest=$(find plugins/senzing/evals/results -name 'aggregate-result.json' -print0 2>/dev/null \
+                   | xargs -0 ls -t 2>/dev/null | head -1)
+          if [ -z "$latest" ]; then
+            echo "::warning::no aggregate-result.json — the run produced nothing to read"
+            exit 0
+          fi
+          python3 plugins/senzing/evals/gate.py "$latest" 18 \
+            --summary-title "MUST tier (opus subject / sonnet judge)" || rc=$?
+          echo "gate.py exit ${rc:-0} — REPORTED, not enforced. Compare against the sonnet gate on the same commit."
+
+      - name: Upload MUST-tier results
+        if: steps.gate.outputs.has_key == 'true' && always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: must-tier-eval-results
+          path: plugins/senzing/evals/results/
+          retention-days: 14
+          if-no-files-found: warn
