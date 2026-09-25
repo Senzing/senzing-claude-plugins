@@ -2,6 +2,7 @@
   "version": "0.2",
   "language": "en",
   "words": [
+    "affordances",
     "allowlist",
     "allowlisted",
     "Anthropic",
@@ -73,8 +74,8 @@
     "readlink",
     "RESOURCEPATH",
     "reusables",
-    "Rightsizing",
     "rightsizing",
+    "Rightsizing",
     "rmcp",
     "sandboxed",
     "SANDBOXWRITE",
