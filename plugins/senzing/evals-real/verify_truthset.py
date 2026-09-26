@@ -413,60 +413,65 @@ class SdkRepository(RepositoryView):
         self._export_cache: dict[Record, str] | None = None
 
     def engine_identity(self) -> dict:
-        """What the ENGINE says it is — version, build number, config id.
+        """What the ENGINE says it is — version, build number, and license.
 
         Everything else here infers that Senzing ran from the state of the
         repository. This asks the product directly, which is the one check that
-        cannot be satisfied by a well-formed database somebody else wrote. If
-        `SzProduct.get_version()` answers with a version and a build number,
-        a real engine of a known build is loaded in this process.
+        cannot be satisfied by a well-formed database somebody else wrote.
 
-        Reported, never gated on a particular value: pinning a build number
-        would fail the day Senzing ships a new one, which is upstream's business
-        and not the plugin's. What IS gated is that the call answers at all.
+        Field names are the documented ones, taken from the MCP's own
+        `get_sdk_reference(topic="response_schemas")` rather than from memory:
+        `get_version` returns VERSION / BUILD_NUMBER / BUILD_DATE /
+        BUILD_VERSION / SCHEMA_VERSION / COMPATIBILITY_VERSION, and
+        `get_license` returns recordLimit / expireDate / licenseType /
+        licenseLevel / contract / customer.
+
+        Values are REPORTED, never gated: pinning a build would fail the day
+        Senzing ships a new one, and pinning a license would fail on anybody
+        else's entitlement. What is gated is that the calls answer at all.
         """
         product = self._factory.create_product()
-        raw = product.get_version()
-        info = json.loads(raw) if isinstance(raw, str) else dict(raw)
-        return {
-            "version": info.get("VERSION"),
-            "build_number": info.get("BUILD_NUMBER"),
-            "build_date": info.get("BUILD_DATE"),
-        }
 
-    def workload(self) -> dict:
-        """How much work the engine did, from the engine's own counters.
+        def _as_dict(raw: object) -> dict:
+            return json.loads(raw) if isinstance(raw, str) else dict(raw)  # type: ignore[arg-type]
 
-        `get_stats()` is the engine's workload report. It answers the question
-        the repository state cannot: not "are the records there" but "did THIS
-        engine put them there, and did the redo path actually run". A repository
-        can be populated and still have had no redo work; that is the difference
-        between loaded and RESOLVED.
-
-        Returned as a best-effort dict — `get_stats` is a diagnostic surface and
-        its exact keys move between versions, so callers report what is present
-        rather than asserting a fixed shape.
-        """
         out: dict = {}
+        version = _as_dict(product.get_version())
+        out["version"] = version.get("VERSION")
+        out["build_number"] = version.get("BUILD_NUMBER")
+        out["build_date"] = version.get("BUILD_DATE")
+        out["schema_version"] = version.get("SCHEMA_VERSION")
         try:
-            raw = self._engine.get_stats()
-            stats = json.loads(raw) if isinstance(raw, str) else dict(raw)
-            out["stats_keys"] = sorted(stats)[:20]
-            for key in ("addedRecords", "ADDED_RECORDS", "loadedRecords"):
-                if key in stats:
-                    out["added_records"] = stats[key]
-                    break
-            for key in ("redoTriggers", "REDO_TRIGGERS", "processedRedos", "redosProcessed"):
-                if key in stats:
-                    out["redo_processed"] = stats[key]
-                    break
-        except Exception as exc:  # noqa: BLE001 - diagnostic surface, never fatal
-            out["stats_error"] = str(exc)[:200]
-        try:
-            out["redo_remaining"] = self._engine.count_redo_records()
-        except Exception as exc:  # noqa: BLE001
-            out["redo_remaining_error"] = str(exc)[:200]
+            lic = _as_dict(product.get_license())
+            out["license"] = {
+                "record_limit": lic.get("recordLimit"),
+                "expire_date": lic.get("expireDate"),
+                "license_type": lic.get("licenseType"),
+                "license_level": lic.get("licenseLevel"),
+            }
+        except Exception as exc:  # noqa: BLE001 - reported, never fatal
+            out["license_error"] = str(exc)[:200]
         return out
+
+    def redo_remaining(self) -> int | None:
+        """Redo records still queued, from the engine.
+
+        `data_went_in` already checks the queue DRAINED. This reports the raw
+        number beside it so "drained" is a figure rather than a boolean.
+
+        Deliberately NOT accompanied by a get_stats() scrape: an earlier version
+        of this read guessed key names (`addedRecords`, `redoTriggers`) that do
+        not appear in any documented response schema. The MCP publishes schemas
+        for get_version, get_license and the with_info response; it publishes
+        none for get_stats, so its shape is not something this check is entitled
+        to assert. How many add_record and process_redo_record calls a run made
+        is evidenced instead by the RUN's own transcript — see
+        `evals/GROUNDING-CONTRACT.md` on minimum call counts.
+        """
+        try:
+            return int(self._engine.count_redo_records())
+        except Exception:  # noqa: BLE001
+            return None
 
     def record_to_entity(self) -> dict[Record, str]:
         """One full export pass: every record the engine holds, and its entity.
@@ -739,11 +744,8 @@ def run_checks(
                 "database written by something other than Senzing would also satisfy. This is "
                 "the one that asks the product what it is.",
             ))
-    if hasattr(view, "workload"):
-        try:
-            workload = view.workload()
-        except Exception as exc:  # noqa: BLE001
-            workload = {"error": str(exc)[:200]}
+    if hasattr(view, "redo_remaining"):
+        workload = {"redo_remaining": view.redo_remaining()}
 
     detail = {
         "submitted_record_count": len(submitted_records),

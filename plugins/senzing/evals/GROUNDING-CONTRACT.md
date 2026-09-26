@@ -48,3 +48,37 @@ an engine is what opus did. An engine without the MCP is ungrounded code.
 was never invoked at all. A grounding assertion on a tool some earlier step
 always calls proves nothing. Check what the case's other graders already force
 before adding one.
+
+## A real run has a MINIMUM number of calls, and a faked one does not
+
+The strongest form of this check is not "was the tool called" but **"was it
+called as many times as the work requires"**. You cannot load N records without
+N `add_record` calls, and you cannot drain a redo queue without
+`process_redo_record` calls. Those counts are a property of the work, not of the
+route — so a run that invented its result will be short of them no matter how
+good the prose is.
+
+That is why `min:` matters more than the tool name here, and why a few of these
+carry a floor above 1:
+
+| Work | Minimum it cannot be under |
+|---|---|
+| loading N records | N `add_record` calls (or a batch whose own count is N) |
+| a drained redo queue | ≥1 `process_redo_record`, and `count_redo_records()` == 0 after |
+| an 8-step mapping workflow | one `start` plus an `advance` per step reached |
+| resolving anything at all | entities < records, which needs the engine, not arithmetic |
+
+The counterpart in `evals-real/verify_truthset.py` is `engine_identified`:
+`SzProduct.get_version()` must answer with a VERSION and BUILD_NUMBER, and
+`get_license()` reports recordLimit / expireDate / licenseType. Those field
+names come from the MCP's own `get_sdk_reference(topic="response_schemas")`,
+not from memory — an earlier version of that check invented `addedRecords` and
+`redoTriggers`, which appear in no documented schema. **The MCP publishes
+schemas for `get_version`, `get_license` and the `with_info` response and none
+for `get_stats`**, so call-count evidence belongs in the run's transcript,
+where it is observable, rather than in a scrape of an undocumented shape.
+
+Values are reported, never gated: pinning a build number fails the day Senzing
+ships a new one, and pinning a license fails on anybody else's entitlement.
+What is gated is that the calls answer at all — the difference between "the data
+looks right" and "an engine of a known build was running in this process".
