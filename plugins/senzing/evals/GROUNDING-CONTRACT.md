@@ -16,7 +16,7 @@ needs is its own business.
 | `install` | `sdk_guide` | install steps are per-platform and versioned; recalled ones rot |
 | `analyze` | `mapping_workflow` | the mapping must come from the Entity Specification |
 | `demo` | `get_sample_data` | the data is half the claim — invented rows demo nothing |
-| `report` | `reporting_guide` | the reporting surface changes between versions |
+| `report` | `reporting_guide` | the reporting surface changes between versions — **not yet enforced, see below** |
 | `troubleshoot` | `explain_error_code` | an error's cause is a fact, not an inference |
 | `ask` | `search_docs` | the answer must carry a source the user can open |
 | `build` | `generate_scaffold` / `get_sdk_reference` | argument shapes diverge per binding |
@@ -108,3 +108,29 @@ literal, for the same reason build numbers are reported and not gated: a
 literal is a thing that goes stale, and staleness reads as a failure that isn't
 one. A run that invented its result has no counter to read, so it comes up
 short — or silent, which check 7 treats the same way.
+
+
+## One row in that table is not enforced, and saying so is the point
+
+`report` → `reporting_guide` is a real obligation with **no case that can
+assert it today**, and a contract that implies coverage it does not have is
+worse than one that admits the hole.
+
+The attempt and why it failed: `report-empty-instance` is the suite's only
+`report` case, and its prompt sets `CONNECTION internal://`. `report/SKILL.md`
+handles that connection by explicitly NOT exporting — *"there is nothing a new
+process can report on … a Bash-run export opens an empty store and counts 0 for
+the wrong reason; say so and offer `/senzing:analyze` … instead of grading it as
+empty."* The export pattern is where `reporting_guide` is needed, so a grader
+demanding the call on this case demands a route the skill forbids. It failed
+2 of 2 runs, and both runs were right.
+
+Closing it needs a `report` case with a **persisted** repository that actually
+holds data — a SQLite scratch repo loaded by a fixture — where asking for the
+biggest entities genuinely requires knowing how to export them. Until that case
+exists, the row above is aspiration, not enforcement.
+
+The general rule this is an instance of: **an obligation is only real on the
+path where the work actually happens.** Before adding a grounding assertion,
+check that the case you are adding it to takes the path that needs the tool —
+not merely that the skill mentions it somewhere.

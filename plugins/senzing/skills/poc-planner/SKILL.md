@@ -175,14 +175,18 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    quotes what you retrieved and links the article for the rest; **never complete a list of rules
    from memory.** Apply rule 3.
 2. **Round 1 — ask, in one message, accepting "unknown" or "not decided" for anything.** Four
-   blocks; say every answer will be recorded verbatim and where the plan will be written (step 8):
+   blocks; say every answer will be recorded verbatim and where the plan will be written (step 8).
+   **Every item is phrased as a question and ends in `?`** — a bare field name ("Database
+   (Postgres/MySQL/other)") reads as a form to fill in, and a reader skims past it; the same item
+   asked ("Which database — Postgres, MySQL, MSSQL, something else?") gets answered:
    - **The guidance's own questions.** Every question the retrieved *Rightsizing* chunk poses, in
      its wording (data required and where it lives, who owns it and may it be used, how many
      records; systems quickly available; who will run it and with how much of their time).
-   - **Infrastructure — the §2 fields.** Volume (total and per source); database; OS/platform
-     (container or bare metal); cloud or on-prem, and whether that matches where production would
-     live; hardware actually available for the POC (not what production would get); the
-     throughput and latency they must demonstrate to believe the result. Ask; suggest no sizes.
+   - **Infrastructure — the §2 fields, each one asked.** How many records, in total and per
+     source? Which database? Which OS and platform — container or bare metal? Cloud or on-prem,
+     and does that match where production would eventually live? What hardware is actually
+     available for the POC (not what production would eventually get)? What throughput and
+     latency would you have to see to believe the result? Ask; suggest no sizes.
    - **People and tooling.** Who runs it, their skills, and **which SDK language** (needed for
      step 3 and by `install` later).
    - **The buy decision.** *"At the end of this, what would have to be TRUE for your organization
