@@ -1,6 +1,6 @@
 # Senzing
 
-**Entity resolution: point Claude at your data, it runs Senzing on your machine, and you have results today.**
+**Entity resolution: point Claude at your data, it does the work, and you have results today.**
 
 Senzing entity resolution finds, deduplicates, links, and resolves person and organization records
 within and across data sources — building an identity-resolved graph with no training or
