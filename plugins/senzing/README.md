@@ -50,16 +50,19 @@ app") and the right one kicks in.
 
 ## Where it runs
 
-**Best in Claude Code.** The commands that *do* the work — `analyze`, `demo`, `report`,
-`recipes`, `install`, `doctor` — write Senzing SDK code and run it against your own Senzing, so
-they need a session that can run commands on your machine and see your files. Claude Code
-(terminal or IDE) is where that is guaranteed.
+| Surface | What you get |
+|---|---|
+| **Claude Code** | Full capability. Every command works. |
+| **Chat / Cowork** | Full capability, with one exception: a report can be a dashboard artifact or a file, but not a **live interactive service** — SDK code that serves a web UI has nowhere to serve it. |
+| **Claude web** | **Informational only.** Nothing executes, in a container or on your machine. |
 
-The plugin installs anywhere plugins install, and nothing will stop you — but **in a session
-without local execution, seven of its ten commands cannot do their work.** There is no error
-message for this; the commands simply have no machine to work on. What still works is the
-informational half, which needs no machine of yours at all: `/senzing:ask`,
-`/senzing:troubleshoot` and `/senzing:poc-planner`, all grounded in the hosted Senzing MCP.
+On Claude web what still works is the half that needs no machine at all —
+`/senzing:ask`, `/senzing:troubleshoot` and `/senzing:poc-planner`, grounded in the hosted Senzing
+MCP. The commands that map, load, resolve or report have nothing to run on.
+
+Worth knowing before you install: the plugin ships no executables, so **nothing blocks the
+install anywhere**. On Claude web you get a clean install, working answers, and then silence from
+the commands that need a machine — there is no error message explaining why.
 
 ## Requirements
 

@@ -35,12 +35,13 @@ knowledge is served from the hosted Senzing MCP.
 Claude Desktop can't add a custom marketplace, but it can install a plugin from a file. Each
 release attaches a packaged `senzing-claude-plugin-<version>.zip` you can upload directly.
 
-**Check you have local execution first.** `analyze`, `demo`, `report`, `recipes`, `install` and
-`doctor` run Senzing SDK code against your own Senzing, so they need a session that can run
-commands on your machine and read your files. Where that is unavailable the plugin still installs
-and still answers questions — `ask`, `troubleshoot`, `poc-planner` — but those six commands have
-no machine to work on, and you get no error saying so. Claude Code is the surface where all ten
-work.
+**Know what each surface gives you.** **Claude Code**: full capability. **Chat / Cowork**: full
+capability, except that a report can be a dashboard artifact or a file but not a live interactive
+service — SDK code serving a web UI has nowhere to serve it. **Claude web**: informational only,
+because nothing executes there in a container or on your machine; `ask`, `troubleshoot` and
+`poc-planner` still work, and the commands that map, load, resolve or report have nothing to run
+on. The plugin ships no executables, so nothing blocks the install anywhere — on Claude web you
+get a clean install and no error, just commands with no machine to work on.
 
 1. Download `senzing-claude-plugin-<version>.zip` from the [latest release](https://github.com/Senzing/senzing-claude-plugins/releases).
 2. In Claude Desktop: **Settings → Plugins → Add → Upload a file**, then select the `.zip`.
