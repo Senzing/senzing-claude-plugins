@@ -193,6 +193,8 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    number (`SzProduct.get_version()` returns `VERSION` and `BUILD_NUMBER`). Read them off the
    counters, never off what you expect them to be — a dish nobody cooked cannot produce a build
    number it never asked the engine for.
+   Say it as one line, in exactly this shape:
+   `Engine work: <N> add_record calls, <M> process_redo_record calls, engine <VERSION> build <BUILD>.`
 
 Outcome: the recipe's finished dish — a real, loaded, resolved Senzing solution on the user's
 machine, served through its place setting, built by driving the chef's prompts and grounded in the

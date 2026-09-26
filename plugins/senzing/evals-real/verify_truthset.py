@@ -1231,10 +1231,24 @@ def verify(
     verdict = {
         "mode": "verify",
         "verdict": "ENVIRONMENTAL" if fault else ("FAIL" if failures else "PASS"),
+        # The headline must describe THIS verdict. It used to assert the happy
+        # path unconditionally -- a FAIL whose only failure was
+        # `engine_work_reported` still printed "and the run reported the
+        # engine's own numbers", contradicting the failure directly beneath it.
+        # A first line that disagrees with the finding is the line people quote.
         "headline": (
-            f"{detail['engine_record_count']} records resolved to "
-            f"{detail['engine_entity_count']} entities, the mapped features are queryable, "
-            "and the run reported the engine's own numbers"
+            fault if fault
+            else (
+                f"{detail['engine_record_count']} records in the engine, "
+                f"{detail['engine_entity_count']} entities, but "
+                + "; ".join(sorted({check for check, _ in failures}))
+                + " did not hold"
+            ) if failures
+            else (
+                f"{detail['engine_record_count']} records resolved to "
+                f"{detail['engine_entity_count']} entities, the mapped features are "
+                "queryable, and the run reported the engine's own numbers"
+            )
         ),
         # A read fault REPLACES the failure list rather than joining it: those
         # failures are all downstream of the bad read, and printing them as

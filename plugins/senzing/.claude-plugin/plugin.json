@@ -21,6 +21,11 @@
     "fuzzy-matching",
     "data-matching",
     "data-quality",
-    "master-data-management"
+    "master-data-management",
+    "kyc",
+    "kyb",
+    "fraud-detection",
+    "sanctions-screening",
+    "customer-360"
   ]
 }

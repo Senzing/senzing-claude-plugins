@@ -261,6 +261,10 @@ State the resolved input list to the user before proceeding — informational, n
    resolution, but it cannot produce an engine build number it never asked for or a redo count it
    never incremented. Nobody will tell you what these numbers should be; they are checked against
    what the engine actually holds.
+   **Say it in your final message too, as one line, in exactly this shape:**
+   `Engine work: <N> add_record calls, <M> process_redo_record calls, engine <VERSION> build <BUILD>.`
+   A written report is the right home for the detail, but it is a file on your disk; the line above
+   is what a reader — and the check — sees without opening anything.
 5. **Drain the redo queue before asking anything — loading is not resolving.** Senzing defers part
    of resolution to redo records processed *after* load; an entity count taken before the queue is
    empty is a mid-resolution snapshot, not the answer. Get the redo calls from

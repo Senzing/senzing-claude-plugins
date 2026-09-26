@@ -3,9 +3,9 @@
 **Resolve, dedupe and link your records with Senzing — on your machine, on your data.**
 
 Senzing entity resolution finds, deduplicates, links, and resolves person and organization records
-within and across data sources — building an identity-resolved view with no model training
-required. Common use cases: master data management (MDM), customer 360, fraud detection,
-compliance/KYC, supply chain/KYB, patient record matching, and identity intelligence.
+within and across data sources — building an identity-resolved graph with no training or
+tuning. Senzing is used for master data management (MDM), customer 360, fraud detection,
+compliance/KYC, sanctions and exclusion screening, supply chain/KYB, and identity intelligence.
 
 ## How it works — three actors, and only one of them sees your data
 
@@ -74,11 +74,16 @@ Senzing MCP.
 What the plugin sends, and where:
 
 - **To `https://mcp.senzing.com/mcp`** (the hosted Senzing MCP, over HTTPS): the questions Claude
-  asks it — the tool name and its arguments, such as a topic, an error code, a programming
-  language, or the column names of a file you are mapping. **Tool calls and their parameters may be
-  logged.** Do not paste personal data, credentials or secrets into a prompt.
-- **Never sent anywhere:** the records in your data files. Mapping, loading and resolution run
-  locally; the MCP is given file *paths* as labels and never opens them.
+  asks it, and the arguments of each call — a topic, an error code, a programming language, the
+  **source field names** of a file you are mapping, and your mapping choices. When you map a *code*
+  field (a document-type or status column, say), the distinct code values in it are enumerated and
+  sent, because the server validates that every one of them is accounted for. **Tool calls and
+  their parameters may be logged**, as its privacy notice states. The server's own instructions
+  direct the model not to send personal data, credentials or sensitive values; the same goes for
+  you — don't paste them into a prompt.
+- **Never sent:** the contents of your records — the names, addresses, identifiers and rows
+  themselves. Mapping, loading and resolution run locally, and file paths reach the server as
+  labels it never opens.
 - **To `raw.githubusercontent.com`**: fetching indexed public code examples and cookbook recipes.
 - **On your machine only:** the generated SDK code, the scratch database, and every resolved
   result.

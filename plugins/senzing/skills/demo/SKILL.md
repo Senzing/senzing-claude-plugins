@@ -164,7 +164,10 @@ second report.
      they hold; do not restate the row count as though it were a call count, and do not fill them
      in from what you expect. **These are evidence, not decoration**: a demo that resolved nothing
      can describe a resolution, but it cannot produce a build number it never asked the engine
-     for. Nobody will tell you what these numbers should be; and
+     for. Nobody will tell you what these numbers should be. Put the same figures in your final
+     message as one line, in exactly this shape:
+     `Engine work: <N> add_record calls, <M> process_redo_record calls, engine <VERSION> build <BUILD>.`
+     The dashboard is a file; that line is what a reader sees without opening it; and
    - a **visualization** — a shareable dashboard (an Artifact) that renders that before/after.
 
    The rendered report-and-visualization IS the demo, not trailing commentary — produce it without
