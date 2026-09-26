@@ -48,6 +48,19 @@ app") and the right one kicks in.
 3. `what Senzing attributes should I map a phone number to?` (or `/senzing:ask …`) — a grounded
    answer with source links.
 
+## Where it runs
+
+**Best in Claude Code.** The commands that *do* the work — `analyze`, `demo`, `report`,
+`recipes`, `install`, `doctor` — write Senzing SDK code and run it against your own Senzing, so
+they need a session that can run commands on your machine and see your files. Claude Code
+(terminal or IDE) is where that is guaranteed.
+
+The plugin installs anywhere plugins install, and nothing will stop you — but **in a session
+without local execution, seven of its ten commands cannot do their work.** There is no error
+message for this; the commands simply have no machine to work on. What still works is the
+informational half, which needs no machine of yours at all: `/senzing:ask`,
+`/senzing:troubleshoot` and `/senzing:poc-planner`, all grounded in the hosted Senzing MCP.
+
 ## Requirements
 
 - **Claude Code 2.1.143 or newer.**
