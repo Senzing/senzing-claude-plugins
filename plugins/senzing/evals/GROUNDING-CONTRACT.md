@@ -82,3 +82,29 @@ Values are reported, never gated: pinning a build number fails the day Senzing
 ships a new one, and pinning a license fails on anybody else's entitlement.
 What is gated is that the calls answer at all — the difference between "the data
 looks right" and "an engine of a known build was running in this process".
+
+## Make the run report its own work — and never tell it the number
+
+The transcript is one place call counts are observable; the run's own report is
+the other, and it is the one a user actually reads. The `analyze`, `demo` and
+`recipes` skills each require their deliverable to carry `add_record` calls,
+`process_redo_record` calls, and the engine's version and build number, read
+off the counter in the loop that made the calls.
+
+Two constraints do the work, and dropping either one makes the requirement
+theatre:
+
+1. **Read the counter, do not restate the row count.** A file's line count is
+   available without an engine; a call counter is not.
+2. **Never state the expected number anywhere the skill can see it.** A number
+   the skill is told to produce is fabricable and proves nothing. A number it
+   must obtain and that is then checked independently is evidence.
+
+`verify_truthset.py` check 7 (`engine_work_reported`) is the grading half. It
+derives the truth from the engine and compares — the reported `add_record`
+count against the engine's own record count, using the floor above (N records
+cannot be loaded with fewer than N calls). It is never compared against a
+literal, for the same reason build numbers are reported and not gated: a
+literal is a thing that goes stale, and staleness reads as a failure that isn't
+one. A run that invented its result has no counter to read, so it comes up
+short — or silent, which check 7 treats the same way.

@@ -153,7 +153,14 @@ second report.
    **load → analytics**, not load alone. Over the **real** results, use `reporting_guide` for the
    report/entity-view + visualization patterns and produce BOTH:
    - a **report** — the before/after story: raw record count → resolved entity count, and a few
-     non-obvious merges, each with a `why` explanation; and
+     non-obvious merges, each with a `why` explanation. It also carries the engine work as
+     counters taken from your own loader — `add_record` calls made, `process_redo_record` calls
+     made, and the engine's version and build number (`SzProduct.get_version()` returns `VERSION`
+     and `BUILD_NUMBER`). Increment the counters in the loop that makes the calls and print what
+     they hold; do not restate the row count as though it were a call count, and do not fill them
+     in from what you expect. **These are evidence, not decoration**: a demo that resolved nothing
+     can describe a resolution, but it cannot produce a build number it never asked the engine
+     for. Nobody will tell you what these numbers should be; and
    - a **visualization** — a shareable dashboard (an Artifact) that renders that before/after.
 
    The rendered report-and-visualization IS the demo, not trailing commentary — produce it without

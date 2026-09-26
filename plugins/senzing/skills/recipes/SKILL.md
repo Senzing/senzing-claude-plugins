@@ -187,7 +187,12 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    resolved truth across every view — **gate each merge/split, confirm before it writes, never
    automatic.**
 7. **Wrap up.** Summarize what was built and why it matters, per the recipe's *Wrap Up*, and link
-   the demo **video** if the recipe links one (it appears inline, near the top).
+   the demo **video** if the recipe links one (it appears inline, near the top). If the recipe
+   loaded records, close with the engine work as counters taken from the code that ran:
+   `add_record` calls made, `process_redo_record` calls made, and the engine's version and build
+   number (`SzProduct.get_version()` returns `VERSION` and `BUILD_NUMBER`). Read them off the
+   counters, never off what you expect them to be — a dish nobody cooked cannot produce a build
+   number it never asked the engine for.
 
 Outcome: the recipe's finished dish — a real, loaded, resolved Senzing solution on the user's
 machine, served through its place setting, built by driving the chef's prompts and grounded in the
