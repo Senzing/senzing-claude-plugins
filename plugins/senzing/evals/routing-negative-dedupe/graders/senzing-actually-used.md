@@ -4,41 +4,45 @@ tool: mcp__plugin_senzing_senzing__mapping_workflow
 min: 1
 ---
 
-# Grader: the answer came from SENZING, not from the model
-
-The sibling `analyze-fired` asserts the skill was invoked and
-`mapping-started-on-users-file` asserts it ran on the user's file. This one
-exists because of *how* those two failed on the MUST tier, which neither of them
-explains on its own.
+# Grader: the MCP was consulted — HALF of the obligation, and it says so
 
 Given "dedupe my customer list in customers.csv", opus made three tool calls —
 `ls`, read the file, `Write` — fired **no skill at all**, and produced
-`customers_deduped.csv` by inspection. It was careful about it: survivors chosen
-by lowest id, discarded variants preserved in `merged_ids`/`alt_names`/
-`alt_emails`, the one risky merge flagged as a false-merge pattern at scale. And
-it said so plainly:
+`customers_deduped.csv` by inspection. 2 of 2 runs, in two independent runs. It
+was careful about it and it disclosed the method:
 
 > "This was done by inspection, not by an entity resolution engine. At six rows
-> that's the right tool… I didn't reach for it here because standing up a
-> scratch repository and loading six records costs more than it returns."
+> that's the right tool… standing up a scratch repository and loading six
+> records costs more than it returns."
 
-Every existing rule survived that. The skill description said results are "never
-simulated" — and nothing was simulated; the dedupe was real. `SKILL.md`'s
-"Never simulate entity resolution" is stronger, but it lives in the skill BODY,
-which never entered context because the skill was never invoked. **The guard was
-behind the door it guarded, and the rule that was in context prohibited
-fabrication rather than substitution.**
+Every rule in context survived that. The description said results are "never
+simulated" — and nothing was; the dedupe was real. **Substitution is a
+different failure from fabrication**, and the rule that would have caught it
+("Never simulate entity resolution") lives in the skill BODY, which never
+entered context because the skill was never invoked.
 
-Why that is a product defect and not good judgment: the user installed a Senzing
-plugin. A result reached by inspection has none of what they installed it for —
-no probabilistic matching, no match explanations, no principles that hold at the
-next order of magnitude. Disclosure documents the substitution; it does not
-repair it. And the threshold is the MODEL's: it chose inspection at six rows,
-and nothing in the plugin says where that stops.
+## What this grader does and does NOT prove
 
-Deliberately asserted on `mapping_workflow` rather than on the absence of
-`Write`: the outcome is that SENZING produced the answer, and a run may
-legitimately write files. Anchoring on the engine call keeps this an outcome
-assertion — a run that reaches the same answer through Senzing by any route
-passes, and a run that reaches it without Senzing fails however good the answer
-is.
+It proves the run **consulted the MCP** — that the mapping came from Senzing's
+Entity Specification rather than the model's opinion about the columns.
+
+It does **not** prove Senzing ran. `mapping_workflow` is an MCP tool; calling it
+means the model asked the server for guidance, not that an engine ever started.
+In this eval it cannot prove more: **the behavioral-eval environment has no
+Senzing installed** (`ci.yml` installs no `senzingsdk-runtime`), so `doctor`
+finds no SDK and a correct run ends at the mapping-only exit by design. Asking
+for engine evidence here would assert something the environment makes
+impossible.
+
+The other half — that an engine actually ran, which build it was, how many
+records it took and whether the redo path executed — is gated in
+`evals-real/verify_truthset.py`, on a host that really has Senzing:
+`engine_identified` (SzProduct.get_version must answer with a version and build
+number) plus the engine's own workload counters. Both halves are needed and
+neither substitutes for the other: MCP without an engine is what happened here,
+and an engine without the MCP is ungrounded code.
+
+Anchored on `mapping_workflow` rather than on the absence of `Write`: a run may
+legitimately write files. A run that reaches the answer through the MCP by any
+route passes; one that reaches it by inspection fails however good the answer is
+and however clearly it is labeled.

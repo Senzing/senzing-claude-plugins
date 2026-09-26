@@ -12,8 +12,8 @@ text the agent produced. Text is exactly what a fabricating run is good at. This
 script opens the Senzing repository the agent actually built and asks the engine,
 so the numbers cannot be talked into existence.
 
-WHAT IT GATES ON (the plugin's own contract, five checks)
----------------------------------------------------------
+WHAT IT GATES ON (the plugin's own contract, six checks)
+--------------------------------------------------------
   1. data_went_in            every submitted record is in the repository, nothing
                              else is, and the redo queue drained to zero.
   2. er_ran                  entities < records. Coarse ON PURPOSE: no target
@@ -32,6 +32,19 @@ WHAT IT GATES ON (the plugin's own contract, five checks)
   5. reported_matches_engine the counts the RUN told the user match what the
                              engine actually holds. Pure anti-fabrication; needs
                              no ground-truth key at all.
+  6. engine_identified       SzProduct.get_version() answers with a version AND
+                             a build number. Checks 1-5 all infer that Senzing
+                             ran from the STATE of the repository, which a
+                             well-formed database written by something else
+                             would also satisfy. This one asks the product what
+                             it is. The VALUE is reported, never gated -- pinning
+                             a build would fail the day Senzing ships a new one,
+                             which is upstream's business, not the plugin's.
+                             Alongside it, and reported only, the engine's own
+                             workload counters: records added, redo processed,
+                             redo remaining. "Loaded" and "resolved" are not the
+                             same claim, and the redo counter is what separates
+                             them.
 
 WHAT IT ONLY REPORTS (never gates)
 ----------------------------------
@@ -399,6 +412,62 @@ class SdkRepository(RepositoryView):
         self._engine = self._factory.create_engine()
         self._export_cache: dict[Record, str] | None = None
 
+    def engine_identity(self) -> dict:
+        """What the ENGINE says it is — version, build number, config id.
+
+        Everything else here infers that Senzing ran from the state of the
+        repository. This asks the product directly, which is the one check that
+        cannot be satisfied by a well-formed database somebody else wrote. If
+        `SzProduct.get_version()` answers with a version and a build number,
+        a real engine of a known build is loaded in this process.
+
+        Reported, never gated on a particular value: pinning a build number
+        would fail the day Senzing ships a new one, which is upstream's business
+        and not the plugin's. What IS gated is that the call answers at all.
+        """
+        product = self._factory.create_product()
+        raw = product.get_version()
+        info = json.loads(raw) if isinstance(raw, str) else dict(raw)
+        return {
+            "version": info.get("VERSION"),
+            "build_number": info.get("BUILD_NUMBER"),
+            "build_date": info.get("BUILD_DATE"),
+        }
+
+    def workload(self) -> dict:
+        """How much work the engine did, from the engine's own counters.
+
+        `get_stats()` is the engine's workload report. It answers the question
+        the repository state cannot: not "are the records there" but "did THIS
+        engine put them there, and did the redo path actually run". A repository
+        can be populated and still have had no redo work; that is the difference
+        between loaded and RESOLVED.
+
+        Returned as a best-effort dict — `get_stats` is a diagnostic surface and
+        its exact keys move between versions, so callers report what is present
+        rather than asserting a fixed shape.
+        """
+        out: dict = {}
+        try:
+            raw = self._engine.get_stats()
+            stats = json.loads(raw) if isinstance(raw, str) else dict(raw)
+            out["stats_keys"] = sorted(stats)[:20]
+            for key in ("addedRecords", "ADDED_RECORDS", "loadedRecords"):
+                if key in stats:
+                    out["added_records"] = stats[key]
+                    break
+            for key in ("redoTriggers", "REDO_TRIGGERS", "processedRedos", "redosProcessed"):
+                if key in stats:
+                    out["redo_processed"] = stats[key]
+                    break
+        except Exception as exc:  # noqa: BLE001 - diagnostic surface, never fatal
+            out["stats_error"] = str(exc)[:200]
+        try:
+            out["redo_remaining"] = self._engine.count_redo_records()
+        except Exception as exc:  # noqa: BLE001
+            out["redo_remaining_error"] = str(exc)[:200]
+        return out
+
     def record_to_entity(self) -> dict[Record, str]:
         """One full export pass: every record the engine holds, and its entity.
 
@@ -644,10 +713,44 @@ def run_checks(
                 f"engine holds {engine_entities} entities",
             ))
 
+    # 6. THE ENGINE IDENTIFIED ITSELF. Every check above infers that Senzing ran
+    #    from the STATE of the repository — which a well-formed database written
+    #    by something else would also satisfy. This one asks the product
+    #    directly: SzProduct.get_version() must answer with a version and a
+    #    build number, which only a real engine of a known build can do.
+    #
+    #    The VALUE is reported, never gated: pinning a build number would fail
+    #    the day Senzing ships a new one, which is upstream's business, not the
+    #    plugin's. What is gated is that the call answers at all — that is the
+    #    difference between "the data looks right" and "Senzing was installed
+    #    and running in this process".
+    engine_identity: dict = {}
+    workload: dict = {}
+    if hasattr(view, "engine_identity"):
+        try:
+            engine_identity = view.engine_identity()
+        except Exception as exc:  # noqa: BLE001
+            engine_identity = {"error": str(exc)[:200]}
+        if not engine_identity.get("version") or not engine_identity.get("build_number"):
+            failures.append((
+                "engine_identified",
+                "SzProduct.get_version() did not return a version AND a build number "
+                f"(got {engine_identity!r}) — every other check reads the repository, which a "
+                "database written by something other than Senzing would also satisfy. This is "
+                "the one that asks the product what it is.",
+            ))
+    if hasattr(view, "workload"):
+        try:
+            workload = view.workload()
+        except Exception as exc:  # noqa: BLE001
+            workload = {"error": str(exc)[:200]}
+
     detail = {
         "submitted_record_count": len(submitted_records),
         "engine_record_count": engine_records,
         "engine_entity_count": engine_entities,
+        "engine_identity": engine_identity,
+        "engine_workload": workload,
         "redo_records_queued": redo,
         "records_not_in_repository": [list(r) for r in missing[:20]],
         "records_never_submitted": [list(r) for r in extra[:20]],
