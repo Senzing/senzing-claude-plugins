@@ -75,6 +75,27 @@ the commands that need a machine — there is no error message explaining why.
 
 `/senzing:doctor` checks your setup and says what is missing; `/senzing:install` sets one up.
 
+## The Senzing connector
+
+The knowledge this plugin runs on comes from the **Senzing MCP server**, which is listed in the
+**[Claude Connectors Directory](https://claude.ai/directory)** — search it for *Senzing*. The
+plugin bundles that connector, so installing the plugin is enough in Claude Code; you do not need
+to add it separately. Its endpoint, if you ever want to add it by hand, is
+`https://mcp.senzing.com/mcp` (no authentication). Setup notes for other MCP clients:
+<https://mcp.senzing.com/docs>.
+
+**On Chat and Cowork, allowlist the domain.** Those surfaces restrict outbound network access, and
+the Senzing knowledge is served over HTTPS — so for the full experience, allow:
+
+| Domain | Needed for |
+|---|---|
+| `mcp.senzing.com` | everything the server hosts itself — Senzing knowledge, SDK package downloads, sample-data downloads, workflow resources |
+| `raw.githubusercontent.com` | indexed code examples and cookbook recipes, which are returned as raw GitHub URLs |
+
+Without `mcp.senzing.com` the plugin cannot ground anything and will say so rather than answer
+from memory. Without `raw.githubusercontent.com` you still get answers, but example code has to
+come the long way round.
+
 ## Install
 
 ```
