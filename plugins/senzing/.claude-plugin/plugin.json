@@ -3,19 +3,24 @@
   "name": "senzing",
   "displayName": "Senzing",
   "version": "1.37.13-2",
-  "description": "An AI coworker for the whole Senzing entity-resolution journey\u2014from ROI and architecture to building, running, and measuring who's who in your data.",
+  "description": "Resolve, dedupe and link your records with Senzing — on your machine, on your data.",
   "author": {
     "name": "Senzing, Inc.",
-    "url": "https://senzing.com"
+    "url": "https://senzing.com",
+    "email": "support@senzing.com"
   },
-  "homepage": "https://senzing.com",
+  "homepage": "https://github.com/Senzing/senzing-claude-plugins/blob/main/plugins/senzing/README.md",
   "repository": "https://github.com/Senzing/senzing-claude-plugins",
-  "license": "Proprietary",
+  "license": "LicenseRef-Senzing-Plugin-License",
   "keywords": [
     "senzing",
     "entity-resolution",
-    "mcp",
+    "record-linkage",
+    "identity-resolution",
+    "deduplication",
+    "fuzzy-matching",
     "data-matching",
-    "deduplication"
+    "data-quality",
+    "master-data-management"
   ]
 }
