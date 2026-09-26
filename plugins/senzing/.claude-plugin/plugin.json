@@ -2,20 +2,30 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "senzing",
   "displayName": "Senzing",
-  "version": "1.37.13-1",
-  "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data.",
+  "version": "1.37.13-2",
+  "description": "Entity resolution: point Claude at your data, it does the work, and you have results today.",
   "author": {
     "name": "Senzing, Inc.",
-    "url": "https://senzing.com"
+    "url": "https://senzing.com",
+    "email": "support@senzing.com"
   },
-  "homepage": "https://senzing.com",
+  "homepage": "https://github.com/Senzing/senzing-claude-plugins/blob/main/plugins/senzing/README.md",
   "repository": "https://github.com/Senzing/senzing-claude-plugins",
-  "license": "Proprietary",
+  "license": "LicenseRef-Senzing-Plugin-License",
   "keywords": [
     "senzing",
     "entity-resolution",
-    "mcp",
+    "record-linkage",
+    "identity-resolution",
+    "deduplication",
+    "fuzzy-matching",
     "data-matching",
-    "deduplication"
+    "data-quality",
+    "master-data-management",
+    "kyc",
+    "kyb",
+    "fraud-detection",
+    "sanctions-screening",
+    "customer-360"
   ]
 }

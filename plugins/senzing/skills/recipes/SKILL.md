@@ -5,9 +5,10 @@ description: >
   drives end to end against the user's own Senzing. Use when the user names a recipe or one of its
   use cases (fraud, customer-360, compliance / exclusion screening, PPP-loan exploration), or asks
   e.g. "show me the recipes", "run the customer 360 recipe", "senzing recipes". With no recipe
-  named it lists the catalog and helps them choose. Runs doctor first — a
-  recipe ends in a served result, so a host that cannot deliver one must be caught before the cook,
-  not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
+  named it lists the catalog and helps them choose. **Cook the recipe against Senzing — never
+  produce its result by other means.** A recipe whose output you assembled yourself is not that
+  recipe, however close the answer looks. Runs doctor first — a recipe ends in a served result,
+  so a host that cannot deliver one must be caught before the cook, not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
   sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
 allowed-tools: Bash, Read, Write, WebFetch, Agent, Skill, mcp__plugin_senzing_senzing__*
@@ -186,7 +187,14 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    resolved truth across every view — **gate each merge/split, confirm before it writes, never
    automatic.**
 7. **Wrap up.** Summarize what was built and why it matters, per the recipe's *Wrap Up*, and link
-   the demo **video** if the recipe links one (it appears inline, near the top).
+   the demo **video** if the recipe links one (it appears inline, near the top). If the recipe
+   loaded records, close with the engine work as counters taken from the code that ran:
+   `add_record` calls made, `process_redo_record` calls made, and the engine's version and build
+   number (`SzProduct.get_version()` returns `VERSION` and `BUILD_NUMBER`). Read them off the
+   counters, never off what you expect them to be — a dish nobody cooked cannot produce a build
+   number it never asked the engine for.
+   Say it as one line, in exactly this shape:
+   `Engine work: <N> add_record calls, <M> process_redo_record calls, engine <VERSION> build <BUILD>.`
 
 Outcome: the recipe's finished dish — a real, loaded, resolved Senzing solution on the user's
 machine, served through its place setting, built by driving the chef's prompts and grounded in the

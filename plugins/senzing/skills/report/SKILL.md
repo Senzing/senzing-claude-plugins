@@ -38,7 +38,10 @@ entities"). If none is given, ask what they want to see before running anything.
      PostgreSQL, …). If the config is `internal://` there is nothing a new process can report
      on — `engine_config_notes` says that store lives only in the process that loaded it, so a
      Bash-run export opens an empty store and counts 0 for the wrong reason; say so and offer
-     `/senzing:analyze` with a SQLite scratch repository instead of grading it as empty. The
+     `/senzing:analyze` with a SQLite scratch repository instead of grading it as empty. **On this
+     branch you may not certify the repository as empty at all** — not "it is empty", not "zero is
+     the correct established answer". You cannot see it, so the honest report is that the count is
+     unverifiable from here, and why. The
      `reports` SQL counts entities too, but only against the mart tables it describes, which
      exist only if the user built them — use it when they have. Show the number. **Zero →
      refuse**: say so and offer `/senzing:analyze` to load data first. To be explicit, because
