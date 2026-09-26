@@ -71,24 +71,14 @@ Senzing MCP.
 
 ## Data
 
-What the plugin sends, and where:
-
-- **To `https://mcp.senzing.com/mcp`** (the hosted Senzing MCP, over HTTPS): the questions Claude
-  asks it, and the arguments of each call — a topic, an error code, a programming language, the
-  **source field names** of a file you are mapping, and your mapping choices. When you map a *code*
-  field (a document-type or status column, say), the distinct code values in it are enumerated and
-  sent, because the server validates that every one of them is accounted for. **Tool calls and
-  their parameters may be logged**, as its privacy notice states. The server's own instructions
-  direct the model not to send personal data, credentials or sensitive values; the same goes for
-  you — don't paste them into a prompt.
-- **Never sent:** the contents of your records — the names, addresses, identifiers and rows
-  themselves. Mapping, loading and resolution run locally, and file paths reach the server as
-  labels it never opens.
-- **To `raw.githubusercontent.com`**: fetching indexed public code examples and cookbook recipes.
-- **On your machine only:** the generated SDK code, the scratch database, and every resolved
-  result.
-
-Senzing's privacy notice: <https://senzing.com/privacy-notice/>
+- **Your records stay on your machine.** Mapping, loading and resolution all run locally against
+  your own Senzing. File paths reach the MCP as labels it never opens.
+- **The plugin calls one remote service**, the hosted Senzing MCP at `https://mcp.senzing.com/mcp`,
+  for Senzing knowledge. It sends the questions Claude asks and their arguments — which, when you
+  are mapping, include your source field names and mapping choices. What is logged and retained is
+  covered by the **[Senzing MCP privacy policy](https://mcp.senzing.com/privacy)**.
+- **It also fetches public content** from `raw.githubusercontent.com`: indexed code examples and
+  cookbook recipes.
 
 ## Troubleshooting
 
