@@ -12,8 +12,8 @@ text the agent produced. Text is exactly what a fabricating run is good at. This
 script opens the Senzing repository the agent actually built and asks the engine,
 so the numbers cannot be talked into existence.
 
-WHAT IT GATES ON (the plugin's own contract, five checks)
----------------------------------------------------------
+WHAT IT GATES ON (the plugin's own contract, seven checks)
+----------------------------------------------------------
   1. data_went_in            every submitted record is in the repository, nothing
                              else is, and the redo queue drained to zero.
   2. er_ran                  entities < records. Coarse ON PURPOSE: no target
@@ -32,6 +32,29 @@ WHAT IT GATES ON (the plugin's own contract, five checks)
   5. reported_matches_engine the counts the RUN told the user match what the
                              engine actually holds. Pure anti-fabrication; needs
                              no ground-truth key at all.
+  6. engine_identified       SzProduct.get_version() answers with a version AND
+                             a build number. Checks 1-5 all infer that Senzing
+                             ran from the STATE of the repository, which a
+                             well-formed database written by something else
+                             would also satisfy. This one asks the product what
+                             it is. The VALUE is reported, never gated -- pinning
+                             a build would fail the day Senzing ships a new one,
+                             which is upstream's business, not the plugin's.
+                             Alongside it, and reported only, the engine's own
+                             redo counter, because "loaded" and "resolved" are
+                             not the same claim.
+  7. engine_work_reported    the run reported its OWN engine work -- add_record
+                             calls, process_redo_record calls, the build number
+                             -- and those numbers survive checking. The skill is
+                             deliberately never told what they should be: a
+                             number you are told to produce is fabricable, a
+                             number you must read off your own counter and that
+                             is then checked against the engine is not. The
+                             floor is a property of the work rather than of the
+                             route -- N records cannot be loaded with fewer than
+                             N add_record calls -- so the report is compared
+                             against the engine's record count, never against a
+                             literal.
 
 WHAT IT ONLY REPORTS (never gates)
 ----------------------------------
@@ -399,6 +422,67 @@ class SdkRepository(RepositoryView):
         self._engine = self._factory.create_engine()
         self._export_cache: dict[Record, str] | None = None
 
+    def engine_identity(self) -> dict:
+        """What the ENGINE says it is — version, build number, and license.
+
+        Everything else here infers that Senzing ran from the state of the
+        repository. This asks the product directly, which is the one check that
+        cannot be satisfied by a well-formed database somebody else wrote.
+
+        Field names are the documented ones, taken from the MCP's own
+        `get_sdk_reference(topic="response_schemas")` rather than from memory:
+        `get_version` returns VERSION / BUILD_NUMBER / BUILD_DATE /
+        BUILD_VERSION / SCHEMA_VERSION / COMPATIBILITY_VERSION, and
+        `get_license` returns recordLimit / expireDate / licenseType /
+        licenseLevel / contract / customer.
+
+        Values are REPORTED, never gated: pinning a build would fail the day
+        Senzing ships a new one, and pinning a license would fail on anybody
+        else's entitlement. What is gated is that the calls answer at all.
+        """
+        product = self._factory.create_product()
+
+        def _as_dict(raw: object) -> dict:
+            return json.loads(raw) if isinstance(raw, str) else dict(raw)  # type: ignore[arg-type]
+
+        out: dict = {}
+        version = _as_dict(product.get_version())
+        out["version"] = version.get("VERSION")
+        out["build_number"] = version.get("BUILD_NUMBER")
+        out["build_date"] = version.get("BUILD_DATE")
+        out["schema_version"] = version.get("SCHEMA_VERSION")
+        try:
+            lic = _as_dict(product.get_license())
+            out["license"] = {
+                "record_limit": lic.get("recordLimit"),
+                "expire_date": lic.get("expireDate"),
+                "license_type": lic.get("licenseType"),
+                "license_level": lic.get("licenseLevel"),
+            }
+        except Exception as exc:  # noqa: BLE001 - reported, never fatal
+            out["license_error"] = str(exc)[:200]
+        return out
+
+    def redo_remaining(self) -> int | None:
+        """Redo records still queued, from the engine.
+
+        `data_went_in` already checks the queue DRAINED. This reports the raw
+        number beside it so "drained" is a figure rather than a boolean.
+
+        Deliberately NOT accompanied by a get_stats() scrape: an earlier version
+        of this read guessed key names (`addedRecords`, `redoTriggers`) that do
+        not appear in any documented response schema. The MCP publishes schemas
+        for get_version, get_license and the with_info response; it publishes
+        none for get_stats, so its shape is not something this check is entitled
+        to assert. How many add_record and process_redo_record calls a run made
+        is evidenced instead by the RUN's own transcript — see
+        `evals/GROUNDING-CONTRACT.md` on minimum call counts.
+        """
+        try:
+            return int(self._engine.count_redo_records())
+        except Exception:  # noqa: BLE001
+            return None
+
     def record_to_entity(self) -> dict[Record, str]:
         """One full export pass: every record the engine holds, and its entity.
 
@@ -644,10 +728,84 @@ def run_checks(
                 f"engine holds {engine_entities} entities",
             ))
 
+    # 6. THE ENGINE IDENTIFIED ITSELF. Every check above infers that Senzing ran
+    #    from the STATE of the repository — which a well-formed database written
+    #    by something else would also satisfy. This one asks the product
+    #    directly: SzProduct.get_version() must answer with a version and a
+    #    build number, which only a real engine of a known build can do.
+    #
+    #    The VALUE is reported, never gated: pinning a build number would fail
+    #    the day Senzing ships a new one, which is upstream's business, not the
+    #    plugin's. What is gated is that the call answers at all — that is the
+    #    difference between "the data looks right" and "Senzing was installed
+    #    and running in this process".
+    engine_identity: dict = {}
+    workload: dict = {}
+    if hasattr(view, "engine_identity"):
+        try:
+            engine_identity = view.engine_identity()
+        except Exception as exc:  # noqa: BLE001
+            engine_identity = {"error": str(exc)[:200]}
+        if not engine_identity.get("version") or not engine_identity.get("build_number"):
+            failures.append((
+                "engine_identified",
+                "SzProduct.get_version() did not return a version AND a build number "
+                f"(got {engine_identity!r}) — every other check reads the repository, which a "
+                "database written by something other than Senzing would also satisfy. This is "
+                "the one that asks the product what it is.",
+            ))
+    if hasattr(view, "redo_remaining"):
+        workload = {"redo_remaining": view.redo_remaining()}
+
+    # 7. THE RUN REPORTED ITS ENGINE WORK, AND THE NUMBERS SURVIVE CHECKING.
+    #
+    #    The skill is told to report `add_record` calls, `process_redo_record`
+    #    calls and the engine's build number -- and is deliberately NOT told what
+    #    any of them should be. A number you are told to produce is fabricable; a
+    #    number you must take from your own counter and that is then checked
+    #    against the engine is not. Same shape as check 5, one level deeper: that
+    #    one compares reported RECORD counts, this one compares reported WORK.
+    #
+    #    The floor is a property of the work, not of the route: N records cannot
+    #    be loaded with fewer than N add_record calls. So the reported figure is
+    #    checked against the engine's own record count rather than against any
+    #    literal. A run that invented its result has no counter to read, so it
+    #    comes up SHORT -- or SILENT, and silence is the same failure here, the
+    #    way an absent record count is already a failure in check 5. An earlier
+    #    draft guarded on `if said_add`, which passed the silent case: the
+    #    strictest-looking half of the check was the half that could not fire.
+    engine_evidence: dict = {"engine_records": engine_records}
+    if reported:
+        for text in reported:
+            said_add = numbers_near(text, "add_record")
+            said_redo = numbers_near(text, "redo")
+            said_build = re.findall(r"\b\d{4,}\b", text)
+            engine_evidence.setdefault("reported_add_record", []).append(sorted(said_add))
+            engine_evidence.setdefault("reported_redo", []).append(sorted(said_redo))
+            engine_evidence.setdefault("build_like_numbers", []).append(said_build[:4])
+            if engine_records and not said_add:
+                failures.append((
+                    "engine_work_reported",
+                    f"the engine holds {engine_records} records but the run reported no "
+                    "add_record call count at all — the skill is required to report the counter "
+                    "it incremented, and a run with nothing to read off has nothing to show for "
+                    "the work it claims",
+                ))
+            elif said_add and max(said_add) < engine_records:
+                failures.append((
+                    "engine_work_reported",
+                    f"the run reported at most {max(said_add)} add_record call(s) but the engine "
+                    f"holds {engine_records} records — a record cannot be loaded without a call, "
+                    "so the reported work is short of the work that demonstrably happened",
+                ))
+
     detail = {
         "submitted_record_count": len(submitted_records),
         "engine_record_count": engine_records,
         "engine_entity_count": engine_entities,
+        "engine_identity": engine_identity,
+        "engine_workload": workload,
+        "engine_evidence": engine_evidence,
         "redo_records_queued": redo,
         "records_not_in_repository": [list(r) for r in missing[:20]],
         "records_never_submitted": [list(r) for r in extra[:20]],
@@ -827,9 +985,20 @@ class StubRepository(RepositoryView):
         self.rows = {record_of(row): row for row in rows}
         self.hits: set[Record] | None = None  # None = "behave like a working index"
         self.redo = 0
+        # Checks 6 and 7 interrogate the ENGINE, not the repository, so a stub
+        # that cannot answer them skips them silently -- and a skipped check is
+        # exactly the kind this self-test exists to catch.
+        self.identity: dict[str, str] = {"version": "4.3.3", "build_number": "2026123456"}
+        self.reported_add: int | None = None  # None = "report the honest count"
 
     def record_to_entity(self) -> dict[Record, str]:
         return dict(self.records)
+
+    def engine_identity(self) -> dict[str, str]:
+        return dict(self.identity)
+
+    def redo_remaining(self) -> int:
+        return self.redo
 
     def feature_types(self, record: Record) -> set[str]:
         return set(self.features.get(record, set()))
@@ -849,9 +1018,18 @@ class StubRepository(RepositoryView):
 
 
 def _reported_for(view: StubRepository) -> list[str]:
+    """What a COMPLIANT final report says -- counters included.
+
+    The skills are required to report the engine work they did, so the healthy
+    stub must report it too; otherwise the healthy case would fail check 7 and
+    the self-test would be asserting a report shape no skill is asked for.
+    """
+    said_add = len(view.records) if view.reported_add is None else view.reported_add
     return [
         f"Loaded {len(view.records)} records, which resolved to "
-        f"{len(set(view.records.values()))} entities."
+        f"{len(set(view.records.values()))} entities. "
+        f"Engine work: {said_add} add_record calls, 4 process_redo_record calls, "
+        f"Senzing {view.identity.get('version')} build {view.identity.get('build_number')}."
     ]
 
 
@@ -905,6 +1083,27 @@ def prove_checks_can_fail(rows: list[dict[str, str]]) -> list[str]:
     def report_nothing(view: StubRepository, reported: list[str]) -> None:
         reported.clear()
 
+    def hide_the_engine(view: StubRepository, _reported: list[str]) -> None:
+        # A repository whose STATE is perfect but whose engine will not say what
+        # it is -- the case check 6 exists for, and the one every other check
+        # passes.
+        view.identity = {}
+
+    def understate_the_work(view: StubRepository, reported: list[str]) -> None:
+        # The fabrication shape: a plausible narrative over a counter that was
+        # never incremented far enough to account for the records that are there.
+        view.reported_add = max(len(view.records) - 1, 0)
+        reported[:] = _reported_for(view)
+
+    def report_no_counters(view: StubRepository, reported: list[str]) -> None:
+        # SILENCE. The earlier draft of check 7 passed this, because it guarded
+        # on `if said_add` -- so the run that reported nothing was the one run
+        # the check could not catch.
+        reported[:] = [
+            f"Loaded {len(view.records)} records, which resolved to "
+            f"{len(set(view.records.values()))} entities."
+        ]
+
     # The shape that shipped a FALSE FAIL (run 35730635947): the repository holds
     # 159 records, the run reported 159, and the SDK read comes back EMPTY because
     # the export was asked for no entity classes. A populated repository must read
@@ -939,6 +1138,9 @@ def prove_checks_can_fail(rows: list[dict[str, str]]) -> list[str]:
     mutate("searchable", find_nothing)
     mutate("reported_matches_engine", misreport)
     mutate("reported_matches_engine", report_nothing)
+    mutate("engine_identified", hide_the_engine)
+    mutate("engine_work_reported", understate_the_work)
+    mutate("engine_work_reported", report_no_counters)
     return problems
 
 
@@ -1029,10 +1231,24 @@ def verify(
     verdict = {
         "mode": "verify",
         "verdict": "ENVIRONMENTAL" if fault else ("FAIL" if failures else "PASS"),
+        # The headline must describe THIS verdict. It used to assert the happy
+        # path unconditionally -- a FAIL whose only failure was
+        # `engine_work_reported` still printed "and the run reported the
+        # engine's own numbers", contradicting the failure directly beneath it.
+        # A first line that disagrees with the finding is the line people quote.
         "headline": (
-            f"{detail['engine_record_count']} records resolved to "
-            f"{detail['engine_entity_count']} entities, the mapped features are queryable, "
-            "and the run reported the engine's own numbers"
+            fault if fault
+            else (
+                f"{detail['engine_record_count']} records in the engine, "
+                f"{detail['engine_entity_count']} entities, but "
+                + "; ".join(sorted({check for check, _ in failures}))
+                + " did not hold"
+            ) if failures
+            else (
+                f"{detail['engine_record_count']} records resolved to "
+                f"{detail['engine_entity_count']} entities, the mapped features are "
+                "queryable, and the run reported the engine's own numbers"
+            )
         ),
         # A read fault REPLACES the failure list rather than joining it: those
         # failures are all downstream of the bad read, and printing them as

@@ -6,8 +6,10 @@ description: >
   load, resolve and show the before/after in one pass against a throwaway scratch repository. Use when
   the user wants to see Senzing in action, evaluate it, or asks "show me entity resolution", "give
   me a demo", "prove this works", or a skeptical "does this actually work?" about the product.
-  Real results only — if no Senzing is installed it hands off to install rather than faking one. Runs
-  doctor first. Not for the user's own files (use analyze), a named cookbook use case (use
+  Real results only — if no Senzing is installed it hands off to install rather than faking one.
+  **A demo you performed yourself is not a demo of Senzing.** Never stand in for the engine by
+  reasoning over the sample data, however small it is and however clearly you label it: the whole
+  claim being demonstrated is that SENZING does this. Runs doctor first. Not for the user's own files (use analyze), a named cookbook use case (use
   recipes), or "does MY setup work?" (use doctor).
 argument-hint: "[dataset]"
 allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
@@ -45,14 +47,18 @@ estimated, never fabricated:
 **Make it a visual, not a paragraph.** The failure mode on both sides is silence *and* a wall of
 words — a demo watcher wants something to *glance at*, not read. Each checkpoint is a compact
 visual: a **one-line stat line**, a **micro-table**, or a **one-line ASCII bar** — never prose. A
-few lines, then move on. Examples (shape, not literal):
+few lines, then move on. The shapes below are **templates** — every `<…>` is a slot you fill from
+a value you actually read. They carry no digits on purpose: a worked example with plausible
+numbers in it is a finished fake result sitting in your context, and on a host where nothing has
+run yet those would be the only entity counts you have seen. Fill each slot from the loader's
+counter or the engine's answer, or leave the checkpoint unwritten.
 
 ```
-✓ Loaded CRM        1,000 records · 0 errors · 1.2k/s   (total 1,000)
-✓ Loaded ONLINE       579 records · 0 errors · 1.1k/s   (total 1,579)
-Resolved  1,579 records → 1,192 entities   (1.33× compression)
-  records   ████████████████████  1,579
-  entities  ███████████████       1,192
+✓ Loaded <SOURCE>   <n> records · <errors> errors · <rate>/s   (total <loaded>)
+✓ Loaded <SOURCE>   <n> records · <errors> errors · <rate>/s   (total <loaded>)
+Resolved  <loaded> records → <entities> entities   (<ratio>× compression)
+  records   ████████████████████  <loaded>
+  entities  █████████████         <entities>
 ```
 
 Prefer **many small, quick-to-scan updates** over one silent march *or* a dense report. The full
@@ -151,7 +157,17 @@ second report.
    **load → analytics**, not load alone. Over the **real** results, use `reporting_guide` for the
    report/entity-view + visualization patterns and produce BOTH:
    - a **report** — the before/after story: raw record count → resolved entity count, and a few
-     non-obvious merges, each with a `why` explanation; and
+     non-obvious merges, each with a `why` explanation. It also carries the engine work as
+     counters taken from your own loader — `add_record` calls made, `process_redo_record` calls
+     made, and the engine's version and build number (`SzProduct.get_version()` returns `VERSION`
+     and `BUILD_NUMBER`). Increment the counters in the loop that makes the calls and print what
+     they hold; do not restate the row count as though it were a call count, and do not fill them
+     in from what you expect. **These are evidence, not decoration**: a demo that resolved nothing
+     can describe a resolution, but it cannot produce a build number it never asked the engine
+     for. Nobody will tell you what these numbers should be. Put the same figures in your final
+     message as one line, in exactly this shape:
+     `Engine work: <N> add_record calls, <M> process_redo_record calls, engine <VERSION> build <BUILD>.`
+     The dashboard is a file; that line is what a reader sees without opening it; and
    - a **visualization** — a shareable dashboard (an Artifact) that renders that before/after.
 
    The rendered report-and-visualization IS the demo, not trailing commentary — produce it without

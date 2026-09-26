@@ -1,16 +1,17 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
   "name": "senzing",
   "owner": {
     "name": "Senzing, Inc.",
-    "url": "https://senzing.com"
+    "url": "https://senzing.com",
+    "email": "support@senzing.com"
   },
   "description": "Official Senzing plugins for Claude Code.",
   "plugins": [
     {
       "name": "senzing",
       "source": "./plugins/senzing",
-      "description": "An AI coworker for the whole Senzing entity-resolution journey—from ROI and architecture to building, running, and measuring who's who in your data.",
+      "description": "Entity resolution: point Claude at your data, it does the work, and you have results today.",
       "category": "analytics"
     }
   ]

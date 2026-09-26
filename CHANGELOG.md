@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.13-2] - 2026-09-26
+
+Plugin-only patch on MCP server v1.37.13 (no server change).
+
+### Fixed
+
+- **A Senzing skill that answers without Senzing is broken, at any row count.** Given "dedupe my
+  customer list", a graded run made three tool calls — `ls`, read, `Write` — fired **no skill at
+  all**, and produced the deduped file by inspection. It was careful, and it disclosed what it had
+  done. That is not a mitigation: the user installed this to get entity resolution, an answer by
+  inspection has none of what they installed, and disclosure documents the substitution rather than
+  repairing it. Two rules missed it and both failures generalize. The rule that was in context
+  prohibited the wrong thing — descriptions said results are never *simulated*, and nothing here
+  was simulated; **substitution is a different failure from fabrication**. And the rule that would
+  have caught it lived in the skill *body*, which never loads when the skill is never invoked —
+  **a prohibition against not routing has to live in the description**, the only part guaranteed to
+  be in context at routing time. `analyze`, `demo` and `recipes` now carry it there.
+- **Every skill's central tool is asserted, not assumed.** `GROUNDING-CONTRACT.md` records which
+  tool IS each skill's work — a skill that installs needs `sdk_guide`, one that maps needs
+  `mapping_workflow`, one that reports needs `reporting_guide` — with the minimum-call-count
+  principle behind it: you cannot load N records with fewer than N `add_record` calls, so a floor
+  is a property of the work rather than of the route.
+- **The run reports its own engine work, and is never told what the numbers should be.** The
+  `analyze`, `demo` and `recipes` deliverables must carry `add_record` calls, `process_redo_record`
+  calls, and the engine's `VERSION`/`BUILD_NUMBER`, read off the counter in the loop that made the
+  calls rather than restated from the row count. `evals-real` check 7 grades them against the
+  engine's own record count — never against a literal, since a pinned build number fails the day
+  Senzing ships a new one. A number a model is told to produce is fabricable; a number it must read
+  off a counter and that is then checked independently is not.
+- **The engine is asked what it is.** `evals-real` check 6 calls `SzProduct.get_version()` and
+  `get_license()`, using field names taken from the MCP's own `response_schemas` rather than from
+  memory — an earlier draft invented `addedRecords` and `redoTriggers`, which appear in no
+  published schema.
+- **A judge was being told to defer to a grader that did not exist.** `demo-no-simulation`'s
+  criteria pointed at `install-steps-from-mcp` and instructed the judge not to fail on the
+  `sdk_guide` call it could not see. The name was orphaned when `install-invoked` was rewritten
+  into an EULA check, so that call was asserted by nothing and the one grader still looking had
+  been told to stop. It exists now.
+
 ## [1.37.13-1] - 2026-09-25
 
 Plugin-only patch on MCP server v1.37.13 (no server change).
