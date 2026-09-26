@@ -47,14 +47,18 @@ estimated, never fabricated:
 **Make it a visual, not a paragraph.** The failure mode on both sides is silence *and* a wall of
 words — a demo watcher wants something to *glance at*, not read. Each checkpoint is a compact
 visual: a **one-line stat line**, a **micro-table**, or a **one-line ASCII bar** — never prose. A
-few lines, then move on. Examples (shape, not literal):
+few lines, then move on. The shapes below are **templates** — every `<…>` is a slot you fill from
+a value you actually read. They carry no digits on purpose: a worked example with plausible
+numbers in it is a finished fake result sitting in your context, and on a host where nothing has
+run yet those would be the only entity counts you have seen. Fill each slot from the loader's
+counter or the engine's answer, or leave the checkpoint unwritten.
 
 ```
-✓ Loaded CRM        1,000 records · 0 errors · 1.2k/s   (total 1,000)
-✓ Loaded ONLINE       579 records · 0 errors · 1.1k/s   (total 1,579)
-Resolved  1,579 records → 1,192 entities   (1.33× compression)
-  records   ████████████████████  1,579
-  entities  ███████████████       1,192
+✓ Loaded <SOURCE>   <n> records · <errors> errors · <rate>/s   (total <loaded>)
+✓ Loaded <SOURCE>   <n> records · <errors> errors · <rate>/s   (total <loaded>)
+Resolved  <loaded> records → <entities> entities   (<ratio>× compression)
+  records   ████████████████████  <loaded>
+  entities  █████████████         <entities>
 ```
 
 Prefer **many small, quick-to-scan updates** over one silent march *or* a dense report. The full
