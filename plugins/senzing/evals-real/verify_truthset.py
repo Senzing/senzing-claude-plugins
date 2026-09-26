@@ -12,8 +12,8 @@ text the agent produced. Text is exactly what a fabricating run is good at. This
 script opens the Senzing repository the agent actually built and asks the engine,
 so the numbers cannot be talked into existence.
 
-WHAT IT GATES ON (the plugin's own contract, six checks)
---------------------------------------------------------
+WHAT IT GATES ON (the plugin's own contract, seven checks)
+----------------------------------------------------------
   1. data_went_in            every submitted record is in the repository, nothing
                              else is, and the redo queue drained to zero.
   2. er_ran                  entities < records. Coarse ON PURPOSE: no target
@@ -41,10 +41,20 @@ WHAT IT GATES ON (the plugin's own contract, six checks)
                              a build would fail the day Senzing ships a new one,
                              which is upstream's business, not the plugin's.
                              Alongside it, and reported only, the engine's own
-                             workload counters: records added, redo processed,
-                             redo remaining. "Loaded" and "resolved" are not the
-                             same claim, and the redo counter is what separates
-                             them.
+                             redo counter, because "loaded" and "resolved" are
+                             not the same claim.
+  7. engine_work_reported    the run reported its OWN engine work -- add_record
+                             calls, process_redo_record calls, the build number
+                             -- and those numbers survive checking. The skill is
+                             deliberately never told what they should be: a
+                             number you are told to produce is fabricable, a
+                             number you must read off your own counter and that
+                             is then checked against the engine is not. The
+                             floor is a property of the work rather than of the
+                             route -- N records cannot be loaded with fewer than
+                             N add_record calls -- so the report is compared
+                             against the engine's record count, never against a
+                             literal.
 
 WHAT IT ONLY REPORTS (never gates)
 ----------------------------------
@@ -747,12 +757,44 @@ def run_checks(
     if hasattr(view, "redo_remaining"):
         workload = {"redo_remaining": view.redo_remaining()}
 
+    # 7. THE RUN REPORTED ITS ENGINE WORK, AND THE NUMBERS SURVIVE CHECKING.
+    #
+    #    The skill is told to report `add_record` calls, `process_redo_record`
+    #    calls and the engine's build number -- and is deliberately NOT told what
+    #    any of them should be. A number you are told to produce is fabricable; a
+    #    number you must take from your own counter and that is then checked
+    #    against the engine is not. Same shape as check 5, one level deeper: that
+    #    one compares reported RECORD counts, this one compares reported WORK.
+    #
+    #    The floor is a property of the work, not of the route: N records cannot
+    #    be loaded with fewer than N add_record calls. So the reported figure is
+    #    checked against the engine's own record count rather than against any
+    #    literal. A run that invented its result has no counter to read and comes
+    #    up short or silent.
+    engine_evidence: dict = {"engine_records": engine_records}
+    if reported:
+        for text in reported:
+            said_add = numbers_near(text, "add_record")
+            said_redo = numbers_near(text, "redo")
+            said_build = re.findall(r"\b\d{4,}\b", text)
+            engine_evidence.setdefault("reported_add_record", []).append(sorted(said_add))
+            engine_evidence.setdefault("reported_redo", []).append(sorted(said_redo))
+            engine_evidence.setdefault("build_like_numbers", []).append(said_build[:4])
+            if said_add and max(said_add) < engine_records:
+                failures.append((
+                    "engine_work_reported",
+                    f"the run reported at most {max(said_add)} add_record call(s) but the engine "
+                    f"holds {engine_records} records — a record cannot be loaded without a call, "
+                    "so the reported work is short of the work that demonstrably happened",
+                ))
+
     detail = {
         "submitted_record_count": len(submitted_records),
         "engine_record_count": engine_records,
         "engine_entity_count": engine_entities,
         "engine_identity": engine_identity,
         "engine_workload": workload,
+        "engine_evidence": engine_evidence,
         "redo_records_queued": redo,
         "records_not_in_repository": [list(r) for r in missing[:20]],
         "records_never_submitted": [list(r) for r in extra[:20]],

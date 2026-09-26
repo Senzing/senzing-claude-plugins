@@ -250,6 +250,17 @@ State the resolved input list to the user before proceeding — informational, n
    line. Any error count > 0 or any shortfall: show the errors for the first failing records (run
    `explain_error_code` on each distinct SENZ code) and do not go to step 5 until the user decides —
    fix and reload, or continue with the shortfall named in the final report.
+
+   **Report the engine work as counters, taken from your own loader — never estimated.**
+   The final report carries: `add_record` calls made, `process_redo_record` calls made, and the
+   engine's version and build number (`SzProduct.get_version()` returns `VERSION` and
+   `BUILD_NUMBER`; `get_license()` returns `recordLimit` and `expireDate`). Increment the call
+   counters in the loop that makes the calls and print what the counter holds — do not restate the
+   row count as though it were a call count, and do not fill these in from what you expect them to
+   be. **These are evidence, not decoration**: a run that resolved nothing can describe a
+   resolution, but it cannot produce an engine build number it never asked for or a redo count it
+   never incremented. Nobody will tell you what these numbers should be; they are checked against
+   what the engine actually holds.
 5. **Drain the redo queue before asking anything — loading is not resolving.** Senzing defers part
    of resolution to redo records processed *after* load; an entity count taken before the queue is
    empty is a mid-resolution snapshot, not the answer. Get the redo calls from
