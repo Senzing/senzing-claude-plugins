@@ -769,8 +769,11 @@ def run_checks(
     #    The floor is a property of the work, not of the route: N records cannot
     #    be loaded with fewer than N add_record calls. So the reported figure is
     #    checked against the engine's own record count rather than against any
-    #    literal. A run that invented its result has no counter to read and comes
-    #    up short or silent.
+    #    literal. A run that invented its result has no counter to read, so it
+    #    comes up SHORT -- or SILENT, and silence is the same failure here, the
+    #    way an absent record count is already a failure in check 5. An earlier
+    #    draft guarded on `if said_add`, which passed the silent case: the
+    #    strictest-looking half of the check was the half that could not fire.
     engine_evidence: dict = {"engine_records": engine_records}
     if reported:
         for text in reported:
@@ -780,7 +783,15 @@ def run_checks(
             engine_evidence.setdefault("reported_add_record", []).append(sorted(said_add))
             engine_evidence.setdefault("reported_redo", []).append(sorted(said_redo))
             engine_evidence.setdefault("build_like_numbers", []).append(said_build[:4])
-            if said_add and max(said_add) < engine_records:
+            if engine_records and not said_add:
+                failures.append((
+                    "engine_work_reported",
+                    f"the engine holds {engine_records} records but the run reported no "
+                    "add_record call count at all — the skill is required to report the counter "
+                    "it incremented, and a run with nothing to read off has nothing to show for "
+                    "the work it claims",
+                ))
+            elif said_add and max(said_add) < engine_records:
                 failures.append((
                     "engine_work_reported",
                     f"the run reported at most {max(said_add)} add_record call(s) but the engine "
@@ -974,9 +985,20 @@ class StubRepository(RepositoryView):
         self.rows = {record_of(row): row for row in rows}
         self.hits: set[Record] | None = None  # None = "behave like a working index"
         self.redo = 0
+        # Checks 6 and 7 interrogate the ENGINE, not the repository, so a stub
+        # that cannot answer them skips them silently -- and a skipped check is
+        # exactly the kind this self-test exists to catch.
+        self.identity: dict[str, str] = {"version": "4.3.3", "build_number": "2026123456"}
+        self.reported_add: int | None = None  # None = "report the honest count"
 
     def record_to_entity(self) -> dict[Record, str]:
         return dict(self.records)
+
+    def engine_identity(self) -> dict[str, str]:
+        return dict(self.identity)
+
+    def redo_remaining(self) -> int:
+        return self.redo
 
     def feature_types(self, record: Record) -> set[str]:
         return set(self.features.get(record, set()))
@@ -996,9 +1018,18 @@ class StubRepository(RepositoryView):
 
 
 def _reported_for(view: StubRepository) -> list[str]:
+    """What a COMPLIANT final report says -- counters included.
+
+    The skills are required to report the engine work they did, so the healthy
+    stub must report it too; otherwise the healthy case would fail check 7 and
+    the self-test would be asserting a report shape no skill is asked for.
+    """
+    said_add = len(view.records) if view.reported_add is None else view.reported_add
     return [
         f"Loaded {len(view.records)} records, which resolved to "
-        f"{len(set(view.records.values()))} entities."
+        f"{len(set(view.records.values()))} entities. "
+        f"Engine work: {said_add} add_record calls, 4 process_redo_record calls, "
+        f"Senzing {view.identity.get('version')} build {view.identity.get('build_number')}."
     ]
 
 
@@ -1052,6 +1083,27 @@ def prove_checks_can_fail(rows: list[dict[str, str]]) -> list[str]:
     def report_nothing(view: StubRepository, reported: list[str]) -> None:
         reported.clear()
 
+    def hide_the_engine(view: StubRepository, _reported: list[str]) -> None:
+        # A repository whose STATE is perfect but whose engine will not say what
+        # it is -- the case check 6 exists for, and the one every other check
+        # passes.
+        view.identity = {}
+
+    def understate_the_work(view: StubRepository, reported: list[str]) -> None:
+        # The fabrication shape: a plausible narrative over a counter that was
+        # never incremented far enough to account for the records that are there.
+        view.reported_add = max(len(view.records) - 1, 0)
+        reported[:] = _reported_for(view)
+
+    def report_no_counters(view: StubRepository, reported: list[str]) -> None:
+        # SILENCE. The earlier draft of check 7 passed this, because it guarded
+        # on `if said_add` -- so the run that reported nothing was the one run
+        # the check could not catch.
+        reported[:] = [
+            f"Loaded {len(view.records)} records, which resolved to "
+            f"{len(set(view.records.values()))} entities."
+        ]
+
     # The shape that shipped a FALSE FAIL (run 35730635947): the repository holds
     # 159 records, the run reported 159, and the SDK read comes back EMPTY because
     # the export was asked for no entity classes. A populated repository must read
@@ -1086,6 +1138,9 @@ def prove_checks_can_fail(rows: list[dict[str, str]]) -> list[str]:
     mutate("searchable", find_nothing)
     mutate("reported_matches_engine", misreport)
     mutate("reported_matches_engine", report_nothing)
+    mutate("engine_identified", hide_the_engine)
+    mutate("engine_work_reported", understate_the_work)
+    mutate("engine_work_reported", report_no_counters)
     return problems
 
 
