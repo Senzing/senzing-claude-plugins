@@ -39,6 +39,29 @@ Plugin-only patch on MCP server v1.37.13 (no server change).
   `get_license()`, using field names taken from the MCP's own `response_schemas` rather than from
   memory — an earlier draft invented `addedRecords` and `redoTriggers`, which appear in no
   published schema.
+- **The plugin folder had no README, which BLOCKS directory listing.** Anthropic's checklist
+  requires a README of at least 40 words *in the plugin folder* and shows it as the listing's
+  description; the portal reads the plugin path, so our root `README.md` was never in scope and
+  `plugins/senzing/` had no README at all. `claude plugin validate --strict` passes regardless —
+  it validates the manifest, not the listing rules — so nothing on our side reported it.
+- **Listing metadata corrected against the published schemas.** `LICENSE` copied into the plugin
+  folder and `license` changed from `Proprietary` (not an SPDX identifier) to an SPDX
+  `LicenseRef-` form; `support@senzing.com` added at `author.email` and `owner.email`, the only
+  homes that exist — there is no `support` field, and inventing one would have validated and done
+  nothing; `homepage` points at the plugin README; the marketplace `$schema` filename was dead
+  (`claude-code-plugin-marketplace.json` 301s to a 404) and is now
+  `claude-code-marketplace.json`, on the same host as the manifest schema.
+- **Keywords rebuilt for what a searcher types** — added `record-linkage`, `identity-resolution`,
+  `fuzzy-matching`, `data-quality`, `master-data-management`, `kyc`, `kyb`, `fraud-detection`,
+  `sanctions-screening`, `customer-360`; dropped `mcp`, an implementation detail nobody hunting
+  for dedupe types.
+- **The listing says where the plugin actually works.** We ship no `bin/`, so nothing blocks the
+  install on any surface — and then seven of ten skills, which declare `Bash`, have no machine to
+  work on, with no error explaining why. Now stated: Claude Code full; Chat/Cowork full except a
+  report cannot be a live interactive service; Claude web informational only.
+- **The connector and the allowlist are named.** The Senzing MCP's Claude Connectors Directory
+  listing is linked, and Chat/Cowork users are told which domains to allow (`mcp.senzing.com`,
+  `raw.githubusercontent.com`) and what degrades without each.
 - **A judge was being told to defer to a grader that did not exist.** `demo-no-simulation`'s
   criteria pointed at `install-steps-from-mcp` and instructed the judge not to fail on the
   `sdk_guide` call it could not see. The name was orphaned when `install-invoked` was rewritten
