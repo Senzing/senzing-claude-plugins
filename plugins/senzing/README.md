@@ -78,7 +78,7 @@ the commands that need a machine — there is no error message explaining why.
 ## The Senzing connector
 
 The knowledge this plugin runs on comes from the **Senzing MCP server**, which is listed in the
-**[Claude Connectors Directory](https://claude.ai/directory)** — search it for *Senzing*. The
+**[Claude Connectors Directory](https://claude.ai/directory/senzing)**. The
 plugin bundles that connector, so installing the plugin is enough in Claude Code; you do not need
 to add it separately. Its endpoint, if you ever want to add it by hand, is
 `https://mcp.senzing.com/mcp` (no authentication). Setup notes for other MCP clients:
