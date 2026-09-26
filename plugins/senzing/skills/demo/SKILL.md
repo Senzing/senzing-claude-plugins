@@ -6,8 +6,10 @@ description: >
   load, resolve and show the before/after in one pass against a throwaway scratch repository. Use when
   the user wants to see Senzing in action, evaluate it, or asks "show me entity resolution", "give
   me a demo", "prove this works", or a skeptical "does this actually work?" about the product.
-  Real results only — if no Senzing is installed it hands off to install rather than faking one. Runs
-  doctor first. Not for the user's own files (use analyze), a named cookbook use case (use
+  Real results only — if no Senzing is installed it hands off to install rather than faking one.
+  **A demo you performed yourself is not a demo of Senzing.** Never stand in for the engine by
+  reasoning over the sample data, however small it is and however clearly you label it: the whole
+  claim being demonstrated is that SENZING does this. Runs doctor first. Not for the user's own files (use analyze), a named cookbook use case (use
   recipes), or "does MY setup work?" (use doctor).
 argument-hint: "[dataset]"
 allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*

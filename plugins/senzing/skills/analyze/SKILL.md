@@ -7,7 +7,11 @@ description: >
   resolution — e.g. "resolve my customer list", "dedupe these files", "find duplicates", "match
   these two lists", "load this into Senzing and show me the entities". Also the entry point for
   mapping alone, when the user wants only Senzing-ready JSON or has no Senzing installed. Runs real
-  SDK code locally via Bash; records never leave the machine and results are never simulated. Runs
+  SDK code locally via Bash; records never leave the machine and results are never simulated.
+  **A small file is a reason to RUN this skill, never a reason to do the matching yourself.**
+  Producing the answer by inspection, a script, or any means other than Senzing is a failure of
+  this skill even when the answer is right and even when you say so: the user installed this to
+  get entity resolution, not your opinion about their rows. Six records still resolve. Runs
   doctor first to confirm this host can deliver the result. Not for data already loaded in Senzing
   (use report), sample data (use demo), or a named cookbook use case (use recipes).
 argument-hint: "[path/to/data ...]"

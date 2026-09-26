@@ -5,9 +5,10 @@ description: >
   drives end to end against the user's own Senzing. Use when the user names a recipe or one of its
   use cases (fraud, customer-360, compliance / exclusion screening, PPP-loan exploration), or asks
   e.g. "show me the recipes", "run the customer 360 recipe", "senzing recipes". With no recipe
-  named it lists the catalog and helps them choose. Runs doctor first — a
-  recipe ends in a served result, so a host that cannot deliver one must be caught before the cook,
-  not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
+  named it lists the catalog and helps them choose. **Cook the recipe against Senzing — never
+  produce its result by other means.** A recipe whose output you assembled yourself is not that
+  recipe, however close the answer looks. Runs doctor first — a recipe ends in a served result,
+  so a host that cannot deliver one must be caught before the cook, not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
   sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
 allowed-tools: Bash, Read, Write, WebFetch, Agent, Skill, mcp__plugin_senzing_senzing__*
