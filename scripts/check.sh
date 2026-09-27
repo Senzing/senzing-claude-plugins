@@ -39,11 +39,38 @@ while IFS= read -r md; do
 done < <(find plugins -name 'SKILL.md' -o -path '*/agents/*.md' | sort)
 
 echo; echo "== 4. claude plugin validate --strict =="
+# The DIRECTORY PORTAL requires manifest fields the CLI's bundled schema does not
+# know yet, and --strict turns its "Unknown field" warning into a failure. Refusing
+# them would mean failing the listing review to satisfy a stale local schema, so
+# each one is allowed HERE, by name, with the finding that demanded it:
+#   privacyPolicyUrl -> portal finding PRIVACY_URL_MISSING
+#   icon             -> portal finding ICON_MISSING
+# Everything else --strict says is still fatal. Drop a name from this list the day
+# the CLI schema learns it, and never add one without a portal finding to cite.
+PORTAL_FIELDS='privacyPolicyUrl|icon'
+validate_strict() {  # $1 = target, $2 = label
+  local out rc
+  out="$(claude plugin validate "$1" --strict 2>&1)"; rc=$?
+  if [ $rc -eq 0 ]; then ok "$2"; return; fi
+  # Survivable only if EVERY reported finding is a portal field. Read the finding
+  # lines themselves (they start with the CLI's bullet), never the summary line --
+  # "treats warnings as errors" contains the word "errors" and matched a looser
+  # pattern here, so the allowance never fired.
+  local findings unexpected
+  findings="$(printf '%s\n' "$out" | grep -E "^[[:space:]]*❯" || true)"
+  unexpected="$(printf '%s\n' "$findings" | grep -vE "Unknown field '($PORTAL_FIELDS)'" | grep -v '^$' || true)"
+  if [ -n "$findings" ] && [ -z "$unexpected" ]; then
+    note "$2: only portal-required unknown fields ($PORTAL_FIELDS) — allowed"
+  else
+    printf '%s\n' "$out" | tail -4
+    bad "$2 validate"
+  fi
+}
 if command -v claude >/dev/null 2>&1; then
-  if claude plugin validate . --strict 2>&1 | tail -2; then ok "marketplace"; else bad "marketplace validate"; fi
+  validate_strict . "marketplace"
   for plugin_dir in plugins/*/; do
     [ -f "$plugin_dir/.claude-plugin/plugin.json" ] || continue
-    if claude plugin validate "./$plugin_dir" --strict 2>&1 | tail -2; then ok "$plugin_dir"; else bad "$plugin_dir validate"; fi
+    validate_strict "./$plugin_dir" "$plugin_dir"
   done
 else
   note "claude CLI not on PATH — skipping (CI installs it). Install: npm i -g @anthropic-ai/claude-code"

@@ -10,7 +10,7 @@ description: >
   initialize with no Senzing error code in hand. Not for a specific SENZ error code or message
   (use troubleshoot), not for installing Senzing (use install), and not for showing that Senzing
   works on sample data (use demo).
-allowed-tools: Bash, Read, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Senzing doctor — environment preflight

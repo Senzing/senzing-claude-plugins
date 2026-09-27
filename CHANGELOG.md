@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.13-3] - 2026-09-26
+
+Plugin-only patch on MCP server v1.37.13 (no server change). Addresses the Claude
+plugin directory's review findings on 1.37.13-2.
+
+### Fixed
+
+- **`allowed-tools` was pre-approval, not restriction — and that was the review hold.**
+  `ALLOWED_TOOLS_BROAD` was the only finding filed under *"With a reviewer"*; the rest were
+  listed as other findings. A skill's `allowed-tools` does not limit what it can call — it
+  *pre-approves*, so Claude uses those tools "without prompting you". Seven skills were
+  silently suppressing the user's `Bash` and `Write` prompts. Dropping them costs no
+  capability: the skills still run generated SDK code, installers and database clients
+  exactly as before, and the user now gets the permission prompt they are entitled to.
+  Narrowing instead would have been worse — the docs say prefix rules are "not a security
+  boundary around the program", and a `Bash(python3:*)` allowlist breaks the first time
+  someone has `python3.11` or `podman`. `recipes` keeps `WebFetch`, narrowed to the single
+  domain it fetches from.
+- **`Agent` dropped from `demo`, `recipes` and `report`.** Only `analyze` spawns a subagent
+  (`field-mapper`); the other three declared the tool and reference no subagent at all.
+  Calling the Senzing MCP is a tool call, not a subagent, and `mcp__plugin_senzing_senzing__*`
+  stays on every skill.
+- **`recipes` now executes a pinned commit.** It fetched cookbook instructions from an
+  unpinned `main` and ran them word-for-word — what executes could change after review, which
+  is what `RUNTIME_FETCH_EXEC` objects to. A commit SHA also closes the two ways this has
+  already broken in production: a pinned *branch* deleted upstream, and a file renamed out
+  from under us. A branch can vanish and a file can move; a commit tree can do neither. CI
+  keeps watching `main`, so upstream movement still surfaces as a failing check — it just no
+  longer reaches users first.
+- **`privacyPolicyUrl` and a plugin icon** (`ICON_MISSING`, `PRIVACY_URL_MISSING`): the
+  512×512 Senzing mark now ships in the plugin, and the privacy policy is linked from the
+  manifest and from both READMEs.
+- **The CLI schema is stale where the portal is authoritative.** `claude plugin validate
+  --strict` rejects `privacyPolicyUrl` and `icon` as unknown fields, so refusing them would
+  mean failing the listing to satisfy a stale local schema. `scripts/check.sh` now allows
+  exactly those two by name, each cited to the portal finding that demanded it, and every
+  other `--strict` complaint stays fatal — verified red-on-removal with a bogus field.
+
+
 ## [1.37.13-2] - 2026-09-26
 
 Plugin-only patch on MCP server v1.37.13 (no server change).
