@@ -20,7 +20,7 @@ name: Real Senzing E2E
 #     absence. This job needs the opposite: a Linux host with senzingsdk-runtime
 #     and a writable filesystem. Nothing here touches that job.
 #   * its run.sh asserts "cases discovered == case directories on disk", so the
-#     new case lives in a sibling eval dir (plugins/senzing/evals-real/) that the
+#     new case lives in a sibling eval dir (evals-real/) that the
 #     macOS suite never sees.
 #
 # Why it is expensive: it builds a container, downloads a ~260 MB SDK package
@@ -86,7 +86,7 @@ jobs:
         #     repository and proven to FAIL when the thing it asserts is broken.
         #     A check that cannot fail is worse than no check, and nothing else
         #     in this job would notice one.
-        run: python3 plugins/senzing/evals-real/verify_truthset.py --self-test
+        run: python3 evals-real/verify_truthset.py --self-test
 
       - name: Gate on API key availability
         id: gate
@@ -149,7 +149,7 @@ jobs:
         if: steps.gate.outputs.has_key == 'true'
         # --keep-temp preserves the run workspace, which is where the agent's
         # scratch Senzing repository lives. The next step opens it.
-        run: bash .github/senzing-eval/in-container.sh 'bash plugins/senzing/evals-real/run.sh --keep-temp'
+        run: bash .github/senzing-eval/in-container.sh 'bash evals-real/run.sh --keep-temp'
 
       - name: Collect traces, and fail ENVIRONMENTAL if the sandbox never ran
         id: env_gate
@@ -177,10 +177,10 @@ jobs:
         # afterwards, so the host-side analysis below can read what it copied.
         run: |
           set -euo pipefail
-          dest=plugins/senzing/evals-real/results
+          dest=evals-real/results
           bash .github/senzing-eval/in-container.sh '
             set -euo pipefail
-            dest=/work/plugins/senzing/evals-real/results
+            dest=/work/evals-real/results
             mkdir -p "$dest/traces"
             n=0
             while IFS= read -r t; do
@@ -273,7 +273,7 @@ jobs:
         # regression — but it does NOT gate, because a legitimate engine, config or
         # tuning change moves it, which is exactly why it flaked (green on 825ea4f and
         # b431c10, red on 6cb6177, with no mapping-related change between them). Same
-        # standing the llm judge already has in plugins/senzing/evals/gate.py.
+        # standing the llm judge already has in evals/gate.py.
         #
         # This is deliberately NOT a grader. `claude plugin eval` has no
         # shell/command grader, so every grader verdict is ultimately a statement
@@ -307,10 +307,10 @@ jobs:
           set -euo pipefail
           bash .github/senzing-eval/in-container.sh '
             set -euo pipefail
-            python3 /work/plugins/senzing/evals-real/verify_truthset.py \
+            python3 /work/evals-real/verify_truthset.py \
               --search-root /tmp \
-              --reported-from /work/plugins/senzing/evals-real/results/traces \
-              --out /work/plugins/senzing/evals-real/results/ground-truth-verdict.json
+              --reported-from /work/evals-real/results/traces \
+              --out /work/evals-real/results/ground-truth-verdict.json
           '
 
       - name: End-to-end spot check SKIPPED — nothing was measured
@@ -352,6 +352,6 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: real-senzing-e2e-results
-          path: plugins/senzing/evals-real/results/
+          path: evals-real/results/
           if-no-files-found: warn
           retention-days: 14

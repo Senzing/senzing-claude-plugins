@@ -126,12 +126,21 @@ KEY_FILE = HERE / "ground-truth" / "actual_truthset_key.csv"
 FIXTURE_DIR = HERE / "resolve-truthset" / "fixtures"
 CASE_DIR = HERE / "resolve-truthset"
 
-# Senzing default install paths for the linux_apt platform, per
-# sdk_guide(topic='install', platform='linux_apt'). Overridable so the same
-# script works against a non-default install.
-CONFIG_PATH = os.environ.get("SENZING_CONFIG_PATH", "/etc/opt/senzing")
-RESOURCE_PATH = os.environ.get("SENZING_RESOURCE_PATH", "/opt/senzing/er/resources")
-SUPPORT_PATH = os.environ.get("SENZING_SUPPORT_PATH", "/opt/senzing/data")
+# How the engine is configured. There are deliberately NO default paths here.
+#
+# This used to carry /etc/opt/senzing, /opt/senzing/er/resources and
+# /opt/senzing/data, copied out of sdk_guide(topic='install',
+# platform='linux_apt'). Two things were wrong with that: those paths are
+# LINUX-specific, so the verifier could not run on a macOS host at all; and they
+# were a frozen copy of knowledge that has an authoritative source, so a Senzing
+# release that moves them would leave this file confidently wrong.
+#
+# SENZING_ENGINE_CONFIGURATION_JSON is the documented, canonical way the engine is
+# configured everywhere else -- the SDK's own settings string, verbatim. Take it
+# whole, and override exactly one field: SQL.CONNECTION, which points at the
+# repository under test. That one field is what a verifier legitimately controls;
+# the install layout is the host's business, not this script's.
+ENGINE_CONFIG_ENV = "SENZING_ENGINE_CONFIGURATION_JSON"
 
 # Exit codes. 1 is a verdict ABOUT THE PLUGIN; 78 explicitly is not, and matches
 # the ENVIRONMENTAL-vs-plugin distinction the workflow draws everywhere else.
@@ -369,6 +378,44 @@ class Environmental(Exception):
     """Not a plugin verdict: the measurement itself could not be taken."""
 
 
+def engine_settings(repo_db: Path) -> str:
+    """The SDK settings string for the repository under test.
+
+    Reads SENZING_ENGINE_CONFIGURATION_JSON (see ENGINE_CONFIG_ENV above) and
+    replaces only SQL.CONNECTION. An absent or malformed variable is
+    ENVIRONMENTAL and says so -- it never falls back to guessed install paths,
+    because a guess that happens to be wrong produces an engine error far from
+    its cause, and a guess that happens to be right hides a misconfigured host.
+    """
+    raw = os.environ.get(ENGINE_CONFIG_ENV, "").strip()
+    if not raw:
+        raise Environmental(
+            f"{ENGINE_CONFIG_ENV} is not set, so there is no engine configuration to use. "
+            "Set it to the SDK settings JSON for this host -- the same string the SDK is "
+            'initialized with everywhere else, at minimum '
+            '{"PIPELINE":{"CONFIGPATH":...,"RESOURCEPATH":...,"SUPPORTPATH":...}}. '
+            "Any SQL section in it is REPLACED with the repository under test, so it need "
+            "not be present and its value never matters here. This script does not guess "
+            "install paths: they differ per platform, and a guess that is wrong fails at "
+            "engine init far from its cause."
+        )
+    try:
+        settings = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise Environmental(
+            f"{ENGINE_CONFIG_ENV} is not valid JSON ({exc}); it must be the SDK settings object."
+        ) from exc
+    if not isinstance(settings, dict) or not isinstance(settings.get("PIPELINE"), dict):
+        raise Environmental(
+            f"{ENGINE_CONFIG_ENV} has no PIPELINE object; it must be the SDK settings object "
+            "(PIPELINE with CONFIGPATH / RESOURCEPATH / SUPPORTPATH)."
+        )
+    # The ONE field a verifier owns: point the engine at the repository the run left
+    # behind, whatever database the host's own configuration names.
+    settings["SQL"] = {"CONNECTION": f"sqlite3://na:na@{repo_db}"}
+    return json.dumps(settings)
+
+
 # --------------------------------------------------------------------------
 # The repository under test, as the checks see it
 # --------------------------------------------------------------------------
@@ -403,16 +450,7 @@ class SdkRepository(RepositoryView):
                 "This check never falls back to a simulated result."
             ) from exc
 
-        settings = json.dumps(
-            {
-                "PIPELINE": {
-                    "CONFIGPATH": CONFIG_PATH,
-                    "RESOURCEPATH": RESOURCE_PATH,
-                    "SUPPORTPATH": SUPPORT_PATH,
-                },
-                "SQL": {"CONNECTION": f"sqlite3://na:na@{repo_db}"},
-            }
-        )
+        settings = engine_settings(repo_db)
         # The factory OWNS the engine: when the factory is collected it destroys
         # it. Keeping only the engine let the factory go out of scope and the
         # first real CI run died with "engine object has been destroyed and can

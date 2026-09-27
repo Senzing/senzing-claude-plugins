@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the REAL-SENZING eval suite — the one that needs an installed Senzing SDK.
 #
-# Deliberately a second suite, separate from plugins/senzing/evals/:
+# Deliberately a second suite, separate from evals/:
 #   * that suite runs on macOS with NO Senzing installed, and several of its cases
 #     depend on that absence. Dropping a case that requires a working SDK into it
 #     would fail there for purely environmental reasons.
@@ -16,7 +16,7 @@
 # against its own threshold and can neither mask nor be masked by them. The CLI is therefore
 # run with `--threshold 0`: it grades, gate.py decides.
 #
-# Usage: plugins/senzing/evals-real/run.sh [--case <glob>] [extra claude-plugin-eval args...]
+# Usage: evals-real/run.sh [--case <glob>] [extra claude-plugin-eval args...]
 # Env:   EVAL_RUNS (default 1)   EVAL_MAX_COST_USD (default 75)
 #        EVAL_JUDGE_THRESHOLD (default 0.8; EVAL_THRESHOLD honored as the old name)
 #        EVAL_JUDGE_ENFORCE=1 makes the judge score a hard gate too (default: reported only)
@@ -32,12 +32,32 @@
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-plugin_dir="$(dirname "$here")"
+repo_root="$(cd "$here/.." && pwd)"
 eval_dir_name="$(basename "$here")"
 results_dir="$here/results"
 json_out="${EVAL_JSON:-$results_dir/ci.json}"
 judge_threshold="${EVAL_JUDGE_THRESHOLD:-${EVAL_THRESHOLD:-0.8}}"
 mkdir -p "$results_dir" "$(dirname "$json_out")"
+
+# STAGING -- same mechanism and same reason as the sibling suite (see evals/run.sh for the
+# full account). Both suites now live at the REPO ROOT, out of the directory the plugin-
+# directory scanner reads, but `claude plugin eval --eval-dir` only accepts a plain
+# directory name BELOW the plugin. So hand the CLI a throwaway plugin tree that has this
+# suite copied into it, and delete it on exit.
+stage="$(mktemp -d "${TMPDIR:-/tmp}/sz-eval-real-stage.XXXXXX")"
+# shellcheck disable=SC2329
+_cleanup_stage() { rm -rf "$stage"; }
+trap _cleanup_stage EXIT
+plugin_dir="$stage/senzing"
+cp -R "$repo_root/plugins/senzing" "$plugin_dir"
+cp -R "$here" "$plugin_dir/$eval_dir_name"
+rm -rf "$plugin_dir/$eval_dir_name/results"
+
+# Where the CLI writes aggregate-result.json and the HTML report. WITHOUT this they land
+# inside the stage dir and are deleted with it, and the workflow steps that read the
+# results directory afterwards would find nothing and say nothing -- a vacuous pass.
+out_dir="$results_dir/$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$out_dir"
 
 expected=0
 for d in "$here"/*/; do
@@ -48,7 +68,8 @@ if [ "$expected" -eq 0 ]; then
   echo "::error::no eval cases found under $here" >&2
   exit 1
 fi
-echo "== $expected real-Senzing eval case(s) under $plugin_dir/$eval_dir_name =="
+echo "== $expected real-Senzing eval case(s) under $here =="
+echo "== staged plugin tree: $plugin_dir (eval dir: $eval_dir_name) | results: $out_dir =="
 echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${EVAL_JUDGE_MODEL:-sonnet} =="
 
 # Same early-access enablement variable the sibling suite uses.
@@ -83,9 +104,17 @@ args=(
   --max-cost-usd "${EVAL_MAX_COST_USD:-75}"
   --no-publish
   --json "$json_out"
+  --output-dir "$out_dir"
 )
 help_text="$(claude plugin eval --help 2>&1 || true)"
 case "$help_text" in *--trust-plugin*) args+=(--trust-plugin) ;; esac
+# --output-dir is NOT optional here: the run targets a throwaway staged plugin tree, so a
+# CLI that cannot be told where to write would discard its own results with the stage.
+case "$help_text" in
+  *--output-dir*) : ;;
+  *) echo "ERROR: this claude CLI has no --output-dir; the staged run would discard its own results." >&2
+     exit 1 ;;
+esac
 
 # --keep-temp is LOAD-BEARING, not a debugging nicety. gate.py reads each run's trace.jsonl to
 # prove the Senzing MCP was actually connected in that session, and the CLI writes that trace
@@ -120,7 +149,9 @@ fi
 # a second scorer for the one suite that measures a real outcome is how this job passed a case
 # with a red deterministic grader (see the --threshold 0 comment above). gate.py is unit-tested
 # offline by scripts/check-eval-gate.py, which check.sh runs on every commit.
-gate="$plugin_dir/evals/gate.py"
+# The scorer lives with the sibling suite at the repo root -- NOT inside the staged plugin
+# tree, which is a throwaway copy that is about to be deleted.
+gate="$repo_root/evals/gate.py"
 if [ ! -f "$gate" ]; then
   echo "::error::scorer not found at $gate — this suite cannot issue a verdict without it" >&2
   exit 1

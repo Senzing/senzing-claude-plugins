@@ -187,7 +187,7 @@ jobs:
         # link". A runner with no egress at all gets `000` and lands in that branch too.
         run: |
           set -uo pipefail
-          grader=plugins/senzing/evals/install-eula/graders/eula-surfaced.md
+          grader=evals/install-eula/graders/eula-surfaced.md
           if [ ! -f "$grader" ]; then
             echo "::error::$grader is gone — the EULA assertion moved. Point this job at its new home; do not delete the check."
             exit 1
@@ -249,8 +249,13 @@ jobs:
     #
     # History: this job used to be `if: workflow_dispatch` + `continue-on-error: true`, and it ran
     # `claude plugin eval ./plugins/senzing` while the cases lived at the repo root — the CLI only
-    # discovers `<plugin>/evals/`, so ZERO cases ever ran and nothing could fail. The suite now
-    # lives under plugins/senzing/evals/ and run.sh asserts the discovered count.
+    # discovers `<plugin>/<eval dir>/`, so ZERO cases ever ran and nothing could fail.
+    #
+    # The cases live at the repo root AGAIN (evals/, evals-real/), deliberately: they are test
+    # infrastructure and must not sit in the directory the plugin-directory scanner reads. What
+    # is different this time is that run.sh STAGES a throwaway plugin tree with the suite copied
+    # into it and points the CLI at that, then asserts the discovered count against the case
+    # dirs on disk. Never point this job at ./plugins/senzing directly — that is the original bug.
     env:
       # Read into env (not a step `if:`) — `secrets.*` in a step `if:` is rejected by GHA at
       # parse time, and an empty secret must produce a visible skip, not a parse failure.
@@ -348,9 +353,9 @@ jobs:
         run: |
           set -o pipefail
           EVAL_RUNS=1 EVAL_JSON=/tmp/canary-ask.json \
-            bash plugins/senzing/evals/run.sh --case ask-routing --keep-temp || true
+            bash evals/run.sh --case ask-routing --keep-temp || true
           EVAL_RUNS=1 EVAL_JSON=/tmp/canary-sandbox.json \
-            bash plugins/senzing/evals/run.sh --case sandbox-canary --keep-temp || true
+            bash evals/run.sh --case sandbox-canary --keep-temp || true
           python3 - <<'CANARY'
           import glob, json, os, sys
 
@@ -476,7 +481,7 @@ jobs:
         # said every `tool_used` MCP grader failed while every `regex`-on-trace one
         # passed, and there was no way to tell "the MCP was never called" from "it was
         # called differently than the grader expected".
-        run: bash plugins/senzing/evals/run.sh --keep-temp
+        run: bash evals/run.sh --keep-temp
 
       - name: build case — the generated SDK file must actually be valid Python
         if: always() && steps.gate.outputs.has_key == 'true'
@@ -496,7 +501,7 @@ jobs:
         # sits in the same tree, at <scaffold>/home/cwd/.
         run: |
           set -uo pipefail
-          grader=plugins/senzing/evals/build/graders/file-written.md
+          grader=evals/build/graders/file-written.md
           if [ ! -f "$grader" ]; then
             echo "::error::$grader is gone — the build case's file assertion moved. Point this step at its new home; do not delete the check."
             exit 1
@@ -564,7 +569,7 @@ jobs:
         # /private/tmp explicitly, and the fallback listing looks for `e-*` too, which
         # is what the dirs are actually named on macOS (not `claude-eval-*`).
         run: |
-          dest=plugins/senzing/evals/results/traces
+          dest=evals/results/traces
           mkdir -p "$dest"
           n=0
           while IFS= read -r t; do
@@ -591,6 +596,6 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: behavioral-eval-results
-          path: plugins/senzing/evals/results/
+          path: evals/results/
           if-no-files-found: warn
           retention-days: 14

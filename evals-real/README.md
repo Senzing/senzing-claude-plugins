@@ -16,7 +16,9 @@ It is a **smoke test, not a validation suite**. It does not grade Senzing's answ
 ## Why it is a separate directory
 
 `claude plugin eval --eval-dir` takes a directory name below the plugin, which is all it costs to
-keep the two suites apart. They must be apart because:
+keep the two suites apart. (Both suites live at the **repo root**, not inside `plugins/senzing/`;
+`run.sh` stages a throwaway plugin tree for the CLI — see `../evals/README.md` for why and how.)
+They must be apart because:
 
 - The macOS behavioral-eval job is built around a host with **no Senzing**, deliberately (see the
   `runs-on` comment on `behavioral-eval` in `.github/workflows/ci.yml` — three stacked bubblewrap
@@ -129,15 +131,22 @@ without the work is worse than none.
 ```bash
 # free and offline — fixture drift, literal creep, and proof that every gating
 # check can fail. No Senzing, no API key.
-python3 plugins/senzing/evals-real/verify_truthset.py --self-test
+python3 evals-real/verify_truthset.py --self-test
 
-# needs a Linux host with senzingsdk-runtime installed (see
-# .github/senzing-eval/Dockerfile), ANTHROPIC_API_KEY, and a sandbox backend
-# (bubblewrap + socat)
-plugins/senzing/evals-real/run.sh --keep-temp
-python3 plugins/senzing/evals-real/verify_truthset.py \
+# needs a host with the Senzing SDK installed (see .github/senzing-eval/Dockerfile),
+# ANTHROPIC_API_KEY, and a sandbox backend (bubblewrap + socat on Linux)
+evals-real/run.sh --keep-temp
+
+# SENZING_ENGINE_CONFIGURATION_JSON is REQUIRED by the verifier and has no default:
+# it is the same settings string the SDK is initialized with everywhere else. Only
+# its PIPELINE section is used — SQL.CONNECTION is replaced with the repository the
+# run left behind. The eval image sets it; set it yourself on any other host, which
+# is what makes this script runnable off Linux instead of carrying hardcoded
+# /etc/opt/senzing paths.
+export SENZING_ENGINE_CONFIGURATION_JSON='{"PIPELINE":{"CONFIGPATH":"...","RESOURCEPATH":"...","SUPPORTPATH":"..."}}'
+python3 evals-real/verify_truthset.py \
   --search-root "${TMPDIR:-/tmp}" \
-  --reported-from plugins/senzing/evals-real/results/traces
+  --reported-from evals-real/results/traces
 ```
 
 `--reported-from` is what makes check 5 possible: it reads the run's own final message out of the

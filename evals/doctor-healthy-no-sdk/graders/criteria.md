@@ -49,5 +49,5 @@ obligation.
 Not replaced, because the obligation is not a word. "Offer install as the next step" is a
 judgement about what the report proposes, and the last bullet plus the final FAIL clause of this
 rubric already make it — the llm grader can see the offer; a regex can only see the letters.
-Deleting a grader that cannot fail costs no coverage. See `plugins/senzing/evals/REVIEW-LOOP.md`.
+Deleting a grader that cannot fail costs no coverage. See `evals/REVIEW-LOOP.md`.
 -->

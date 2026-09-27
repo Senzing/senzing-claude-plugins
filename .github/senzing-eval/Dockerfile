@@ -94,6 +94,22 @@ RUN set -eux; \
 ENV PYTHONPATH=/opt/senzing/er/sdk/python \
     LD_LIBRARY_PATH=/opt/senzing/er/lib
 
+# How the engine is configured on THIS host. The harness scripts (preflight.py and
+# evals-real/verify_truthset.py) used to each carry their own hardcoded copy of these
+# three paths, lifted from sdk_guide(topic='install', platform='linux_apt'). That made
+# both of them Linux-only and froze a copy of knowledge that has an authoritative
+# source. They now read SENZING_ENGINE_CONFIGURATION_JSON -- the documented, canonical
+# way the engine is configured everywhere else -- and it is declared here, in the one
+# file that actually installs the SDK and therefore knows where it put it. The paths
+# below are the same ones this image's apt install produces (see the libSz.so assertion
+# above and PYTHONPATH/LD_LIBRARY_PATH beside it).
+#
+# SQL is deliberately ABSENT. Each consumer names its own throwaway repository and
+# supplies SQL.CONNECTION itself, so a value here would be dead weight -- and a shared
+# database path in the environment is an invitation for a run to load into somebody
+# else's repository instead of the scratch one it is supposed to create.
+ENV SENZING_ENGINE_CONFIGURATION_JSON='{"PIPELINE":{"CONFIGPATH":"/etc/opt/senzing","RESOURCEPATH":"/opt/senzing/er/resources","SUPPORTPATH":"/opt/senzing/data"}}'
+
 RUN npm install -g "@anthropic-ai/claude-code@${CLAUDE_CLI_VERSION}" \
     && claude --version
 

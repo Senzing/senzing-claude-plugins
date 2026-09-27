@@ -8,7 +8,7 @@
 # WHOLE repo; it does not honour the workflow's FILTER_REGEX_INCLUDE of `.*\.github/.*`.
 #
 # That made CKV_SECRET_4 ("Basic Auth Credentials") fail on
-#   plugins/senzing/evals/poc-planner-grounded/grader-fixtures/corpus/
+#   evals/poc-planner-grounded/grader-fixtures/corpus/
 # which holds VERBATIM CAPTURED RESPONSES from the public Senzing MCP server, kept as
 # eval grader fixtures. Those responses document Senzing database connection-string
 # SHAPES, and the shapes contain literal placeholder userinfo:
@@ -37,4 +37,4 @@
 quiet: true
 
 skip-path:
-  - plugins/senzing/evals/.*/grader-fixtures/corpus/.*
+  - evals/.*/grader-fixtures/corpus/.*

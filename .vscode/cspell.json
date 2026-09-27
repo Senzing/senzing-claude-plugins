@@ -110,10 +110,10 @@
   "ignorePaths": [
     ".git/**",
     "evals/results/**",
-    "plugins/senzing/evals/*/grader-fixtures/**",
+    "evals/*/grader-fixtures/**",
     "**/evals/results/**",
-    "plugins/senzing/evals-real/resolve-truthset/fixtures/**",
-    "plugins/senzing/evals-real/ground-truth/*.csv",
+    "evals-real/resolve-truthset/fixtures/**",
+    "evals-real/ground-truth/*.csv",
     "**/evals-real/results/**"
   ],
   "ignoreRegExpList": [

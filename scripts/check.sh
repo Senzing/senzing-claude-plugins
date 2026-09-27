@@ -16,7 +16,7 @@ bad()  { printf '\033[31mFAIL\033[0m %s\n' "$*"; fail=1; }
 echo "== 1. JSON parses =="
 while IFS= read -r f; do
   if python3 -m json.tool "$f" >/dev/null 2>&1; then ok "$f"; else bad "$f (invalid JSON)"; python3 -m json.tool "$f" 2>&1 | head -3; fi
-done < <(find . -name '*.json' -not -path './.git/*' -not -path './plugins/*/evals/results/*' | sort)
+done < <(find . -name '*.json' -not -path './.git/*' -not -path './evals/results/*' -not -path './evals-real/results/*' | sort)
 
 echo; echo "== 2. Hook scripts (bash -n + shellcheck) =="
 while IFS= read -r s; do
@@ -178,7 +178,7 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
-# The suite's verdict is two independent gates, computed by plugins/senzing/evals/gate.py:
+# The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
 # llm judge is scored separately. That logic decides whether a $6-17 run is a pass, so it is
 # unit-tested here against synthetic result JSONs -- including the two failure modes that
@@ -202,7 +202,15 @@ if ! python3 -c 'import yaml' 2>/dev/null; then
   bad "PyYAML not installed — cannot validate eval frontmatter (pip install pyyaml)"
   note "this gate is the only thing that catches an eval case that silently never loads"
 else
+# The case directories live at the REPO ROOT (evals/, evals-real/) -- they were moved out
+# of plugins/senzing/ so the plugin-directory scanner does not read 5 MB of test
+# infrastructure. The old search root was `find plugins -path '*/evals*/*'`, which after
+# the move matches NOTHING: this section would print no lines, set no failure, and pass
+# vacuously -- the exact shape of the bug it exists to catch. Count what it checked and
+# fail on zero.
+_eval_frontmatter_checked=0
 while IFS= read -r pm; do
+  _eval_frontmatter_checked=$((_eval_frontmatter_checked + 1))
   if python3 - "$pm" <<'PYEOF'
 import sys, yaml
 path = sys.argv[1]
@@ -222,7 +230,13 @@ if "description" not in data:
     sys.exit("missing: description")
 PYEOF
   then ok "$pm"; else bad "$pm"; fi
-done < <(find plugins -path '*/evals*/*' -name 'prompt.md' -not -path '*/results/*' | sort)
+done < <(find evals evals-real -name 'prompt.md' -not -path '*/results/*' | sort)
+if [ "$_eval_frontmatter_checked" -eq 0 ]; then
+  bad "no eval prompt.md found under evals/ or evals-real/ — this gate checked NOTHING"
+  note "the search root drifted away from where the cases live; fix the find above"
+else
+  ok "$_eval_frontmatter_checked eval case frontmatter file(s) checked"
+fi
 fi
 
 echo; echo "== 10b. bwrap-shim.py rewrites exactly the two faults, offline (fake bwrap) =="

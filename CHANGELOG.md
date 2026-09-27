@@ -6,6 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The eval harness moved out of the plugin folder.** `plugins/senzing/evals/` and
+  `plugins/senzing/evals-real/` are now `evals/` and `evals-real/` at the repo root. They
+  were 233 of the 256 tracked files and 5.1 MB inside the directory the plugin directory's
+  scanner reads, and their fixtures and harness produced the `MCP_FORWARDS_CREDENTIAL_ENV`
+  finding and most of `RUNTIME_FETCH_EXEC` — about code that never ships to a user. Nothing
+  in the published `.zip` changes; it never carried these directories.
+
+  `claude plugin eval --eval-dir` only accepts a plain directory name *below* the plugin, so
+  a bare move would silently discover **zero cases** — which is exactly what happened the
+  last time this suite sat at the repo root, and the job went green for months. Both
+  `run.sh` scripts now stage a throwaway plugin tree (`plugins/senzing` + the suite copied
+  in) and point the CLI at that, and pass `--output-dir` back into the real `results/` so
+  the aggregate JSON, the report and the artifact upload do not vanish with the stage.
+  `scripts/check.sh` section 10 (eval frontmatter) now fails on a zero count instead of
+  passing vacuously, and `scripts/build-plugin-zip.sh` asserts the suites are absent from
+  the plugin rather than `rm -rf`-ing paths that no longer exist.
+
+### Fixed
+
+- **The real-Senzing verifier no longer hardcodes Linux install paths.**
+  `evals-real/verify_truthset.py` carried `/etc/opt/senzing`, `/opt/senzing/er/resources`
+  and `/opt/senzing/data` — a frozen copy of `sdk_guide(topic='install',
+  platform='linux_apt')` that made the script un-runnable on macOS and wrong the day those
+  paths move. It now reads `SENZING_ENGINE_CONFIGURATION_JSON`, the documented way the
+  engine is configured everywhere else, and overrides only `SQL.CONNECTION` to point at the
+  repository under test; an absent or malformed variable is an ENVIRONMENTAL failure with a
+  message, never a guess. `.github/senzing-eval/preflight.py` reads the same variable
+  (including for the SQLite schema path), and the eval image declares it.
+
 ## [1.37.13-3] - 2026-09-26
 
 Plugin-only patch on MCP server v1.37.13 (no server change). Addresses the Claude

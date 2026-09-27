@@ -1,7 +1,7 @@
 ---
 type: tool_used
 tool: Bash
-# See `plugins/senzing/evals/analyze/graders/mapper-ran-in-bash.md` — same
+# See `evals/analyze/graders/mapper-ran-in-bash.md` — same
 # back-port, same reason. A bare `tool_used: Bash` is satisfied by `pwd`.
 #
 # The mapper is the script `mapping_workflow` hands back, invoked as

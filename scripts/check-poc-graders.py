@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EVALS = ROOT / "plugins" / "senzing" / "evals"
+EVALS = ROOT / "evals"
 FIXTURES = EVALS / "poc-planner-grounded" / "grader-fixtures"
 SKILL = ROOT / "plugins" / "senzing" / "skills" / "poc-planner" / "SKILL.md"
 EM_DASH = "—"

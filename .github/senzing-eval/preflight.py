@@ -19,14 +19,18 @@ Usage: preflight.py [workdir]
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
-CONFIG_PATH = "/etc/opt/senzing"
-RESOURCE_PATH = "/opt/senzing/er/resources"
-SUPPORT_PATH = "/opt/senzing/data"
-SCHEMA_SQL = f"{RESOURCE_PATH}/schema/szcore-schema-sqlite-create.sql"
+# How the engine is configured, and where the SQLite schema lives. NO hardcoded
+# install paths: SENZING_ENGINE_CONFIGURATION_JSON is the documented, canonical way
+# the engine is configured everywhere else, and RESOURCEPATH inside it is where the
+# schema ships. Kept consistent with evals-real/verify_truthset.py, which takes the
+# same variable and overrides only SQL.CONNECTION. The image sets it (see Dockerfile).
+ENGINE_CONFIG_ENV = "SENZING_ENGINE_CONFIGURATION_JSON"
+SCHEMA_RELATIVE = "schema/szcore-schema-sqlite-create.sql"
 
 DATA_SOURCE = "PREFLIGHT"
 # Two of these three are the same person with a different name form and the same
@@ -73,6 +77,33 @@ def die(message: str) -> None:
     sys.exit(1)
 
 
+def engine_pipeline() -> dict:
+    """The PIPELINE block from SENZING_ENGINE_CONFIGURATION_JSON.
+
+    Fails loudly rather than guessing: a guessed path that is wrong produces an
+    engine error far from its cause, and one that happens to be right hides a
+    misconfigured host — and this script exists precisely to prove the host.
+    """
+    raw = os.environ.get(ENGINE_CONFIG_ENV, "").strip()
+    if not raw:
+        die(
+            f"{ENGINE_CONFIG_ENV} is not set, so there is no engine configuration to use. "
+            "Set it to this host's SDK settings JSON (PIPELINE with CONFIGPATH / "
+            "RESOURCEPATH / SUPPORTPATH); SQL.CONNECTION is replaced with the throwaway "
+            "repository this script builds."
+        )
+    try:
+        settings = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        die(f"{ENGINE_CONFIG_ENV} is not valid JSON ({exc})")
+        raise
+    pipeline = settings.get("PIPELINE") if isinstance(settings, dict) else None
+    if not isinstance(pipeline, dict) or "RESOURCEPATH" not in pipeline:
+        die(f"{ENGINE_CONFIG_ENV} has no PIPELINE.RESOURCEPATH; it is not the SDK settings object")
+        raise AssertionError  # unreachable; die() exits
+    return pipeline
+
+
 def main() -> int:
     workdir = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/sz-preflight")
     workdir.mkdir(parents=True, exist_ok=True)
@@ -80,10 +111,13 @@ def main() -> int:
     if repo_db.exists():
         repo_db.unlink()
 
+    pipeline = engine_pipeline()
+    schema_sql = Path(pipeline["RESOURCEPATH"]) / SCHEMA_RELATIVE
+
     # The DB file is NOT auto-created: make the schema first (sdk_guide).
-    if not Path(SCHEMA_SQL).is_file():
-        die(f"the SQLite schema {SCHEMA_SQL} is missing — the SDK install is incomplete")
-    with Path(SCHEMA_SQL).open(encoding="utf-8") as schema:
+    if not schema_sql.is_file():
+        die(f"the SQLite schema {schema_sql} is missing — the SDK install is incomplete")
+    with schema_sql.open(encoding="utf-8") as schema:
         result = subprocess.run(  # noqa: S603
             ["sqlite3", str(repo_db)], stdin=schema, capture_output=True, text=True, check=False
         )
@@ -101,14 +135,7 @@ def main() -> int:
         return 1
 
     settings = json.dumps(
-        {
-            "PIPELINE": {
-                "CONFIGPATH": CONFIG_PATH,
-                "RESOURCEPATH": RESOURCE_PATH,
-                "SUPPORTPATH": SUPPORT_PATH,
-            },
-            "SQL": {"CONNECTION": f"sqlite3://na:na@{repo_db}"},
-        }
+        {"PIPELINE": pipeline, "SQL": {"CONNECTION": f"sqlite3://na:na@{repo_db}"}}
     )
 
     try:

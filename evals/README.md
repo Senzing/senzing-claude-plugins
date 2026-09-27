@@ -5,16 +5,31 @@ The static checks (`scripts/check.sh`) prove the plugin is *well-formed*. These 
 thing: grounds every Senzing fact in the MCP, never simulates, uses a throwaway scratch repository
 without asking, and confirms only before touching the user's real repository.
 
-## Layout — the suite MUST live here
+## Layout — the repo root, and why `run.sh` stages a plugin tree
 
 `claude plugin eval <plugin>` discovers cases only under the plugin's own eval directory
-(`<plugin>/evals/` by default; `--eval-dir` must be a name *below* the plugin — `..` is rejected).
-This suite lived at the repo root for its first months and **zero cases were ever discovered**, while
-the CI job was `continue-on-error` behind `workflow_dispatch` — it could never fail. Keep the
-cases here, under `plugins/senzing/evals/`.
+(`<plugin>/evals/` by default; `--eval-dir` must be a relative path of plain directory names
+*below* the plugin — an absolute path, or one containing `..`, is rejected).
+
+This suite therefore used to live inside `plugins/senzing/`. It does not any more: at 233 of the
+256 tracked files and 5.1 MB, test infrastructure dominated the directory Anthropic's
+plugin-directory scanner reads, and its fixtures and harness produced directory findings
+(`MCP_FORWARDS_CREDENTIAL_ENV`, most of `RUNTIME_FETCH_EXEC`) about code that never ships to a
+user. Both suites now sit at the repo root: `evals/` and `evals-real/`.
+
+**That move is only safe because of the staging block in `run.sh`.** The suite sat at the repo
+root once before *without* it, CI ran `claude plugin eval ./plugins/senzing`, **zero cases were
+ever discovered**, and the job was `continue-on-error` behind `workflow_dispatch` — it could
+never fail. `run.sh` now copies `plugins/senzing` and this directory into a throwaway staged
+plugin tree, points the CLI at that, passes `--output-dir` back into the real `results/` (without
+it the results are deleted with the stage and every downstream reader finds nothing), and asserts
+that the discovered case count equals the case directories on disk.
+
+A symlink is not an alternative: the plugin-directory checklist blocks committed symlinks.
+Never point the CLI at `./plugins/senzing` directly again.
 
 ```
-plugins/senzing/evals/
+evals/
 ├── run.sh                 # the one entry point (local + CI)
 ├── gate.py                # the verdict: deterministic gate + judge score (see "Scoring")
 ├── gate-fixtures/         # synthetic result JSONs that unit-test gate.py offline
@@ -31,9 +46,9 @@ The shipped `.zip` should not carry this directory (see `scripts/build-plugin-zi
 ## Run it
 
 ```bash
-plugins/senzing/evals/run.sh                       # whole suite, 2 runs/case
-plugins/senzing/evals/run.sh --case 'doctor-*'     # one case (glob on the directory name)
-EVAL_RUNS=1 EVAL_MAX_COST_USD=15 plugins/senzing/evals/run.sh --report /tmp/report.html
+evals/run.sh                       # whole suite, 2 runs/case
+evals/run.sh --case 'doctor-*'     # one case (glob on the directory name)
+EVAL_RUNS=1 EVAL_MAX_COST_USD=15 evals/run.sh --report /tmp/report.html
 ```
 
 `run.sh` passes `--trust-plugin --ablation none --scaffold --mocks off` and grants

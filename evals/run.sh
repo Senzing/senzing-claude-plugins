@@ -8,13 +8,17 @@
 # disk, (2) refuses to treat the early-access gate message as a pass, and (3) propagates the
 # CLI's threshold exit code.
 #
+# The cases live at the repo root AGAIN -- out of the directory the plugin-directory scanner
+# reads -- but this time the CLI is handed a STAGED plugin tree with the suite copied into
+# it, so discovery still finds every case and the count assertion still proves it did. See
+# the staging block below; never go back to pointing the CLI at ./plugins/senzing directly.
 #
 # Scoring is NOT the CLI's blended average — see gate.py next to this file. Deterministic
 # graders (regex / tool_used / file_exists / tool_order) must ALL pass in EVERY run; the llm
 # judge is scored separately against its own threshold and can neither mask nor be masked by
 # them. The CLI is therefore run with `--threshold 0`: it grades, gate.py decides.
 #
-# Usage: plugins/senzing/evals/run.sh [--case <glob>] [extra claude-plugin-eval args...]
+# Usage: evals/run.sh [--case <glob>] [extra claude-plugin-eval args...]
 # Env:   EVAL_RUNS (default 2)  EVAL_MAX_COST_USD (default 75)
 #        EVAL_JUDGE_THRESHOLD (default 0.8; EVAL_THRESHOLD honored as the old name)
 #        EVAL_JUDGE_ENFORCE=1 makes the judge score a hard gate too (default: reported only)
@@ -33,7 +37,7 @@ set -euo pipefail
 # the tree is one `git add -A` away from being published. The in-repo
 # .env.local is honored second for per-repo overrides and is gitignored.
 # CI has neither file and uses the ANTHROPIC_API_KEY repo secret instead.
-for _env_file in "$HOME/.env" "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/.env.local"; do
+for _env_file in "$HOME/.env" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.env.local"; do
   if [ -f "$_env_file" ]; then
     echo "loading credentials from ${_env_file/#$HOME/~}"
     set -a
@@ -91,12 +95,47 @@ NO_KEY_HELP
 fi
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-plugin_dir="$(dirname "$here")"
+repo_root="$(cd "$here/.." && pwd)"
 eval_dir_name="$(basename "$here")"
 results_dir="$here/results"
 json_out="${EVAL_JSON:-$results_dir/ci.json}"
 judge_threshold="${EVAL_JUDGE_THRESHOLD:-${EVAL_THRESHOLD:-0.8}}"
 mkdir -p "$results_dir" "$(dirname "$json_out")"
+
+# STAGING -- load-bearing, not a convenience.
+#
+# This suite lives at the REPO ROOT, deliberately: it is 5 MB of test infrastructure and
+# 233 of the 256 files that used to sit inside plugins/senzing/, which is the directory
+# Anthropic's plugin-directory scanner reads. Its fixtures and harness produced directory
+# findings (MCP_FORWARDS_CREDENTIAL_ENV, most of RUNTIME_FETCH_EXEC) about code that never
+# ships to a user.
+#
+# But `claude plugin eval --eval-dir` takes "a relative path of plain directory names ...
+# below the plugin" -- an absolute path or one containing `..` is REJECTED -- and the CLI
+# only ever discovers cases at <plugin>/<dir>/. The suite sat at the repo root once before
+# without this, CI ran `claude plugin eval ./plugins/senzing`, ZERO cases were discovered,
+# and the job went green for months (see README.md, "Layout").
+#
+# So: build a throwaway plugin tree that DOES have the suite inside it, and point the CLI
+# at that. The `expected` assertion below and gate.py's own discovery check are what keep
+# a staging mistake red instead of vacuous.
+stage="$(mktemp -d "${TMPDIR:-/tmp}/sz-eval-stage.XXXXXX")"
+# shellcheck disable=SC2329
+_cleanup_stage() { rm -rf "$stage"; }
+trap _cleanup_stage EXIT
+plugin_dir="$stage/senzing"
+cp -R "$repo_root/plugins/senzing" "$plugin_dir"
+cp -R "$here" "$plugin_dir/$eval_dir_name"
+# Previous runs' output is not input to this one, and the stage is deleted on exit.
+rm -rf "$plugin_dir/$eval_dir_name/results"
+
+# Where the CLI writes aggregate-result.json and the HTML report. WITHOUT this they land
+# under the stage dir and are deleted with it, and eval-must-tier.yml's
+# `find <results> -name aggregate-result.json` then finds nothing and exits 0 -- a vacuous
+# pass, which is the exact failure class the staging comment above describes. Timestamped
+# so repeated local runs do not overwrite each other, matching the CLI's own default shape.
+out_dir="$results_dir/$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$out_dir"
 
 # Every immediate child directory holding a prompt.md or case.yaml is a case.
 expected=0
@@ -108,7 +147,8 @@ if [ "$expected" -eq 0 ]; then
   echo "::error::no eval cases found under $here" >&2
   exit 1
 fi
-echo "== $expected eval case(s) on disk under $plugin_dir/$eval_dir_name =="
+echo "== $expected eval case(s) on disk under $here =="
+echo "== staged plugin tree: $plugin_dir (eval dir: $eval_dir_name) | results: $out_dir =="
 echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${EVAL_JUDGE_MODEL:-sonnet} =="
 
 # The early-access rollout is a per-organization server-side flag that a headless CI runner
@@ -151,12 +191,21 @@ args=(
   --max-cost-usd "${EVAL_MAX_COST_USD:-75}"
   --no-publish
   --json "$json_out"
+  --output-dir "$out_dir"
 )
 # Flags that newer CLIs add; probe --help so an older local install still runs the suite.
 # --trust-plugin is REQUIRED on a headless runner (a non-TTY run is refused without it).
 help_text="$(claude plugin eval --help 2>&1 || true)"
 case "$help_text" in *--trust-plugin*) args+=(--trust-plugin) ;; esac
 case "$help_text" in *--concurrency*)  args+=(--concurrency "${EVAL_CONCURRENCY:-3}") ;; esac
+# --output-dir is NOT optional here (see the out_dir comment above): the suite runs against
+# a throwaway staged plugin tree, so a CLI that cannot be told where to write would put the
+# results inside it and they would be deleted with the stage. Fail loudly rather than run.
+case "$help_text" in
+  *--output-dir*) : ;;
+  *) echo "ERROR: this claude CLI has no --output-dir; the staged run would discard its own results." >&2
+     exit 1 ;;
+esac
 
 # --keep-temp is LOAD-BEARING, not a debugging nicety. gate.py reads each run's trace.jsonl to
 # prove the Senzing MCP was actually connected in that session, and the CLI writes that trace
