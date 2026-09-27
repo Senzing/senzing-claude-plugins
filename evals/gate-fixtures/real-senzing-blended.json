@@ -3,7 +3,11 @@
   "costUsd": 12.5,
   "partial": false,
   "partialReason": null,
-  "aggregates": { "casesTotal": 1, "casesPassed": 1, "overallScore": 0.888888888 },
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 1,
+    "overallScore": 0.888888888
+  },
   "cases": [
     {
       "name": "resolve-truthset",
@@ -31,8 +35,11 @@
               { "name": "inputs-were-found", "passed": true },
               { "name": "mapper-ran-in-bash", "passed": true },
               { "name": "one-workflow-for-all-three", "passed": true },
-              { "name": "records-loaded-reported", "passed": false,
-                "explanation": "no match for 159[^\\n]{0,40}record in the last message" },
+              {
+                "name": "records-loaded-reported",
+                "passed": false,
+                "explanation": "no match for 159[^\\n]{0,40}record in the last message"
+              },
               { "name": "redo-guidance-retrieved", "passed": true },
               { "name": "skill-fired", "passed": true }
             ]

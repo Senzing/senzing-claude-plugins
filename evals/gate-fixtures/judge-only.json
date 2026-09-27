@@ -20,7 +20,11 @@
             "error": null,
             "tracePath": "traces/connected.jsonl",
             "graders": [
-              { "name": "criteria", "passed": false, "judgeVotes": [false, false, false] },
+              {
+                "name": "criteria",
+                "passed": false,
+                "judgeVotes": [false, false, false]
+              },
               { "name": "skill-fired", "passed": true },
               { "name": "no-shell-ran", "passed": true },
               { "name": "plan-written", "passed": true }

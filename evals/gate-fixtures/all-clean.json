@@ -19,7 +19,11 @@
             "error": null,
             "tracePath": "traces/connected.jsonl",
             "graders": [
-              { "name": "criteria", "passed": true, "judgeVotes": [true, true, true] },
+              {
+                "name": "criteria",
+                "passed": true,
+                "judgeVotes": [true, true, true]
+              },
               { "name": "retrieved-before-written", "passed": true },
               { "name": "skill-fired", "passed": true }
             ]
