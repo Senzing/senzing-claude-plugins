@@ -28,5 +28,23 @@ a run that hands the steps over directly passes iff it also linked the agreement
 Provably able to FAIL: any reply that presents install steps without the agreement — which is the
 outcome that actually matters and which nothing deterministic asserted before.
 
+## Why this stays on `last_message`, and what that costs
+
+A run failed this by pointing backwards: its final message read "run
+`/senzing:install` … (steps and EULA link are above)". The user HAD been shown the
+agreement; the closing message referred to it instead of repeating it.
+
+`target: trace` looks like the fix and is not. The URL is in no SKILL.md — it comes
+back inside `sdk_guide(topic="install")`'s response, so the trace contains it
+whether or not the reply ever showed it to anybody (checked: the failing trace has
+it on two lines, one assistant and one tool result). Widening the target would make
+this grader pass on a run that never surfaced the agreement at all, which is exactly
+the failure it exists to catch. A vacuous compliance check is worse than none.
+
+So the surface stays and the skill changed instead: `demo/SKILL.md` now requires any
+message that points the user at installing to carry the URL in that message. That is
+better for the reader regardless — nobody should have to scroll back for the one
+thing they are being asked to agree to.
+
 The URL's liveness is checked separately by the `eula-link` job in `.github/workflows/ci.yml`; a
 grader can only assert what the reply says.
