@@ -49,9 +49,20 @@ echo; echo "== 4. claude plugin validate --strict =="
 # the CLI schema learns it, and never add one without a portal finding to cite.
 PORTAL_FIELDS='privacyPolicyUrl|icon'
 validate_strict() {  # $1 = target, $2 = label
-  local out rc
+  local out rc findings unexpected
   out="$(claude plugin validate "$1" --strict 2>&1)"; rc=$?
   if [ $rc -eq 0 ]; then ok "$2"; return; fi
+  # Distinguish "the manifest is invalid" from "the CLI could not run". Only the
+  # first is this repo's problem; the second is an environment failure and is
+  # reported as one, the way a missing CLI already is. ALWAYS print the output,
+  # so neither case is silent -- the previous version of this check was
+  # `claude plugin validate … | tail -2`, whose exit status is TAIL's, so it
+  # passed unconditionally and gated nothing for the life of the script.
+  if ! printf '%s\n' "$out" | grep -q "Validation"; then
+    printf '%s\n' "$out" | tail -4
+    note "$2: claude plugin validate could not run (exit $rc) — environment, not the manifest"
+    return
+  fi
   # Survivable only if EVERY reported finding is a portal field. Read the finding
   # lines themselves (they start with the CLI's bullet), never the summary line --
   # "treats warnings as errors" contains the word "errors" and matched a looser
