@@ -39,10 +39,15 @@ while IFS= read -r md; do
 done < <(find plugins -name 'SKILL.md' -o -path '*/agents/*.md' | sort)
 
 echo; echo "== 4. claude plugin validate --strict =="
-# The DIRECTORY PORTAL requires manifest fields the CLI's bundled schema does not
-# know yet, and --strict turns its "Unknown field" warning into a failure. Refusing
-# them would mean failing the listing review to satisfy a stale local schema, so
-# each one is allowed HERE, by name, with the finding that demanded it:
+# The DIRECTORY PORTAL requires two manifest fields that OLDER Claude CLIs do not
+# recognize, and --strict turns their "Unknown field" warning into a failure.
+# This is a LOCAL-CLI problem, not a repo problem: CI installs the current CLI
+# (`npm install -g @anthropic-ai/claude-code`, unpinned) and it validates both
+# fields clean -- the v1.37.13-3 release log shows "✔ Validation passed" with
+# both present. So this allowance exists so an older local CLI cannot fail a
+# developer's check.sh over fields the portal demands and current CI accepts.
+# Upgrading the local CLI is the better fix; this is the floor, not the goal.
+# Each field is allowed by name, with the portal finding that demanded it:
 #   privacyPolicyUrl -> portal finding PRIVACY_URL_MISSING
 #   icon             -> portal finding ICON_MISSING
 # Everything else --strict says is still fatal. Drop a name from this list the day

@@ -106,6 +106,22 @@ come the long way round.
 Restart Claude Code. No binary is downloaded — the Senzing knowledge is served from the hosted
 Senzing MCP.
 
+## What the plugin runs on its own
+
+Three hooks run automatically — Claude Code triggers them on events rather than you invoking
+them — so they are listed here in full. **None of them sends anything anywhere**; there is no
+network call in any of the three.
+
+| Hook | Runs when | What it does |
+|---|---|---|
+| `session_start.sh` | once, at session start | Prints a one-line "Senzing coworker ready" banner with the commands. Writes an empty marker file (`~/.senzing-er/.greeted`, or `$CLAUDE_PLUGIN_DATA`) so it only greets you once. |
+| `check_provenance.sh` | after Claude writes or edits a file | **Reads the file it just wrote**, and only that file. It exits immediately unless the path ends in `.py`, `.java`, `.cs`, `.rs`, `.ts`, `.js` or `.go`, and again unless the contents match Senzing SDK symbols. If the file looks like Senzing SDK code with no source URL in it, it reminds Claude to keep the attribution the MCP returned with the snippet. It reads; it never modifies, uploads or stores. |
+| `capture_state.sh` | after a `mapping_workflow` MCP call | Extracts the workflow's own state from the response and saves it as `.sz-state.json` inside the workspace directory that workflow already declared, so a mapping survives an interrupted session. |
+
+The second one is the one worth reading twice, because "runs after every write" sounds broader than
+it is: two filters run before it looks at anything, and a file that is not Senzing SDK source is
+never opened.
+
 ## Data
 
 - **Your records stay on your machine.** Mapping, loading and resolution all run locally against
