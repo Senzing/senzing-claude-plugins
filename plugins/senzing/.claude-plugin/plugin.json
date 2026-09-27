@@ -10,6 +10,7 @@
     "email": "support@senzing.com"
   },
   "homepage": "https://github.com/Senzing/senzing-claude-plugins/blob/main/plugins/senzing/README.md",
+  "privacyPolicyUrl": "https://mcp.senzing.com/privacy",
   "repository": "https://github.com/Senzing/senzing-claude-plugins",
   "license": "LicenseRef-Senzing-Plugin-License",
   "keywords": [

@@ -79,6 +79,13 @@ app") and the right one kicks in.
 - **Your existing Senzing is safe** — analysis runs in a throwaway scratch repository; loading into
   your real instance is an explicit choice, and it confirms first.
 
+## Privacy
+
+Your records stay on your machine — mapping, loading and resolution all run locally against your
+own Senzing. The plugin calls one remote service, the hosted Senzing MCP at
+`https://mcp.senzing.com/mcp`, for Senzing knowledge. What it sends and what is logged is covered
+by the [Senzing MCP privacy policy](https://mcp.senzing.com/privacy).
+
 ## Feedback
 
 Found a problem or have a request? Open an issue in this repo, or use the plugin's built-in

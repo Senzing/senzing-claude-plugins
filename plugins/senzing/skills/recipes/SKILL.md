@@ -11,7 +11,7 @@ description: >
   so a host that cannot deliver one must be caught before the cook, not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
   sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
-allowed-tools: Bash, Read, Write, WebFetch, Agent, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill, WebFetch(domain:raw.githubusercontent.com), mcp__plugin_senzing_senzing__*
 ---
 
 # Cook a Senzing Cookbook recipe
@@ -23,13 +23,17 @@ You are the **sous-chef** — you interpret and *run* each prompt, backed by the
 
 ## Recipe source
 
-<!-- The cookbook lives on `main` in senzing/recipes. The catalog file is `cookbook.md`.
-     Both were wrong here once already: this skill shipped pointing at a `cookbook-import`
-     branch (since deleted) AND at `recipes.md` (which has never existed on main), so every
-     run died at the catalog fetch with a misleading "cookbook unreachable" message. If the
-     catalog 404s again, verify the real filename in the repo before adding a fallback ref —
-     the failure mode last time was a file RENAME, which no amount of ref-juggling fixes. -->
-- Raw base: `https://raw.githubusercontent.com/senzing/recipes/main/`
+<!-- PINNED TO A COMMIT, deliberately. This skill fetches instructions and then runs them,
+     so what executes must not be able to change after review — that is Anthropic's
+     RUNTIME_FETCH_EXEC finding, and an unpinned `main` is exactly what it objects to.
+     A commit SHA also fixes the two ways this has already broken: it shipped pointing at a
+     `cookbook-import` BRANCH (since deleted) and at `recipes.md` (never existed on main), so
+     every run died at the catalog fetch with a misleading "cookbook unreachable". A branch can
+     be deleted and a file can be renamed out from under us; a commit tree can do neither.
+     The `Cookbook whitelist still matches upstream` job in ci.yml keeps watching `main`, so
+     upstream movement still surfaces as a failing check — it just no longer reaches users
+     before we have looked at it. To advance the pin, update the SHA here and in that job. -->
+- Raw base: `https://raw.githubusercontent.com/senzing/recipes/6e3ef538d1a99566701d7aaeace0432d21cce918/`
 - Catalog: `<raw base>/cookbook.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
   ingredients: `<raw base>/ingredients/<...>`
 - If the catalog does not pass the fetch validation below, say the cookbook is unreachable **and

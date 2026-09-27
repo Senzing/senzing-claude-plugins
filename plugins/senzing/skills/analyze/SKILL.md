@@ -15,7 +15,7 @@ description: >
   doctor first to confirm this host can deliver the result. Not for data already loaded in Senzing
   (use report), sample data (use demo), or a named cookbook use case (use recipes).
 argument-hint: "[path/to/data ...]"
-allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill, Agent, mcp__plugin_senzing_senzing__*
 ---
 
 # Analyze data with Senzing (map → load → resolve → report)

@@ -12,7 +12,7 @@ description: >
   claim being demonstrated is that SENZING does this. Runs doctor first. Not for the user's own files (use analyze), a named cookbook use case (use
   recipes), or "does MY setup work?" (use doctor).
 argument-hint: "[dataset]"
-allowed-tools: Bash, Read, Write, Agent, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
 ---
 
 # Demo Senzing on sample data
