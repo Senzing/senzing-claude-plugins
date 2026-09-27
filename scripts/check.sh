@@ -67,7 +67,6 @@ validate_strict() {  # $1 = target, $2 = label
   # lines themselves (they start with the CLI's bullet), never the summary line --
   # "treats warnings as errors" contains the word "errors" and matched a looser
   # pattern here, so the allowance never fired.
-  local findings unexpected
   findings="$(printf '%s\n' "$out" | grep -E "^[[:space:]]*❯" || true)"
   unexpected="$(printf '%s\n' "$findings" | grep -vE "Unknown field '($PORTAL_FIELDS)'" | grep -v '^$' || true)"
   if [ -n "$findings" ] && [ -z "$unexpected" ]; then

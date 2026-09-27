@@ -77,8 +77,15 @@ def die(message: str) -> None:
     sys.exit(1)
 
 
-def engine_pipeline() -> dict:
-    """The PIPELINE block from SENZING_ENGINE_CONFIGURATION_JSON.
+def engine_settings() -> dict:
+    """The WHOLE settings object from SENZING_ENGINE_CONFIGURATION_JSON.
+
+    Returns the full object, not just PIPELINE, so the caller can override only
+    the one key it owns (SQL) and leave every other top-level section the host
+    configured intact -- the same contract evals-real/verify_truthset.py keeps.
+    Returning PIPELINE alone silently dropped the rest, so the two consumers of
+    the same environment variable would have handed the engine different
+    settings the moment a host added a section.
 
     Fails loudly rather than guessing: a guessed path that is wrong produces an
     engine error far from its cause, and one that happens to be right hides a
@@ -96,12 +103,12 @@ def engine_pipeline() -> dict:
         settings = json.loads(raw)
     except json.JSONDecodeError as exc:
         die(f"{ENGINE_CONFIG_ENV} is not valid JSON ({exc})")
-        raise
+        raise AssertionError  # unreachable; die() exits
     pipeline = settings.get("PIPELINE") if isinstance(settings, dict) else None
     if not isinstance(pipeline, dict) or "RESOURCEPATH" not in pipeline:
         die(f"{ENGINE_CONFIG_ENV} has no PIPELINE.RESOURCEPATH; it is not the SDK settings object")
         raise AssertionError  # unreachable; die() exits
-    return pipeline
+    return settings
 
 
 def main() -> int:
@@ -111,7 +118,8 @@ def main() -> int:
     if repo_db.exists():
         repo_db.unlink()
 
-    pipeline = engine_pipeline()
+    engine_config = engine_settings()
+    pipeline = engine_config["PIPELINE"]
     schema_sql = Path(pipeline["RESOURCEPATH"]) / SCHEMA_RELATIVE
 
     # The DB file is NOT auto-created: make the schema first (sdk_guide).
@@ -134,9 +142,14 @@ def main() -> int:
         )
         return 1
 
-    settings = json.dumps(
-        {"PIPELINE": pipeline, "SQL": {"CONNECTION": f"sqlite3://na:na@{repo_db}"}}
-    )
+    # Override ONLY SQL, exactly as evals-real/verify_truthset.py does. Rebuilding
+    # the object as {PIPELINE, SQL} silently dropped every other top-level section
+    # the host's config carried, so the two consumers of the same environment
+    # variable would have handed the engine different settings the moment anyone
+    # added one.
+    settings_obj = dict(engine_config)
+    settings_obj["SQL"] = {"CONNECTION": f"sqlite3://na:na@{repo_db}"}
+    settings = json.dumps(settings_obj)
 
     try:
         factory = SzAbstractFactoryCore("preflight", settings, verbose_logging=False)
