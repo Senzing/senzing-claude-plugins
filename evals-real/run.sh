@@ -45,7 +45,11 @@ mkdir -p "$results_dir" "$(dirname "$json_out")"
 # directory name BELOW the plugin. So hand the CLI a throwaway plugin tree that has this
 # suite copied into it, and delete it on exit.
 stage="$(mktemp -d "${TMPDIR:-/tmp}/sz-eval-real-stage.XXXXXX")"
-# shellcheck disable=SC2329
+# Invoked indirectly by the trap below, which shellcheck cannot see. Two codes on
+# purpose: newer shellcheck reports SC2329 ("never invoked"), older reports SC2317
+# ("appears unreachable"), and CI runs an older one than a current local install --
+# disabling only SC2329 passed locally and failed CI.
+# shellcheck disable=SC2317,SC2329
 _cleanup_stage() { rm -rf "$stage"; }
 trap _cleanup_stage EXIT
 plugin_dir="$stage/senzing"

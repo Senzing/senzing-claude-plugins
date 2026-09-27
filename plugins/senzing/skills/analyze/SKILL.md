@@ -104,6 +104,18 @@ State the resolved input list to the user before proceeding — informational, n
    than the file tools see. Verify by having the shell create the directory and write a probe file;
    if the default isn't writable, pick a directory the shell reports as writable.
 
+   **Take the path from the probe — never retype it, never expand `~` yourself, never build it
+   with `..`.** End the probe with `cd ~/sz-workspace && pwd` and pass the absolute path it
+   prints, verbatim, as `workspace_dir`. A real run probed `~/sz-workspace`, got `OK`, then
+   hand-expanded `~` into the argument with one `..` too many — every write landed outside the
+   sandbox's writable area, and the run was spent re-deriving a path the shell had already
+   printed.
+
+   **If the workspace turns out to be wrong after `start`, that is not a reason to `start`
+   again.** `workspace_dir` lives in the `state` you carry between calls, so correcting it on the
+   next `advance` costs nothing. Re-issuing `start` throws away the profile you already have and
+   spends a second workflow on the same files.
+
    **This step does NOT gate step 3.** `mapping_workflow`'s `start` is an MCP call over paths you
    have already listed — it writes nothing and needs no workspace, no SDK and no shell. Give the
    probe **one attempt**; whatever it says, go straight to step 3 and settle the workspace before
