@@ -84,19 +84,19 @@ jobs:
         # out of the summary below and from the uploaded artifact; a red here
         # must never block an unrelated PR, and must never be silently ignored
         # either, which is what the explicit summary line is for.
-        run: bash plugins/senzing/evals/run.sh --keep-temp || true
+        run: bash evals/run.sh --keep-temp || true
 
       - name: Say plainly what the MUST tier did
         if: steps.gate.outputs.has_key == 'true'
         run: |
           set -uo pipefail
-          latest=$(find plugins/senzing/evals/results -name 'aggregate-result.json' -print0 2>/dev/null \
+          latest=$(find evals/results -name 'aggregate-result.json' -print0 2>/dev/null \
                    | xargs -0 ls -t 2>/dev/null | head -1)
           if [ -z "$latest" ]; then
             echo "::warning::no aggregate-result.json — the run produced nothing to read"
             exit 0
           fi
-          python3 plugins/senzing/evals/gate.py "$latest" 18 \
+          python3 evals/gate.py "$latest" 18 \
             --summary-title "MUST tier (opus subject / sonnet judge)" || rc=$?
           echo "gate.py exit ${rc:-0} — REPORTED, not enforced. Compare against the sonnet gate on the same commit."
 
@@ -109,7 +109,7 @@ jobs:
         # have to be copied in deliberately. Mirrors ci.yml's collection step; keep the two
         # in step.
         run: |
-          dest=plugins/senzing/evals/results/traces
+          dest=evals/results/traces
           mkdir -p "$dest"
           n=0
           while IFS= read -r t; do
@@ -134,6 +134,6 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: must-tier-eval-results
-          path: plugins/senzing/evals/results/
+          path: evals/results/
           retention-days: 14
           if-no-files-found: warn

@@ -41,14 +41,20 @@ fi
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 cp -R "$PLUGIN_DIR" "$STAGE/$PLUGIN_NAME"
-# The eval suite lives INSIDE the plugin because `claude plugin eval` only
-# discovers cases at <plugin>/evals/ — but it is a development artifact and
-# must not ship to customers.
-rm -rf "$STAGE/$PLUGIN_NAME/evals"
-# Same for the real-Senzing suite (a sibling eval dir; `--eval-dir` keeps the two
-# apart so the macOS behavioral-eval job never tries to run a case needing an SDK).
-rm -rf "$STAGE/$PLUGIN_NAME/evals-real"
 find "$STAGE" -name '.DS_Store' -delete
+# Both eval suites used to be pruned here, because `claude plugin eval` only discovers
+# cases at <plugin>/<dir>/ and they therefore had to live inside the plugin. They now live
+# at the REPO ROOT (evals/, evals-real/) and each run.sh stages a throwaway plugin tree for
+# the CLI instead, so there is nothing to prune -- but a `rm -rf` of a path that no longer
+# exists is a no-op that reads like a guarantee, so assert the property instead of
+# pretending to enforce it. A suite that ever moves back inside the plugin fails here.
+for _leaked in evals evals-real; do
+  if [ -e "$STAGE/$PLUGIN_NAME/$_leaked" ]; then
+    echo "ERROR: $_leaked/ is inside the plugin again — test infrastructure must not ship." >&2
+    echo "       The suites live at the repo root; see evals/run.sh's staging block." >&2
+    exit 1
+  fi
+done
 
 mkdir -p "$OUT_DIR"
 OUT="$(pwd)/$OUT_DIR/$ARTIFACT-$VERSION.zip"

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Offline check for the eval scoring split (`plugins/senzing/evals/gate.py`).
+"""Offline check for the eval scoring split (`evals/gate.py`).
 
 The suite's verdict is now two independent gates — deterministic assertions (hard, every
 grader in every run) and the llm judge (scored separately). That logic decides whether a
 $6-17 eval run is a pass, so it must itself be verifiable for free: this runs gate.py against
-synthetic result JSONs in `plugins/senzing/evals/gate-fixtures/` and asserts the exit code and
+synthetic result JSONs in `evals/gate-fixtures/` and asserts the exit code and
 the output text named in `expectations.json`.
 
 The fixtures encode the failure modes that actually happened, not hypotheticals:
@@ -27,8 +27,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ROOT / "plugins" / "senzing" / "evals" / "gate-fixtures"
-GATE = ROOT / "plugins" / "senzing" / "evals" / "gate.py"
+FIXTURES = ROOT / "evals" / "gate-fixtures"
+GATE = ROOT / "evals" / "gate.py"
 
 
 def main() -> int:
