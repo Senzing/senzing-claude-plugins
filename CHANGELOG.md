@@ -6,6 +6,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.13-4] - 2026-09-27
+
+Plugin-only patch on MCP server v1.37.13 (no server change). Clears the remaining
+Claude plugin directory review findings from 1.37.13-3.
+
+### Fixed
+
+- **The eval harness no longer ships inside the plugin.** `evals/` and `evals-real/` moved to
+  the repo root, dropping the folder the directory scanner reads from **257 files to 24**. That
+  removes `MCP_FORWARDS_CREDENTIAL_ENV` at its source — the cited file was our E2E verifier,
+  whose only environment reads were Senzing *install paths* with public defaults and which has
+  no network egress at all — and 7 of the 10 `RUNTIME_FETCH_EXEC` paths, which were eval
+  scripts and grader documentation.
+  A plain `git mv` would have broken the suite: `claude plugin eval --eval-dir` only accepts a
+  directory **below the plugin**, and this repo has a recorded incident where root-level cases
+  meant zero cases ever ran *and the gate stayed green*. Both `run.sh` scripts now stage a
+  throwaway plugin tree, point the CLI at it, and pass `--output-dir` back to the real results
+  directory. `check.sh` counts the cases it checked and fails on zero, so that failure mode
+  cannot recur silently.
+- **The hooks are disclosed in the listing.** Anthropic's policy ruleset fails a plugin when
+  `description_matches_behavior` is false — "would a user reading only the install description
+  be surprised by what you found?" — and one of our hooks reads files Claude writes. The plugin
+  README now names all three, what triggers each, and that none of them makes a network call.
+  `check_provenance.sh` exits before opening anything unless the path is source in one of seven
+  languages *and* the contents match Senzing SDK symbols.
+- **No more hardcoded Linux install paths.** `verify_truthset.py` and `preflight.py` read
+  `SENZING_ENGINE_CONFIGURATION_JSON` — the documented way the engine is configured — and
+  override only `SQL.CONNECTION`, the one field a verifier owns. The old `/etc/opt/senzing`
+  defaults were copied from `sdk_guide(platform='linux_apt')`, so the verifier could not run on
+  macOS at all. Both consumers now produce identical settings, verified against a config
+  carrying extra top-level sections.
+- **`analyze` takes the workspace path from the probe instead of deriving it.** A graded run
+  probed `~/sz-workspace`, got OK, then hand-expanded `~` into the tool argument with one `..`
+  too many; every write landed outside the sandbox and it restarted the whole workflow. The
+  skill now ends the probe with `pwd` and passes what it prints, verbatim — and says plainly
+  that a wrong workspace is fixed on the next `advance`, never by re-issuing `start`.
+- **A grader that failed a run for being correct.** `tbd-only-in-literal-form` matched any
+  `TBD` followed by punctuation anywhere in the plan, so it fired on
+  `"Discrepancy (not a TBD, a flag)"` — the model correctly saying an item is *not* a TBD. It
+  now matches only a TBD in value position, where one can actually withhold a decision.
+- **Two checks that could not fail.** `claude plugin validate` ran as `… | tail -2` inside an
+  `if`, so the pipeline's exit status was `tail`'s and section 4 passed unconditionally for its
+  whole life; and the eval-frontmatter loop would have checked nothing silently if its search
+  root drifted. Both now fail loudly, and the validate check distinguishes an invalid manifest
+  from a CLI that could not run.
+
+
 ### Changed
 
 - **The eval harness moved out of the plugin folder.** `plugins/senzing/evals/` and

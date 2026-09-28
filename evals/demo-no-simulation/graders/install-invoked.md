@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: 'senzing\.com/end-user-license-agreement'
+pattern: 'senzing\.com/end-user-license-agreement|/senzing:install\b'
 flags: i
 target: last_message
 ---
@@ -27,6 +27,47 @@ license-agreement question (`skills/demo/SKILL.md:87-92` guarantees it is the fi
 a run that hands the steps over directly passes iff it also linked the agreement.
 Provably able to FAIL: any reply that presents install steps without the agreement — which is the
 outcome that actually matters and which nothing deterministic asserted before.
+
+## Why it accepts a hand-off as well as the URL
+
+Twice this failed a run that was behaving correctly. Once the reply pointed
+backwards ("steps and EULA link are above"); once it delegated — "run
+`/senzing:install` (it'll walk through the Homebrew cask + EULA for this Mac)".
+Neither withheld the agreement from anybody.
+
+The obligation is that a user is shown the license before anything installs. A
+reply that hands over install STEPS owes the URL, because nothing else in that
+turn will show it. A reply that delegates to `/senzing:install` owes nothing
+extra: that skill surfaces the agreement by URL as its own first act, which the
+sibling **`install-eula` case already asserts** with this exact pattern. Demanding
+it twice does not make a user safer; it just fails `demo` for correctly handing
+off.
+
+So either satisfies it. What still fails — the shape this was created for — is a
+reply that hands over install commands with no agreement and no hand-off.
+
+I tried fixing this in the skill first, requiring every install-pointing message
+to carry the URL. It did not take (the failure went from 1 of 2 runs to 2 of 2),
+and it was the wrong target anyway: the model was not omitting something the user
+needed, it was delegating to the skill whose job that is.
+
+## Why this stays on `last_message`, and what that costs
+
+A run failed this by pointing backwards: its final message read "run
+`/senzing:install` … (steps and EULA link are above)". The user HAD been shown the
+agreement; the closing message referred to it instead of repeating it.
+
+`target: trace` looks like the fix and is not. The URL is in no SKILL.md — it comes
+back inside `sdk_guide(topic="install")`'s response, so the trace contains it
+whether or not the reply ever showed it to anybody (checked: the failing trace has
+it on two lines, one assistant and one tool result). Widening the target would make
+this grader pass on a run that never surfaced the agreement at all, which is exactly
+the failure it exists to catch. A vacuous compliance check is worse than none.
+
+So the surface stays and the skill changed instead: `demo/SKILL.md` now requires any
+message that points the user at installing to carry the URL in that message. That is
+better for the reader regardless — nobody should have to scroll back for the one
+thing they are being asked to agree to.
 
 The URL's liveness is checked separately by the `eula-link` job in `.github/workflows/ci.yml`; a
 grader can only assert what the reply says.
