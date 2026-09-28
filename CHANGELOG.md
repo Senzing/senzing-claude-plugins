@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.13-5] - 2026-09-28
+
+Plugin-only patch on MCP server v1.37.13. Clears the last two actionable
+directory warnings; `1.37.13-4` already cleared the policy hold.
+
+### Fixed
+
+- **`Skill` is scoped to the hand-offs each skill actually makes** (`Allowed tools skill any`,
+  8 skills). `doctor` is the near-universal one; `install` follows from `demo`/`doctor`/`analyze`/
+  `recipes`, and `analyze` from `demo`/`report`. Pre-approving *any* skill was broader than
+  anything these skills do. Erring slightly wide is safe by construction: an unlisted hand-off
+  costs a permission prompt, never a failure.
+- **`poc-planner` no longer pre-approves `Write`** (`Allowed tools unscoped write`). It was the
+  one skill still carrying it, missed when the other seven were done in `1.37.13-3` because it
+  was not in that round's finding list. Writing the plan file now prompts, which is the right
+  shape for the single deliberate write a planning run makes.
+
+
 ## [1.37.13-4] - 2026-09-27
 
 Plugin-only patch on MCP server v1.37.13 (no server change). Clears the remaining

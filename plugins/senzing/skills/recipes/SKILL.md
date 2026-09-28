@@ -11,7 +11,7 @@ description: >
   so a host that cannot deliver one must be caught before the cook, not after. Not for the user's own ad-hoc data files (use analyze) or a quick demonstration on
   sample data (use demo).
 argument-hint: "[recipe-id-or-name]"
-allowed-tools: Read, Skill, WebFetch(domain:raw.githubusercontent.com), mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(domain:raw.githubusercontent.com), mcp__plugin_senzing_senzing__*
 ---
 
 # Cook a Senzing Cookbook recipe

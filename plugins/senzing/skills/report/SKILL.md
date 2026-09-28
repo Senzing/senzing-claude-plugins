@@ -12,7 +12,7 @@ description: >
   mutates. Runs doctor first to confirm this host can deliver the result. Not for starting from
   data files (use analyze) or writing reporting code into a project (use build).
 argument-hint: "[question]"
-allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:analyze), mcp__plugin_senzing_senzing__*
 ---
 
 # Report over an already-loaded Senzing

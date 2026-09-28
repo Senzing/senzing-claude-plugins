@@ -13,7 +13,7 @@ description: >
   sample data (use demo), a cookbook use case (use recipes), results already in Senzing (use
   report), or installing (use install).
 argument-hint: "[use case, constraints, or plan path]"
-allowed-tools: Read, Write, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, mcp__plugin_senzing_senzing__*
 ---
 
 # Plan a Senzing proof of concept — with the user
