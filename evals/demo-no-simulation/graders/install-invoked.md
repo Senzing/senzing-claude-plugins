@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: 'senzing\.com/end-user-license-agreement'
+pattern: 'senzing\.com/end-user-license-agreement|/senzing:install\b'
 flags: i
 target: last_message
 ---
@@ -27,6 +27,29 @@ license-agreement question (`skills/demo/SKILL.md:87-92` guarantees it is the fi
 a run that hands the steps over directly passes iff it also linked the agreement.
 Provably able to FAIL: any reply that presents install steps without the agreement — which is the
 outcome that actually matters and which nothing deterministic asserted before.
+
+## Why it accepts a hand-off as well as the URL
+
+Twice this failed a run that was behaving correctly. Once the reply pointed
+backwards ("steps and EULA link are above"); once it delegated — "run
+`/senzing:install` (it'll walk through the Homebrew cask + EULA for this Mac)".
+Neither withheld the agreement from anybody.
+
+The obligation is that a user is shown the license before anything installs. A
+reply that hands over install STEPS owes the URL, because nothing else in that
+turn will show it. A reply that delegates to `/senzing:install` owes nothing
+extra: that skill surfaces the agreement by URL as its own first act, which the
+sibling **`install-eula` case already asserts** with this exact pattern. Demanding
+it twice does not make a user safer; it just fails `demo` for correctly handing
+off.
+
+So either satisfies it. What still fails — the shape this was created for — is a
+reply that hands over install commands with no agreement and no hand-off.
+
+I tried fixing this in the skill first, requiring every install-pointing message
+to carry the URL. It did not take (the failure went from 1 of 2 runs to 2 of 2),
+and it was the wrong target anyway: the model was not omitting something the user
+needed, it was delegating to the skill whose job that is.
 
 ## Why this stays on `last_message`, and what that costs
 

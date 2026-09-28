@@ -90,11 +90,12 @@ second report.
    `sdk_guide(topic="install")` directly. (If an evaluation license turns out to be needed,
    `submit_feedback(category='license_request')` requests one; its description states the current
    terms — do not quote a duration from memory.) Resume the demo the moment install completes.
-   **Whenever a message points the user at installing, that message carries the license-agreement
-   URL itself — never "the EULA link is above".** A reader acts on the message in front of them; a
-   backward reference makes them scroll for the one thing they have to agree to, and a run that
-   said "steps and EULA link are above" is the reason this is written down. The URL comes from
-   `sdk_guide(topic="install")`; put it in the sentence that asks.
+   **If you hand over install STEPS yourself, that same message carries the license-agreement
+   URL** — never "the EULA link is above". A reader acts on the message in front of them, and a
+   backward reference makes them scroll for the one thing they must agree to. The URL comes from
+   `sdk_guide(topic="install")`; put it in the sentence that asks. Handing off to
+   `/senzing:install` instead needs no URL from you — surfacing the agreement is that skill's
+   own first act.
    `install` ending its own turn on the license-agreement question is that skill's procedure
    working correctly — it is never a reason to have withheld the hand-off. That question is then the
    **only** thing that message asks. Do not preview, promise or offer the zero-install tier
