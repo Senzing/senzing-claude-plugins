@@ -122,9 +122,11 @@ different responses:
    need no Senzing facts) and mark 4–9 ➖ "not reached — no grounding". Do **not** continue on
    remembered paths or filenames; a preflight that guesses is worse than one that stops.
 
-Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on
-the user's machine (or a Claude Code **cloud/remote** session — the same variables are set but
-the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/version` containing
+Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` **or `sdk-cli`**
+→ Claude Code on the user's machine (or a Claude Code **cloud/remote** session — the same
+variables are set but the shell is a cloud VM; ask if unsure). `sdk-cli` is what `claude -p` and
+the Agent SDK set, so a plugin driven programmatically — automation, CI, an embedded agent —
+reports it. Treat it exactly like `cli`: it is a real shell on a real host, not a sandbox. `/.dockerenv` present, or `/proc/version` containing
 `microsoft` → container or WSL2. Neither → likely a cloud sandbox.
 
 ## The checks
