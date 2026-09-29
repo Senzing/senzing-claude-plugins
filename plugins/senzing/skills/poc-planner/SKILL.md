@@ -71,8 +71,13 @@ license terms here or from memory — call the tool named in each step and cite 
    or (d) a rule of this skill, labelled "(plugin rule)" — only where this file says so. Never
    derive a number from a tool number ("~55 minutes for 100k, so about a day for 750k" is
    fabrication with a citation). Never add a role title, phase or section the template, the
-   user, or a retrieved chunk does not contain. A vague answer ("a couple of engineers") is
-   recorded vaguely. The one §2 value that comes from a tool is `platform_id`: the user's stated
+   user, or a retrieved chunk does not contain. **Nor re-title a person the user already
+   named.** Carry them in *their* word — they wrote "our VP", so the plan says `the VP`, not
+   `the sponsor`; and never attribute anything to a title they did not use (`Goal stated by
+   sponsor:` when they said VP). Substituting PoC vocabulary — sponsor, project sponsor,
+   stakeholder, product owner, tech lead — for the user's own word reads as a role you
+   assigned them, which is the same defect as inventing one.
+   A vague answer ("a couple of engineers") is recorded vaguely. The one §2 value that comes from a tool is `platform_id`: the user's stated
    OS/platform expressed as the matching id from `sdk_guide(topic="install")`'s platform tree
    (their own words stay in `os_platform`).
 5. **Assemble the corpus against their constraints; quote, never extrapolate.** When the user
