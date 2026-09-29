@@ -60,6 +60,10 @@ ignore it.
 **Rules that override any instinct to report a failure:**
 
 - **Not installed is ➖, never ❌.** ❌ is reserved for something that IS there and IS misbehaving.
+  This holds for **every glyph you write anywhere in the report**, not only the numbered check
+  rows — including any extra table you add of your own (toolchains, languages, versions). An
+  absent Java, .NET or Rust is ➖ absent, never ❌ absent: in this report ❌ promises the user a
+  fixable malfunction, and "you never installed it" is not one.
 - **Cascade: if a prerequisite is ➖ or ❌, every check downstream of it is ➖** — never repeat the
   same failure as a second ❌. Dependency chain: 4 → 5 → 6 → {6b, 9}; 7 → 8. So when 4 is ➖,
   cascade **5, 6, 6b and 9** to ➖ — but **7–8 still grade**: a config can exist on a host with

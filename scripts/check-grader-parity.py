@@ -50,6 +50,12 @@ LITERAL_EXEMPT = {
     "ask-license-request/payload-shown": "the name and address are the prompt's test persona, echoed back",
     "install-eula/eula-surfaced": "the EULA URL comes from sdk_guide's result, not the skill's prose",
     "recipes-named/install-invoked": "same EULA URL, surfaced from the tool by the install hand-off",
+    # These forbid a PHRASE SHAPE (hedging, recommending), not domain vocabulary. The skill
+    # states the concept — do not recommend hardware; do not claim you could not find the
+    # files — and enumerating the English that expresses it would be both endless and silly.
+    "analyze/inputs-were-found": "forbids failure-phrasing ('unable to'), not a term the skill names",
+    "analyze-multi-file-join/inputs-were-found": "same failure-phrasing shape",
+    "poc-planner-grounded/no-hardware-recommendation": "forbids recommendation-phrasing ('should have'), not a term",
 }
 
 # `last_message` graders whose literal is exempt above may still need the closing
@@ -108,6 +114,41 @@ def literals(pattern: str) -> list[str]:
     return out
 
 
+NUMBER_WORDS = {
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve",
+}
+COMMON_VERBS = {"access", "locate", "find", "read", "open", "budget", "meeting", "context"}
+
+
+def forbidden_words(pattern: str) -> list[str]:
+    """Word alternatives a not_contains pattern bans, e.g. `\b(gantt|timeline|go-live date)\b`."""
+    out: list[str] = []
+    # Flatten ONE level of nesting first: `kick-?off (date|meeting)` sits inside the
+    # outer alternation, so a non-nested scan sees only `(date|meeting)` and misses
+    # the phrase that actually matters. Collapse inner groups to their first branch.
+    flat = re.sub(r"\(([^()|]*)\|[^()]*\)", r"\1", pattern)
+    for group in re.findall(r"\(([^()]*\|[^()]*)\)", flat):
+        if group.startswith("?"):
+            continue  # (?: … ) and lookahead groups are structure, not a word list
+        for alt in group.split("|"):
+            alt = alt.strip()
+            # Keep readable words/phrases; drop anything still carrying regex syntax.
+            word = re.sub(r"\\[bBdDwWsS]|\?:|\\", "", alt).strip()
+            if not re.fullmatch(r"[A-Za-z][A-Za-z '-]{2,}", word):
+                continue
+            w = word.lower()
+            # Number words and bare common verbs are parts of a PHRASE pattern
+            # (durations, "(cannot|could not) (access|locate)"), not vocabulary a
+            # skill could plausibly enumerate. Only distinctive terms are actionable.
+            if w in NUMBER_WORDS or w in COMMON_VERBS:
+                continue
+            if " " not in w and len(w) < 6:
+                continue
+            out.append(w)
+    return sorted(set(out))
+
+
 def main() -> int:
     problems: list[str] = []
     checked = 0
@@ -132,11 +173,30 @@ def main() -> int:
             key = f"{case.name}/{g.stem}"
             pattern = fm.get("pattern", "").strip().strip('"')
             target = fm.get("target", "")
-            # `not_contains`-style graders assert ABSENCE; the skill need not spell them.
-            negated = g.stem.startswith("no-") or g.stem.startswith("not-")
-            if negated:
-                continue
+            negated = (
+                fm.get("match") == "not_contains"
+                or g.stem.startswith("no-")
+                or g.stem.startswith("not-")
+            )
             checked += 1
+
+            if negated:
+                # CHECK C — a grader that FORBIDS vocabulary only works if the skill
+                # names that vocabulary. `no-schedule-words` forbids gantt/timeline/
+                # kick-off/go-live/sprint planning; SKILL.md:29 named only phases,
+                # weeks, sprints, milestones and Gantt, so the model had no way to
+                # know the rest were banned. It wrote one in 1 run of 2.
+                if key in LITERAL_EXEMPT:
+                    continue
+                banned = forbidden_words(pattern)
+                unnamed = [w for w in banned if w not in skill_lower]
+                if unnamed:
+                    problems.append(
+                        f"{key}: forbids {unnamed[:4]} but {skill_name}/SKILL.md never names "
+                        f"them. A prohibition the skill does not spell is one the model cannot "
+                        f"obey except by luck."
+                    )
+                continue
 
             if "last_message" in target and key not in CLOSING_EXEMPT:
                 if not any(cue in skill_lower for cue in CLOSING_CUES):

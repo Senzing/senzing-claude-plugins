@@ -26,7 +26,8 @@ license terms here or from memory — call the tool named in each step and cite 
 
 ## The rules that make this skill honest
 
-1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt, no
+1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt,
+   no timeline, no kick-off date or kick-off meeting, no go-live date, no sprint planning, no
    durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
    "planner" that invents one has fabricated the most consequential part of the document. The
    template below has no schedule section; do not add one. The only time words allowed anywhere
