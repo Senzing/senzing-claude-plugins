@@ -6,8 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Changed
+## [1.37.16] - 2026-09-29
 
+### Changed
 - **Skills and rubrics no longer contradict each other on four contracts.** Opus obeys the
   skill faithfully and hit each collision: `report-empty-instance` asserted "doctor confirms the
   SDK loads" in a sandbox with no SDK while `report` mandated a `doctor` pre-flight (the prompt
@@ -24,7 +25,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   substitution ban `analyze`/`demo`/`report` already carry, each phrased for its own
   from-memory failure mode. No `tool_used`/`tool_order`/`file_exists` grader, `min:` count,
   threshold or `gate.py` changed.
-
 - **Eval graders: facts stay regexes, judgments move to the judge.** 28 of the suite's 50
   `regex` graders were proxies for meaning — did the plan carry the user's database, was a role
   invented, was the hand-off named, did a schedule word creep in — and they failed correct output
@@ -40,7 +40,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `poc-planner` rule 1 and the §2 template lose the spellings they carried only to satisfy
   regexes. Thresholds, `gate.py` and the judge's non-gating status are untouched.
 
-## [1.37.16] - 2026-09-29
 
 ### Changed
 
