@@ -196,6 +196,11 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; else bad "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; fi
 
+# The defect classes that produced this week's eval failures, each caught offline:
+# an invalid template, a substitution ban the router never sees, a fetch host
+# named wrong, and a prompt premise the sandbox contradicts.
+if python3 scripts/check-skill-hazards.py; then ok "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; else bad "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
