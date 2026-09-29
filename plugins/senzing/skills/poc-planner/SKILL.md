@@ -319,6 +319,9 @@ Consumer contract: parse by the "## N." headings below. A value beginning `TBD �
 ```yaml
 # Every value is the user's statement or the literal `TBD — decided by <owner>`, with one exception:
 # platform_id is the user's stated OS/platform expressed as the matching id from sdk_guide(topic="install")'s platform tree.
+# A user's statement is written `per user: <their words>` — that prefix, colon and space, exactly,
+# the same form §3 `target` uses. Not `per user - PostgreSQL`, not a trailing `PostgreSQL (per user)`:
+# one form, so the value is machine-readable wherever it appears.
 poc_target_host:
 volume_records:
 data_sources:
