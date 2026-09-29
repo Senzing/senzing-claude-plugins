@@ -48,6 +48,10 @@ entities"). If none is given, ask what they want to see before running anything.
      "report" is both this skill's name and the thing it emits: **you DO run this skill on an
      empty repository** — running it is how the zero becomes established fact instead of a guess.
      What you must never do is emit entity findings, counts or a dashboard from an empty one.
+     **End with the hand-off as a runnable command.** Whenever you refuse or redirect, your last
+     message names `/senzing:analyze` (their files) or `/senzing:demo` (sample data) literally —
+     not "load some data first", and not only earlier in the conversation. A summary that drops
+     the command leaves the user with a refusal and no next step.
      Run, establish zero, say so, hand off. Never decline to run because you suspect it is empty.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.

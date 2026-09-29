@@ -191,6 +191,7 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 # plus a correct and a fabricated plan fixture. A hit on quoted corpus text is a false-fail that
 # would burn a paid eval run; a fabricated plan the graders pass is a grader that does nothing.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
+if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (shapes the graders demand are pinned in the skill)"; else bad "grader/skill parity (shapes the graders demand are pinned in the skill)"; fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:

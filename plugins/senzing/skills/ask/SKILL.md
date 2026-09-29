@@ -43,7 +43,11 @@ Senzing up) and let the user choose. Write no files either.
 
 **Cite the `source_url` the tool returned, verbatim, for every fact you state.** Not "per the
 Senzing docs" — the actual URL from the tool result. An answer the user cannot verify is the
-thing this skill was built to replace.
+thing this skill was built to replace. The citations belong in the **final** message with the
+answer they support: a URL quoted only in an earlier turn, or dropped when you summarize, leaves
+the user holding an uncheckable claim. The same goes for anything you have assembled on their
+behalf — a license-request payload, for instance, is shown in full in your last message, not
+merely described as prepared.
 
 **Ground the arithmetic, not just the retrieval.** Never extrapolate a retrieved figure into a new
 one — "the sizing FAQ says N cores for 100k, so for 1M you'd need roughly 10×" is fabrication with
