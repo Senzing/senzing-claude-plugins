@@ -40,6 +40,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `poc-planner` rule 1 and the §2 template lose the spellings they carried only to satisfy
   regexes. Thresholds, `gate.py` and the judge's non-gating status are untouched.
 
+## [1.37.16] - 2026-09-29
+
+### Changed
+
+- Tracks Senzing MCP server v1.37.16, whose container install route now carries
+  its commands, the EULA, and the OCI runtimes beyond Docker.
+
+### Fixed
+
+- **Graders assert one of two things now: a fact about the run, or a judgment
+  about content.** 28 content regexes moved to the judge; 21 literal-fact
+  regexes kept; every `tool_used` / `tool_order` / `file_exists` check
+  untouched — those answer "did we actually use Senzing", and they are what
+  caught opus deduping six rows by hand. `no-invented-resolution` stays
+  deterministic because it is the only gate against fabrication and the judge
+  does not gate.
+- **Contradictions between skills and rubrics.** `report` forbade certifying a
+  repository empty while its rubric demanded exactly that — opus scored 0.00 on
+  that case in three consecutive weekly runs for obeying the skill. The TBD
+  literal was described three incompatible ways. `install` and `demo` disagreed
+  on the shape of the EULA message.
+- **`recipes` gave up on a host it never uses** — it declared the cookbook
+  unreachable when `github.com` was blocked, though every recipe is fetched from
+  `raw.githubusercontent.com`, which answered. The source sentence now names the
+  fetch host.
+- **`doctor` treated `sdk-cli` as unrecognized**, so every programmatic driver
+  of the plugin was told it might be a sandbox.
+- The judge reports which run failed instead of a mean of booleans that could
+  only ever be 0.00, 0.50 or 1.00.
+
+### Added
+
+- `evals/local.sh` — single-case local runs, which CI made impossible: `--case`
+  always exited "structural: cases missing", the CLI floor needed a pinned
+  install, and the sandbox refuses while `~/.docker` holds symlinks. A case
+  costs $0.08–0.79 against $19.50 for a CI cycle that samples each case twice.
+- `scripts/check-skill-hazards.py` and an extended `check-grader-parity.py` —
+  offline checks for the classes that produced this week's failures: a template
+  that does not parse, a ban the router never sees, a fetch host named wrong, a
+  prompt premise the sandbox contradicts.
+
 ## [1.37.15] - 2026-09-28
 
 ### Changed
