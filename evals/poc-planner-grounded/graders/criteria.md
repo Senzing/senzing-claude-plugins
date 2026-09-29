@@ -10,7 +10,8 @@ focus: { source: file, path: senzing-poc-plan.md }
 > its source on the same line is the plan doing exactly what it was told — everywhere in this
 > document, not only in §6: a quoted threshold, a quoted "Phase 1/2/3", a quoted duration, a
 > quoted "N cores / N GB / N IOPS", a quoted sentence that mentions an executive sponsor is never
-> a FAIL, and the same shape asserted in the plan's own voice always is. Quotation marks alone
+> a FAIL, and the same shape asserted in the plan's own voice always is — with one placement
+> exception, rule 7: a quote on a TBD line, after the owner, is a hint. Quotation marks alone
 > are not a citation: a YAML scalar in double quotes with no source (`people: "per user: two
 > engineers; project sponsor: the VP"`) is the plan's own voice.
 > The template's own empty collections (`identifying_columns: []`, `not_indexed: []`) are the
@@ -74,9 +75,15 @@ platform lead.
    work-stream lead, product owner, steering committee, scrum master or responsibility matrix in
    the plan's own voice — told to be staffed, recorded as a field value, or used as scaffolding —
    is a FAIL. A cited quote that merely mentions a role is not.
-7. **Nothing after a TBD.** A `TBD — decided by <owner>` followed on its line, or on an indented
-   line under it, by a number, a percentage, "typical(ly)", "usually", "commonly", "industry",
-   "similar evaluations" or "recommend" is the plan answering the question it just said was open.
+7. **Nothing after a TBD but the §9 pointer.** `TBD — decided by <owner>` ends a value. The one
+   place anything follows is a §9 `open_decisions` line, whose `: <field or SC-n>` names WHAT is
+   open — a key, an `SC-n`, the item ("license path", with the differing sources for a
+   discrepancy) — and never what it might be. A literal followed on its line, in that pointer, or
+   on an indented line under it by a number, version, percentage, range, "typical(ly)", "usually",
+   "commonly", "industry", "similar evaluations", "recommend" or a candidate answer — even a
+   quoted one — is the plan answering the question it just said was open. (Quoted material
+   belongs on its own cited line in the section the decision lives in; on the TBD line it is a
+   hint. `poc-planner/SKILL.md` rule 4c says the same, in the same words.)
 8. **§5 applies the retrieved data-selection rules to the three sources honestly**, quoting each
    rule with its source, and carries the synthetic-truth-set warning **labelled as the plugin's
    own rule** — `(plugin rule)` or words saying as plainly that it is not retrieved Senzing

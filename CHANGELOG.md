@@ -8,6 +8,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Skills and rubrics no longer contradict each other on four contracts.** Opus obeys the
+  skill faithfully and hit each collision: `report-empty-instance` asserted "doctor confirms the
+  SDK loads" in a sandbox with no SDK while `report` mandated a `doctor` pre-flight (the prompt
+  now supplies the pre-flight and says the shell is not the host; `report` gains the same
+  supplied-preflight carve-out `demo` has), and its rubric left a relayed zero ambiguous and
+  penalized the hand-off the skill requires (one attribution test; naming `/senzing:analyze` is
+  the hand-off, not an offer). `poc-planner` rule 4c said the TBD literal has "nothing after it"
+  while its own §9 template requires `: <field or SC-n>` after it — one rule now: after the owner
+  nothing, except the §9 pointer, which names what is open and never a value; and asking "which
+  shape is closest?" after the open buy-decision question is what the skill orders, not a menu.
+  `install` and `demo` disagreed on what the EULA message may ask — one contract, stated
+  identically in both: every question about proceeding WITH installing (path, allowlist), none
+  offering an alternative. `build`, `troubleshoot` and `poc-planner` descriptions gain the
+  substitution ban `analyze`/`demo`/`report` already carry, each phrased for its own
+  from-memory failure mode. No `tool_used`/`tool_order`/`file_exists` grader, `min:` count,
+  threshold or `gate.py` changed.
+
 - **Eval graders: facts stay regexes, judgments move to the judge.** 28 of the suite's 50
   `regex` graders were proxies for meaning — did the plan carry the user's database, was a role
   invented, was the hand-off named, did a schedule word creep in — and they failed correct output

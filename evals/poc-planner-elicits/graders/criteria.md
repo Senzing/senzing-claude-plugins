@@ -21,9 +21,12 @@ asking its Round 1** and stopping.
   bulleted question stem counts): (1) the data — what, where it lives, who owns it, how many
   records; (2) infrastructure — hardware available, platform/OS, database, cloud or on-prem,
   throughput/latency to demonstrate; (3) people and the SDK language — who runs it; (4) what
-  would have to be TRUE for their organization to buy — the three shapes (result quality, a
-  functional integration, specific entity-graph scenarios) offered as openers, not as a menu to
-  pick from. A block that is only *mentioned* in a declarative plan ("we will profile your data")
+  would have to be TRUE for their organization to buy — asked in those open terms, with the three
+  shapes (result quality, a functional integration, specific entity-graph scenarios) offered as
+  examples. Asking "which of these is closest, or none?" after the open question is what
+  `poc-planner/SKILL.md` orders and is NOT a FAIL; the FAIL is a closed choice that REPLACES the
+  open question ("pick one of these three") or presents the shapes as success criteria of the
+  reply's own. A block that is only *mentioned* in a declarative plan ("we will profile your data")
   is not asked; FAIL a block that is absent or only stated. (Were four `asks-about-*` regexes — a
   `?` within one sentence of a topic word; whether a block was asked is yours to read.)
 - **No target, size, platform or timeline of its own**, in its own voice: no metric threshold

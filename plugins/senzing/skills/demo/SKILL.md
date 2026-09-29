@@ -97,12 +97,18 @@ second report.
    `/senzing:install` instead needs no URL from you — surfacing the agreement is that skill's
    own first act.
    `install` ending its own turn on the license-agreement question is that skill's procedure
-   working correctly — it is never a reason to have withheld the hand-off. That question is then the
-   **only** thing that message asks. Do not preview, promise or offer the zero-install tier
-   alongside it: "either way I can proceed to the zero-install fallback next — let me know how
-   you'd like to proceed" is the menu again, one step later, and it makes the license answer a
-   fork instead of an answer. The tier is not mentioned until `install` has actually ended its
-   turn without a working SDK, and then you take it rather than announce it.
+   working correctly — it is never a reason to have withheld the hand-off.
+   **The EULA message contract — stated identically in `install`.** The message that asks for
+   license agreement may also ask what installing needs answered: which install path, when the
+   host offers more than one, and whether to allow a network domain or host permission the
+   install requires (an allowlist entry for the package host, say). Every question in that
+   message is about how to proceed WITH installing. It never offers an alternative to installing
+   — not a zero-install tier, not a demo without an engine, not "or I can skip this" — because
+   that turns the license answer into a fork instead of an answer.
+   So do not preview, promise or offer the zero-install tier alongside it: "either way I can
+   proceed to the zero-install fallback next — let me know how you'd like to proceed" is the menu
+   again, one step later. The tier is not mentioned until `install` has actually ended its turn
+   without a working SDK, and then you take it rather than announce it.
 
    **The zero-install tier is what you do AFTER `install` has ended its turn without a working
    SDK** — a fallback you take, not an option you put to the user, and never a branch offered in

@@ -23,6 +23,17 @@ No mapping, no load — the data is already resolved. Grounded by the **Senzing 
 entities"). If none is given, ask what they want to see before running anything.
 
 1. Pre-flight with `doctor`, then close the two gaps it leaves for this skill:
+
+   **Supplied-preflight carve-out — it reads off the user's own words, not your impression of
+   the shell.** Only when the user's own message BOTH supplies `doctor`'s result for their
+   Senzing host AND states that this shell is not that host, take the result as given and do not
+   re-probe this shell — a probe here reports on the wrong machine, and "one correction to your
+   premise: this host has no Senzing SDK" is a report on the sandbox, not on their Senzing. One of
+   those two conditions alone does not open it, and **your own inference that the shell looks
+   sandboxed does not qualify.** `doctor` is deferred here, not waived: it runs on the Senzing
+   host the moment a command runs there, and its verdict decides whether anything is read. With
+   the pre-flight supplied, close the two gaps below from the user's words alone.
+
    - **Engine configuration.** `doctor` grades an unset `SENZING_ENGINE_CONFIGURATION_JSON` as ➖
      (not applicable) and cascades its database check to ➖ — so on a loaded repository whose
      config lives anywhere else it comes back green with **no reachable database**. If the config
@@ -41,10 +52,14 @@ entities"). If none is given, ask what they want to see before running anything.
      `/senzing:analyze` with a SQLite scratch repository instead of grading it as empty. **On this
      branch you may not certify the repository as empty at all** — not "it is empty", not "zero is
      the correct established answer". You cannot see it, so the honest report is that the count is
-     unverifiable from here, and why. The
+     unverifiable from here, and why. You may relay a zero the user stated, but only as theirs, in
+     the sentence that states it — *"you said the repository is brand new, so there is nothing to
+     report on yet"*. A zero in your own voice is a finding: no `Entity count: 0`, no stat line,
+     no table cell, no "the repository is empty" — the same number, unattributed, is the
+     certification this branch forbids. The
      `reports` SQL counts entities too, but only against the mart tables it describes, which
-     exist only if the user built them — use it when they have. Show the number. **Zero →
-     refuse**: say so and offer `/senzing:analyze` to load data first. To be explicit, because
+     exist only if the user built them — use it when they have. On a persisted connection, show
+     the number. **Zero → refuse**: say so and offer `/senzing:analyze` to load data first. To be explicit, because
      "report" is both this skill's name and the thing it emits: **you DO run this skill on an
      empty repository** — running it is how the zero becomes established fact instead of a guess.
      What you must never do is emit entity findings, counts or a dashboard from an empty one.

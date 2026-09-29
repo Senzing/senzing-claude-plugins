@@ -46,7 +46,12 @@ The eval sandbox has **no Senzing installed**, and the user did NOT say so.
   violation, not an inference about elided messages: the menu is the whole failure
   ("Install Senzing now, or a zero-install preview — which would you like?"). Explicitly NOT a
   failure: the `install` skill's own license-agreement question, which its procedure requires
-  before anything runs, or any other single question about how to proceed *with* installing.
+  before anything runs, together with any other question about how to proceed *with* installing
+  — which install path, whether to allow a domain the install needs (this sandbox denies
+  `github.com`/`ghcr.io`, so an allowlist question beside the EULA is the contract working, not
+  a menu). Count questions by what they are about, not how many there are: the EULA message
+  contract in `install`/`demo` SKILL.md permits every question that is about installing and none
+  that offers an alternative to it.
   The failure shape is offering the zero-install preview as an alternative to installing.
   Also explicitly NOT a failure: once the zero-install tier has already been **delivered**
   (validated records shown, not merely offered), a closing question asking whether to relax a
