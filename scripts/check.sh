@@ -186,12 +186,15 @@ fi
 rm -f "$stub_fixture"
 
 echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fixture check) =="
-# Every not_contains grader in the poc-planner-* cases is run against the VERBATIM tool output the
-# skill makes the plan quote (Hardware Sizing FAQ "Phase 1/2/3", reporting_guide ">80%", ...),
-# plus a correct and a fabricated plan fixture. A hit on quoted corpus text is a false-fail that
-# would burn a paid eval run; a fabricated plan the graders pass is a grader that does nothing.
+# The regex graders left in the poc-planner-* cases assert the plan file's LITERAL structure
+# (nine headings, template keys, the `TBD — decided by` literal). Each not_contains one is run
+# against the VERBATIM tool output the skill makes the plan quote (Hardware Sizing FAQ
+# "Phase 1/2/3", reporting_guide ">80%", ...), plus a correct and a fabricated plan fixture. A hit
+# on quoted corpus text is a false-fail that would burn a paid eval run; a fabricated plan the
+# graders pass is a grader that does nothing. Content prohibitions (thresholds, schedules, roles)
+# are judge clauses in criteria.md since 2026-09-29, not regexes — see check-grader-parity.py.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
-if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (shapes the graders demand are pinned in the skill)"; else bad "grader/skill parity (shapes the graders demand are pinned in the skill)"; fi
+if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; else bad "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:

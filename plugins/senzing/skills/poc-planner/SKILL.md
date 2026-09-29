@@ -26,8 +26,7 @@ license terms here or from memory — call the tool named in each step and cite 
 
 ## The rules that make this skill honest
 
-1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt,
-   no timeline, no kick-off date or kick-off meeting, no go-live date, no sprint planning, no
+1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt, no
    durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
    "planner" that invents one has fabricated the most consequential part of the document. The
    template below has no schedule section; do not add one. The only time words allowed anywhere
@@ -59,7 +58,9 @@ license terms here or from memory — call the tool named in each step and cite 
    number, date, duration, size, role title or threshold is exactly one of:
    (a) **quoted** verbatim from a tool result, with the `source_url` it returned on the same line
    (some MCP-hosted FAQs return a `local://…` id — cite it as returned and name the tool; a tool
-   *description* is cited by tool name); (b) **the user's**, written `per user: <their words>`;
+   *description* is cited by tool name); (b) **the user's** — in §2 recorded plainly as their
+   words (provenance is structural: not the TBD literal means theirs), and in prose attributed
+   `per user: <their words>`;
    (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, nothing after it.
    **Every** occurrence of the token TBD in the document is that full literal, including the
    second one in a sentence and any in prose or a table cell: not `columns TBD.`, not
@@ -320,9 +321,11 @@ Consumer contract: parse by the "## N." headings below. A value beginning `TBD �
 ```yaml
 # Every value is the user's statement or the literal `TBD — decided by <owner>`, with one exception:
 # platform_id is the user's stated OS/platform expressed as the matching id from sdk_guide(topic="install")'s platform tree.
-# A user's statement is written `per user: <their words>` — that prefix, colon and space, exactly,
-# the same form §3 `target` uses. Not `per user - PostgreSQL`, not a trailing `PostgreSQL (per user)`:
-# one form, so the value is machine-readable wherever it appears.
+# Record their words PLAINLY: database: PostgreSQL, languages: ["Python"], volume_records: 400000.
+# Do not prefix the value with `per user:` — provenance here is structural. A value that is not the
+# `TBD — decided by <owner>` literal IS the user's, so the prefix restates what the shape already
+# says, and jamming a second colon into a scalar makes the YAML ambiguous. (§3 `target` is the one
+# place the prefix is required; prose in later sections still attributes with "(per user)".)
 poc_target_host:
 volume_records:
 data_sources:
@@ -331,11 +334,11 @@ data_sources:
     approx_records:
     entity_types:
     identifying_columns: []
-database:
+database:            # their words, e.g. PostgreSQL — or TBD — decided by <owner>
 os_platform:          # the user's words
 platform_id:          # an id from sdk_guide's platform tree, or TBD — decided by <owner>
 cloud:
-languages: []
+languages: []        # their words, e.g. ["Python"]
 hardware_available:
 performance_required:
   throughput:

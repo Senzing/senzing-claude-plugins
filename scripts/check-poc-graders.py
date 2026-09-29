@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline fixture check for the poc-planner eval graders.
+"""Offline fixture check for the poc-planner eval graders that are still regexes.
 
 Two questions, answered without spending an eval run:
 
@@ -7,10 +7,21 @@ Two questions, answered without spending an eval run:
    quote?  The skill body makes the plan quote the Hardware Sizing FAQ ("Phase 1/2/3"), the
    `reporting_guide(quality)` notes (">80%"), Database Tuning ("your DBA"), the PoC article's
    own rules ("Mock up specific test cases") and the license text of three tools.  A grader that
-   matches any of that fails a CORRECT run — a false-fail in waiting.  v2 of the proposal
-   checked the template's literal text, which is clean; the quotes are not.
-2. Do the graders actually FAIL a template-following fabricated plan, and PASS a correct plan
-   that quotes all of the above?  `grader-fixtures/plans/expectations.json` says which.
+   matches any of that fails a CORRECT run — a false-fail in waiting.
+2. Do the file-targeted graders PASS a correct plan that quotes all of the above, and does the
+   fabricated plan still trip the ones that remain?  `grader-fixtures/plans/expectations.json`
+   says which.
+
+Scope note (2026-09-29): the content prohibitions this script was written for — metric
+thresholds, duration ranges, phase labels, schedule words, invented roles, hardware
+recommendations, extra `SC-n` keys, non-TBD targets — moved to the llm judge
+(`poc-planner-grounded/graders/criteria.md`), because each needed a quote exemption bolted on
+after failing a plan for quoting Senzing, and `constraints-carry-user-database` failed correct
+plans on spelling.  What is left deterministic is the file's literal structure: the nine
+`## N.` headings, the §2 keys, `SC-n` ids, a URL, the `poc_guidance_chunks_retrieved:` line, and
+the `TBD — decided by` literal (present, and the only form a TBD may take).  Section A therefore
+guards one grader today (`tbd-only-in-literal-form`); it stays because the corpus fixtures are
+what a new regex must be tried against before it ships.
 
 Python `re` is used as a stand-in for the CLI's JavaScript engine; the patterns here use only the
 common subset (classes, alternation, lookahead, `flags: i`).  Exit 1 on any failure.

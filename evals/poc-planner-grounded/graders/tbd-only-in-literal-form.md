@@ -35,5 +35,10 @@ bare `target: TBD` all fire; `TBD — decided by <owner>` quoted and unquoted, t
 "not a TBD, a flag" line above, and `the following are TBD, each owned` all stay
 silent.
 
-The sibling `targets-are-user-or-tbd.md` anchors on `target:` keys the same way —
-that one was written anchored from the start, and it never produced this failure.
+The former sibling `targets-are-user-or-tbd.md` anchored on `target:` keys the same
+way and never produced this failure; it moved to the judge on 2026-09-29 because
+what it really asked — is this target the user's number or an invented one — is a
+judgment about content, and its `per user:` prefix was a spelling the skill imposed
+only so a regex could see provenance. This grader stays because the TBD literal has
+exactly one correct spelling and a bare `TBD` with no owner is a defect in every
+context.

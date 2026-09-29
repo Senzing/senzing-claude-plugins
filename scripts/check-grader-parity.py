@@ -1,25 +1,46 @@
 #!/usr/bin/env python3
-"""Offline parity check: does each skill pin what its graders demand?
+"""Offline parity check: does each skill pin what its surviving regex graders demand?
 
-Answers, without spending a $20 eval run, the question three CI failures in a row
-asked the expensive way:
+The suite grades two kinds of thing. FACTS ABOUT THE TRACE OR A LITERAL — which tools
+ran, how often, in what order, whether a file exists, whether a URL / catalog title /
+glyph / template key with exactly one correct spelling is present — stay deterministic
+(`tool_used`, `tool_order`, `file_exists`, and the `regex` graders that are left).
+JUDGMENTS ABOUT CONTENT — did the plan carry the user's database, was a role invented,
+was the hand-off named, did a schedule word creep in — belong to the llm judge, because a
+regex there is a lossy proxy for meaning and repeatedly failed correct output
+(`constraints-carry-user-database` failed three correct plans that wrote
+`per user - PostgreSQL`; `redirects-to-analyze` failed a correct refusal that named the
+command earlier in the session; `no-schedule-words` made the skill enumerate vocabulary).
+Those regexes were folded into each case's `criteria.md` on 2026-09-29.
+
+What is left to check, without spending a $20 eval run:
 
   A. LITERAL PARITY — a positive regex grader requires a literal string in the
      model's output. If the SKILL.md that must produce it never spells that
      literal, the model free-styles and the assertion fails on some fraction of
-     runs. That is exactly how `constraints-carry-user-database` failed: the
-     grader wanted `database: per user: PostgreSQL`, the §2 template said only
-     `database:`, and the model wrote `per user - PostgreSQL` in 1 run of 2.
+     runs. Survivors this applies to are template identifiers the skill dictates:
+     `retrieval-counted` wants `poc_guidance_chunks_retrieved:`, `constraints-block-keys`
+     wants the `platform_id:` and `languages:` keys, `not-installed-glyph-present`
+     wants `➖`. A literal that can only come from a tool result or the prompt's own
+     test data is exempt below, with a reason.
 
   B. CLOSING-MESSAGE CONTRACT — a grader whose target is `last_message` demands
      the literal be in the FINAL message, not merely somewhere in the session.
-     `report-empty-instance/redirects-to-analyze` failed that way: the skill does
-     name `/senzing:analyze` (report/SKILL.md:41,47), but never says it must
-     survive into the closing message, so a run that summarized without repeating
-     the command failed a correctly-behaving skill.
+     `demo-no-simulation/install-invoked` failed that way: the final message read
+     "run `/senzing:install` … (steps and EULA link are above)" — the user HAD
+     been shown the agreement, and the closing message pointed backwards instead
+     of repeating the URL. A skill that grades `last_message` must say so.
 
-Neither check can reason about semantics, and neither replaces the judge. They
-catch the mechanical class: a grader asking for a shape nothing ever taught.
+  C. NO VOCABULARY BANS — a `not_contains` regex that enumerates words is a content
+     judgment wearing a regex costume, and is exactly the class that left. The
+     surviving negated regexes forbid identifiers (`G2*` names, `❌`, an unknown
+     `recipes/*.md` path, a `TBD` without its owner), not English. This check fails
+     the moment someone adds a word-list ban again, so the argument is had offline,
+     before the grader fails a correct run.
+
+None of these can reason about semantics, and none replaces the judge. They catch
+the mechanical class: a grader asking for a shape nothing ever taught, or a grader
+asking a regex to do a judge's job.
 
 Exit 1 on any gap.
 """
@@ -37,9 +58,9 @@ SKILLS = ROOT / "plugins" / "senzing" / "skills"
 NO_SKILL = {"canary"}
 
 # A grader may legitimately require a literal the skill does not spell when the
-# literal comes from a TOOL result rather than the skill's own prose. Each entry
-# needs a reason: this list is for "the skill cannot spell it", never for "the
-# skill ought to and we did not get round to it".
+# literal comes from a TOOL result or the prompt rather than the skill's own prose.
+# Each entry needs a reason: this list is for "the skill cannot spell it", never for
+# "the skill ought to and we did not get round to it".
 LITERAL_EXEMPT = {
     # case/grader: why
     "recipes-catalog/title-customer360": "titles come from the live cookbook, not the skill",
@@ -50,12 +71,6 @@ LITERAL_EXEMPT = {
     "ask-license-request/payload-shown": "the name and address are the prompt's test persona, echoed back",
     "install-eula/eula-surfaced": "the EULA URL comes from sdk_guide's result, not the skill's prose",
     "recipes-named/install-invoked": "same EULA URL, surfaced from the tool by the install hand-off",
-    # These forbid a PHRASE SHAPE (hedging, recommending), not domain vocabulary. The skill
-    # states the concept — do not recommend hardware; do not claim you could not find the
-    # files — and enumerating the English that expresses it would be both endless and silly.
-    "analyze/inputs-were-found": "forbids failure-phrasing ('unable to'), not a term the skill names",
-    "analyze-multi-file-join/inputs-were-found": "same failure-phrasing shape",
-    "poc-planner-grounded/no-hardware-recommendation": "forbids recommendation-phrasing ('should have'), not a term",
 }
 
 # `last_message` graders whose literal is exempt above may still need the closing
@@ -114,44 +129,31 @@ def literals(pattern: str) -> list[str]:
     return out
 
 
-NUMBER_WORDS = {
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-    "eleven", "twelve",
-}
-COMMON_VERBS = {"access", "locate", "find", "read", "open", "budget", "meeting", "context"}
+def banned_words(pattern: str) -> list[str]:
+    """English words or phrases a not_contains pattern bans, e.g. `\b(gantt|timeline|go-live date)\b`.
 
-
-def forbidden_words(pattern: str) -> list[str]:
-    """Word alternatives a not_contains pattern bans, e.g. `\b(gantt|timeline|go-live date)\b`."""
+    Identifiers are not words: anything carrying a digit, a path separator, an
+    underscore, or a non-ASCII glyph is a spelling, not vocabulary. Alternations
+    that are regex structure (`(?: … )`, lookahead groups) are skipped.
+    """
     out: list[str] = []
-    # Flatten ONE level of nesting first: `kick-?off (date|meeting)` sits inside the
-    # outer alternation, so a non-nested scan sees only `(date|meeting)` and misses
-    # the phrase that actually matters. Collapse inner groups to their first branch.
+    # Collapse inner groups to their first branch so `kick-?off (date|meeting)` is seen
+    # by the outer scan as one phrase.
     flat = re.sub(r"\(([^()|]*)\|[^()]*\)", r"\1", pattern)
     for group in re.findall(r"\(([^()]*\|[^()]*)\)", flat):
         if group.startswith("?"):
-            continue  # (?: … ) and lookahead groups are structure, not a word list
+            continue
         for alt in group.split("|"):
-            alt = alt.strip()
-            # Keep readable words/phrases; drop anything still carrying regex syntax.
-            word = re.sub(r"\\[bBdDwWsS]|\?:|\\", "", alt).strip()
-            if not re.fullmatch(r"[A-Za-z][A-Za-z '-]{2,}", word):
-                continue
-            w = word.lower()
-            # Number words and bare common verbs are parts of a PHRASE pattern
-            # (durations, "(cannot|could not) (access|locate)"), not vocabulary a
-            # skill could plausibly enumerate. Only distinctive terms are actionable.
-            if w in NUMBER_WORDS or w in COMMON_VERBS:
-                continue
-            if " " not in w and len(w) < 6:
-                continue
-            out.append(w)
+            word = re.sub(r"\\[bBdDwWsS]|\?:|\\", "", alt.strip()).strip()
+            if re.fullmatch(r"[A-Za-z][A-Za-z '-]{2,}", word):
+                out.append(word.lower())
     return sorted(set(out))
 
 
 def main() -> int:
     problems: list[str] = []
     checked = 0
+    negated_checked = 0
 
     for case in sorted(p for p in EVALS.iterdir() if p.is_dir()):
         if not (case / "prompt.md").exists():
@@ -173,31 +175,26 @@ def main() -> int:
             key = f"{case.name}/{g.stem}"
             pattern = fm.get("pattern", "").strip().strip('"')
             target = fm.get("target", "")
-            negated = (
-                fm.get("match") == "not_contains"
-                or g.stem.startswith("no-")
-                or g.stem.startswith("not-")
-            )
-            checked += 1
+            # `match:` is authoritative. The old stem heuristic (`no-*`, `not-*`) also
+            # caught `not-installed-glyph-present`, a POSITIVE grader, and silently
+            # skipped it.
+            negated = fm.get("match") == "not_contains"
 
             if negated:
-                # CHECK C — a grader that FORBIDS vocabulary only works if the skill
-                # names that vocabulary. `no-schedule-words` forbids gantt/timeline/
-                # kick-off/go-live/sprint planning; SKILL.md:29 named only phases,
-                # weeks, sprints, milestones and Gantt, so the model had no way to
-                # know the rest were banned. It wrote one in 1 run of 2.
-                if key in LITERAL_EXEMPT:
-                    continue
-                banned = forbidden_words(pattern)
-                unnamed = [w for w in banned if w not in skill_lower]
-                if unnamed:
+                # CHECK C — a prohibition is a regex's job only when it forbids a
+                # spelling. A word list is a judge clause; say so before it fails a
+                # correct run for phrasing.
+                negated_checked += 1
+                words = banned_words(pattern)
+                if words:
                     problems.append(
-                        f"{key}: forbids {unnamed[:4]} but {skill_name}/SKILL.md never names "
-                        f"them. A prohibition the skill does not spell is one the model cannot "
-                        f"obey except by luck."
+                        f"{key}: a not_contains regex bans English ({words[:4]}). That is a "
+                        f"judgment about content, not a fact about the trace — put it in "
+                        f"criteria.md as a checkable clause; regexes here are for identifiers."
                     )
                 continue
 
+            checked += 1
             if "last_message" in target and key not in CLOSING_EXEMPT:
                 if not any(cue in skill_lower for cue in CLOSING_CUES):
                     problems.append(
@@ -217,15 +214,16 @@ def main() -> int:
                     f"spells. The model has to invent the shape, so it will vary run to run."
                 )
 
-    print(f"checked {checked} positive regex grader(s) across the suite")
+    print(f"checked {checked} positive and {negated_checked} negated regex grader(s) across the suite")
     if problems:
         print("\ngrader/skill parity gaps:\n")
         for p in problems:
             print(f"  ✗ {p}")
-        print(f"\n{len(problems)} gap(s). Pin the shape in the skill, or add a reasoned "
-              f"LITERAL_EXEMPT entry if the literal can only come from a tool result.")
+        print(f"\n{len(problems)} gap(s). Pin the shape in the skill, add a reasoned "
+              f"LITERAL_EXEMPT entry if the literal can only come from a tool result, or move "
+              f"a content judgment into criteria.md.")
         return 1
-    print("ok   every positive regex grader's shape is pinned in the skill that must produce it")
+    print("ok   every surviving regex grader asserts a spelling the skill pins or a tool supplies")
     return 0
 
 

@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Eval graders: facts stay regexes, judgments move to the judge.** 28 of the suite's 50
+  `regex` graders were proxies for meaning — did the plan carry the user's database, was a role
+  invented, was the hand-off named, did a schedule word creep in — and they failed correct output
+  (`per user - PostgreSQL`, a hand-off named one message earlier). Each is now a checkable clause
+  in its case's `graders/criteria.md`, organized around two questions: did we get the outcome, and
+  did we use Senzing to do it. The 21 regexes that assert a literal with one correct spelling
+  (URLs, cookbook titles, glyphs, template keys, the `TBD — decided by` literal) stay, as do every
+  `tool_used`/`tool_order`/`file_exists` grader and every `min:` count. Two rubric contradictions
+  fixed on the rubric side: `report-empty-instance` demanded certifying the repository empty while
+  the skill forbids it on `internal://` (opus 0.00 three weeks running); `install-eula`'s "every
+  command present in a tool result" could neither pass nor fail once the tool output was elided.
+  `scripts/check-grader-parity.py` now also fails if a `not_contains` regex bans vocabulary.
+  `poc-planner` rule 1 and the §2 template lose the spellings they carried only to satisfy
+  regexes. Thresholds, `gate.py` and the judge's non-gating status are untouched.
+
 ## [1.37.15] - 2026-09-28
 
 ### Changed

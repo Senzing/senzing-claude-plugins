@@ -57,6 +57,13 @@ calendar: "per user: six weeks"
   measured_against: manual review of a stratified sample
   decided_by: data platform lead
   target: F1 above 0.95 is a common bar for a customer-dedupe POC
+- id: SC-3
+  shape: throughput
+  statement: "per user: the nightly reload has to finish inside the maintenance window"
+  measurement: "Records loaded per second, reported by the loader — source: reporting_guide(topic=evaluation)"
+  measured_against: TBD (typically the current batch window)
+  decided_by: data platform lead
+  target: TBD
 ```
 
 ## 4. What must be true to buy — goal and scope
