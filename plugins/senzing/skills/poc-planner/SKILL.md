@@ -66,7 +66,13 @@ license terms here or from memory — call the tool named in each step and cite 
    number, date, duration, size, role title or threshold is exactly one of:
    (a) **quoted** verbatim from a tool result, with the `source_url` it returned on the same line
    (some MCP-hosted FAQs return a `local://…` id — cite it as returned and name the tool; a tool
-   *description* is cited by tool name); (b) **the user's** — in §2 recorded plainly as their
+   *description* is cited by tool name). **So do not put retrieved figures in a table.** A table
+   cell has no room for the quotation and its source, so a sizing table — `| Database IOPS per
+   record | 100-200 IOPS |`, `| Throughput per engine core | ~5-10 records/second |` — strips the
+   attribution off the number and republishes Senzing's figure as the plan's own recommendation.
+   That is the thing §6 exists to avoid. Write those figures as prose: the sentence you quote,
+   the quotation marks, and the source on the same line. A citation above the table does not
+   reach the rows; (b) **the user's** — in §2 recorded plainly as their
    words (provenance is structural: not the TBD literal means theirs), and in prose attributed
    `per user: <their words>`;
    (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, and after the owner

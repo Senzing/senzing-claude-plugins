@@ -83,7 +83,13 @@ platform lead.
    "commonly", "industry", "similar evaluations", "recommend" or a candidate answer — even a
    quoted one — is the plan answering the question it just said was open. (Quoted material
    belongs on its own cited line in the section the decision lives in; on the TBD line it is a
-   hint. `poc-planner/SKILL.md` rule 4c says the same, in the same words.)
+   hint. `poc-planner/SKILL.md` rule 4c says the same, in the same words.) Naming the two SIDES
+   of a discrepancy is naming the item and passes — "license path: sales@ email vs. self-service
+   `submit_feedback`". Attaching either side's number, duration or version does not — a record
+   cap, a day count, a volume to reduce to. Those belong on the cited line in the section where
+   the decision lives, not in the pointer. This sentence exists because two judges failed and one
+   passed the same §9 line over exactly that distinction; a clause two careful readers split on
+   is not yet a clause.
 8. **§5 applies the retrieved data-selection rules to the three sources honestly**, quoting each
    rule with its source, and carries the synthetic-truth-set warning **labelled as the plugin's
    own rule** — `(plugin rule)` or words saying as plainly that it is not retrieved Senzing
