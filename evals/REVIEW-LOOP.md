@@ -108,11 +108,13 @@ Two further rules:
 - **Give a file-focused rubric the same "How to judge" preamble as a
   trace-focused one.** `poc-planner-grounded` was the only `criteria.md` in the
   suite without one, and it re-litigated in prose the surface prohibitions its
-  34 deterministic siblings already enforce *with the quote exemptions built in*
-  — on a 20k-character, quote-dense document. Name the siblings, say the judge's
-  job is the two things a regex cannot see (is the quote genuine and cited; did
-  the plan add a judgement of its own), and say the template's own empty
-  collections are the template.
+  deterministic siblings then enforced *with the quote exemptions built in*
+  — on a 20k-character, quote-dense document. Name the siblings, say what is
+  theirs and what is the judge's, and say the template's own empty collections
+  are the template. (Since 2026-09-29 the split runs the other way: the regexes
+  keep only the file's literal structure and the trace facts, and the content
+  prohibitions are the judge's numbered clauses — see `evals/README.md`, "Two
+  kinds of assertion". The rule stands: say plainly which grader owns what.)
 - **The catch-all sentence must not be broader than the bullet above it.**
   "if it offers to build a truth set" (unqualified) contradicted the §5 bullet
   that bans only a **synthetic/labelled** one — and would have failed the repo's

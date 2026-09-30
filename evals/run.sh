@@ -142,11 +142,36 @@ out_dir="$results_dir/$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$out_dir"
 
 # Every immediate child directory holding a prompt.md or case.yaml is a case.
+#
+# When the caller narrows the run with `--case <glob>`, count only the cases that
+# glob selects. Counting all of them made every single-case run exit 2 with
+# "structural: cases missing" from gate.py — the run graded correctly and then
+# reported a false structural failure, which is why CI appends `|| true` to its
+# canary. That made the cheapest possible feedback loop (one case, N runs, a few
+# dollars) unusable, and left CI as the only place a flake could be observed.
+case_glob=""
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "--case" ]; then case_glob="$a"; fi
+  case "$a" in --case=*) case_glob="${a#--case=}" ;; esac
+  prev="$a"
+done
+
 expected=0
 for d in "$here"/*/; do
   [ -d "$d" ] || continue
-  if [ -f "$d/prompt.md" ] || [ -f "$d/case.yaml" ]; then expected=$((expected + 1)); fi
+  [ -f "$d/prompt.md" ] || [ -f "$d/case.yaml" ] || continue
+  if [ -n "$case_glob" ]; then
+    name="$(basename "$d")"
+    # shellcheck disable=SC2254  # the glob is intentionally a pattern, not a literal
+    case "$name" in $case_glob) ;; *) continue ;; esac
+  fi
+  expected=$((expected + 1))
 done
+if [ -n "$case_glob" ] && [ "$expected" -eq 0 ]; then
+  echo "::error::--case '$case_glob' matched no case directory under $here" >&2
+  exit 1
+fi
 if [ "$expected" -eq 0 ]; then
   echo "::error::no eval cases found under $here" >&2
   exit 1

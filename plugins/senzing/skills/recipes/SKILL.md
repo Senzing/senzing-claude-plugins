@@ -16,7 +16,8 @@ allowed-tools: Read, Skill, WebFetch(domain:raw.githubusercontent.com), mcp__plu
 
 # Cook a Senzing Cookbook recipe
 
-Recipes come from the **Senzing Cookbook** (`github.com/senzing/recipes`): a chef-authored,
+Recipes come from the **Senzing Cookbook**, fetched from `raw.githubusercontent.com` (the raw
+base below): a chef-authored,
 plain-English sequence of prompts that stands up a working Senzing solution for a real mission.
 You are the **sous-chef** — you interpret and *run* each prompt, backed by the **Senzing MCP**
 (the kitchen staff). Drive the recipe; don't just hand the user prompts to paste.
@@ -36,9 +37,15 @@ You are the **sous-chef** — you interpret and *run* each prompt, backed by the
 - Raw base: `https://raw.githubusercontent.com/senzing/recipes/6e3ef538d1a99566701d7aaeace0432d21cce918/`
 - Catalog: `<raw base>/cookbook.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
   ingredients: `<raw base>/ingredients/<...>`
-- If the catalog does not pass the fetch validation below, say the cookbook is unreachable **and
-  quote the URL and status you got** — do not just tell the user to allow a domain, because a
-  `404` is a wrong path, not a blocked network. Never reconstruct recipes from memory.
+- **`raw.githubusercontent.com` is the only host you fetch from**, and the only one whose
+  reachability matters. `github.com` serves the cookbook to human readers and is not a
+  prerequisite for cooking — plenty of corporate networks allow one and block the other — so do
+  not probe it, and do not infer anything from it if something else did.
+- **Never call the cookbook unreachable without having attempted the catalog fetch.** A
+  reachability probe is not a fetch. If the catalog does not pass the fetch validation below, say
+  the cookbook is unreachable **and quote the URL and status you got** — do not just tell the
+  user to allow a domain, because a `404` is a wrong path, not a blocked network. Never
+  reconstruct recipes from memory.
 
 **Fetch verbatim — to a file, and validate it before trusting it.** Use Bash
 `curl -fsSL "<url>" -o "<workspace>/<name>.md"` to pull the exact markdown. `-f` rejects only HTTP

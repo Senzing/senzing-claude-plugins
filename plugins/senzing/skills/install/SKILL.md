@@ -85,6 +85,13 @@ else, they must tell you the path.
    not due yet". It is due: the user is being asked to choose an install path, and
    the license is one of the terms they are choosing under. Put the EULA question in the SAME
    message as the options, not after the choice.
+   **The EULA message contract — stated identically in `demo`.** The message that asks for
+   license agreement may also ask what installing needs answered: which install path, when the
+   host offers more than one, and whether to allow a network domain or host permission the
+   install requires (an allowlist entry for the package host, say). Every question in that
+   message is about how to proceed WITH installing. It never offers an alternative to installing
+   — not a zero-install tier, not a demo without an engine, not "or I can skip this" — because
+   that turns the license answer into a fork instead of an answer.
 
 4. **Run the steps** with Bash, showing each command before you run it.
 

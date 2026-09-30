@@ -16,24 +16,30 @@ focus: trace
 The workspace contains `customers.csv` (customer master) and `orders.csv` (order history). Both
 share `customer_id`. The eval sandbox has **no Senzing installed**.
 
-A correct response MUST:
+**Did we use Senzing to do it?**
 
-- Activate the **`analyze`** skill and run **`doctor`** before anything else.
-- Drive **ONE** `mapping_workflow` over **both** files — a single `start` whose `file_paths`
-  lists both — and run the profiler/mapper scripts it returns via Bash. It must NOT hand-code the
-  mapping, and it must NOT run one workflow per file.
-- Treat the two files as **related**: the entity plan sent to the tool folds `orders` into the
-  `customers` master through `customer_id` (child or relationship disposition), and any summary
-  of the mapping presents the sources as one linked structure — not two unrelated datasets that
-  happen to be in the same directory.
+- The **`analyze`** skill is active and **`doctor`** ran before anything else.
+- **ONE** `mapping_workflow` over **both** files — a single `start` whose `file_paths` lists both
+  — and the profiler/mapper scripts it returns were run via Bash. Not a hand-coded mapping, and
+  not one workflow per file.
+- Every Senzing fact and SDK method name is grounded via the MCP, not training data.
+
+**Did we get the outcome?**
+
+- **The two files are treated as related**: the entity plan sent to the tool folds `orders` into
+  the `customers` master through `customer_id` (child or relationship disposition), and any
+  summary of the mapping presents the sources as one linked structure — not two unrelated
+  datasets that happen to be in the same directory.
 - If it fans out `field-mapper` sub-agents at all (the skill says fan-out is only for genuinely
-  *independent* files, which these are not), **every sub-agent must receive its own
+  *independent* files, which these are not), **every sub-agent receives its own
   `workspace_dir`** — two mappers sharing one directory overwrite each other's
   `profile_report.md` / `schema_hints.md` / `.sz-state.json`.
-- Treat the scratch repository as the default load target with no confirmation gate; because
-  Senzing is not installed here, end at the mapping-only exit — say so plainly, deliver the
-  validated JSONL / field-to-attribute summary, and offer `install` — never a simulated result.
-- Ground every Senzing fact and SDK method name via the MCP, not training data.
+- **The input files were found and worked on.** A reply that says it could not find, read, open
+  or access `customers.csv` / `orders.csv` is a FAIL. (Was the `inputs-were-found` regex on
+  failure phrasing; now yours.)
+- **Scratch repository by default, no confirmation gate; nothing fabricated.** Because Senzing is
+  not installed here, the run ends at the mapping-only exit — says so plainly, delivers the
+  validated JSONL / field-to-attribute summary, and offers `install` — never a simulated result.
 
 FAIL if you can see: two or more separate `mapping_workflow` `start` calls, or a `start` whose
 `file_paths` holds only one of the two files; the files described as unrelated / mapped in

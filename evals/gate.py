@@ -88,6 +88,7 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
     det_failures: dict[str, dict] = {}   # grader name -> {runs: [i, ...], why: str}
     det_names: set[str] = set()
     judge_per_run: list[float] = []
+    judge_failed_runs: list[int] = []
     errors: list[str] = []
 
     blind_skipped: list[int] = []
@@ -117,6 +118,8 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
                 entry["why"] = g.get("explanation") or entry["why"]
         if judged:
             judge_per_run.append(sum(judged) / len(judged))
+            if not all(judged):
+                judge_failed_runs.append(i)
 
     judge = sum(judge_per_run) / len(judge_per_run) if judge_per_run else None
     return {
@@ -126,6 +129,7 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
         "det_failures": det_failures,
         "judge": judge,
         "judge_runs": len(judge_per_run),
+        "judge_failed_runs": judge_failed_runs,
         "errors": errors,
         "blind_runs": blind_skipped,
         "measured_runs": len(runs) - len(blind_skipped),
@@ -314,7 +318,13 @@ def main() -> int:
     else:
         emit("JUDGE score         no llm graders in this run")
     for c in judge_bad_cases:
-        emit(f"    {c['name']}  judge {c['judge']:.2f} across {c['judge_runs']} run(s)")
+        # Every case carries exactly one llm grader, so a run's judge score is a
+        # boolean and the "mean" is a fraction of runs wearing a decimal point.
+        # Report it the way the deterministic gate reports itself — which run
+        # failed — so a judge miss can be opened at its tracePath and read.
+        failed = c.get("judge_failed_runs") or []
+        where = " (" + ", ".join(f"#{r}" for r in failed) + ")" if failed else ""
+        emit(f"    {c['name']}  judge failed {len(failed)} of {c['judge_runs']} run(s){where}")
     for c in error_cases:
         for err in c["errors"]:
             emit(f"    RUN ERROR {c['name']}  {err}")

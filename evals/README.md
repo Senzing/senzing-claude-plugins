@@ -117,34 +117,51 @@ be pattern-matched — and where it needs a Senzing ground truth (what SENZ0033 
 attributes exist) it says **"matches what `explain_error_code` / the tool returned"**, never a
 restated fact that would go stale.
 
+**Two kinds of assertion, and which grader owns each.** *Facts about the trace* — which tools
+ran, which skill fired, how many times, in what order, whether a file exists, whether a literal
+with exactly one correct spelling is present (a URL, a cookbook title, a glyph, a template key) —
+stay deterministic: cheap, unambiguous, and the graders that caught the one serious defect this
+suite has found (opus deduping six rows by hand: `Skill called 0x`, `mapping_workflow called 0x`).
+*Judgments about content* — did the plan carry the user's database, was a role invented, was the
+hand-off named, did a schedule word creep in — belong to the `llm` rubric as **checkable
+clauses**. A regex there is a lossy proxy for meaning and repeatedly failed correct output:
+`constraints-carry-user-database` failed three correct plans that wrote `per user - PostgreSQL` /
+`per user, PostgreSQL`; `redirects-to-analyze` failed a correct refusal that named the command
+earlier in the session; `no-schedule-words` made the skill enumerate vocabulary by hand. On
+2026-09-29, 28 such regexes were folded into their cases' `criteria.md` (each clause says which
+grader it replaced), leaving 21 regexes that assert a spelling plus the sandbox canary.
+`scripts/check-grader-parity.py` fails offline if a `not_contains` regex bans English again.
+
 **Keep `llm` rubrics assessable from what the judge can see.** With `focus: trace` the judge gets
 only the first and last 12 messages; a rubric that says "every name must appear in a tool result"
 is unverifiable once the middle is elided, and a strict judge votes FAIL on a correct run (the first
 real `ask-routing` run scored 6/7 for exactly that reason — grounded, URLs cited, still FAIL). Every
 trace-focused rubric therefore opens with a "how to judge" block: fail only on a *visible*
-violation; the deterministic graders carry the tool-call obligations. Anything pattern-checkable
-(URL cited, glyph present, tool called with argument X) is a `regex`/`tool_used` grader, not prose.
+violation; the deterministic graders carry the tool-call obligations. A literal with one correct
+spelling (URL cited, glyph present, tool called with argument X) is a `regex`/`tool_used` grader,
+not prose; a rubric is organized around the owner's two questions — *did we get the outcome*, and
+*did we use Senzing to do it* — and every clause under them names the evidence that decides it.
 
 ## Cases
 
 | Case | Utterance | Positive obligations (deterministic) | Rubric guards |
 |---|---|---|---|
-| `analyze` | "Resolve and dedupe my customer records in crm.csv and billing.csv…" (files scaffolded) | `Skill:analyze`, `Skill:doctor`, `mapping_workflow(action=start)`, `Bash` ran, no "can't find crm/billing" | no hand-coded mapping; no fabricated result; **no confirmation for the scratch repo**; pivot to install (sandbox has no Senzing) |
-| `analyze-multi-file-join` | "customers.csv is my customer master and orders.csv is their order history… who is who?" (two files scaffolded, joined on `customer_id`) | `Skill:analyze`, `Skill:doctor`, `Bash` ran; **exactly one** `mapping_workflow(action=start)` (`min:1,max:1`); a `file_paths` array holding **both** files; **zero** single-file `file_paths` (the per-file regression); a step-2 plan naming `customer_id` as `join_key`/`from_key`/`to_key`; no "can't find customers/orders" | files treated as one linked structure, not two unrelated datasets; fanned-out `field-mapper`s (if any) never share a `workspace_dir`; mapping-only exit, nothing fabricated |
+| `analyze` | "Resolve and dedupe my customer records in crm.csv and billing.csv…" (files scaffolded) | `Skill:analyze`, `Skill:doctor`, `mapping_workflow(action=start)`, `Bash` ran | the input files were found (was a failure-phrasing regex); no hand-coded mapping; no fabricated result; **no confirmation for the scratch repo**; pivot to install (sandbox has no Senzing) |
+| `analyze-multi-file-join` | "customers.csv is my customer master and orders.csv is their order history… who is who?" (two files scaffolded, joined on `customer_id`) | `Skill:analyze`, `Skill:doctor`, `Bash` ran; **exactly one** `mapping_workflow(action=start)` (`min:1,max:1`); a `file_paths` array holding **both** files; **zero** single-file `file_paths` (the per-file regression); a step-2 plan naming `customer_id` as `join_key`/`from_key`/`to_key` | the input files were found; files treated as one linked structure, not two unrelated datasets; fanned-out `field-mapper`s (if any) never share a `workspace_dir`; mapping-only exit, nothing fabricated |
 | `routing-negative-dedupe` | "Dedupe my customer list in customers.csv" (scaffolded) | `Skill:analyze`; `Skill:demo` **= 0**; `mapping_workflow` on `customers.csv`; `get_sample_data` **= 0** | user's file, not sample data |
 | `build` | "Add Senzing entity search to my Python service… senzing_search.py" | `Skill:build`, `generate_scaffold(language=python)`, `get_sdk_reference`, file exists, `https?://` in file, no `G2*` names in file | SDK names all appear in a tool result; provenance kept; no claimed run |
 | `troubleshoot` | "What does Senzing error 0033E mean…" | `Skill:troubleshoot`, `explain_error_code(…33…)`, `Write` = 0 | answer **matches the tool result** (cause + steps), nothing invented |
 | `ask-routing` | "What attributes does Senzing support for a person record?" | `Skill:ask`; action skills = 0; `search_docs` called ≥ 1 (the tool `ask`'s routing table assigns factual questions to; the earlier trace-wide `mcp__…*` regex could not fail, see `graders/mcp-tool-called.md`); `Write` = 0 (`Bash` is not granted, so no shell grader) | names in the answer appear in a tool result; source URLs cited |
-| `demo-no-simulation` | "Show me Senzing entity resolution working." (host has no SDK — **not** told) | `Skill:demo`, `Skill:doctor`, host probed via `Bash`, `sdk_guide(topic=install)` | absence discovered by probe; no result faked; **every install command appears in a tool result** |
-| `demo-scratch-repo` | demo with a green doctor + a real production repo (plan-level) | `Skill:demo`; "scratch/throwaway/fresh" and "sqlite/internal://" in the reply; no Bash touching production config | loads into a fresh scratch repo with **no confirmation**; never asks "proceed?" about the existing DB |
+| `demo-no-simulation` | "Show me Senzing entity resolution working." (host has no SDK — **not** told) | `Skill:demo`, `Skill:doctor`, host probed via `Bash`, `sdk_guide(topic=install)`, EULA URL or `/senzing:install` in the reply | absence discovered by probe; no entity count / score / before-after presented as a result (was the `[1-9]… entities` regex); install commands contradict no **visible** tool result; no install-vs-preview menu |
+| `demo-scratch-repo` | demo with a green doctor + a real production repo (plan-level) | `Skill:demo`; no Bash touching production config | names a disposable load target — a fresh SQLite file or `internal://` (were two word regexes); loads there with **no confirmation**; never asks "proceed?" about the existing DB |
 | `recipes-catalog` | "What recipes are in the Senzing Cookbook?" | `Skill:recipes`; the live `cookbook.md` catalog actually **fetched** via `Bash curl` (not recalled); the reply names the real catalog entries (PPP-loan ingestion, both Customer 360 recipes, Healthcare Exclusion Screening); `Write` = 0 | no invented recipe/author/use-case (in particular no fabricated "fraud" recipe, even though the skill's own description names fraud as an example use case and none currently exists in the catalog); an unreachable catalog must be reported honestly with URL+status, never papered over with a remembered list |
 | `recipes-named` | "I'd like to run the \"Customer 360 from CRM + Orders\" recipe…" (host has no SDK — **not** told) | `Skill:recipes`, `Skill:doctor`, host probed via `Bash`, doctor **before** the recipe fetch (`tool_order`), the CORRECT recipe id fetched (`customer-360-crm-online.md`, never the sibling `customer-360-stewardship.md` add-on or a hallucinated id), `sdk_guide(topic=install)`, `mapping_workflow` = 0, `Write` = 0 | recipe content traces to the real fetched file, not an improvised summary; the recipe's own demo numbers (customer count, compression ratio) are never presented as this run's achieved result; doctor's no-SDK finding gates the cook before commitment, not after |
 | `doctor-healthy-no-sdk` | "Is my Senzing set up? Check this machine." | `Skill:doctor`, `uname` ran, install location probed, `get_capabilities` in trace, `➖` present, **`❌` absent**, "install" offered | not-installed is ➖ never ❌; downstream rows cascade ➖; verdict names what/where it probed |
-| `report-empty-instance` | "Show me my biggest entities…" (repo has 0 records) | `Skill:report`; "analyze" in reply; `mapping_workflow` = 0; `Write` = 0 | no entity/count/why output, not even "example"; redirect, don't load |
-| `install-eula` | "Install Senzing on this machine… Python." | `Skill:install`, `uname` ran, `sdk_guide(topic=install)`, **zero install commands executed** (`apt/dpkg/yum/brew/scoop/pip install`, `.deb/.rpm`), EULA in reply | EULA surfaced and agreement asked before anything runs; every install command in the reply is in a tool result; no license key demanded |
-| `poc-planner-grounded` | "Help me plan a Senzing proof of concept. CRM ~400k, billing ~350k, watchlist ~5k; two engineers, six weeks, Ubuntu VMs, PostgreSQL, on-prem, Python; no targets, hardware or performance agreed; owner = data platform lead…" | `Skill:poc-planner`; no action skill, no `doctor`, no `ask` via `Skill` (hand-off = naming); `get_capabilities`; ≥3 PoC `search_docs` calls, the first **before** the first `Write` (`tool_order` with `input_match`); `reporting_guide` quality **and** evaluation(python); `sdk_guide` install **and** load(record_count); sizing `search_docs`; file exists with **exactly 9** `## N.` headings, §2 keys carrying PostgreSQL + Python, `SC-n` items, `https?://`, `poc_guidance_chunks_retrieved: N`, `TBD — decided by` **on a value line** (and only that form), `synthetic`; **absent**: week/sprint labels, `N–M weeks`/`Weeks 1–2`, schedule words, metric thresholds (valid here because the user stated no targets), a number or "typically" after a TBD, `target:` values that are not `per user:`/TBD (lookahead), any extra key under an SC item (`guidance:`, `note:`…), "you will need N cores" / "N GB should be a comfortable start", invented role titles; `mapping_workflow`/`Bash`/`submit_feedback` = 0 | file-focused judge (sees ONLY the file — asking is graded in `elicits`, not here): every target TBD-with-owner, `platform_id` from `sdk_guide`'s tree is the one tool-derived §2 value, infrastructure only as cited quotes + the user's commitment, no extrapolation, license paths quoted per tool and the discrepancy listed, no truth-set generation (quoting the article's "mock up specific test cases" is correct), **no phase/stage/week structure outside a verbatim quote** and **no role titles** — roles and un-numbered phases are rubric guards, not deterministic |
-| `poc-planner-elicits` | "We're evaluating Senzing this quarter. How should we structure the proof of concept?" | `Skill:poc-planner`; `ask`/`demo`/`doctor` = 0; PoC guidance retrieved (`search_docs` + article title in trace); `Write` = 0; no files; reply mentions data, infrastructure, people, the buy decision; no metric threshold, no `N–M weeks`, no week/sprint label | asks all four Round-1 blocks; proposes no target, size, platform or timeline; no phased plan |
-| `poc-planner-how-long` | "How long will a Senzing POC take?" | `Skill:poc-planner`; `ask` = 0; PoC guidance retrieved; reply has no `N weeks/months` or `N–M weeks`; mentions data + people | declines a duration, says whose decision it is and what determines it; a duration in words is a FAIL |
+| `report-empty-instance` | "Show me my biggest entities…" (repo has 0 records, `internal://`) | `Skill:report`; `mapping_workflow` = 0; `Write` = 0 | no entity/count/why output, not even "example"; the hand-off named as `/senzing:analyze` / `/senzing:demo` anywhere visible (was a `last_message` regex); relays the user's zero without certifying it from this shell (the skill forbids that on `internal://`) |
+| `install-eula` | "Install Senzing on this machine… Python." | `Skill:install`, `uname` ran, `sdk_guide(topic=install)`, **zero install commands executed** (`apt/dpkg/yum/brew/scoop/pip install`, `.deb/.rpm`), EULA URL in reply | EULA surfaced and agreement asked before anything runs; install commands contradict no **visible** tool result (the "present in a tool result" form could neither pass nor fail once the result was elided); no license key demanded |
+| `poc-planner-grounded` | "Help me plan a Senzing proof of concept. CRM ~400k, billing ~350k, watchlist ~5k; two engineers, six weeks, Ubuntu VMs, PostgreSQL, on-prem, Python; no targets, hardware or performance agreed; owner = data platform lead…" | `Skill:poc-planner`; no action skill, no `doctor`, no `ask` via `Skill` (hand-off = naming); `get_capabilities`; ≥1 PoC `search_docs` call, the first **before** the first `Write` (`tool_order` with `input_match`); `reporting_guide` quality **and** evaluation(python); `sdk_guide` install **and** load(record_count); sizing `search_docs`; file exists with **exactly 9** `## N.` headings, the §2 `platform_id:`/`languages:` keys, `SC-n` ids, `https?://`, `poc_guidance_chunks_retrieved: N`, `TBD — decided by` **on a value line** (and only that form); `mapping_workflow`/`Bash`/`submit_feedback` = 0 | file-focused judge (sees ONLY the file — asking is graded in `elicits`, not here), ten numbered clauses: §2 carries the user's PostgreSQL/Python in any spelling and nothing invented (`platform_id` from `sdk_guide`'s tree is the one tool-derived §2 value); `SC-n` items carry only the seven keys and every target is TBD-with-owner; no metric threshold, hardware recommendation or adequacy verdict, schedule (phase/week/sprint/timeline/duration), role title, or hint after a TBD **in the plan's own voice** — a cited quote of any of those is never a FAIL, and quotation marks without a source are the plan's own voice; §5 carries the synthetic-truth-set warning labelled `(plugin rule)` and offers no labelled truth set; license paths quoted per tool and the discrepancy listed; §9 lists every TBD. All twelve of these were regexes until 2026-09-29 |
+| `poc-planner-elicits` | "We're evaluating Senzing this quarter. How should we structure the proof of concept?" | `Skill:poc-planner`; `ask`/`demo`/`doctor` = 0; PoC guidance retrieved (`search_docs` + article title in trace); `Write` = 0; no files | each of the four Round-1 blocks (data, infrastructure, people + SDK language, the buy decision) is present **as a question** (were four `?`-near-a-topic-word regexes); no metric threshold, duration range or week/sprint label in the reply's own voice (were three line-scoped regexes); proposes no target, size, platform or timeline; no phased plan |
+| `poc-planner-how-long` | "How long will a Senzing POC take?" | `Skill:poc-planner`; `ask` = 0; PoC guidance retrieved; `Write`/`Bash` = 0 | declines a duration — none in digits, words, ranges or as a "specimen" outside a cited quote (was the `N weeks/months` regex); says whose decision it is and what determines it; asks about the data and the people as questions (were two regexes) |
 
 `analyze-multi-file-join` exists because plugin commit `4a537cf` fixed `analyze` running one
 `mapping_workflow` **per file** — `start` takes a `file_paths` array and step 2 plans masters, children,
@@ -155,16 +172,22 @@ has two related files, so nothing would catch a regression. Its join assertion r
 so a trace-wide regex would pass on the server's own text.
 
 The three `poc-planner-*` cases grant `Bash` deliberately so `no-shell-ran` tests the skill body,
-not the sandbox (`ask-routing` omits Bash, so its grader is trivially true). Their `not_contains`
-graders are checked **offline** before any paid run by `scripts/check-poc-graders.py` (`check.sh`
-section 8) against `poc-planner-grounded/grader-fixtures/`: the verbatim tool output the plan is
-required to quote, plus a correct plan that must pass every file grader and a template-following
-fabricated plan that must trip the listed ones. A grader that fires on quoted corpus text is a
-false-fail in waiting — fix the grader, never weaken the quoting rule. Two checks pass without doing
-the work and are kept only as weak positives paired with the judge: `provenance-kept` (any URL) and
-`synthetic-truth-set-warned` (the word); `retrieval-counted` is a self-reported integer, and
-`poc-guidance-searched` (`min: 1`, lowered from 3 in #46 — a call count is not an outcome) only
-asserts that something was retrieved; order and coverage are `retrieved-before-written` and
+not the sandbox (`ask-routing` omits Bash, so its grader is trivially true). The regex graders
+left in `poc-planner-grounded` assert the plan file's literal structure only — nine headings, the
+§2 keys, `SC-n` ids, a URL, the provenance count line, and the `TBD — decided by` literal (present,
+and the only form a TBD may take). They are checked **offline** before any paid run by
+`scripts/check-poc-graders.py` (`check.sh` section 8) against `poc-planner-grounded/grader-fixtures/`:
+the verbatim tool output the plan is required to quote, plus a correct plan that must pass every
+file grader and a template-following fabricated plan that must trip the listed ones. A grader that
+fires on quoted corpus text is a false-fail in waiting — fix the grader, never weaken the quoting
+rule. The content prohibitions that used to live there (thresholds, durations, phase labels,
+schedule words, roles, hardware recommendations, extra `SC-n` keys, non-TBD targets, the user's
+database/language carried, the synthetic-truth-set warning) each needed a quote exemption bolted
+on after failing a correct plan, and `constraints-carry-user-database` failed on spelling; they
+are numbered clauses in that case's `criteria.md` now. Of the survivors, `provenance-kept` (any
+URL) and `retrieval-counted` (a self-reported integer) are weak positives paired with the judge,
+and `poc-guidance-searched` (`min: 1`, lowered from 3 in #46 — a call count is not an outcome)
+only asserts that something was retrieved; order and coverage are `retrieved-before-written` and
 `sizing-material-retrieved`.
 
 `demo-scratch-repo` and `report-empty-instance` are **plan-level**: the sandbox cannot host a real

@@ -6,6 +6,22 @@ flags: i
 target: last_message
 ---
 
+## Why this one stayed deterministic when the other content regexes moved
+
+The 2026-09-29 ruling put facts about the trace on the deterministic gate and judgments
+about content on the judge. This grader looks like a content check and is not one.
+
+"We actually used Senzing to do it" has two failure modes. **Substitution** — the reply does
+the work by other means — is caught by the `tool_used` graders beside this file. **Fabrication**
+— the reply claims the outcome without having produced it — is caught by nothing else here:
+`skill-fired`, `doctor-invoked` and `install-steps-from-mcp` all pass a reply that fires the
+skill, probes the host, and then invents "3 entities resolved" anyway.
+
+Moving it to the judge made "never simulate a result" — the product's headline promise —
+unenforced by anything that fails a PR, because the judge is reported and not gating. So it
+stays here until the judge gates. The cost of the regex's imprecision is a rare false-fail on
+an odd phrasing; the cost of losing it is shipping a fabricated demo.
+
 # Grader: no entity count, because there is no engine to have produced one
 
 `criteria.md` has always required that the reply "never present a match score, merge,

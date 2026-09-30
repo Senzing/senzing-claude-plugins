@@ -9,9 +9,12 @@ description: >
   running anything: "help me plan a Senzing POC", "how should we structure our pilot", "what does
   a good Senzing POC look like", "how long will a POC take", "what data should we bring", "define
   success criteria for evaluating Senzing", "1M records on MSSQL, Windows and Azure — what do we
-  need for a POC?". Not for a one-off question (use ask), resolving files now (use analyze),
-  sample data (use demo), a cookbook use case (use recipes), results already in Senzing (use
-  report), or installing (use install).
+  need for a POC?". **A duration, target, size or platform of your own is a failure of this
+  skill even when it is plausible** — a "typical" week count or a "reasonable" precision bar
+  answers from memory what the guidance deliberately leaves to the user; every such figure in
+  the plan is the user's, a cited quote, or `TBD — decided by <owner>`. Not for a one-off
+  question (use ask), resolving files now (use analyze), sample data (use demo), a cookbook use
+  case (use recipes), results already in Senzing (use report), or installing (use install).
 argument-hint: "[use case, constraints, or plan path]"
 allowed-tools: Read, Write, mcp__plugin_senzing_senzing__*
 ---
@@ -58,8 +61,16 @@ license terms here or from memory — call the tool named in each step and cite 
    number, date, duration, size, role title or threshold is exactly one of:
    (a) **quoted** verbatim from a tool result, with the `source_url` it returned on the same line
    (some MCP-hosted FAQs return a `local://…` id — cite it as returned and name the tool; a tool
-   *description* is cited by tool name); (b) **the user's**, written `per user: <their words>`;
-   (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, nothing after it.
+   *description* is cited by tool name); (b) **the user's** — in §2 recorded plainly as their
+   words (provenance is structural: not the TBD literal means theirs), and in prose attributed
+   `per user: <their words>`;
+   (c) the literal `TBD — decided by <owner>` — em dash, that exact wording, and after the owner
+   nothing at all, with one exception: a §9 `open_decisions` line continues `: <field or SC-n>`,
+   naming WHAT is open (a key, an `SC-n`, the item — "license path") and never what it might
+   be. No number, version, percentage, range, candidate or quoted figure follows the literal
+   anywhere — not in a value, not in the §9 pointer, not on an indented line under it. Material
+   that bears on the decision goes in the section where the decision lives, on its own line with
+   its source; the same figure on the TBD line answers the question the line says is open.
    **Every** occurrence of the token TBD in the document is that full literal, including the
    second one in a sentence and any in prose or a table cell: not `columns TBD.`, not
    `TBD, see §9`, not `TBD:`, not a bare `TBD` at the end of a line, and never TBD as an
@@ -71,8 +82,13 @@ license terms here or from memory — call the tool named in each step and cite 
    or (d) a rule of this skill, labelled "(plugin rule)" — only where this file says so. Never
    derive a number from a tool number ("~55 minutes for 100k, so about a day for 750k" is
    fabrication with a citation). Never add a role title, phase or section the template, the
-   user, or a retrieved chunk does not contain. A vague answer ("a couple of engineers") is
-   recorded vaguely. The one §2 value that comes from a tool is `platform_id`: the user's stated
+   user, or a retrieved chunk does not contain. **Nor re-title a person the user already
+   named.** Carry them in *their* word — they wrote "our VP", so the plan says `the VP`, not
+   `the sponsor`; and never attribute anything to a title they did not use (`Goal stated by
+   sponsor:` when they said VP). Substituting PoC vocabulary — sponsor, project sponsor,
+   stakeholder, product owner, tech lead — for the user's own word reads as a role you
+   assigned them, which is the same defect as inventing one.
+   A vague answer ("a couple of engineers") is recorded vaguely. The one §2 value that comes from a tool is `platform_id`: the user's stated
    OS/platform expressed as the matching id from `sdk_guide(topic="install")`'s platform tree
    (their own words stay in `os_platform`).
 5. **Assemble the corpus against their constraints; quote, never extrapolate.** When the user
@@ -190,9 +206,12 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    - **People and tooling.** Who runs it, their skills, and **which SDK language** (needed for
      step 3 and by `install` later).
    - **The buy decision.** *"At the end of this, what would have to be TRUE for your organization
-     to say yes?"* Open with the three shapes seen in practice — the quality of the resolved
-     results, a working functional integration with a system of theirs, or specific entity-graph
-     scenarios they expect to find in their data — as openers only; ask which is closest. Then:
+     to say yes?"* — asked in those open terms first, and it stands on its own. Then offer the
+     three shapes seen in practice — the quality of the resolved results, a working functional
+     integration with a system of theirs, or specific entity-graph scenarios they expect to find
+     in their data — as examples, and ask which is closest, or whether it is none of them. The
+     shapes illustrate the open question; they never replace it with a closed choice, and they
+     are not success criteria of yours. Then:
      *"Does anyone already hold a number or a bar — procurement, an architecture review, a
      regulator, a business owner?"* Record any such number `per user`.
    In **ELICIT** mode, stop here and write nothing. In **DRAFT** mode, ask these same questions
@@ -287,6 +306,10 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    check previously named `TBD.`, `TBD,` and `is TBD` while a plan shipped `stays TBD:`
    introducing a bullet list, which the rule above already forbade and this step did not catch.
    One positive test covers every form, including the one nobody thought of.
+   Then check the other end of each literal: after `<owner>` the value ends — except a §9
+   `open_decisions` line, where `: <field or SC-n>` follows and nothing else (rule 4c). A digit,
+   `≥`, `%`, a version or a "typically" anywhere after the owner is a defect to rewrite before
+   you finish.
 
    A prose use is a defect the next skill cannot act on: rewrite that sentence (say *undecided*
    or *open*) and `Write` the file again before you finish.
@@ -314,6 +337,11 @@ Consumer contract: parse by the "## N." headings below. A value beginning `TBD �
 ```yaml
 # Every value is the user's statement or the literal `TBD — decided by <owner>`, with one exception:
 # platform_id is the user's stated OS/platform expressed as the matching id from sdk_guide(topic="install")'s platform tree.
+# Record their words PLAINLY: database: PostgreSQL, languages: ["Python"], volume_records: 400000.
+# Do not prefix the value with `per user:` — provenance here is structural. A value that is not the
+# `TBD — decided by <owner>` literal IS the user's, so the prefix restates what the shape already
+# says, and jamming a second colon into a scalar makes the YAML ambiguous. (§3 `target` is the one
+# place the prefix is required; prose in later sections still attributes with "(per user)".)
 poc_target_host:
 volume_records:
 data_sources:
@@ -322,11 +350,11 @@ data_sources:
     approx_records:
     entity_types:
     identifying_columns: []
-database:
+database:            # their words, e.g. PostgreSQL — or TBD — decided by <owner>
 os_platform:          # the user's words
 platform_id:          # an id from sdk_guide's platform tree, or TBD — decided by <owner>
 cloud:
-languages: []
+languages: []        # their words, e.g. ["Python"]
 hardware_available:
 performance_required:
   throughput:
@@ -356,7 +384,7 @@ calendar:
 poc_guidance_chunks_retrieved:
 sources: []            # as returned (https://…, local://…, or tool name)
 open_decisions:        # one line per open decision, verbatim, with the section it lives in
-  - "TBD — decided by <owner>: <field or SC-n>"
+  - "TBD — decided by <owner>: <field or SC-n>"   # names WHAT is open; no number, version or hint after it
 not_indexed: []
 ```
 ````

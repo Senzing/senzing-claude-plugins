@@ -60,6 +60,10 @@ ignore it.
 **Rules that override any instinct to report a failure:**
 
 - **Not installed is ➖, never ❌.** ❌ is reserved for something that IS there and IS misbehaving.
+  This holds for **every glyph you write anywhere in the report**, not only the numbered check
+  rows — including any extra table you add of your own (toolchains, languages, versions). An
+  absent Java, .NET or Rust is ➖ absent, never ❌ absent: in this report ❌ promises the user a
+  fixable malfunction, and "you never installed it" is not one.
 - **Cascade: if a prerequisite is ➖ or ❌, every check downstream of it is ➖** — never repeat the
   same failure as a second ❌. Dependency chain: 4 → 5 → 6 → {6b, 9}; 7 → 8. So when 4 is ➖,
   cascade **5, 6, 6b and 9** to ➖ — but **7–8 still grade**: a config can exist on a host with
@@ -118,9 +122,11 @@ different responses:
    need no Senzing facts) and mark 4–9 ➖ "not reached — no grounding". Do **not** continue on
    remembered paths or filenames; a preflight that guesses is worse than one that stops.
 
-Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` → Claude Code on
-the user's machine (or a Claude Code **cloud/remote** session — the same variables are set but
-the shell is a cloud VM; ask if unsure). `/.dockerenv` present, or `/proc/version` containing
+Host-kind signals (for check 3): `CLAUDECODE=1` / `CLAUDE_CODE_ENTRYPOINT=cli` **or `sdk-cli`**
+→ Claude Code on the user's machine (or a Claude Code **cloud/remote** session — the same
+variables are set but the shell is a cloud VM; ask if unsure). `sdk-cli` is what `claude -p` and
+the Agent SDK set, so a plugin driven programmatically — automation, CI, an embedded agent —
+reports it. Treat it exactly like `cli`: it is a real shell on a real host, not a sandbox. `/.dockerenv` present, or `/proc/version` containing
 `microsoft` → container or WSL2. Neither → likely a cloud sandbox.
 
 ## The checks
