@@ -29,6 +29,11 @@ license terms here or from memory — call the tool named in each step and cite 
 
 ## The rules that make this skill honest
 
+1. **You never need a shell.** This skill plans; it runs nothing. Your tools are Read, Write
+   and the Senzing MCP — no Bash, not even to check whether it works. A session may grant
+   Bash for other skills; that is not an invitation. Running anything here, including a
+   no-op, means the plan was built from something other than the user's words and the
+   tools' answers.
 1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt, no
    durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
    "planner" that invents one has fabricated the most consequential part of the document. The
