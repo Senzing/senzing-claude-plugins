@@ -1,11 +1,21 @@
 name: MUST-tier eval (opus)
 
 # The gate in ci.yml grades `sonnet`, and only sonnet — it always has. The model
-# ladder for this plugin is: opus and fable MUST pass, sonnet SHOULD, haiku is
-# not expected to. So the tier the plugin is REQUIRED to work on has never been
+# ladder for this plugin is: opus MUST pass, sonnet SHOULD, haiku is not
+# expected to. So the tier the plugin is REQUIRED to work on has never been
 # measured, and every reliability number anyone has quoted about this plugin --
 # including a q ~= 2.1% per-case-run divergence rate -- is a sonnet number that
 # was read as a plugin number.
+#
+# FABLE IS DELIBERATELY NOT IN THE MATRIX (decided 2026-09-29). It was a MUST
+# tier on paper and had never actually been run. The first full attempt cost
+# $89.11 against the suite's $75 ceiling and still returned
+# `partial=True (cost_ceiling)` — 16 of 18 cases — with three runs timing out at
+# 900s and 1200s. sonnet costs ~$25 for the same suite and opus ~$54. A tier that
+# truncates before finishing produces no measurement, only a bill, and raising
+# the ceiling and every per-case timeout to accommodate it would slow and inflate
+# the runs that do work. Do not add it back without a reason that outweighs
+# that; the numbers above are what it cost to learn.
 #
 # This workflow measures the MUST tier. It is deliberately SEPARATE from ci.yml
 # rather than a model input on it:
