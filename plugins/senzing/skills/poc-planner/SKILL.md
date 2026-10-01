@@ -29,10 +29,12 @@ license terms here or from memory — call the tool named in each step and cite 
 
 ## The rules that make this skill honest
 
-1. **You never need a shell.** This skill plans; it runs nothing. Your tools are Read, Write
-   and the Senzing MCP — no Bash, not even to check whether it works. A session may grant
-   Bash for other skills; that is not an invitation. Running anything here, including a
-   no-op, means the plan was built from something other than the user's words and the
+1. **The shell is for ONE thing: validating the plan you wrote.** This skill plans; it runs
+   nothing of the user's and installs nothing. Your tools are Read, Write and the Senzing MCP,
+   plus exactly one Bash command — `validate_plan.py` in step 8. A session may grant Bash for
+   other skills; that is not an invitation to use it for anything else. Probing the host,
+   inspecting their data, checking whether a tool exists: none of that belongs here, and
+   running it means the plan was built from something other than the user's words and the
    tools' answers.
 1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt, no
    durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
@@ -147,9 +149,10 @@ license terms here or from memory — call the tool named in each step and cite 
    and counts go into tool calls and into the plan. If the user points at files, `Read` the
    header row only — never a data row. Record people as roles or teams ("the CRM team"), not
    names, unless the user asks for names in the plan. Nothing record-shaped goes to a hosted tool.
-8. **No shell, ever — and that includes looking.** This skill runs no command: no `Bash`, not
-   once, not for one line. Wanting one — to profile a file, probe the host, count records —
-   means you are in `analyze`'s or `doctor`'s job: write the hand-off into the plan and stop.
+8. **One shell command exists, and it is `validate_plan.py`.** Nothing else: no probing, no
+   profiling, no counting records, no `ls`. Wanting a command for any other reason — to profile
+   a file, probe the host, count records — means you are in `analyze`'s or `doctor`'s job: write
+   the hand-off into the plan and stop.
    Host facts about the POC target come from the user or from `doctor` run **on that host**,
    never from a probe here.
    **The one that keeps happening is `ls`.** Step 8 asks whether the plan file already exists,
@@ -306,7 +309,27 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    "no file".** If one exists, ask *overwrite, or a new name?* and wait — never overwrite
    silently. Use the template below: all nine headings, exactly as written, no
    others; the two `yaml` blocks with exactly the keys shown, values the user's or the TBD
-   literal. **Then `Read` the file back and check every occurrence of the token `TBD`** — scan the
+   literal.
+
+   **Then VALIDATE it, and fix what it names.** Run exactly:
+
+   ```
+   python3 "${CLAUDE_PLUGIN_ROOT}/skills/poc-planner/validate_plan.py" ./senzing-poc-plan.md
+   ```
+
+   (substitute the path you actually wrote). It checks the structure every downstream skill
+   relies on: the nine headings, every TBD listed in §9 `open_decisions` including nested keys,
+   nothing but a pointer after the TBD literal, the seven §3 keys, and that both yaml blocks
+   parse. Each problem it prints names a line and what is wrong. **Fix them and run it again
+   until it prints `plan is well formed`.** Do not hand the user a plan that has not passed.
+
+   This exists because these rules were previously enforced only by prose, and plans failed them
+   silently — measured, 8 of 10 plans were malformed, and the half that were caught were caught
+   by an LLM reviewer reading 20,000 characters three times. A script answers in milliseconds
+   and tells you exactly which line. It checks STRUCTURE only: whether a quote is genuine and
+   whether a role was invented are still yours, under rules 4 and 6.
+
+   **Then `Read` the file back and check every occurrence of the token `TBD`** — scan the
    text that `Read` returned; never `grep` it, which is a shell call and a defect under rule 8
    even though its output is harmless.
 
