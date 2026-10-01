@@ -17,6 +17,12 @@ description: >
   case (use recipes), results already in Senzing (use report), or installing (use install).
 argument-hint: "[use case, constraints, or plan path]"
 allowed-tools: Read, Write, mcp__plugin_senzing_senzing__*
+# Bash is deliberately ABSENT even though step 8 runs validate_plan.py. allowed-tools
+# PRE-APPROVES rather than restricts — a tool stays callable either way — so declaring
+# Bash would only suppress the user's permission prompt, and that is exactly the
+# ALLOWED_TOOLS_BROAD finding that held this plugin at directory review (6b46cde).
+# The validator runs fine; the user is asked first, which is correct for a command we
+# ship and execute on their machine. Do not add Bash here to 'fix' a prompt.
 ---
 
 # Plan a Senzing proof of concept — with the user
