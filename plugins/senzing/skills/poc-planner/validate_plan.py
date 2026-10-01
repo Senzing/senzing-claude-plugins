@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""Check a senzing-poc-plan.md against the structure downstream skills rely on.
+
+Run this on the plan you just wrote, fix what it names, run it again. It is not a
+style checker: every rule here is one that `analyze`, `doctor` or `install` depends
+on when they read the plan as a handoff, or one that a plan has demonstrably got
+wrong in practice.
+
+    python3 validate_plan.py senzing-poc-plan.md
+
+Exit 0 and "plan is well formed" means the structure is right. It cannot tell you
+whether the CONTENT is honest — whether a quote is real, whether a role was
+invented. That stays with the skill's own rules and with review.
+
+Why a script and not more prose: every rule below was learned by a plan getting it
+wrong, and prose rules were extended one instance at a time without ever closing
+the class. A plan either satisfies these or it does not, and the answer takes
+milliseconds instead of three LLM votes over 20,000 characters.
+"""
+from __future__ import annotations
+
+import re
+import sys
+
+TBD_RE = re.compile(r"TBD — decided by\s+(?P<owner>[^:\n]+?)(?P<tail>:[^\n]*)?$")
+SC_KEYS = {"id", "shape", "statement", "measurement", "measured_against", "decided_by", "target"}
+REQUIRED_SECTIONS = [f"## {n}." for n in range(1, 10)]
+
+
+def yaml_blocks(text: str) -> list[str]:
+    return re.findall(r"```ya?ml\n(.*?)```", text, re.S)
+
+
+def tbd_paths(text: str) -> list[str]:
+    """Every TBD in the document, as a dotted path. Nested keys count separately.
+
+    A §2 block like
+        performance_required:
+          throughput: TBD — decided by X
+          latency:    TBD — decided by X
+    is TWO open decisions. Plans have repeatedly listed only the parent in §9, so
+    the children silently never get decided.
+    """
+    found: list[str] = []
+    for block in yaml_blocks(text):
+        stack: list[tuple[int, str]] = []
+        for line in block.split("\n"):
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            m = re.match(r"^(\s*)-?\s*([A-Za-z_][\w]*):(.*)$", line)
+            if not m:
+                continue
+            indent, key, rest = len(m.group(1)), m.group(2), m.group(3)
+            while stack and stack[-1][0] >= indent:
+                stack.pop()
+            path = ".".join([k for _, k in stack] + [key])
+            if "TBD — decided by" in rest:
+                found.append(path)
+            stack.append((indent, key))
+    return found
+
+
+def section(text: str, n: int) -> str:
+    m = re.search(rf"^## {n}\..*?(?=^## \d+\.|\Z)", text, re.S | re.M)
+    return m.group(0) if m else ""
+
+
+def check(text: str) -> list[str]:
+    problems: list[str] = []
+
+    for marker in REQUIRED_SECTIONS:
+        if marker not in text:
+            problems.append(f"missing section '{marker}' — downstream skills parse by these headings")
+
+    # Every TBD appears in §9 open_decisions, nested ones included.
+    sec9 = section(text, 9)
+    opened = sec9.split("open_decisions:", 1)[1] if "open_decisions:" in sec9 else ""
+    for path in tbd_paths(text):
+        leaf = path.split(".")[-1]
+        if path not in opened and leaf not in opened:
+            problems.append(
+                f"§9 open_decisions does not list '{path}'. Every TBD gets a line, including "
+                f"nested keys — a downstream skill reads §9 to find what is still open, so one "
+                f"missing here is a decision nobody ever makes."
+            )
+
+    # Nothing after the TBD literal except a §9 pointer naming WHAT is open.
+    #
+    # Three things are deliberately NOT flagged, because the correct fixture does
+    # all three and a checker that fails correct work gets switched off:
+    #   * prose and comments that merely MENTION the literal (the §2 header comment
+    #     explaining the rule, a §4 question listing which fields are open);
+    #   * `SC-n` in a pointer — the template's own `<field or SC-n>` form, whose
+    #     digit is an identifier, not a candidate answer;
+    #   * key names in a pointer (`target`, `measured_against`).
+    # What IS flagged is a figure: a quantity, percentage, duration or version.
+    FIGURE = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:%|k\b|m\b|gb|mb|tb|cores?|days?|weeks?|months?|"
+                        r"records?|rows?|seconds?|minutes?|hours?|iops)|\b\d+\.\d+|\b\d{3,}\b")
+    for i, line in enumerate(text.split("\n"), 1):
+        stripped = line.strip()
+        if stripped.startswith("#") or "`TBD" in stripped:
+            continue  # a comment, or prose quoting the literal to explain it
+        m = TBD_RE.search(stripped)
+        if not m:
+            continue
+        tail = (m.group("tail") or "").lstrip(":").strip()
+        if not tail:
+            continue
+        if line in sec9:
+            if FIGURE.search(tail):
+                problems.append(
+                    f"line {i}: the §9 pointer carries a figure — '{tail[:60]}'. The pointer "
+                    f"names WHAT is open, never a candidate answer; put the figure on its cited "
+                    f"line in the section the decision lives in."
+                )
+        elif FIGURE.search(tail):
+            problems.append(
+                f"line {i}: a figure follows the TBD literal — '{tail[:60]}'. "
+                f"`TBD — decided by <owner>` ends a value; a hint after it answers the question "
+                f"the plan just said was open."
+            )
+
+    # §3 success criteria use the template's seven keys and no others.
+    for block in yaml_blocks(section(text, 3)):
+        for key in re.findall(r"^\s*-?\s*([A-Za-z_][\w]*):", block, re.M):
+            if key not in SC_KEYS:
+                problems.append(
+                    f"§3 uses key '{key}', which is not one of the seven the template defines "
+                    f"({', '.join(sorted(SC_KEYS))}). Extra keys are the plan inventing structure."
+                )
+
+    # Every yaml block must actually parse — a plan is read, not just displayed.
+    try:
+        import yaml
+
+        for n, block in enumerate(yaml_blocks(text), 1):
+            # Fill only LEAF keys. A bare `data_sources:` whose next line is a
+            # more-indented list is a parent, and filling it invents the very
+            # conflict we are checking for.
+            lines = block.split("\n")
+            out = []
+            for idx, raw in enumerate(lines):
+                mk = re.match(r"^(\s*)([A-Za-z_][\w]*:)\s*$", raw)
+                if mk:
+                    indent = len(mk.group(1))
+                    nxt = next((l for l in lines[idx + 1:]
+                                if l.strip() and not l.strip().startswith("#")), "")
+                    if not (nxt and (len(nxt) - len(nxt.lstrip())) > indent):
+                        raw = f"{raw} x"
+                out.append(raw)
+            filled = "\n".join(out)
+            try:
+                yaml.safe_load(filled)
+            except yaml.YAMLError as e:
+                problems.append(f"yaml block {n} does not parse: {str(e).splitlines()[0]}")
+    except ImportError:
+        pass
+
+    return problems
+
+
+def main() -> int:
+    if len(sys.argv) != 2:
+        print(__doc__)
+        return 2
+    try:
+        text = open(sys.argv[1], encoding="utf-8").read()
+    except OSError as e:
+        print(f"cannot read {sys.argv[1]}: {e}")
+        return 2
+
+    problems = check(text)
+    if problems:
+        print(f"{len(problems)} problem(s) in {sys.argv[1]}:\n")
+        for p in problems:
+            print(f"  - {p}")
+        print("\nFix these and run this again. Each is something a downstream skill relies on.")
+        return 1
+    print(f"plan is well formed: {sys.argv[1]}")
+    print("(structure only — whether the content is honestly sourced is not checkable here)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

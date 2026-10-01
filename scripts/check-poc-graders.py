@@ -23,6 +23,14 @@ the `TBD — decided by` literal (present, and the only form a TBD may take).  S
 guards one grader today (`tbd-only-in-literal-form`); it stays because the corpus fixtures are
 what a new regex must be tried against before it ships.
 
+Section D (2026-10-01): the judge clauses are one `judge-*.md` grader per clause now, not one
+`criteria.md`, so a judge FAIL names the clause.  The judge cannot run offline, so D asserts
+what can be checked for free: every llm grader focuses on the plan file; all of them carry the
+IDENTICAL shared preamble (the quoted-with-source exemption each clause depends on — a drifted
+copy is how a correct plan fails one clause); and each clause `expectations.json` says the
+fabricated plan violates still has its evidence in that fixture and not in the correct one, so
+the fixture keeps exercising the clause it documents.
+
 Python `re` is used as a stand-in for the CLI's JavaScript engine; the patterns here use only the
 common subset (classes, alternation, lookahead, `flags: i`).  Exit 1 on any failure.
 """
@@ -108,6 +116,100 @@ def context(text: str, m: re.Match, width: int = 40) -> str:
     return text[s:e].replace("\n", "\\n")
 
 
+GROUNDED_GRADERS = EVALS / "poc-planner-grounded" / "graders"
+SHARED_START = "> **Shared preamble"
+CLAUSE_START = "## This grader's clause"
+
+
+def shared_region(text: str) -> str | None:
+    """Everything from the shared-preamble blockquote to the clause heading — must be identical
+    across every judge-*.md, because it carries the quote exemption each clause depends on."""
+    start = text.find(SHARED_START)
+    end = text.find(CLAUSE_START)
+    if start < 0 or end < 0 or end < start:
+        return None
+    return text[start:end]
+
+
+def check_judge_clauses(expectations: dict) -> int:
+    failures = 0
+    llm = []
+    for md in sorted(GROUNDED_GRADERS.glob("*.md")):
+        fm = parse_frontmatter(md)
+        if fm.get("type") == "llm":
+            llm.append((md, fm))
+    print(f"\n-- D. {len(llm)} llm clause graders in poc-planner-grounded --")
+    if len(llm) < 2:
+        print("FAIL the judge is one monolithic rubric again — a FAIL would not name its clause")
+        return 1
+    regions: dict[str, str] = {}
+    for md, fm in llm:
+        text = md.read_text(encoding="utf-8")
+        if "senzing-poc-plan.md" not in fm.get("focus", ""):
+            failures += 1
+            print(f"FAIL {md.name}: llm grader not focused on senzing-poc-plan.md (focus: {fm.get('focus')!r})")
+        if not md.stem.startswith("judge-"):
+            failures += 1
+            print(f"FAIL {md.name}: llm clause graders carry the judge- prefix so they cannot collide "
+                  f"with a regex grader of the same assertion")
+        region = shared_region(text)
+        if region is None:
+            failures += 1
+            print(f"FAIL {md.name}: no shared preamble block / clause heading "
+                  f"({SHARED_START!r} … {CLAUSE_START!r})")
+            continue
+        regions[md.stem] = region
+    if regions:
+        canon_name, canon = next(iter(regions.items()))
+        drifted = [n for n, r in regions.items() if r != canon]
+        if drifted:
+            failures += len(drifted)
+            print(f"FAIL shared preamble drifted from {canon_name}: {', '.join(drifted)} — the quote "
+                  f"exemption must read identically in every clause, or a correct plan fails one")
+        else:
+            print(f"ok   {len(regions)} graders carry the identical shared preamble")
+
+    stems = {md.stem for md, _ in llm}
+    plans = FIXTURES / "plans"
+    for plan_name, expect in expectations.items():
+        if plan_name.startswith("_") or not expect.get("judge_must_fail"):
+            continue
+        bad_text = (plans / plan_name).read_text(encoding="utf-8")
+        good_text = (plans / "correct-plan.md").read_text(encoding="utf-8")
+        named = []
+        for item in expect["judge_must_fail"]:
+            g = item["grader"]
+            named.append(g)
+            if g not in stems:
+                failures += 1
+                print(f"FAIL {plan_name}: judge_must_fail names {g}, which is not an llm grader here")
+                continue
+            ev, miss = item.get("evidence"), item.get("missing")
+            if ev is not None:
+                if ev not in bad_text:
+                    failures += 1
+                    print(f"FAIL {plan_name}: evidence for {g} is gone from the fixture: {ev!r}")
+                if ev in good_text:
+                    failures += 1
+                    print(f"FAIL correct-plan.md carries {g}'s violating evidence {ev!r} — either the "
+                          f"evidence is not discriminating or the correct plan is not correct")
+            if miss is not None:
+                if miss in bad_text:
+                    failures += 1
+                    print(f"FAIL {plan_name}: {g}'s `missing` string is present after all: {miss!r}")
+                if miss not in good_text:
+                    failures += 1
+                    print(f"FAIL correct-plan.md lacks {g}'s `missing` string {miss!r}")
+            if ev is None and miss is None:
+                failures += 1
+                print(f"FAIL {plan_name}: {g} entry has neither evidence nor missing")
+        print(f"     {plan_name}: {len(named)} judge clause(s) documented as violated -> "
+              + ", ".join(sorted(named)))
+        print(f"ok   {plan_name}: every documented clause has a grader and its evidence is still in the fixture"
+              if failures == 0 else f"FAIL {plan_name}: see above")
+    return failures
+
+
 def main() -> int:
     failures = 0
     graders = load_regex_graders()
@@ -175,6 +277,9 @@ def main() -> int:
             print(f"FAIL {g['case']}/{g['name']} spells the TBD literal without U+2014")
     failures += bad
     print("ok   em dash consistent" if bad == 0 else f"FAIL {bad} em-dash drift(s)")
+
+    # D. The llm judge clauses: one grader per clause, same preamble, evidence still in the fixture.
+    failures += check_judge_clauses(expectations)
 
     print()
     if failures:

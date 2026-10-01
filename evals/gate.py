@@ -25,10 +25,19 @@ So this script splits them:
                         Not averaged, not weighted, no threshold.  A boolean obligation the
                         skill honours only half the time is a defect, not a rounding error.
 
-  JUDGE score         — `llm` graders only.  Legitimately fractional, so it keeps a threshold
-                        of its own (`--judge-threshold`), reported as its own number and
-                        failing with its own message.  It can never mask, or be masked by,
-                        the deterministic gate.
+  JUDGE score         — `llm` graders only.  Legitimately fractional ACROSS RUNS (a judge
+                        can dissent on one run of three), so it keeps a threshold of its own
+                        (`--judge-threshold`), reported as its own number and failing with
+                        its own message.  It can never mask, or be masked by, the
+                        deterministic gate.  WITHIN a run it is not fractional: a case may
+                        carry several llm graders (poc-planner-grounded has one per clause
+                        since 2026-10-01), and a run's judge verdict is "every llm grader
+                        passed", never the fraction that did -- otherwise splitting one
+                        rubric into twelve would have let a run with two red clauses score
+                        0.83 and clear the 0.8 threshold, which is the blend this script
+                        exists to stop, wearing a new coat.  Each failing llm grader is
+                        reported by name and run, the way the deterministic gate reports
+                        itself, so a judge FAIL names the clause instead of the rubric.
 
 Exit codes.  More than one can apply to a single run; the HIGHEST one is returned, and the
 closing `gate verdict:` line names every gate that tripped.  The code is a LABEL for what to
@@ -89,6 +98,7 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
     det_names: set[str] = set()
     judge_per_run: list[float] = []
     judge_failed_runs: list[int] = []
+    judge_failures: dict[str, dict] = {}  # llm grader name -> {runs: [i, ...], why: str}
     errors: list[str] = []
 
     blind_skipped: list[int] = []
@@ -109,7 +119,12 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
             # An unknown name means the definition list and the run disagree -- grade it
             # deterministically rather than letting it slip into the fractional bucket.
             if types.get(name) in JUDGE_TYPES:
-                judged.append(bool(g.get("passed")))
+                passed = bool(g.get("passed"))
+                judged.append(passed)
+                if not passed:
+                    entry = judge_failures.setdefault(name, {"runs": [], "why": ""})
+                    entry["runs"].append(i)
+                    entry["why"] = g.get("explanation") or entry["why"]
                 continue
             det_names.add(name)
             if not g.get("passed"):
@@ -117,7 +132,11 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
                 entry["runs"].append(i)
                 entry["why"] = g.get("explanation") or entry["why"]
         if judged:
-            judge_per_run.append(sum(judged) / len(judged))
+            # A run's judge verdict is boolean: EVERY llm grader passed, or the run failed
+            # the judge. Not the fraction of llm graders that passed -- see the module
+            # docstring. With one llm grader per case the two are identical; with several,
+            # the fraction would let a run with red clauses clear the threshold.
+            judge_per_run.append(1.0 if all(judged) else 0.0)
             if not all(judged):
                 judge_failed_runs.append(i)
 
@@ -130,6 +149,7 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
         "judge": judge,
         "judge_runs": len(judge_per_run),
         "judge_failed_runs": judge_failed_runs,
+        "judge_failures": judge_failures,
         "errors": errors,
         "blind_runs": blind_skipped,
         "measured_runs": len(runs) - len(blind_skipped),
@@ -317,14 +337,25 @@ def main() -> int:
              f"({'enforced' if args.enforce_judge else 'reported, not gating'})")
     else:
         emit("JUDGE score         no llm graders in this run")
-    for c in judge_bad_cases:
-        # Every case carries exactly one llm grader, so a run's judge score is a
-        # boolean and the "mean" is a fraction of runs wearing a decimal point.
-        # Report it the way the deterministic gate reports itself — which run
-        # failed — so a judge miss can be opened at its tracePath and read.
+    for c in cases:
+        # A run's judge verdict is boolean (every llm grader passed), so the "mean" is a
+        # fraction of runs wearing a decimal point. Report it the way the deterministic
+        # gate reports itself — which run failed — so a judge miss can be opened at its
+        # tracePath and read; and since a case may carry several llm graders (one per
+        # clause), name WHICH grader failed in which run, so a FAIL names the clause and
+        # a fix for one clause can be verified without re-judging the other eleven.
+        # Reported for every case with a judge miss, not only those below the threshold:
+        # a 1-of-3 dissent is exactly the thing that needs a name to be diagnosable.
         failed = c.get("judge_failed_runs") or []
-        where = " (" + ", ".join(f"#{r}" for r in failed) + ")" if failed else ""
+        if not failed:
+            continue
+        where = " (" + ", ".join(f"#{r}" for r in failed) + ")"
         emit(f"    {c['name']}  judge failed {len(failed)} of {c['judge_runs']} run(s){where}")
+        for name, info in sorted((c.get("judge_failures") or {}).items()):
+            runs = ",".join(f"#{r}" for r in info["runs"])
+            why = f": {info['why']}" if info["why"] else ""
+            emit(f"        {c['name']}/{name}  failed {len(info['runs'])} of "
+                 f"{c['judge_runs']} run(s) ({runs}){why}")
     for c in error_cases:
         for err in c["errors"]:
             emit(f"    RUN ERROR {c['name']}  {err}")

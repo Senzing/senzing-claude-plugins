@@ -17,7 +17,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   one skill still carrying it, missed when the other seven were done in `1.37.13-3` because it
   was not in that round's finding list. Writing the plan file now prompts, which is the right
   shape for the single deliberate write a planning run makes.
+- **`/senzing:demo` told users that Senzing's synthetic truth set was real data.** The skill
+  defaults to `truthset` when no dataset is named — it is the smallest — and then instructed:
+  *"Describe the data honestly: it is **real data** for evaluation (tell the user so, as the
+  tool requires)."* That was true of the three CORD collections and false of the default. The
+  same claim was fixed server-side in MCP 1.37.18, where the real-data caveat is now scoped to
+  `las-vegas`, `london` and `moscow` and `truthset` carries a synthetic provenance note; the
+  skill now takes the dataset's nature from the tool's own citation rather than asserting it
+  from this file, which is what the surrounding instructions already told it to do.
 
+### Changed
+- **`poc-planner-grounded`'s judge is twelve attributable graders, not one.** Its `criteria.md`
+  carried ten numbered clauses judged over a ~20k-character plan and failed 5 of 10, then 6 of 10
+  runs — four of them unanimous 3-0 — as a single `FAIL` for all ten clauses at once, so each
+  diagnosis cost a manual re-judge and no fix could be verified without re-running the case. Each
+  clause is now its own `type: llm` grader (`graders/judge-*.md`), text carried verbatim with the
+  numeric cross-references resolved, every file repeating the shared "How to judge" preamble on
+  purpose (the quoted-with-source exemption is what keeps a correct plan from failing). The
+  "Did we use Senzing?" sourcing paragraph and the catch-all's "no match / entity count /
+  resolution outcome" obligation, which belonged to no numbered clause, are graders of their own.
+  No obligation was dropped or softened. `gate.py` now scores a run's judge verdict as *every*
+  llm grader passed — not the fraction, which would have let a run with two red clauses score
+  0.83 and clear the threshold — and names each failing grader and run; two gate fixtures pin
+  that. `check-poc-graders.py` section D asserts offline that the twelve carry an identical
+  preamble and that `expectations.json`'s `judge_must_fail` evidence (nine clauses the
+  fabricated fixture violates, up from one unnamed verdict) is still in the fixture. No
+  `tool_used`/`tool_order`/`file_exists` grader, `min:`/`max:` or threshold changed.
 
 ## [1.37.16] - 2026-09-29
 
