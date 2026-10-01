@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- **`/senzing:demo` told users that Senzing's synthetic truth set was real data.** The skill
+  defaults to `truthset` when no dataset is named — it is the smallest — and then instructed:
+  *"Describe the data honestly: it is **real data** for evaluation (tell the user so, as the
+  tool requires)."* That was true of the three CORD collections and false of the default. The
+  same claim was fixed server-side in MCP 1.37.18, where the real-data caveat is now scoped to
+  `las-vegas`, `london` and `moscow` and `truthset` carries a synthetic provenance note; the
+  skill now takes the dataset's nature from the tool's own citation rather than asserting it
+  from this file, which is what the surrounding instructions already told it to do.
+
 ### Changed
 - **`poc-planner-grounded`'s judge is twelve attributable graders, not one.** Its `criteria.md`
   carried ten numbered clauses judged over a ~20k-character plan and failed 5 of 10, then 6 of 10

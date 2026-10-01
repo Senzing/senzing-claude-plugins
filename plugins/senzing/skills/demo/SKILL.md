@@ -137,8 +137,12 @@ second report.
      the load code needs the file on disk, so fetch it into the workspace:
      `curl -fsSL <download_url> -o {workspace}/<dataset>.jsonl`, using the URL exactly as
      returned (if the response flags the download as capped or truncated, say so). Never demo
-     on the inline preview. Describe the data honestly: it is **real data** for evaluation (tell
-     the user so, as the tool requires), and say only what its `list` description says about it.
+     on the inline preview. Describe the data honestly, and take its nature from the tool's own
+     response rather than from this file: the citation says what the dataset is and whether it
+     is real. The CORD collections (`las-vegas`, `london`, `moscow`) are real historical data
+     and the tool asks you to tell the user so; the `truthset` default is Senzing's **synthetic**
+     demo truth set, so do not call it real. Say only what its `list` description and citation
+     say about it.
    - **Validate — do not map.** Sample records are already Senzing JSON (`DATA_SOURCE`,
      `RECORD_ID`, `FEATURES[…]`); running `mapping_workflow` on them would map Senzing JSON to
      Senzing JSON. Instead call `analyze_record(file_paths=[…], workspace_dir=…)`, run the
