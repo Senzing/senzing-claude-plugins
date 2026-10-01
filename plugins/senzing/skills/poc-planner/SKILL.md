@@ -395,6 +395,14 @@ calendar:
 poc_guidance_chunks_retrieved:
 sources: []            # as returned (https://…, local://…, or tool name)
 open_decisions:        # one line per open decision, verbatim, with the section it lives in
+  # EVERY TBD in the document gets a line here, including NESTED keys. A §2 block like
+  #   performance_required:
+  #     throughput: TBD — decided by <owner>
+  #     latency:    TBD — decided by <owner>
+  # is TWO open decisions, not one and not none: name them performance_required.throughput
+  # and performance_required.latency. Listing only top-level keys silently drops the nested
+  # ones, and a downstream skill reading §9 to find what is still open never learns they exist.
+  # Count the TBDs in the document, count the lines here, and make the two numbers match.
   - "TBD — decided by <owner>: <field or SC-n>"   # names WHAT is open; no number, version or hint after it
 not_indexed: []
 ```
