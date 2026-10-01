@@ -6,9 +6,11 @@ description: >
   search to my Python service", "scaffold a Senzing loader", "write the add-record code", "wire up
   the V4 SDK in Java". Emits code from real indexed snippets with source-URL provenance, and can
   optionally run it against the user's own Senzing to prove it works; if they do, it calls doctor
-  first. Not for
-  answering a question about the SDK when no code is wanted (use ask), dashboards over
-  already-loaded data (use report), or resolving data files (use analyze).
+  first. **SDK code written from memory is a failure of this skill even when it compiles** — a
+  method name, signature, flag, attribute or initialization pattern that no tool result returned
+  is not Senzing code, it is your recollection of it, and recollection of this SDK is commonly
+  wrong. Not for answering a question about the SDK when no code is wanted (use ask), dashboards
+  over already-loaded data (use report), or resolving data files (use analyze).
 argument-hint: "[language] [workflow]"
 allowed-tools: Read, Skill(senzing:doctor), mcp__plugin_senzing_senzing__*
 ---

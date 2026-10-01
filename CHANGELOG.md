@@ -6,11 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.37.13-5] - 2026-09-28
-
-Plugin-only patch on MCP server v1.37.13. Clears the last two actionable
-directory warnings; `1.37.13-4` already cleared the policy hold.
-
 ### Fixed
 
 - **`Skill` is scoped to the hand-offs each skill actually makes** (`Allowed tools skill any`,
@@ -23,6 +18,86 @@ directory warnings; `1.37.13-4` already cleared the policy hold.
   was not in that round's finding list. Writing the plan file now prompts, which is the right
   shape for the single deliberate write a planning run makes.
 
+
+## [1.37.16] - 2026-09-29
+
+### Changed
+- **Skills and rubrics no longer contradict each other on four contracts.** Opus obeys the
+  skill faithfully and hit each collision: `report-empty-instance` asserted "doctor confirms the
+  SDK loads" in a sandbox with no SDK while `report` mandated a `doctor` pre-flight (the prompt
+  now supplies the pre-flight and says the shell is not the host; `report` gains the same
+  supplied-preflight carve-out `demo` has), and its rubric left a relayed zero ambiguous and
+  penalized the hand-off the skill requires (one attribution test; naming `/senzing:analyze` is
+  the hand-off, not an offer). `poc-planner` rule 4c said the TBD literal has "nothing after it"
+  while its own §9 template requires `: <field or SC-n>` after it — one rule now: after the owner
+  nothing, except the §9 pointer, which names what is open and never a value; and asking "which
+  shape is closest?" after the open buy-decision question is what the skill orders, not a menu.
+  `install` and `demo` disagreed on what the EULA message may ask — one contract, stated
+  identically in both: every question about proceeding WITH installing (path, allowlist), none
+  offering an alternative. `build`, `troubleshoot` and `poc-planner` descriptions gain the
+  substitution ban `analyze`/`demo`/`report` already carry, each phrased for its own
+  from-memory failure mode. No `tool_used`/`tool_order`/`file_exists` grader, `min:` count,
+  threshold or `gate.py` changed.
+- **Eval graders: facts stay regexes, judgments move to the judge.** 28 of the suite's 50
+  `regex` graders were proxies for meaning — did the plan carry the user's database, was a role
+  invented, was the hand-off named, did a schedule word creep in — and they failed correct output
+  (`per user - PostgreSQL`, a hand-off named one message earlier). Each is now a checkable clause
+  in its case's `graders/criteria.md`, organized around two questions: did we get the outcome, and
+  did we use Senzing to do it. The 21 regexes that assert a literal with one correct spelling
+  (URLs, cookbook titles, glyphs, template keys, the `TBD — decided by` literal) stay, as do every
+  `tool_used`/`tool_order`/`file_exists` grader and every `min:` count. Two rubric contradictions
+  fixed on the rubric side: `report-empty-instance` demanded certifying the repository empty while
+  the skill forbids it on `internal://` (opus 0.00 three weeks running); `install-eula`'s "every
+  command present in a tool result" could neither pass nor fail once the tool output was elided.
+  `scripts/check-grader-parity.py` now also fails if a `not_contains` regex bans vocabulary.
+  `poc-planner` rule 1 and the §2 template lose the spellings they carried only to satisfy
+  regexes. Thresholds, `gate.py` and the judge's non-gating status are untouched.
+
+
+### Changed
+
+- Tracks Senzing MCP server v1.37.16, whose container install route now carries
+  its commands, the EULA, and the OCI runtimes beyond Docker.
+
+### Fixed
+
+- **Graders assert one of two things now: a fact about the run, or a judgment
+  about content.** 28 content regexes moved to the judge; 21 literal-fact
+  regexes kept; every `tool_used` / `tool_order` / `file_exists` check
+  untouched — those answer "did we actually use Senzing", and they are what
+  caught opus deduping six rows by hand. `no-invented-resolution` stays
+  deterministic because it is the only gate against fabrication and the judge
+  does not gate.
+- **Contradictions between skills and rubrics.** `report` forbade certifying a
+  repository empty while its rubric demanded exactly that — opus scored 0.00 on
+  that case in three consecutive weekly runs for obeying the skill. The TBD
+  literal was described three incompatible ways. `install` and `demo` disagreed
+  on the shape of the EULA message.
+- **`recipes` gave up on a host it never uses** — it declared the cookbook
+  unreachable when `github.com` was blocked, though every recipe is fetched from
+  `raw.githubusercontent.com`, which answered. The source sentence now names the
+  fetch host.
+- **`doctor` treated `sdk-cli` as unrecognized**, so every programmatic driver
+  of the plugin was told it might be a sandbox.
+- The judge reports which run failed instead of a mean of booleans that could
+  only ever be 0.00, 0.50 or 1.00.
+
+### Added
+
+- `evals/local.sh` — single-case local runs, which CI made impossible: `--case`
+  always exited "structural: cases missing", the CLI floor needed a pinned
+  install, and the sandbox refuses while `~/.docker` holds symlinks. A case
+  costs $0.08–0.79 against $19.50 for a CI cycle that samples each case twice.
+- `scripts/check-skill-hazards.py` and an extended `check-grader-parity.py` —
+  offline checks for the classes that produced this week's failures: a template
+  that does not parse, a ban the router never sees, a fetch host named wrong, a
+  prompt premise the sandbox contradicts.
+
+## [1.37.15] - 2026-09-28
+
+### Changed
+
+- Bump to MCP server **v1.37.15** (lockstep sync); the plugin carries no code change.
 
 ## [1.37.13-4] - 2026-09-27
 

@@ -67,11 +67,11 @@ calendar: "per user: six weeks"
 
 <!-- SC-3 deliberately YAML-QUOTES the same legal values SC-1/SC-2 leave bare.
      Quoting a scalar is ordinary YAML and must stay legal. It is here because
-     the previous `targets-are-user-or-tbd` pattern opened with an optional
+     a since-retired grader (`targets-are-user-or-tbd`) opened with an optional
      quote that could backtrack to empty, so the lookahead tested the quote
      character instead of the value: the bare form passed and the quoted form
-     failed a correct plan. Every fixture carried the bare form, so nothing
-     caught it. Do not "simplify" these three lines back to unquoted. -->
+     failed a correct plan. `tbd-only-in-literal-form` still runs over these
+     lines, so the quoted form stays exercised. Do not "simplify" them. -->
 
 ## 4. What must be true to buy — goal and scope
 per user: the VP must see that duplicate customers across CRM and billing get found. Which measurement shows that, who decides it is good enough and what it is compared against are open (SC-1, SC-2). The retrieved guidance: "nearly all evaluations of Senzing focus on the ease of adding data and the quality of the results." — https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC
@@ -79,15 +79,15 @@ per user: the VP must see that duplicate customers across CRM and billing get fo
 The measurements Senzing describes (reporting_guide(topic=quality)): "Precision = correct resolved pairs / total resolved pairs (how many matches are correct?). Recall = correct resolved pairs / total true pairs (how many true matches did we find?). F1 = 2 * (P * R) / (P + R) (balanced accuracy)." Without a truth set: "use proxy indicators: entity size distribution, cross-source match rates, review features, and manual sampling of possible matches. Proxy indicators reveal problems but cannot measure absolute accuracy." On the cross-source match rate the tool says: "Very high rates (>80%) may indicate duplicate data sources." and "Very low rates (<1%) may indicate poor feature overlap or data quality issues." On singletons: "High singleton rate (>90%) suggests poor matching features or low data overlap." Whether a reporting mart is needed at all: "Many teams need NO mart at all; most who do need only a simple one." (reporting_guide(topic=quality), data_mart_framing). Evaluation evidence rule (reporting_guide(topic=evaluation, language=python)): "Every claim about over-matching must reference specific entity IDs and show record data"; "If the profiler showed 95% unique names but compression is 50%, that is suspicious over-matching."
 
 <!-- QUOTE-EXEMPTION COVERAGE (fixture-only). The five lines below are SHAPED like cited
-     quotes — quotation marks plus an attribution on the same line — and each one trips the
-     PRE-FIX flat regex of one grader: no-metric-thresholds ("precision above 99%"),
-     no-duration-ranges ("four to six weeks"), no-phase-labels ("Week 1"), no-schedule-words
-     ("kick-off meeting") and no-invented-roles ("executive sponsor"). criteria.md permits
-     verbatim cited quotes; the flat regexes did not, so a correct run that quoted Senzing's own
-     material failed the deterministic gate. These lines are the fixture that proves the
-     exemption works and keeps working. They are ILLUSTRATIVE quote shapes, not verbatim
-     corpus text — do not cite them as Senzing material, and do not delete them to "clean up"
-     the fixture: without them the exemption is untested and the false-fail comes straight back. -->
+     quotes — quotation marks plus an attribution on the same line — and each one carries a
+     shape the plan may only QUOTE, never assert: a metric threshold ("precision above 99%"), a
+     duration range ("four to six weeks"), a week label ("Week 1"), a schedule word ("kick-off
+     meeting") and a role title ("executive sponsor"). Until 2026-09-29 each tripped the pre-fix
+     flat regex of one grader, and this block proved the line-scoped quote exemption worked.
+     Those graders are judge clauses in criteria.md now; the block stays as the worked example
+     of what a CORRECT plan is allowed to contain, so the rubric's "quoted with its source is
+     never a FAIL" rule has a fixture to be read against. They are ILLUSTRATIVE quote shapes,
+     not verbatim corpus text — do not cite them as Senzing material. -->
 
 Material the plan carries as quoted, cited text (quoting is the rubric's requirement, not a violation):
 "Well-mapped name and date-of-birth data commonly gives precision above 99%" — reporting_guide(topic=quality), quoted as returned.

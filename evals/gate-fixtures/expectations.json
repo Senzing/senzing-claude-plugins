@@ -37,7 +37,7 @@
       "rc": 0,
       "must_contain": [
         "DETERMINISTIC gate  1/1 cases clean",
-        "judge-dissents  judge 0.00",
+        "judge-dissents  judge failed 1 of 1 run(s) (#0)",
         "reported, not gating"
       ],
       "must_not_contain": ["DETERMINISTIC gate: "]
