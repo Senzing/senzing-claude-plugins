@@ -114,7 +114,9 @@ Two further rules:
   are the template. (Since 2026-09-29 the split runs the other way: the regexes
   keep only the file's literal structure and the trace facts, and the content
   prohibitions are the judge's numbered clauses — see `evals/README.md`, "Two
-  kinds of assertion". The rule stands: say plainly which grader owns what.)
+  kinds of assertion". Since 2026-10-01 each clause is its own `judge-*.md`
+  grader carrying the same preamble, so a FAIL names the clause. The rule
+  stands: say plainly which grader owns what.)
 - **The catch-all sentence must not be broader than the bullet above it.**
   "if it offers to build a truth set" (unqualified) contradicted the §5 bullet
   that bans only a **synthetic/labelled** one — and would have failed the repo's

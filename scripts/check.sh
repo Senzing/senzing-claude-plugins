@@ -192,7 +192,10 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 # "Phase 1/2/3", reporting_guide ">80%", ...), plus a correct and a fabricated plan fixture. A hit
 # on quoted corpus text is a false-fail that would burn a paid eval run; a fabricated plan the
 # graders pass is a grader that does nothing. Content prohibitions (thresholds, schedules, roles)
-# are judge clauses in criteria.md since 2026-09-29, not regexes — see check-grader-parity.py.
+# are judge clauses since 2026-09-29, not regexes — one `judge-*.md` llm grader per clause since
+# 2026-10-01 (formerly a single criteria.md), so a judge FAIL names the clause. Section D of the
+# script checks those offline: identical shared preamble, plan-file focus, and that the fabricated
+# fixture still carries the evidence for each clause expectations.json says it violates.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; else bad "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; fi
 

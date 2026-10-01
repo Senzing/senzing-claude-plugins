@@ -1,0 +1,251 @@
+{
+  "_comment": "Same shape, five runs, one clause red in one run: mean 0.80 is NOT below the 0.8 threshold, so the case passes -- but the failing clause must still be named by grader and run. A 1-of-5 dissent is exactly the miss that needs a name to be diagnosable; reporting attribution only for below-threshold cases would hide it.",
+  "costUsd": 5.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 1,
+    "overallScore": 0.96
+  },
+  "cases": [
+    {
+      "name": "poc-split-dissent",
+      "aggregates": {
+        "score": 0.96
+      },
+      "graders": [
+        {
+          "name": "judge-no-schedule",
+          "type": "llm"
+        },
+        {
+          "name": "judge-no-metric-threshold",
+          "type": "llm"
+        },
+        {
+          "name": "judge-nothing-after-tbd",
+          "type": "llm"
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used"
+        },
+        {
+          "name": "plan-written",
+          "type": "file_exists"
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": false,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "explanation": "§9 pointer carries '(typically 90-95%)'"
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

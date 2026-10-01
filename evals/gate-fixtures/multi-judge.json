@@ -1,0 +1,169 @@
+{
+  "_comment": "A case with SEVERAL llm graders (poc-planner-grounded split its rubric into one judge-*.md per clause on 2026-10-01). Run #1 fails ONE of three clauses. The run's judge verdict must be boolean (every llm grader passed), so the case mean is 2/3 = 0.67, below 0.8 -- and the output must name WHICH clause failed. Under the old within-run fraction run #1 would score 0.667 and the case 0.89: a run with a red clause clearing the threshold, which is the blend gate.py exists to stop.",
+  "costUsd": 3.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": {
+    "casesTotal": 1,
+    "casesPassed": 1,
+    "overallScore": 0.933
+  },
+  "cases": [
+    {
+      "name": "poc-split",
+      "aggregates": {
+        "score": 0.933
+      },
+      "graders": [
+        {
+          "name": "judge-no-schedule",
+          "type": "llm"
+        },
+        {
+          "name": "judge-no-metric-threshold",
+          "type": "llm"
+        },
+        {
+          "name": "judge-nothing-after-tbd",
+          "type": "llm"
+        },
+        {
+          "name": "skill-fired",
+          "type": "tool_used"
+        },
+        {
+          "name": "plan-written",
+          "type": "file_exists"
+        }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": false,
+                "judgeVotes": [
+                  false,
+                  false,
+                  false
+                ],
+                "explanation": "§8 reads 'Weeks 1-2: install and map' in the plan's own voice"
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          },
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              {
+                "name": "judge-no-schedule",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-no-metric-threshold",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "judge-nothing-after-tbd",
+                "passed": true,
+                "judgeVotes": [
+                  true,
+                  true,
+                  true
+                ]
+              },
+              {
+                "name": "skill-fired",
+                "passed": true
+              },
+              {
+                "name": "plan-written",
+                "passed": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
