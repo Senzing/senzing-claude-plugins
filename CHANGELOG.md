@@ -17,6 +17,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`poc-planner` forbade the shell in the same breath as requiring it.** Rule 8's heading
+  said "One shell command exists, and it is `validate_plan.py`" while its closing sentence
+  still said a single `Bash` call anywhere is a defect — leftover from before the validator
+  landed. The `no-shell-ran` grader carried the same stale contract (`Bash max: 0`), so the
+  case failed deterministically the moment the validator ran.
+
+  Resolved per case rather than by relaxing the assertion: `poc-planner-grounded` writes a
+  plan, so it is now `min: 1, max: 1` — which is **stricter**, because `min: 1` asserts the
+  validator actually ran, something `max: 0` could never do. A plan written without being
+  validated used to score green. `poc-planner-elicits` and `poc-planner-how-long` write no
+  plan and keep `max: 0`.
+
+- **`recipes` could route a user into an install without ever showing them the license
+  agreement.** The skill delegated to `install` ("it surfaces the license agreement"), but
+  nothing required the EULA URL to appear in the reply the user actually reads — so a run
+  that handed off correctly could still end with the agreement never shown. It failed about
+  1 run in 2 against the compliance grader. The requirement is now explicit in the clause:
+  state the URL before anything installs; delegating does not discharge it.
+
 - **`Skill` is scoped to the hand-offs each skill actually makes** (`Allowed tools skill any`,
   8 skills). `doctor` is the near-universal one; `install` follows from `demo`/`doctor`/`analyze`/
   `recipes`, and `analyze` from `demo`/`report`. Pre-approving *any* skill was broader than
