@@ -204,6 +204,34 @@ if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (survivi
 # named wrong, and a prompt premise the sandbox contradicts.
 if python3 scripts/check-skill-hazards.py; then ok "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; else bad "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; fi
 
+echo; echo "== 8b. validate_plan.py accepts the correct plan and rejects the fabricated one =="
+# The validator gates what poc-planner hands the user, and until now nothing exercised it.
+# The two plan fixtures already exist, so this is the cheap end of the coverage a reviewer
+# asked for: it would have caught a validator that accepts everything (or nothing).
+VP=plugins/senzing/skills/poc-planner/validate_plan.py
+VP_OK=evals/poc-planner-grounded/grader-fixtures/plans/correct-plan.md
+VP_BAD=evals/poc-planner-grounded/grader-fixtures/plans/fabricated-plan.md
+if python3 "$VP" "$VP_OK" >/dev/null 2>&1; then
+  ok "validate_plan.py accepts correct-plan.md (exit 0)"
+else
+  bad "validate_plan.py REJECTS correct-plan.md — a validator that fails correct input is worse than none"
+fi
+if python3 "$VP" "$VP_BAD" >/dev/null 2>&1; then
+  bad "validate_plan.py ACCEPTS fabricated-plan.md — the check cannot fail, so it asserts nothing"
+else
+  ok "validate_plan.py rejects fabricated-plan.md (exit 1)"
+fi
+# It must also name the nested-TBD omission by path, not just fail for some other reason:
+# that omission was 5 of 10 failures in the run that motivated the validator.
+# Capture first: this script runs under `set -o pipefail`, so piping a command that
+# exits 1 (which this one must) into grep fails the pipeline even when grep matches.
+VP_OUT="$(python3 "$VP" "$VP_BAD" 2>&1 || true)"
+if printf '%s' "$VP_OUT" | grep -q "open_decisions does not list"; then
+  ok "validate_plan.py names the missing §9 entry (the omission it exists to catch)"
+else
+  bad "validate_plan.py rejects fabricated-plan.md but not for the §9 omission — check the reason, not just the exit code"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

@@ -38,13 +38,6 @@ license terms here or from memory — call the tool named in each step and cite 
 
 ## The rules that make this skill honest
 
-1. **The shell is for ONE thing: validating the plan you wrote.** This skill plans; it runs
-   nothing of the user's and installs nothing. Your tools are Read, Write and the Senzing MCP,
-   plus exactly one Bash command — `validate_plan.py` in step 8. A session may grant Bash for
-   other skills; that is not an invitation to use it for anything else. Probing the host,
-   inspecting their data, checking whether a tool exists: none of that belongs here, and
-   running it means the plan was built from something other than the user's words and the
-   tools' answers.
 1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt, no
    durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
    "planner" that invents one has fabricated the most consequential part of the document. The
@@ -158,7 +151,11 @@ license terms here or from memory — call the tool named in each step and cite 
    and counts go into tool calls and into the plan. If the user points at files, `Read` the
    header row only — never a data row. Record people as roles or teams ("the CRM team"), not
    names, unless the user asks for names in the plan. Nothing record-shaped goes to a hosted tool.
-8. **One shell command exists, and it is `validate_plan.py`.** Nothing else: no probing, no
+8. **One shell command exists, and it is `validate_plan.py`.** This skill plans; it runs
+   nothing of the user's and installs nothing. Your tools are Read, Write and the Senzing MCP,
+   plus that one command in step 8 — which you run as many times as the repair loop needs. A
+   session may grant Bash for other skills; that is not an invitation to use it here. Nothing
+   else: no probing, no
    profiling, no counting records, no `ls`. Wanting a command for any other reason — to profile
    a file, probe the host, count records — means you are in `analyze`'s or `doctor`'s job: write
    the hand-off into the plan and stop.
@@ -173,10 +170,11 @@ license terms here or from memory — call the tool named in each step and cite 
    Checking your own work by hand is not an exception; it is where the temptation is
    strongest, because the command looks harmless and the output is your own. Nothing about
    this skill — checking a path, reading a header row, confirming a write landed — needs a
-   shell. The ONE sanctioned call is `validate_plan.py`, and it exists precisely so that
+   shell. The ONE sanctioned command is `validate_plan.py`, and it exists precisely so that
    checking your own work does not become a license to run `ls` and `grep`: run the
-   validator, read its output, fix what it names. A second `Bash` call anywhere in the run
-   is a defect even when its output is harmless.
+   validator, read its output, fix what it names, run it again. **Re-running the validator is
+   never the defect — running anything else is.** Any `Bash` call other than
+   `validate_plan.py` is a defect even when its output is harmless.
 
 ## Procedure
 

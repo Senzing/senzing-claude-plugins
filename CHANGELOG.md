@@ -34,6 +34,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`validate_plan.py` is now exercised by `check.sh`.** It gated what the skill hands the
+  user while nothing tested it. Three offline assertions: it accepts `correct-plan.md`, it
+  rejects `fabricated-plan.md`, and it rejects it *for the §9 omission specifically* — the
+  nested-TBD miss that was 5 of 10 failures in the run that motivated the validator. Checking
+  the reason and not just the exit code is the point: a validator that fails for the wrong
+  reason looks identical to one that works.
+
+- **Rule 8 no longer contradicts its own repair loop, and the rules are numbered once.** A
+  new shell rule had been inserted as a second `1.`, so CommonMark renumbered every later rule
+  and the "rule 4 / 4c / 6 / 8" cross-references — cited by the skill, the graders and the
+  judge clauses — all pointed one rule off. Its substance is folded into rule 8, which already
+  owned the shell, restoring 1-8. Rule 8's closing sentence still read "a second `Bash` call
+  anywhere in the run is a defect" while step 8 mandates running the validator again after a
+  fix; it now says any call *other than* `validate_plan.py`.
+
 - **`poc-planner` forbade the shell in the same breath as requiring it.** Rule 8's heading
   said "One shell command exists, and it is `validate_plan.py`" while its closing sentence
   still said a single `Bash` call anywhere is a defect — leftover from before the validator

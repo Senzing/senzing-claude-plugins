@@ -1,7 +1,7 @@
 ---
 type: tool_used
 tool: Bash
-input_match: '(^|[;&|]\s*)(ls|grep)\s'
+input_match: '(^|[;&|]\s*)(ls|grep|rg|cat|wc|find|head|tail|test|stat|file)\b'
 max: 0
 ---
 
