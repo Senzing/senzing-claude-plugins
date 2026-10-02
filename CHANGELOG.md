@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- Version tracks MCP server **1.37.18** (eval-license bundle leak, 2 HIGH libssl CVEs,
+  the `sdk_guide` double license route, `get_sample_data` calling the synthetic truth
+  set real data, and the evaluation-license CTA that had never once attached in
+  production). `plugin.json` must equal the live agent-card version — CI enforces
+  strict equality — so this bump lands only after the server deploy is verified.
+
 ### Fixed
 
 - **`Skill` is scoped to the hand-offs each skill actually makes** (`Allowed tools skill any`,
