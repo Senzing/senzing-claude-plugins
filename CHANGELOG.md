@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.19] - 2026-10-02
+
+### Changed
+
+- Version tracks MCP server **1.37.19**, whose `sdk_guide` fix is the server half of the
+  `recipes` cook-offer defect below. Verified live from the endpoint before this bump:
+  `sdk_guide(topic=install, platform=docker)` returns the gated wording and zero occurrences
+  of the old unconditional offer. CI enforces strict equality against the live agent card.
+
 ### Fixed
 
 - **`recipes` offered part of the cook on a host that cannot cook — half the time.** On
