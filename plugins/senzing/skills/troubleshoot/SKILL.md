@@ -10,7 +10,7 @@ description: >
   be environmental (SDK, database, license, config), hands off to doctor. Not for "is my setup
   OK?" with no error in hand (use doctor).
 argument-hint: "[error-code-or-message]"
-allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill(senzing:doctor), mcp__plugin_senzing_senzing__*
 ---
 
 # Troubleshoot a Senzing error

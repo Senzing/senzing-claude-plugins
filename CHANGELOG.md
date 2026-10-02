@@ -6,6 +6,120 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.18] - 2026-10-02
+
+### Changed
+- Version tracks MCP server **1.37.18** (eval-license bundle leak, 2 HIGH libssl CVEs,
+  the `sdk_guide` double license route, `get_sample_data` calling the synthetic truth
+  set real data, and the evaluation-license CTA that had never once attached in
+  production). `plugin.json` must equal the live agent-card version — CI enforces
+  strict equality — so this bump lands only after the server deploy is verified.
+
+- **`poc-planner-grounded`'s judge is twelve attributable graders, not one.** Its `criteria.md`
+  carried ten numbered clauses judged over a ~20k-character plan and failed 5 of 10, then 6 of 10
+  runs — four of them unanimous 3-0 — as a single `FAIL` for all ten clauses at once, so each
+  diagnosis cost a manual re-judge and no fix could be verified without re-running the case. Each
+  clause is now its own `type: llm` grader (`graders/judge-*.md`), text carried verbatim with the
+  numeric cross-references resolved, every file repeating the shared "How to judge" preamble on
+  purpose (the quoted-with-source exemption is what keeps a correct plan from failing). The
+  "Did we use Senzing?" sourcing paragraph and the catch-all's "no match / entity count /
+  resolution outcome" obligation, which belonged to no numbered clause, are graders of their own.
+  No obligation was dropped or softened. `gate.py` now scores a run's judge verdict as *every*
+  llm grader passed — not the fraction, which would have let a run with two red clauses score
+  0.83 and clear the threshold — and names each failing grader and run; two gate fixtures pin
+  that. `check-poc-graders.py` section D asserts offline that the twelve carry an identical
+  preamble and that `expectations.json`'s `judge_must_fail` evidence (nine clauses the
+  fabricated fixture violates, up from one unnamed verdict) is still in the fixture. No
+  `tool_used`/`tool_order`/`file_exists` grader, `min:`/`max:` or threshold changed.
+
+### Fixed
+
+- **A grader that bounded a count without `min` failed every run, clean ones included.**
+  `no-unsanctioned-shell` declared `max: 0` and omitted `min`, so the harness defaulted
+  `min` to 1 and evaluated the range `1..0` — which nothing can satisfy. It reported
+  "Bash called 0x (expected 1..0)", indistinguishable from a real defect until you read
+  the range closely. `check.sh` section 8c now fails any grader that declares `max`
+  without `min`, proved by two controls that run before the real scan: a synthesized grader
+  with `max:` and no `min:` that the detector must flag, and one with both bounds whose *body*
+  opens a line with `max:` that it must not. A scan that finds nothing is indistinguishable
+  from a scan that cannot find anything, which is the whole subject of this release.
+
+- **`poc-planner` ships `validate_plan.py`, and `check.sh` exercises it.** The script is new
+  here: step 8 now runs it over the plan the skill just wrote and fixes what it names until it
+  prints `plan is well formed`, so the structure every downstream skill reads is checked before
+  the user sees it rather than after. Because it gates what the skill hands over, it is tested
+  offline rather than only through a $6-17 eval run. Three assertions: it accepts `correct-plan.md`, it
+  rejects `fabricated-plan.md`, and it rejects it *for the §9 omission specifically* — the
+  nested-TBD miss that was 5 of 10 failures in the run that motivated the validator. Checking
+  the reason and not just the exit code is the point: a validator that fails for the wrong
+  reason looks identical to one that works.
+
+- **`validate_plan.py` no longer prints an unqualified "plan is well formed" after skipping a
+  check.** PyYAML absent means the yaml blocks are not parse-checked; the notice said so, then
+  the verdict line spoke over it with the exact sentence `SKILL.md` step 8 tells the model to
+  stop on. It now reads "plan is well formed for every check that ran" in that case. The phrase
+  stays a prefix on purpose — step 8 and the `validator-ran` grader both match it as a
+  substring, so changing it outright would leave the model looping forever on a host without
+  PyYAML.
+
+- **Retrieved figures may not go in a table.** `poc-planner` rule 4 requires every Senzing
+  figure to carry its quotation and source on the same line, and a table cell has no room for
+  either — so a sizing table (`| Database IOPS per record | 100-200 IOPS |`) silently strips the
+  attribution and republishes Senzing's number as the plan's own recommendation, which is the
+  one thing §6 exists to prevent. A citation above the table does not reach its rows. Those
+  figures are now required as prose.
+
+- **Rule 8 no longer contradicts its own repair loop, and the rules are numbered once.** A
+  new shell rule had been inserted as a second `1.`, so CommonMark renumbered every later rule
+  and the "rule 4 / 4c / 6 / 8" cross-references — cited by the skill, the graders and the
+  judge clauses — all pointed one rule off. Its substance is folded into rule 8, which already
+  owned the shell, restoring 1-8. Rule 8's closing sentence still read "a second `Bash` call
+  anywhere in the run is a defect" while step 8 mandates running the validator again after a
+  fix; it now says any call *other than* `validate_plan.py`.
+
+- **`poc-planner` forbade the shell in the same breath as requiring it.** Rule 8's heading
+  said "One shell command exists, and it is `validate_plan.py`" while its closing sentence
+  still said a single `Bash` call anywhere is a defect — leftover from before the validator
+  landed. The `no-shell-ran` grader carried the same stale contract (`Bash max: 0`), so the
+  case failed deterministically the moment the validator ran.
+
+  Resolved per case, and by naming the command rather than counting calls. The count was
+  never the contract: step 8 mandates a repair loop — validate, fix what it names, validate
+  again — so a correct run that fixed one nested TBD makes two `Bash` calls. A first attempt
+  at `min: 1, max: 1` failed exactly those runs, forbidding the loop the same step requires.
+
+  `poc-planner-grounded` now asserts `input_match: 'validate_plan\.py'` with `min: 1` — the
+  validator must run, and the loop may run as many rounds as the plan needs. A companion
+  grader forbids the two reflexes rule 8 names by name (`ls` and `grep` on the model's own
+  output), which is what `max: 0` was really protecting and what a count only approximated.
+  `poc-planner-elicits` and `poc-planner-how-long` write no plan, so they keep a plain
+  `max: 0`.
+
+- **`recipes` could route a user into an install without ever showing them the license
+  agreement.** The skill delegated to `install` ("it surfaces the license agreement"), but
+  nothing required the EULA URL to appear in the reply the user actually reads — so a run
+  that handed off correctly could still end with the agreement never shown. It failed about
+  1 run in 2 against the compliance grader. The requirement is now explicit in the clause:
+  state the URL before anything installs; delegating does not discharge it.
+
+- **`Skill` is scoped to the hand-offs each skill actually makes** (`Allowed tools skill any`,
+  8 skills). `doctor` is the near-universal one; `install` follows from `demo`/`doctor`/`analyze`/
+  `recipes`, and `analyze` from `demo`/`report`. Pre-approving *any* skill was broader than
+  anything these skills do. Erring slightly wide is safe by construction: an unlisted hand-off
+  costs a permission prompt, never a failure.
+- **`poc-planner` no longer pre-approves `Write`** (`Allowed tools unscoped write`). It was the
+  one skill still carrying it, missed when the other seven were done in `1.37.13-3` because it
+  was not in that round's finding list. Writing the plan file now prompts, which is the right
+  shape for the single deliberate write a planning run makes.
+- **`/senzing:demo` told users that Senzing's synthetic truth set was real data.** The skill
+  defaults to `truthset` when no dataset is named — it is the smallest — and then instructed:
+  *"Describe the data honestly: it is **real data** for evaluation (tell the user so, as the
+  tool requires)."* That was true of the three CORD collections and false of the default. The
+  same claim was fixed server-side in MCP 1.37.18, where the real-data caveat is now scoped to
+  `las-vegas`, `london` and `moscow` and `truthset` carries a synthetic provenance note; the
+  skill now takes the dataset's nature from the tool's own citation rather than asserting it
+  from this file, which is what the surrounding instructions already told it to do.
+
 ## [1.37.16] - 2026-09-29
 
 ### Changed

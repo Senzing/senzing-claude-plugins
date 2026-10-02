@@ -7,7 +7,7 @@ description: >
   Senzing", or when doctor, demo or analyze finds no Senzing present. Not for checking an install
   that already exists (use doctor).
 argument-hint: "[platform] [language]"
-allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill(senzing:doctor), mcp__plugin_senzing_senzing__*
 ---
 
 # Install Senzing

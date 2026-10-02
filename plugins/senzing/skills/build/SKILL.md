@@ -12,7 +12,7 @@ description: >
   wrong. Not for answering a question about the SDK when no code is wanted (use ask), dashboards
   over already-loaded data (use report), or resolving data files (use analyze).
 argument-hint: "[language] [workflow]"
-allowed-tools: Read, Skill, mcp__plugin_senzing_senzing__*
+allowed-tools: Read, Skill(senzing:doctor), mcp__plugin_senzing_senzing__*
 ---
 
 # Build a Senzing SDK integration

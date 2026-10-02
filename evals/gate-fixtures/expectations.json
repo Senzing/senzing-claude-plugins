@@ -18,7 +18,9 @@
         "masked-by-the-judge/skill-fired",
         "DETERMINISTIC gate: 1 assertion(s) failed"
       ],
-      "must_not_contain": ["pass\n"]
+      "must_not_contain": [
+        "pass\n"
+      ]
     },
     {
       "name": "a deterministic grader that passes one run and fails the other is a failure",
@@ -40,7 +42,9 @@
         "judge-dissents  judge failed 1 of 1 run(s) (#0)",
         "reported, not gating"
       ],
-      "must_not_contain": ["DETERMINISTIC gate: "]
+      "must_not_contain": [
+        "DETERMINISTIC gate: "
+      ]
     },
     {
       "name": "--enforce-judge turns the same dissent into a hard failure with its own exit code",
@@ -48,7 +52,10 @@
       "expected_cases": 1,
       "enforce_judge": true,
       "rc": 3,
-      "must_contain": ["FAIL (judge)", "enforced"]
+      "must_contain": [
+        "FAIL (judge)",
+        "enforced"
+      ]
     },
     {
       "name": "both gates clean passes, and tool_order counts as deterministic",
@@ -64,7 +71,9 @@
       "fixture": "all-clean.json",
       "expected_cases": 2,
       "rc": 2,
-      "must_contain": ["only 1 of 2 cases were discovered"]
+      "must_contain": [
+        "only 1 of 2 cases were discovered"
+      ]
     },
     {
       "name": "a run that errored before grading may not pass vacuously",
@@ -81,7 +90,9 @@
       "fixture": "partial-run.json",
       "expected_cases": 1,
       "rc": 2,
-      "must_contain": ["partial run: max cost reached"]
+      "must_contain": [
+        "partial run: max cost reached"
+      ]
     },
     {
       "name": "the real-Senzing case the CLI blended to 0.889 and passed is a deterministic failure here",
@@ -105,7 +116,9 @@
         "--keep-temp",
         "structural: no session traces readable"
       ],
-      "must_not_contain": ["DETERMINISTIC gate: "]
+      "must_not_contain": [
+        "DETERMINISTIC gate: "
+      ]
     },
     {
       "name": "structural + deterministic together report the HIGHEST code (2), not the last one set",
@@ -115,7 +128,7 @@
       "must_contain": [
         "had a run that errored before grading",
         "DETERMINISTIC gate: 1 assertion(s) failed",
-        "gate verdict: exit 2 \u2014 [1] deterministic assertion failed; [2] structural: a run errored before grading"
+        "gate verdict: exit 2 — [1] deterministic assertion failed; [2] structural: a run errored before grading"
       ]
     },
     {
@@ -128,17 +141,65 @@
         "NOT MEASURED blind-and-good",
         "DETERMINISTIC gate  1/1 cases clean"
       ],
-      "must_not_contain": ["DETERMINISTIC gate: ", "blind-and-good/skill-fired"]
+      "must_not_contain": [
+        "DETERMINISTIC gate: ",
+        "blind-and-good/skill-fired"
+      ]
     },
     {
       "name": "a handshake race (pending at init, then used the MCP) is a notice, not a structural failure",
       "fixture": "mcp-raced.json",
       "expected_cases": 1,
       "rc": 0,
-      "must_contain": ["handshake race, not a defect"],
+      "must_contain": [
+        "handshake race, not a defect"
+      ],
       "must_not_contain": [
         "structural: session had no Senzing MCP",
         "NOT MEASURED"
+      ]
+    },
+    {
+      "name": "several llm graders in one case: a run's judge verdict is every-clause-passed, and the failing clause is named",
+      "fixture": "multi-judge.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "must_contain": [
+        "JUDGE score         mean 0.67 over 1 case(s)",
+        "poc-split  judge failed 1 of 3 run(s) (#1)",
+        "poc-split/judge-no-schedule  failed 1 of 3 run(s) (#1): §8 reads 'Weeks 1-2",
+        "pass · judge below threshold"
+      ],
+      "must_not_contain": [
+        "poc-split/judge-no-metric-threshold",
+        "poc-split/judge-nothing-after-tbd",
+        "mean 0.89"
+      ]
+    },
+    {
+      "name": "--enforce-judge fails the multi-grader case on one red clause, exit 3",
+      "fixture": "multi-judge.json",
+      "expected_cases": 1,
+      "enforce_judge": true,
+      "rc": 3,
+      "must_contain": [
+        "FAIL (judge)",
+        "poc-split/judge-no-schedule  failed 1 of 3 run(s) (#1)"
+      ]
+    },
+    {
+      "name": "a 1-of-5 judge dissent above the threshold still names the clause and the run",
+      "fixture": "multi-judge-dissent.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "must_contain": [
+        "poc-split-dissent  judge failed 1 of 5 run(s) (#3)",
+        "poc-split-dissent/judge-nothing-after-tbd  failed 1 of 5 run(s) (#3)",
+        "2/2 ok    0.80  pass\n"
+      ],
+      "must_not_contain": [
+        "judge below threshold",
+        "poc-split-dissent/judge-no-schedule"
       ]
     }
   ]

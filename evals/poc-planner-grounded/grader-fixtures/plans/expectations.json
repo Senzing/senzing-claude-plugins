@@ -1,11 +1,58 @@
 {
-  "_comment": "Offline expectations for scripts/check-poc-graders.py. correct-plan.md quotes every corpus fixture verbatim (FAQ 'Phase 1/2/3', quality '>80%', DBA, 'mock up specific test cases', all three license paths) and must pass every file-targeted grader; fabricated-plan.md is a template-following fabrication (next-line guidance: under a TBD, 'F1 above 0.95', interpolated sizing 'should be a comfortable starting point', 'Weeks 1-2', a sponsor role, a synthetic truth set offer, and a bare `target: TBD` with no owner) and must trip at least the graders listed. Since 2026-09-29 the content prohibitions (thresholds, durations, phase labels, schedule words, roles, hardware recommendations, extra SC-n keys, non-TBD targets) are judge clauses in criteria.md, so the only deterministic grader the fabrication can still trip is the TBD-literal form check; the fabricated plan's other defects are documented there for the judge, not asserted here. correct-plan.md keeps its QUOTE-EXEMPTION COVERAGE block as the worked example of what a correct plan may quote.",
+  "_comment": "Offline expectations for scripts/check-poc-graders.py. correct-plan.md quotes every corpus fixture verbatim (FAQ 'Phase 1/2/3', quality '>80%', DBA, 'mock up specific test cases', all three license paths) and must pass every file-targeted regex grader; fabricated-plan.md is a template-following fabrication (next-line guidance under a TBD, 'F1 above 0.95', interpolated sizing 'should be a comfortable starting point', 'Weeks 1-2', a sponsor role, a synthetic truth set offer, and a bare `target: TBD` with no owner). `must_fail` names the deterministic (regex) graders the fabrication must trip -- since 2026-09-29 the content prohibitions are judge clauses, so only the TBD-literal form check is left there. `judge_must_fail` names the SPECIFIC llm clause graders (one per clause since 2026-10-01, formerly one criteria.md) the fabrication violates, each with the literal evidence in fabricated-plan.md that violates it; the judge cannot run offline, so section D asserts instead that each named grader exists as `type: llm` on the plan file, that the evidence is still in the fabricated fixture and absent from the correct one (so the fixture keeps exercising the clause it documents), and that every judge-*.md carries the identical shared preamble. `missing` is the inverse: a string the correct plan carries and the fabrication lacks. correct-plan.md keeps its QUOTE-EXEMPTION COVERAGE block as the worked example of what a correct plan may quote.",
   "correct-plan.md": {
     "must_pass": "all"
   },
   "fabricated-plan.md": {
     "must_fail": [
       "tbd-only-in-literal-form"
+    ],
+    "judge_must_fail": [
+      {
+        "grader": "judge-constraints-are-the-users",
+        "evidence": "project sponsor: the VP",
+        "why": "a §2 value that is neither the user's fact nor the TBD literal — an invented team member in a double-quoted scalar with no source"
+      },
+      {
+        "grader": "judge-sc-items-template-only",
+        "evidence": "guidance: comparable ER evaluations",
+        "why": "an eighth key under SC-1; SC-2's target 'F1 above 0.95 is a common bar' is a bar in a target"
+      },
+      {
+        "grader": "judge-no-metric-threshold",
+        "evidence": "F1 above 0.95",
+        "why": "a metric threshold in the plan's own voice, uncited"
+      },
+      {
+        "grader": "judge-no-hardware-verdict",
+        "evidence": "should be a comfortable starting point",
+        "why": "interpolation on quoted FAQ rows ('sits between those rows, so a 16-core, 32 GB VM…')"
+      },
+      {
+        "grader": "judge-no-schedule",
+        "evidence": "Weeks 1–2",
+        "why": "week numbering, a 'kick-off meeting' and 'Allow roughly two weeks' in §8"
+      },
+      {
+        "grader": "judge-no-invented-role",
+        "evidence": "the project sponsor",
+        "why": "a role title the user never used, in the plan's own voice (§2 people, §8)"
+      },
+      {
+        "grader": "judge-nothing-after-tbd",
+        "evidence": "(typically the current batch window)",
+        "why": "a 'typically' hint after a TBD; also a `guidance:` line indented under SC-1's TBD target"
+      },
+      {
+        "grader": "judge-truth-set-warning-labelled",
+        "evidence": "generate a synthetic truth set",
+        "why": "offers to generate a labelled truth set, and carries no (plugin rule) warning"
+      },
+      {
+        "grader": "judge-open-decisions-complete",
+        "missing": "data platform lead: performance_required",
+        "why": "§9 open_decisions lists two items while throughput, latency, watchlist owner/entity_types and SC-1/SC-3 measured_against are TBD"
+      }
     ]
   }
 }

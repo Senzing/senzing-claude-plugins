@@ -192,7 +192,10 @@ echo; echo "== 8. poc-planner graders vs the corpus they must quote (offline fix
 # "Phase 1/2/3", reporting_guide ">80%", ...), plus a correct and a fabricated plan fixture. A hit
 # on quoted corpus text is a false-fail that would burn a paid eval run; a fabricated plan the
 # graders pass is a grader that does nothing. Content prohibitions (thresholds, schedules, roles)
-# are judge clauses in criteria.md since 2026-09-29, not regexes — see check-grader-parity.py.
+# are judge clauses since 2026-09-29, not regexes — one `judge-*.md` llm grader per clause since
+# 2026-10-01 (formerly a single criteria.md), so a judge FAIL names the clause. Section D of the
+# script checks those offline: identical shared preamble, plan-file focus, and that the fabricated
+# fixture still carries the evidence for each clause expectations.json says it violates.
 if python3 scripts/check-poc-graders.py; then ok "poc-planner grader fixture check"; else bad "poc-planner grader fixture check"; fi
 if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; else bad "grader/skill parity (surviving regexes pin a spelling; no regex bans vocabulary)"; fi
 
@@ -200,6 +203,109 @@ if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (survivi
 # an invalid template, a substitution ban the router never sees, a fetch host
 # named wrong, and a prompt premise the sandbox contradicts.
 if python3 scripts/check-skill-hazards.py; then ok "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; else bad "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; fi
+
+echo; echo "== 8b. validate_plan.py accepts the correct plan and rejects the fabricated one =="
+# The validator gates what poc-planner hands the user, and until now nothing exercised it.
+# The two plan fixtures already exist, so this is the cheap end of the coverage a reviewer
+# asked for: it would have caught a validator that accepts everything (or nothing).
+VP=plugins/senzing/skills/poc-planner/validate_plan.py
+VP_OK=evals/poc-planner-grounded/grader-fixtures/plans/correct-plan.md
+VP_BAD=evals/poc-planner-grounded/grader-fixtures/plans/fabricated-plan.md
+if python3 "$VP" "$VP_OK" >/dev/null 2>&1; then
+  ok "validate_plan.py accepts correct-plan.md (exit 0)"
+else
+  bad "validate_plan.py REJECTS correct-plan.md — a validator that fails correct input is worse than none"
+fi
+if python3 "$VP" "$VP_BAD" >/dev/null 2>&1; then
+  bad "validate_plan.py ACCEPTS fabricated-plan.md — the check cannot fail, so it asserts nothing"
+else
+  ok "validate_plan.py rejects fabricated-plan.md (exit 1)"
+fi
+# It must also name the nested-TBD omission by path, not just fail for some other reason:
+# that omission was 5 of 10 failures in the run that motivated the validator.
+# Capture first: this script runs under `set -o pipefail`, so piping a command that
+# exits 1 (which this one must) into grep fails the pipeline even when grep matches.
+VP_OUT="$(python3 "$VP" "$VP_BAD" 2>&1 || true)"
+if printf '%s' "$VP_OUT" | grep -q "open_decisions does not list"; then
+  ok "validate_plan.py names the missing §9 entry (the omission it exists to catch)"
+else
+  bad "validate_plan.py rejects fabricated-plan.md but not for the §9 omission — check the reason, not just the exit code"
+fi
+
+echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
+# A tool_used grader that sets `max: 0` and omits `min` gets min defaulted to 1, so the
+# harness evaluates the range 1..0 — which NOTHING can satisfy. It fails every run,
+# including clean ones, with "Bash called 0x (expected 1..0)". That is indistinguishable
+# from a real defect until you read the range closely. `min: 0` is not optional.
+# The detector, as ONE function, so the controls below exercise the same code the real
+# scan uses -- not a second copy of it that could agree while the real one is broken.
+#
+# Frontmatter ONLY. `sed -n '/^---$/,/^---$/p'` reopens the range on any later `---` in
+# the body -- these grader files use horizontal rules -- so it scanned prose for `max:`
+# too, and a grader whose body opened a line with `max:` would be reported as "declares
+# max without min" when its frontmatter declares neither. Stop at the first closing `---`.
+declares_max_without_min() {
+  fm=$(awk 'NR==1{next} /^---$/{exit} {print}' "$1" 2>/dev/null)
+  printf '%s' "$fm" | grep -q "^max:" && ! printf '%s' "$fm" | grep -q "^min:"
+}
+
+# Controls FIRST. A scan that finds nothing is indistinguishable from a scan that cannot
+# find anything, and this check shipped in a release about gates that claim a success they
+# did not verify -- so prove it fires before trusting that it found nothing.
+ctl=$(mktemp -d)
+cat > "$ctl/positive.md" <<'FIXTURE'
+---
+type: tool_used
+tool: Bash
+max: 0
+---
+
+# Body
+
+---
+
+max: this line is prose, not frontmatter
+FIXTURE
+cat > "$ctl/negative.md" <<'FIXTURE'
+---
+type: tool_used
+tool: Bash
+min: 0
+max: 0
+---
+
+# Body
+
+---
+
+max: this line is prose, not frontmatter
+FIXTURE
+
+if declares_max_without_min "$ctl/positive.md"; then
+  ok "positive control: the detector flags max-without-min"
+else
+  bad "positive control FAILED — the detector does not catch max-without-min, so a clean scan proves nothing"
+fi
+# This control is the one the old sed got wrong: the body's `max:` line must not be read.
+if declares_max_without_min "$ctl/negative.md"; then
+  bad "negative control FAILED — a body line starting 'max:' was read as frontmatter (the sed range bug)"
+else
+  ok "negative control: a body line starting 'max:' is not mistaken for frontmatter"
+fi
+rm -rf "$ctl"
+
+bad_range=0
+for f in evals/*/graders/*.md; do
+  if declares_max_without_min "$f"; then
+    echo "     $f declares max: without min:"
+    bad_range=1
+  fi
+done
+if [ "$bad_range" = "0" ]; then
+  ok "every grader that bounds a count declares both min and max"
+else
+  bad "a grader declares max without min — the harness defaults min to 1, making the range unsatisfiable"
+fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
