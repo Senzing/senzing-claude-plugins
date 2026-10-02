@@ -1,25 +1,33 @@
 ---
 type: tool_used
 tool: Bash
+input_match: 'validate_plan\.py'
 min: 1
-max: 1
 ---
 
-# Grader: exactly one shell call, and it is the validator
+# Grader: the plan was validated before the user got it
 
-This case writes a plan, so step 8 runs `validate_plan.py` on it — one `Bash`
-call, by design. Every other shell use is still a defect: probing the host,
-`ls`-ing the plan file, `grep`-ing the model's own output. Rule 8 of the skill
-names those three by name because they are the ones that keep happening.
+This case writes a plan, and step 8 requires running `validate_plan.py` on it and
+**fixing what it names until it prints `plan is well formed`**. So this asserts the
+validator actually ran — the half that matters, and the half the old grader could
+never express.
 
-**This was `max: 0` and had to change, because the skill changed under it.**
-The validator landed (haiku produced 4/4 structurally valid plans with it,
-against sonnet's 2/10 without), and a grader asserting zero shell calls then
-contradicted the skill it was grading. `min: 1` is the half that matters: it
-asserts the validator actually *ran*, which `max: 0` never could. A plan written
-without being validated is the failure this case exists to catch, and it would
-previously have scored green.
+**History, because this grader has been wrong twice in one day.**
 
-The sibling cases `poc-planner-elicits` and `poc-planner-how-long` keep `max: 0`:
-neither writes a plan, so neither has anything to validate, and a shell call in
-those runs is the old defect with no new exception.
+It was `max: 0` ("this skill never needs a shell"), written before the validator
+existed. When the validator landed, `max: 0` contradicted the skill it graded and
+the case failed deterministically.
+
+It was then `min: 1, max: 1` — which still forbade the repair loop the same step
+mandates. A run that validated, fixed a nested TBD, and re-validated makes two
+calls and is **correct**; the grader failed it. That is the bug this version fixes:
+the count was never the contract.
+
+`input_match` is the contract. It names the command rather than counting calls, so
+the loop may run as many rounds as the plan needs while the assertion stays exact.
+The companion grader `no-unsanctioned-shell.md` forbids the two reflexes rule 8
+names by name, which is what `max: 0` was really protecting and what a count bound
+only ever approximated.
+
+The sibling cases `poc-planner-elicits` and `poc-planner-how-long` write no plan, so
+they have nothing to validate and correctly keep a plain `max: 0`.

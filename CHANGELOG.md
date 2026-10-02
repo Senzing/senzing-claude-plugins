@@ -23,11 +23,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   landed. The `no-shell-ran` grader carried the same stale contract (`Bash max: 0`), so the
   case failed deterministically the moment the validator ran.
 
-  Resolved per case rather than by relaxing the assertion: `poc-planner-grounded` writes a
-  plan, so it is now `min: 1, max: 1` — which is **stricter**, because `min: 1` asserts the
-  validator actually ran, something `max: 0` could never do. A plan written without being
-  validated used to score green. `poc-planner-elicits` and `poc-planner-how-long` write no
-  plan and keep `max: 0`.
+  Resolved per case, and by naming the command rather than counting calls. The count was
+  never the contract: step 8 mandates a repair loop — validate, fix what it names, validate
+  again — so a correct run that fixed one nested TBD makes two `Bash` calls. A first attempt
+  at `min: 1, max: 1` failed exactly those runs, forbidding the loop the same step requires.
+
+  `poc-planner-grounded` now asserts `input_match: 'validate_plan\.py'` with `min: 1` — the
+  validator must run, and the loop may run as many rounds as the plan needs. A companion
+  grader forbids the two reflexes rule 8 names by name (`ls` and `grep` on the model's own
+  output), which is what `max: 0` was really protecting and what a count only approximated.
+  `poc-planner-elicits` and `poc-planner-how-long` write no plan, so they keep a plain
+  `max: 0`.
 
 - **`recipes` could route a user into an install without ever showing them the license
   agreement.** The skill delegated to `install` ("it surfaces the license agreement"), but
