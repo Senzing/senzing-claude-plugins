@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '(sampl\w*|load\w*|us\w*)\s+(just|only)\s+\d[\d,]*\s+(of\s+(your|their|the)\s+)?records|when we (get|move) to the \w+ step|have it ready to (attach|drop)'
+pattern: '\bsampl\w*\s+(just|only)\s+\d[\d,]*\s+records|\b(just|only)\s+\d[\d,]*\s+of\s+(your|their)\s+records|\bwhen we (get|move) to the \w+ step|\bhave it ready to (attach|drop)'
 match: not_contains
 flags: i
 target: last_message
@@ -32,6 +32,20 @@ A boolean obligation the suite honours half the time is a defect, not a 0.5 — 
 carries no reasoning in the artifact (`explanation` is literally `"judge votes: FAIL FAIL FAIL"`),
 so it cannot be gated on. The known surface forms are matchable, so they are matched here and
 gate deterministically. The judge clause stays for novel phrasings this pattern does not know.
+
+## What separates an offer from a statement of fact
+
+The skill REQUIRES describing what the recipe needs, so "the unlicensed tier will load only 500
+records" must stay clean while "I could load only 500 of your records" must not. A verb list
+alone cannot tell them apart -- an earlier revision of this pattern keyed on a list of
+stemmed verbs and got BOTH wrong: it flagged that factual sentence, and it MISSED the
+server's own wording, "continue with just 500 of their records as a sample", because the word
+before `just` is "with". A grader that cannot match the text it exists to catch is worse than
+no grader.
+
+The discriminator is possession. An offer either uses an offer verb outright (`sample just N
+records`) or speaks of **your/their** records -- it is about the user's data. A statement about
+the product's cap does neither. Hence two alternatives, not a verb list.
 
 ## The pattern was fitted to real traces, not invented
 

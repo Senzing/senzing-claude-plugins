@@ -346,6 +346,59 @@ else
   bad "a regex grader declares min:/max: - the harness will refuse to load its ENTIRE case"
 fi
 
+echo; echo "== 8e. no-cook-offered's pattern actually does what its doc claims =="
+# The grader's claim -- catches the cook offer, leaves the REQUIRED description of what
+# the recipe needs alone -- was prose until 2026-10-02, and prose does not run. An earlier
+# revision of the pattern both MISSED the server's own wording ("continue with just 500 of
+# their records", where the word before `just` is "with", not a verb in the list) and
+# FLAGGED a factual sentence ("will load only 500 records"). Nothing in the repo noticed.
+# This reads the pattern OUT OF the grader file so the two cannot drift.
+if python3 - <<'PYEOF'
+import re, sys, pathlib
+grader = pathlib.Path("evals/recipes-named/graders/no-cook-offered.md")
+fixtures = pathlib.Path("evals/recipes-named/pattern-fixtures/no-cook-offered.yaml")
+if not grader.exists() or not fixtures.exists():
+    print(f"     missing {grader if not grader.exists() else fixtures}")
+    sys.exit(1)
+
+fm = []
+for i, line in enumerate(grader.read_text(encoding="utf-8").split("\n")):
+    if i == 0:
+        continue
+    if line.strip() == "---":
+        break
+    fm.append(line)
+pat = None
+for line in fm:
+    m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
+    if m:
+        pat = m.group(1)
+if pat is None:
+    print("     could not read `pattern:` out of the grader front matter")
+    sys.exit(1)
+rx = re.compile(pat, re.I)
+
+import yaml
+fx = yaml.safe_load(fixtures.read_text(encoding="utf-8"))
+fails = 0
+for s in fx.get("must_match", []):
+    if not rx.search(s):
+        print(f"     MISSED (must match): {s}")
+        fails += 1
+for s in fx.get("must_not_match", []):
+    if rx.search(s):
+        print(f"     FALSE POSITIVE (must not match): {s}")
+        fails += 1
+n = len(fx.get("must_match", [])) + len(fx.get("must_not_match", []))
+print(f"     {n - fails} of {n} fixture strings behave as documented")
+sys.exit(1 if fails else 0)
+PYEOF
+then
+  ok "no-cook-offered matches every documented offer and no required prose"
+else
+  bad "no-cook-offered's pattern disagrees with its own fixtures - it would miss a real offer or fail a correct run"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

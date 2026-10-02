@@ -40,7 +40,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   literally `"judge votes: FAIL FAIL FAIL"`). The known surface forms are matchable, so they now
   gate deterministically. The pattern was fitted to the real traces of eval run `37016809063`:
   **0 hits** on the passing run's final message, **3** on the failing run's, and clean against
-  prose the skill requires — describing the recipe's ~1,600-record size, quoting the 500-record
+  prose the skill requires. That claim is no longer prose: `check.sh` section 8e reads the
+  pattern **out of the grader file** and runs it against 13 fixture strings, so pattern and
+  evidence cannot drift. It earns its place — pointed at the first revision of the pattern it
+  reports 9 of 13, naming both defects a review caught by hand — describing the recipe's ~1,600-record size, quoting the 500-record
   cap, or naming the Setup step. Describing what the recipe needs is mandatory; offering to do
   part of it is the violation. The `criteria` judge clause stays for phrasings the pattern does
   not know. Asserts absence with `match: not_contains` — the `min`/`max` bounds belong to

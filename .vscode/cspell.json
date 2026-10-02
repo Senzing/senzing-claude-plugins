@@ -63,6 +63,7 @@
     "newroot",
     "noninteractive",
     "oldroot",
+    "pathlib",
     "pipefail",
     "PPP",
     "procps",

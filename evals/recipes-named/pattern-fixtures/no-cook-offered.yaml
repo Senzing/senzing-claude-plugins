@@ -1,0 +1,35 @@
+# Fixtures for `graders/no-cook-offered.md`.
+#
+# The grader's claim -- "catches the cook offer, leaves the required description of
+# what the recipe needs alone" -- was prose until 2026-10-02. Prose does not run.
+# An earlier revision of the pattern both MISSED the server's own wording and FLAGGED
+# a factual sentence, and nothing in the repo noticed. `check.sh` section 8e now reads
+# the pattern OUT OF THE GRADER FILE and runs it against these strings, so the pattern
+# and its evidence cannot drift apart.
+#
+# must_match: the behavior the grader exists to catch.
+# must_not_match: prose `recipes/SKILL.md` REQUIRES. A hit here is a deterministic
+#                 false failure -- the defect class this whole release is about.
+
+must_match:
+  # The server's own wording, from data/current/sdk-guide.yaml (the root cause).
+  - "continue with just 500 of their records as a sample"
+  # Verbatim from the failing run of eval 37016809063 (traces 18 and 56).
+  - "otherwise we can request a free evaluation license or sample just 500 records"
+  - "have it ready to attach/drop in the working folder"
+  - "when we get to the Prep step"
+  # Paraphrases a model could plausibly produce instead.
+  - "I could load only 500 of your records as a sample"
+  - "we can sample only 500 records to stay under the cap"
+
+must_not_match:
+  # Facts about the product's cap. Stating these is allowed; offering to act is not.
+  - "the unlicensed tier will load only 500 records"
+  - "Without a license Senzing limits ingestion to 500 records (SENZ9000 at record 501)"
+  - "Record 501 fails with SENZ9000|LIMIT."
+  # Describing what the recipe needs -- REQUIRED by recipes/SKILL.md step 2/3.
+  - "The recipe's ingredients are ~1,600 records, which exceeds Senzing's unlicensed 500-record limit."
+  - "This recipe needs a Senzing license file; the recipe's Setup step covers it."
+  - "The Prep step is where the data gets mapped."
+  # The correct refusal.
+  - "Senzing is not installed on this host, so I can't cook the recipe."
