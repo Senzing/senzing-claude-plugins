@@ -84,8 +84,16 @@ second report.
    preview — which would you like?" The user asked for a demo and got an environment report and a
    menu. Say what you found in one line, then take the path below **in the same turn**.
 
-   **If there is no running Senzing**, do not fake a demo — and do not ask which path: invoke the
-   **`install`** skill in this same turn, unasked. It surfaces the license agreement, runs the
+   **If anything stands between you and a running Senzing**, do not fake a demo — and do not ask
+   which path: invoke the **`install`** skill in this same turn, unasked. The trigger is the
+   BLOCKER CLASS, not your verdict about it. No SDK, a denied package host, a missing
+   permission, a sandboxed shell, an egress rule you cannot lift — anything `install` itself
+   would have to clear routes the same way. "Only the user can change this" is a reason to hand
+   off, not a reason to stop and offer a menu: the permission request belongs INSIDE install's
+   license-agreement message, which asks for both at once. A run that classified its blocker as
+   a host-permission problem rather than an install problem, and so offered "allow the network
+   and I'll install, or see the zero-install preview", shipped install commands with no license
+   agreement anywhere in the turn (2026-10-02). It read this rule as not applying to it. It surfaces the license agreement, runs the
    official steps, and verifies with `doctor`. Do not route around it by calling
    `sdk_guide(topic="install")` directly. (If an evaluation license turns out to be needed,
    `submit_feedback(category='license_request')` requests one; its description states the current
