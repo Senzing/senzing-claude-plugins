@@ -54,14 +54,24 @@ correct run is worse than one that misses a novel phrasing, because the judge cl
 what this does not. So each alternative requires an explicit offer frame rather than guessing
 from a verb.
 
-## The pattern was fitted to real traces, not invented
+## Where the fixtures come from
 
-Validated against both runs of eval run `37016809063`: **0 hits** on the passing run's final
-message, **3** on the failing run's (`have it ready to attach`, `when we get to the Prep step`,
+The offer strings are the sentences themselves, lifted from the failing run of eval
+`37016809063` and from `sdk-guide.yaml` — not the full trace messages, so what the fixtures
+reproduce is the pattern's behavior on those sentences, not the original end-to-end run. Against
+the two complete final messages at the time: **0 hits** on the passing run's, **3** on the
+failing run's (`have it ready to attach`, `when we get to the Prep step`,
 `sample just 500 records`). Checked against legitimate prose it must NOT catch — describing the
 recipe's ~1,600-record size, quoting the 500-record unlicensed cap, naming the Setup step, or
 saying the Prep step is where mapping happens all stay clean. Describing what the recipe *needs*
 is required by the skill; offering to *do* part of it is the violation.
+
+## Keep it inside the common regex subset
+
+`check.sh` 8e checks this with Python `re`; the harness runs it with its own engine. The
+constructs used — `\b`, `\w`, `\s`, `\d`, `(?:…)`, `{0,2}` — behave identically in both, and
+there is no lookbehind. Stay inside that subset: a construct that works in one engine and not
+the other would make 8e green while the grader misbehaves in the eval.
 
 ## Root cause, fixed on the server side
 

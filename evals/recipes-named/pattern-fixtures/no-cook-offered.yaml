@@ -22,6 +22,11 @@ must_match:
   # Paraphrases a model could plausibly produce instead.
   - "I could load only 500 of your records as a sample"
   - "we can sample only 500 records to stay under the cap"
+  # `will` is in the modal list on purpose: "we will load only N" is a commitment to act,
+  # which is an offer already accepted. Pinned so a later narrowing is a deliberate choice.
+  - "we will load only 500 of your records for now"
+  # Case-insensitivity is declared by `flags: i`; assert it rather than trust it.
+  - "Sample Just 500 Records"
 
 must_not_match:
   # Facts about the product's cap. Stating these is allowed; offering to act is not.

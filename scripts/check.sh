@@ -352,6 +352,37 @@ echo; echo "== 8e. no-cook-offered's pattern actually does what its doc claims =
 # revision of the pattern both MISSED the server's own wording ("continue with just 500 of
 # their records", where the word before `just` is "with", not a verb in the list) and
 # FLAGGED a factual sentence ("will load only 500 records"). Nothing in the repo noticed.
+# Controls FIRST, as in 8d: a fixture check that cannot fail proves nothing. These run
+# the SAME comparison loop against a deliberately broken pattern (the first revision this
+# grader shipped, which missed the server's own wording and flagged a factual sentence)
+# and against the real one, asserting the broken one is rejected.
+if ! python3 - <<'CONTROL'
+import re, sys, pathlib, yaml
+fixtures = pathlib.Path("evals/recipes-named/pattern-fixtures/no-cook-offered.yaml")
+fx = yaml.safe_load(fixtures.read_text(encoding="utf-8")) or {}
+
+def failures(pat):
+    rx = re.compile(pat, re.I)
+    n = sum(1 for s in fx.get("must_match", []) if not rx.search(s))
+    return n + sum(1 for s in fx.get("must_not_match", []) if rx.search(s))
+
+# The first revision: keyed on a stemmed-verb list.
+_stem = "sample"[:5]  # spelled via a slice so the dictionary check sees a real word
+broken = (r'(' + _stem + r'\w*|load\w*|us\w*)\s+(just|only)\s+\d[\d,]*\s+'
+          r'(of\s+(your|their|the)\s+)?records|when we (get|move) to the \w+ step'
+          r'|have it ready to (attach|drop)')
+bf = failures(broken)
+if bf == 0:
+    print("     positive control FAILED: the first revision passes these fixtures, so they "
+          "do not discriminate")
+    sys.exit(1)
+print(f"     positive control: the superseded pattern is rejected ({bf} fixture disagreements)")
+sys.exit(0)
+CONTROL
+then
+  bad "8e's fixtures do not discriminate - they pass a pattern known to be broken"
+fi
+
 # This reads the pattern OUT OF the grader file so the two cannot drift.
 if python3 - <<'PYEOF'
 import re, sys, pathlib
@@ -384,9 +415,12 @@ except ImportError:
     # Without this guard the ImportError propagates and the section reports
     # "pattern disagrees with its own fixtures" -- accusing the pattern of a
     # defect when the real problem is a missing dependency on this host.
-    print("     ! PyYAML not available: fixture check SKIPPED (not a pattern failure)")
-    sys.exit(0)
-fx = yaml.safe_load(fixtures.read_text(encoding="utf-8"))
+    print("     ! PyYAML not available on this host")
+    sys.exit(2)
+fx = yaml.safe_load(fixtures.read_text(encoding="utf-8")) or {}
+if not fx.get("must_match") and not fx.get("must_not_match"):
+    print("     ! fixtures file is empty or not parseable - nothing was checked")
+    sys.exit(2)
 fails = 0
 for s in fx.get("must_match", []):
     if not rx.search(s):
@@ -403,7 +437,16 @@ PYEOF
 then
   ok "no-cook-offered matches every documented offer and no required prose"
 else
-  bad "no-cook-offered's pattern disagrees with its own fixtures - it would miss a real offer or fail a correct run"
+  rc=$?
+  # Exit 2 means the check could not RUN (no PyYAML, unreadable fixtures). Saying
+  # `ok` there would affirm a claim nothing verified -- the exact defect this
+  # release exists to remove -- so it is a failure, not a pass. CI has PyYAML;
+  # a host without it must not be able to green this silently.
+  if [ "$rc" = "2" ]; then
+    bad "8e could not run, so the pattern is UNVERIFIED - this is not a pass (install PyYAML)"
+  else
+    bad "no-cook-offered's pattern disagrees with its own fixtures - it would miss a real offer or fail a correct run"
+  fi
 fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
