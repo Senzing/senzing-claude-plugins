@@ -65,8 +65,14 @@ def section(text: str, n: int) -> str:
     return m.group(0) if m else ""
 
 
+# Checks that could not run. Printed on success as well as failure, because
+# "plan is well formed" otherwise overstates what was actually verified.
+problems_skipped: list[str] = []
+
+
 def check(text: str) -> list[str]:
     problems: list[str] = []
+    problems_skipped.clear()
 
     for marker in REQUIRED_SECTIONS:
         if marker not in text:
@@ -154,7 +160,14 @@ def check(text: str) -> list[str]:
             except yaml.YAMLError as e:
                 problems.append(f"yaml block {n} does not parse: {str(e).splitlines()[0]}")
     except ImportError:
-        pass
+        # PyYAML is NOT in stock python3. Saying nothing here meant this script
+        # printed "plan is well formed" having never run the yaml parse check that
+        # SKILL.md promises — a validator claiming success on a check it skipped is
+        # the exact failure mode this release exists to stamp out. Say so instead.
+        problems_skipped.append(
+            "yaml blocks NOT parse-checked: PyYAML is not installed for this python3. "
+            "Every structural check above still ran. For the parse check too: pip install pyyaml"
+        )
 
     return problems
 
@@ -170,6 +183,10 @@ def main() -> int:
         return 2
 
     problems = check(text)
+    for n in problems_skipped:
+        print(f"  ! {n}")
+    if problems_skipped:
+        print()
     if problems:
         print(f"{len(problems)} problem(s) in {sys.argv[1]}:\n")
         for p in problems:
@@ -177,6 +194,8 @@ def main() -> int:
         print("\nFix these and run this again. Each is something a downstream skill relies on.")
         return 1
     print(f"plan is well formed: {sys.argv[1]}")
+    if problems_skipped:
+        print("(NOTE: not every check ran — see ! above)")
     print("(structure only — whether the content is honestly sourced is not checkable here)")
     return 0
 
