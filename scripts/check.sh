@@ -232,6 +232,25 @@ else
   bad "validate_plan.py rejects fabricated-plan.md but not for the §9 omission — check the reason, not just the exit code"
 fi
 
+echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
+# A tool_used grader that sets `max: 0` and omits `min` gets min defaulted to 1, so the
+# harness evaluates the range 1..0 — which NOTHING can satisfy. It fails every run,
+# including clean ones, with "Bash called 0x (expected 1..0)". That is indistinguishable
+# from a real defect until you read the range closely. `min: 0` is not optional.
+bad_range=0
+for f in evals/*/graders/*.md; do
+  fm=$(sed -n '/^---$/,/^---$/p' "$f" 2>/dev/null)
+  if printf '%s' "$fm" | grep -q "^max:" && ! printf '%s' "$fm" | grep -q "^min:"; then
+    echo "     $f declares max: without min:"
+    bad_range=1
+  fi
+done
+if [ "$bad_range" = "0" ]; then
+  ok "every grader that bounds a count declares both min and max"
+else
+  bad "a grader declares max without min — the harness defaults min to 1, making the range unsatisfiable"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

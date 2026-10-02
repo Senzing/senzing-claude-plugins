@@ -34,6 +34,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **A grader that bounded a count without `min` failed every run, clean ones included.**
+  `no-unsanctioned-shell` declared `max: 0` and omitted `min`, so the harness defaulted
+  `min` to 1 and evaluated the range `1..0` — which nothing can satisfy. It reported
+  "Bash called 0x (expected 1..0)", indistinguishable from a real defect until you read
+  the range closely. `check.sh` section 8c now fails any grader that declares `max`
+  without `min`, with a positive control confirming it catches exactly that shape.
+
 - **`validate_plan.py` is now exercised by `check.sh`.** It gated what the skill hands the
   user while nothing tested it. Three offline assertions: it accepts `correct-plan.md`, it
   rejects `fabricated-plan.md`, and it rejects it *for the §9 omission specifically* — the
