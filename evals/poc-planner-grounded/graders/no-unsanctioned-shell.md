@@ -1,7 +1,7 @@
 ---
 type: tool_used
 tool: Bash
-input_match: '(^|[;&|]\s*)(ls|grep|rg|cat|wc|find|head|tail|test|stat|file)\b'
+input_match: '(^|[;&]\s*)(ls|grep|rg|cat|wc|find|head|tail|test|stat|file)\b'
 min: 0
 max: 0
 ---
@@ -24,6 +24,14 @@ two that keep reappearing anyway, both on the model's *own* output:
 Both look harmless, which is exactly why they recur: the output is the model's own and
 the command reads rather than writes. They are still shell calls in a planning skill
 that is not supposed to touch a host.
+
+**The separator class is `[;&]`, not `[;&|]`, on purpose.** With `|` in it, the pattern
+matched the sanctioned command's own pipeline — `validate_plan.py … | head -40`, or
+`… 2>&1 | tail -20` — and failed a correct run for reading the validator's output. That
+is the same false-fail shape as the `1..0` range this grader was written to replace, so
+it is bounded the same way: the reflex is the command the model *starts*, or chains with
+`;`/`&&`, not a pager hung off the end of the one command it is allowed to run. A leading
+`cat plan.md | grep TBD` is still caught, because `cat` leads it.
 
 This replaces the bound half of a `min: 1, max: 1` grader. A count could not tell a
 legitimate second validation pass — the repair loop step 8 mandates — from an `ls`, so

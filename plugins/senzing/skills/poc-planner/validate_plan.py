@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import re
 import sys
+from pathlib import Path
 
 TBD_RE = re.compile(r"TBD — decided by\s+(?P<owner>[^:\n]+?)(?P<tail>:[^\n]*)?$")
 SC_KEYS = {"id", "shape", "statement", "measurement", "measured_against", "decided_by", "target"}
@@ -177,8 +178,8 @@ def main() -> int:
         print(__doc__)
         return 2
     try:
-        text = open(sys.argv[1], encoding="utf-8").read()
-    except OSError as e:
+        text = Path(sys.argv[1]).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as e:
         print(f"cannot read {sys.argv[1]}: {e}")
         return 2
 

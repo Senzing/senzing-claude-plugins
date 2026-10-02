@@ -239,7 +239,12 @@ echo; echo "== 8c. no tool_used grader declares max without min (impossible rang
 # from a real defect until you read the range closely. `min: 0` is not optional.
 bad_range=0
 for f in evals/*/graders/*.md; do
-  fm=$(sed -n '/^---$/,/^---$/p' "$f" 2>/dev/null)
+  # Frontmatter ONLY. `sed -n '/^---$/,/^---$/p'` reopens the range on any later `---`
+  # in the body -- these grader files use horizontal rules -- so it scanned prose for
+  # `max:` as well, and a grader whose body opened a line with `max:` would be reported
+  # as "declares max without min" when its frontmatter declares neither. Stop at the
+  # first closing `---`.
+  fm=$(awk 'NR==1{next} /^---$/{exit} {print}' "$f" 2>/dev/null)
   if printf '%s' "$fm" | grep -q "^max:" && ! printf '%s' "$fm" | grep -q "^min:"; then
     echo "     $f declares max: without min:"
     bad_range=1

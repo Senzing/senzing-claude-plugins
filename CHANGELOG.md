@@ -41,12 +41,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the range closely. `check.sh` section 8c now fails any grader that declares `max`
   without `min`, with a positive control confirming it catches exactly that shape.
 
-- **`validate_plan.py` is now exercised by `check.sh`.** It gated what the skill hands the
-  user while nothing tested it. Three offline assertions: it accepts `correct-plan.md`, it
+- **`poc-planner` ships `validate_plan.py`, and `check.sh` exercises it.** The script is new
+  here: step 8 now runs it over the plan the skill just wrote and fixes what it names until it
+  prints `plan is well formed`, so the structure every downstream skill reads is checked before
+  the user sees it rather than after. Because it gates what the skill hands over, it is tested
+  offline rather than only through a $6-17 eval run. Three assertions: it accepts `correct-plan.md`, it
   rejects `fabricated-plan.md`, and it rejects it *for the §9 omission specifically* — the
   nested-TBD miss that was 5 of 10 failures in the run that motivated the validator. Checking
   the reason and not just the exit code is the point: a validator that fails for the wrong
   reason looks identical to one that works.
+
+- **Retrieved figures may not go in a table.** `poc-planner` rule 4 requires every Senzing
+  figure to carry its quotation and source on the same line, and a table cell has no room for
+  either — so a sizing table (`| Database IOPS per record | 100-200 IOPS |`) silently strips the
+  attribution and republishes Senzing's number as the plan's own recommendation, which is the
+  one thing §6 exists to prevent. A citation above the table does not reach its rows. Those
+  figures are now required as prose.
 
 - **Rule 8 no longer contradicts its own repair loop, and the rules are numbered once.** A
   new shell rule had been inserted as a second `1.`, so CommonMark renumbered every later rule
