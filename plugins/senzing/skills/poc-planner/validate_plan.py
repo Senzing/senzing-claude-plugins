@@ -165,9 +165,15 @@ def check(text: str) -> list[str]:
         # printed "plan is well formed" having never run the yaml parse check that
         # SKILL.md promises — a validator claiming success on a check it skipped is
         # the exact failure mode this release exists to stamp out. Say so instead.
+        # Deliberately NOT an install command. This printed "pip install pyyaml", and
+        # the model in the eval did exactly as told -- `... || pip install --quiet pyyaml
+        # 2>&1 | tail -5` -- in a planning skill whose whole contract is that it does not
+        # touch the host. State the fact; the operator can act on it, the model has no
+        # imperative to copy.
         problems_skipped.append(
-            "yaml blocks NOT parse-checked: PyYAML is not installed for this python3. "
-            "Every structural check above still ran. For the parse check too: pip install pyyaml"
+            "yaml blocks NOT parse-checked: PyYAML is not available to this python3. "
+            "Every structural check above still ran, and this is not something to go fix "
+            "from inside the skill -- report it as-is."
         )
 
     return problems
