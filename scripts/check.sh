@@ -307,6 +307,45 @@ else
   bad "a grader declares max without min — the harness defaults min to 1, making the range unsatisfiable"
 fi
 
+echo; echo "== 8d. no regex grader carries tool_used-only count bounds =="
+# `min:`/`max:` bound a CALL COUNT and belong to `tool_used` graders. A `type: regex`
+# grader rejects them, and the harness then fails the WHOLE CASE to load:
+#   graders.6: Unrecognized key(s) in object: 'min', 'max'
+# which surfaces as `cases run=17 expected=18` -- a structural exit 2, NOT a grader
+# failure naming the file. That cost one full eval run on 2026-10-02. A regex grader
+# asserts absence with `match: not_contains`.
+grader_type() { awk 'NR==1{next} /^---$/{exit} {print}' "$1" 2>/dev/null | sed -n 's/^type:[[:space:]]*//p' | head -1; }
+has_count_bound() { awk 'NR==1{next} /^---$/{exit} {print}' "$1" 2>/dev/null | grep -qE '^(min|max):'; }
+
+# Controls first: a scan that finds nothing is indistinguishable from one that cannot.
+ctl=$(mktemp -d)
+printf -- '---\ntype: regex\npattern: "x"\nmin: 0\nmax: 0\n---\n\nbody\n' > "$ctl/positive.md"
+printf -- '---\ntype: regex\npattern: "x"\nmatch: not_contains\n---\n\nbody\n'  > "$ctl/negative.md"
+if [ "$(grader_type "$ctl/positive.md")" = "regex" ] && has_count_bound "$ctl/positive.md"; then
+  ok "positive control: a regex grader carrying min/max is detected"
+else
+  bad "positive control FAILED - the 8d detector does not catch regex+min/max, so a clean scan proves nothing"
+fi
+if [ "$(grader_type "$ctl/negative.md")" = "regex" ] && has_count_bound "$ctl/negative.md"; then
+  bad "negative control FAILED - a correct not_contains grader was flagged"
+else
+  ok "negative control: a regex grader using match: not_contains is not flagged"
+fi
+rm -rf "$ctl"
+
+bad_keys=0
+for f in evals/*/graders/*.md; do
+  if [ "$(grader_type "$f")" = "regex" ] && has_count_bound "$f"; then
+    echo "     $f is type: regex but declares min:/max:"
+    bad_keys=1
+  fi
+done
+if [ "$bad_keys" = "0" ]; then
+  ok "no regex grader declares min:/max: (they would fail the whole case to load)"
+else
+  bad "a regex grader declares min:/max: - the harness will refuse to load its ENTIRE case"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

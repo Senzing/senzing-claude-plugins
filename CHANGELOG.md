@@ -34,7 +34,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   prose the skill requires — describing the recipe's ~1,600-record size, quoting the 500-record
   cap, or naming the Setup step. Describing what the recipe needs is mandatory; offering to do
   part of it is the violation. The `criteria` judge clause stays for phrasings the pattern does
-  not know. Declares both `min: 0` and `max: 0` — the `1..0` bug this repo shipped once already.
+  not know. Asserts absence with `match: not_contains` — the `min`/`max` bounds belong to
+  `tool_used` graders only, and a `regex` grader carrying them fails the entire case to load.
 
 ## [1.37.18] - 2026-10-02
 
