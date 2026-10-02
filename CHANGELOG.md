@@ -39,7 +39,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `min` to 1 and evaluated the range `1..0` — which nothing can satisfy. It reported
   "Bash called 0x (expected 1..0)", indistinguishable from a real defect until you read
   the range closely. `check.sh` section 8c now fails any grader that declares `max`
-  without `min`, with a positive control confirming it catches exactly that shape.
+  without `min`, proved by two controls that run before the real scan: a synthesized grader
+  with `max:` and no `min:` that the detector must flag, and one with both bounds whose *body*
+  opens a line with `max:` that it must not. A scan that finds nothing is indistinguishable
+  from a scan that cannot find anything, which is the whole subject of this release.
 
 - **`poc-planner` ships `validate_plan.py`, and `check.sh` exercises it.** The script is new
   here: step 8 now runs it over the plan the skill just wrote and fixes what it names until it
@@ -50,6 +53,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   nested-TBD miss that was 5 of 10 failures in the run that motivated the validator. Checking
   the reason and not just the exit code is the point: a validator that fails for the wrong
   reason looks identical to one that works.
+
+- **`validate_plan.py` no longer prints an unqualified "plan is well formed" after skipping a
+  check.** PyYAML absent means the yaml blocks are not parse-checked; the notice said so, then
+  the verdict line spoke over it with the exact sentence `SKILL.md` step 8 tells the model to
+  stop on. It now reads "plan is well formed for every check that ran" in that case. The phrase
+  stays a prefix on purpose — step 8 and the `validator-ran` grader both match it as a
+  substring, so changing it outright would leave the model looping forever on a host without
+  PyYAML.
 
 - **Retrieved figures may not go in a table.** `poc-planner` rule 4 requires every Senzing
   figure to carry its quotation and source on the same line, and a table cell has no room for

@@ -237,15 +237,66 @@ echo; echo "== 8c. no tool_used grader declares max without min (impossible rang
 # harness evaluates the range 1..0 — which NOTHING can satisfy. It fails every run,
 # including clean ones, with "Bash called 0x (expected 1..0)". That is indistinguishable
 # from a real defect until you read the range closely. `min: 0` is not optional.
+# The detector, as ONE function, so the controls below exercise the same code the real
+# scan uses -- not a second copy of it that could agree while the real one is broken.
+#
+# Frontmatter ONLY. `sed -n '/^---$/,/^---$/p'` reopens the range on any later `---` in
+# the body -- these grader files use horizontal rules -- so it scanned prose for `max:`
+# too, and a grader whose body opened a line with `max:` would be reported as "declares
+# max without min" when its frontmatter declares neither. Stop at the first closing `---`.
+declares_max_without_min() {
+  fm=$(awk 'NR==1{next} /^---$/{exit} {print}' "$1" 2>/dev/null)
+  printf '%s' "$fm" | grep -q "^max:" && ! printf '%s' "$fm" | grep -q "^min:"
+}
+
+# Controls FIRST. A scan that finds nothing is indistinguishable from a scan that cannot
+# find anything, and this check shipped in a release about gates that claim a success they
+# did not verify -- so prove it fires before trusting that it found nothing.
+ctl=$(mktemp -d)
+cat > "$ctl/positive.md" <<'FIXTURE'
+---
+type: tool_used
+tool: Bash
+max: 0
+---
+
+# Body
+
+---
+
+max: this line is prose, not frontmatter
+FIXTURE
+cat > "$ctl/negative.md" <<'FIXTURE'
+---
+type: tool_used
+tool: Bash
+min: 0
+max: 0
+---
+
+# Body
+
+---
+
+max: this line is prose, not frontmatter
+FIXTURE
+
+if declares_max_without_min "$ctl/positive.md"; then
+  ok "positive control: the detector flags max-without-min"
+else
+  bad "positive control FAILED — the detector does not catch max-without-min, so a clean scan proves nothing"
+fi
+# This control is the one the old sed got wrong: the body's `max:` line must not be read.
+if declares_max_without_min "$ctl/negative.md"; then
+  bad "negative control FAILED — a body line starting 'max:' was read as frontmatter (the sed range bug)"
+else
+  ok "negative control: a body line starting 'max:' is not mistaken for frontmatter"
+fi
+rm -rf "$ctl"
+
 bad_range=0
 for f in evals/*/graders/*.md; do
-  # Frontmatter ONLY. `sed -n '/^---$/,/^---$/p'` reopens the range on any later `---`
-  # in the body -- these grader files use horizontal rules -- so it scanned prose for
-  # `max:` as well, and a grader whose body opened a line with `max:` would be reported
-  # as "declares max without min" when its frontmatter declares neither. Stop at the
-  # first closing `---`.
-  fm=$(awk 'NR==1{next} /^---$/{exit} {print}' "$f" 2>/dev/null)
-  if printf '%s' "$fm" | grep -q "^max:" && ! printf '%s' "$fm" | grep -q "^min:"; then
+  if declares_max_without_min "$f"; then
     echo "     $f declares max: without min:"
     bad_range=1
   fi

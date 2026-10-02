@@ -22,7 +22,8 @@ allowed-tools: Read, mcp__plugin_senzing_senzing__*
 # a tool stays callable either way — so listing them would only suppress the user's
 # permission prompt. That is exactly the ALLOWED_TOOLS_BROAD finding that held this
 # plugin at directory review: unscoped Write (cleared here) and, had we added it to
-# 'fix' the validator's prompt, Bash (6b46cde). The plan still gets written and the
+# 'fix' the validator's prompt, Bash. (That was tried once on a branch and reverted;
+# no SHA is cited because a squash-merge orphans it.) The plan still gets written and the
 # validator still runs; the user is asked first, which is correct for the single
 # deliberate write a planning run makes and for a script we ship and execute on
 # their machine. Do not add either here to silence a prompt.
@@ -153,7 +154,9 @@ license terms here or from memory — call the tool named in each step and cite 
    names, unless the user asks for names in the plan. Nothing record-shaped goes to a hosted tool.
 8. **One shell command exists, and it is `validate_plan.py`.** This skill plans; it runs
    nothing of the user's and installs nothing. Your tools are Read, Write and the Senzing MCP,
-   plus that one command in step 8 — which you run as many times as the repair loop needs. A
+   plus that one command in step 8 — which you run as many times as the repair loop needs.
+   Write and that command are yours to use and are deliberately NOT pre-approved, so each
+   one asks the user first; a prompt is the design, not an obstacle to route around. A
    session may grant Bash for other skills; that is not an invitation to use it here. Nothing
    else: no probing, no
    profiling, no counting records, no `ls`. Wanting a command for any other reason — to profile

@@ -200,9 +200,17 @@ def main() -> int:
             print(f"  - {p}")
         print("\nFix these and run this again. Each is something a downstream skill relies on.")
         return 1
-    print(f"plan is well formed: {sys.argv[1]}")
+    # The phrase "plan is well formed" stays a PREFIX in both branches on purpose:
+    # SKILL.md step 8 and the validator-ran grader both key the repair loop on it as a
+    # substring, so changing it outright would leave the model looping forever whenever
+    # PyYAML is absent. What changes is the claim. Printing the unqualified sentence
+    # after skipping a check is the same overstatement this release exists to remove --
+    # the skipped-check notice was already printed, but the verdict spoke over it.
     if problems_skipped:
+        print(f"plan is well formed for every check that ran: {sys.argv[1]}")
         print("(NOTE: not every check ran — see ! above)")
+    else:
+        print(f"plan is well formed: {sys.argv[1]}")
     print("(structure only — whether the content is honestly sourced is not checkable here)")
     return 0
 
