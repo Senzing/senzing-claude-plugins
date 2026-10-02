@@ -17,6 +17,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`demo` could ship install commands with no license agreement, when the blocker was not
+  "no SDK".** `demo-no-simulation/install-invoked` failed 1 of 2 runs on 2026-10-02 (eval run
+  `37062001623`). The failing run found its shell's sandbox denying outbound network to
+  `formulae.brew.sh` and ended on a menu — *"allow the network access so I can install and run
+  the real thing, or see the zero-install preview?"* — carrying `brew tap senzing/senzingsdk`
+  and `brew install --cask senzingsdk` while naming "the Senzing EULA" by phrase only. Grepped
+  across every assistant message in that trace: **zero** occurrences of the agreement URL. The
+  user was never shown the license by any route. The LLM `criteria` grader failed the same run
+  independently, 3 votes to 0.
+
+  The passing run differed in ROUTE, not wording: it invoked `install`, whose own contract
+  (`install/SKILL.md:79-87`) already requires the EULA in any turn ending on a blocker — naming
+  "a sandboxed host" and "a choice of paths you are putting to them" explicitly. That contract
+  lives inside the skill the failing run never entered; it called `sdk_guide(topic=install)`
+  directly instead, which `demo/SKILL.md` forbids by name.
+
+  The cause was the trigger's scope. `demo` routed to `install` only "**If there is no running
+  Senzing**" — a verdict. A model that classified its blocker as a host-permission problem
+  rather than an install problem read the rule as not applying, and invented a fork. The trigger
+  is now the **blocker class**: no SDK, a denied package host, a missing permission, a sandboxed
+  shell, an egress rule it cannot lift — anything `install` itself would have to clear routes
+  the same way, and "only the user can change this" is a reason to hand off rather than to stop
+  and offer a menu.
+
+  Deliberately NOT the fix tried and rejected before (recorded in `graders/install-invoked.md`):
+  that one required every install-pointing message to carry the URL and regressed the case from
+  1-of-2 to 2-of-2, because it punished runs that were correctly *delegating*. This changes
+  routing, not wording, and targets the opposite failure — a run that delegated to nobody.
+
+
 - **`recipes` offered part of the cook on a host that cannot cook — half the time.** On
   2026-10-02 `recipes-named` scored a judge 0.50: two runs, **unanimous 3-0 in opposite
   directions**, every deterministic grader green in both. The whole delta was the final
