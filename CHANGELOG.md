@@ -67,17 +67,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **`recipes-named/no-cook-offered`, a deterministic grader for the clause the judge could not
   hold.** A boolean obligation honoured half the time is a defect, not a 0.5 — and a judge
   verdict cannot be gated on, because the artifact carries no reasoning (`explanation` is
-  literally `"judge votes: FAIL FAIL FAIL"`). The known surface forms are matchable, so they now
-  gate deterministically. The pattern was fitted to the real traces of eval run `37016809063`:
-  **0 hits** on the passing run's final message, **3** on the failing run's, and clean against
-  prose the skill requires. That claim is no longer prose: `check.sh` section 8e reads the
-  pattern **out of the grader file** and runs it against 13 fixture strings, so pattern and
-  evidence cannot drift. It earns its place — pointed at the first revision of the pattern it
-  reports 9 of 13, naming both defects a review caught by hand — describing the recipe's ~1,600-record size, quoting the 500-record
-  cap, or naming the Setup step. Describing what the recipe needs is mandatory; offering to do
-  part of it is the violation. The `criteria` judge clause stays for phrasings the pattern does
-  not know. Asserts absence with `match: not_contains` — the `min`/`max` bounds belong to
-  `tool_used` graders only, and a `regex` grader carrying them fails the entire case to load.
+  literally `"judge votes: FAIL FAIL FAIL"`). So the known surface forms gate deterministically
+  and the `criteria` judge clause stays for phrasings the pattern does not know. Absence is
+  asserted with `match: not_contains`; the `min`/`max` bounds belong to `tool_used` graders
+  only, and a `regex` grader carrying them fails its entire case to load.
+
+  **The discriminator is volition, not possession.** An offer is something the assistant would
+  carry out ("I could load only 500 of your records", "continue with just 500 …"); a fact is
+  something the product does ("the unlicensed tier will load only 500 of your records").
+  Describing what the recipe needs is mandatory; offering to do part of it is the violation.
+  Two earlier revisions got this wrong — one keyed on a verb list and both missed the server's
+  own wording and flagged a factual sentence; one keyed on possession and still flagged the
+  factual sentence. The gate is deliberately high precision and lower recall: a deterministic
+  grader that fails a correct run is worse than one that misses a novel phrasing.
+
+  **The claim is executable.** `check.sh` section 8e reads the pattern **out of the grader
+  file** and runs it against 16 fixture strings — the server's own wording, the verbatim trace
+  lines from eval run `37016809063`, and the prose the skill requires — so pattern and evidence
+  cannot drift. It earns its place: pointed at the first revision it reports `9 of 13`, naming
+  both defects that a review had caught by hand.
 
 ## [1.37.18] - 2026-10-02
 

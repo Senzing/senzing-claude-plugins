@@ -378,7 +378,14 @@ if pat is None:
     sys.exit(1)
 rx = re.compile(pat, re.I)
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    # Without this guard the ImportError propagates and the section reports
+    # "pattern disagrees with its own fixtures" -- accusing the pattern of a
+    # defect when the real problem is a missing dependency on this host.
+    print("     ! PyYAML not available: fixture check SKIPPED (not a pattern failure)")
+    sys.exit(0)
 fx = yaml.safe_load(fixtures.read_text(encoding="utf-8"))
 fails = 0
 for s in fx.get("must_match", []):

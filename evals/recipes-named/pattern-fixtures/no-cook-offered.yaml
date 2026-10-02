@@ -18,12 +18,16 @@ must_match:
   - "otherwise we can request a free evaluation license or sample just 500 records"
   - "have it ready to attach/drop in the working folder"
   - "when we get to the Prep step"
+  - "when we move to the Prep step"
   # Paraphrases a model could plausibly produce instead.
   - "I could load only 500 of your records as a sample"
   - "we can sample only 500 records to stay under the cap"
 
 must_not_match:
   # Facts about the product's cap. Stating these is allowed; offering to act is not.
+  # The possessive ones matter: possession alone is NOT the discriminator, volition is.
+  - "the unlicensed tier will load only 500 of your records"
+  - "Senzing will load only 500 of your records"
   - "the unlicensed tier will load only 500 records"
   - "Without a license Senzing limits ingestion to 500 records (SENZ9000 at record 501)"
   - "Record 501 fails with SENZ9000|LIMIT."

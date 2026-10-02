@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\bsampl\w*\s+(just|only)\s+\d[\d,]*\s+records|\b(just|only)\s+\d[\d,]*\s+of\s+(your|their)\s+records|\bwhen we (get|move) to the \w+ step|\bhave it ready to (attach|drop)'
+pattern: '\b(?:I|we)\s+(?:could|can|will|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsampl\w+\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bwhen\s+we\s+(?:get|move)\s+to\s+the\s+\w+\s+step|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
 match: not_contains
 flags: i
 target: last_message
@@ -43,9 +43,16 @@ server's own wording, "continue with just 500 of their records as a sample", bec
 before `just` is "with". A grader that cannot match the text it exists to catch is worse than
 no grader.
 
-The discriminator is possession. An offer either uses an offer verb outright (`sample just N
-records`) or speaks of **your/their** records -- it is about the user's data. A statement about
-the product's cap does neither. Hence two alternatives, not a verb list.
+The discriminator is **volition** -- WHO proposes to do it. An offer is something the assistant
+would carry out ("I could load only 500 of your records", "continue with just 500 ...", "sample
+just 500 records"); a fact is something the product does ("the unlicensed tier will load only 500
+of your records"). Possession is NOT enough on its own, and an earlier revision that relied on it
+flagged that factual sentence -- caught in review, now a fixture.
+
+The gate is deliberately **high precision, lower recall**. A deterministic grader that fails a
+correct run is worse than one that misses a novel phrasing, because the judge clause still covers
+what this does not. So each alternative requires an explicit offer frame rather than guessing
+from a verb.
 
 ## The pattern was fitted to real traces, not invented
 
