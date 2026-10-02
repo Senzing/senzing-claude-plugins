@@ -6,6 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`recipes` offered part of the cook on a host that cannot cook — half the time.** On
+  2026-10-02 `recipes-named` scored a judge 0.50: two runs, **unanimous 3-0 in opposite
+  directions**, every deterministic grader green in both. The whole delta was the final
+  paragraph, which in one run offered to "sample just 500 records" and to stage a license file
+  "when we get to the Prep step" — on a machine with no SDK, where `recipes/SKILL.md` forbids
+  offering any part of the cook ("do not do it here, and do not offer it as an option either").
+
+  The model did not invent it. `sdk_guide(topic=install)` instructed it verbatim: "If no license
+  is available, offer three options: (1) continue with just 500 of their records as a sample
+  ...". That text is written for an imminent load and fired while merely explaining an install.
+  Two of our own instructions contradicted each other, and which one won was a coin flip per run
+  — not judge noise. Fixed on the server side in `sz-mcp-coworker` (all four occurrences now
+  require "records are about to be loaded on a working Senzing install", pinned by
+  `quality_sdk_guide_sample_offer_requires_imminent_load`).
+
+### Added
+
+- **`recipes-named/no-cook-offered`, a deterministic grader for the clause the judge could not
+  hold.** A boolean obligation honoured half the time is a defect, not a 0.5 — and a judge
+  verdict cannot be gated on, because the artifact carries no reasoning (`explanation` is
+  literally `"judge votes: FAIL FAIL FAIL"`). The known surface forms are matchable, so they now
+  gate deterministically. The pattern was fitted to the real traces of eval run `37016809063`:
+  **0 hits** on the passing run's final message, **3** on the failing run's, and clean against
+  prose the skill requires — describing the recipe's ~1,600-record size, quoting the 500-record
+  cap, or naming the Setup step. Describing what the recipe needs is mandatory; offering to do
+  part of it is the violation. The `criteria` judge clause stays for phrasings the pattern does
+  not know. Declares both `min: 0` and `max: 0` — the `1..0` bug this repo shipped once already.
+
 ## [1.37.18] - 2026-10-02
 
 ### Changed
