@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.18] - 2026-10-02
+
 ### Changed
 - Version tracks MCP server **1.37.18** (eval-license bundle leak, 2 HIGH libssl CVEs,
   the `sdk_guide` double license route, `get_sample_data` calling the synthetic truth

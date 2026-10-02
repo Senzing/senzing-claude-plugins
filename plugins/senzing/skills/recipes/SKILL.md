@@ -124,6 +124,11 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      needed, `submit_feedback(category='license_request')`'s description states the current
      terms). Don't cook over a Senzing that won't stand up, and don't stop at the diagnosis
      either.
+     **The license agreement URL must appear in the reply the user reads**, not only inside a
+     sub-skill's own output: state `https://senzing.com/end-user-license-agreement/` in your
+     message before anything installs. Delegating the hand-off does not discharge this — a run
+     that routes correctly but leaves the user never seeing the agreement has skipped a
+     compliance step, which is why it is asserted rather than assumed.
    - **A source is blocked** → this one IS a stop: ask the user to allowlist that domain now (for
      recipe text you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
      Nothing downstream works without it, which is what makes it different from the bullets

@@ -170,11 +170,13 @@ license terms here or from memory — call the tool named in each step and cite 
    **The second one is `grep`, on your own output.** Step 8 asks you to check every `TBD` in the
    plan you just wrote, and the reflex is `grep -n "TBD" ./senzing-poc-plan.md`. Same rule, same
    defect: you already have the file — `Read` returned it — so scan the text you are holding.
-   Checking your own work is not an exception to "no shell, ever"; it is the case where the
-   temptation is strongest, because the command looks harmless and the output is your own.
-   Nothing about this skill — checking a path, reading a header row, confirming a write landed —
-   needs a shell, so a single `Bash` call anywhere in the run is a defect even when its output
-   is harmless.
+   Checking your own work by hand is not an exception; it is where the temptation is
+   strongest, because the command looks harmless and the output is your own. Nothing about
+   this skill — checking a path, reading a header row, confirming a write landed — needs a
+   shell. The ONE sanctioned call is `validate_plan.py`, and it exists precisely so that
+   checking your own work does not become a license to run `ls` and `grep`: run the
+   validator, read its output, fix what it names. A second `Bash` call anywhere in the run
+   is a defect even when its output is harmless.
 
 ## Procedure
 
