@@ -307,6 +307,181 @@ else
   bad "a grader declares max without min — the harness defaults min to 1, making the range unsatisfiable"
 fi
 
+echo; echo "== 8d. no regex grader carries tool_used-only count bounds =="
+# `min:`/`max:` bound a CALL COUNT and belong to `tool_used` graders. A `type: regex`
+# grader rejects them, and the harness then fails the WHOLE CASE to load:
+#   graders.6: Unrecognized key(s) in object: 'min', 'max'
+# which surfaces as `cases run=17 expected=18` -- a structural exit 2, NOT a grader
+# failure naming the file. That cost one full eval run on 2026-10-02. A regex grader
+# asserts absence with `match: not_contains`.
+grader_type() { awk 'NR==1{next} /^---$/{exit} {print}' "$1" 2>/dev/null | sed -n 's/^type:[[:space:]]*//p' | head -1; }
+has_count_bound() { awk 'NR==1{next} /^---$/{exit} {print}' "$1" 2>/dev/null | grep -qE '^(min|max):'; }
+
+# Controls first: a scan that finds nothing is indistinguishable from one that cannot.
+ctl=$(mktemp -d)
+printf -- '---\ntype: regex\npattern: "x"\nmin: 0\nmax: 0\n---\n\nbody\n' > "$ctl/positive.md"
+printf -- '---\ntype: regex\npattern: "x"\nmatch: not_contains\n---\n\nbody\n'  > "$ctl/negative.md"
+if [ "$(grader_type "$ctl/positive.md")" = "regex" ] && has_count_bound "$ctl/positive.md"; then
+  ok "positive control: a regex grader carrying min/max is detected"
+else
+  bad "positive control FAILED - the 8d detector does not catch regex+min/max, so a clean scan proves nothing"
+fi
+if [ "$(grader_type "$ctl/negative.md")" = "regex" ] && has_count_bound "$ctl/negative.md"; then
+  bad "negative control FAILED - a correct not_contains grader was flagged"
+else
+  ok "negative control: a regex grader using match: not_contains is not flagged"
+fi
+rm -rf "$ctl"
+
+bad_keys=0
+for f in evals/*/graders/*.md; do
+  if [ "$(grader_type "$f")" = "regex" ] && has_count_bound "$f"; then
+    echo "     $f is type: regex but declares min:/max:"
+    bad_keys=1
+  fi
+done
+if [ "$bad_keys" = "0" ]; then
+  ok "no regex grader declares min:/max: (they would fail the whole case to load)"
+else
+  bad "a regex grader declares min:/max: - the harness will refuse to load its ENTIRE case"
+fi
+
+echo; echo "== 8e. no-cook-offered's pattern actually does what its doc claims =="
+# The grader's claim -- catches the cook offer, leaves the REQUIRED description of what
+# the recipe needs alone -- was prose until 2026-10-02, and prose does not run. An earlier
+# revision of the pattern both MISSED the server's own wording ("continue with just 500 of
+# their records", where the word before `just` is "with", not a verb in the list) and
+# FLAGGED a factual sentence ("will load only 500 records"). Nothing in the repo noticed.
+# Controls FIRST, as in 8d: a fixture check that cannot fail proves nothing. These run
+# the SAME comparison loop against a deliberately broken pattern (the first revision this
+# grader shipped, which missed the server's own wording and flagged a factual sentence)
+# and against the real one, asserting the broken one is rejected.
+python3 - <<'CONTROL'
+import re, sys, pathlib
+try:
+    import yaml
+except ImportError:
+    # Same guard as the main block. Without it a missing dependency reports
+    # "8e's fixtures do not discriminate" -- blaming the fixtures for a host
+    # problem, which is the exact mistake the main block's exit 2 was added for.
+    print("     ! PyYAML not available on this host")
+    sys.exit(2)
+fixtures = pathlib.Path("evals/recipes-named/pattern-fixtures/no-cook-offered.yaml")
+fx = yaml.safe_load(fixtures.read_text(encoding="utf-8")) or {}
+
+def failures(pat):
+    rx = re.compile(pat, re.I)
+    n = sum(1 for s in fx.get("must_match", []) if not rx.search(s))
+    return n + sum(1 for s in fx.get("must_not_match", []) if rx.search(s))
+
+# The first revision: keyed on a list of stemmed verbs.
+broken = (r'(sampl\w*|load\w*|us\w*)\s+(just|only)\s+\d[\d,]*\s+'
+          r'(of\s+(your|their|the)\s+)?records|when we (get|move) to the \w+ step'
+          r'|have it ready to (attach|drop)')
+bf = failures(broken)
+if bf == 0:
+    print("     positive control FAILED: the first revision passes these fixtures, so they "
+          "do not discriminate")
+    sys.exit(1)
+print(f"     positive control: the superseded pattern is rejected ({bf} fixture disagreements)")
+sys.exit(0)
+CONTROL
+# Capture the status from a BARE call. Inside the then-branch of `if ! cmd`, `$?` is the
+# status of the NEGATED expression -- always 0 -- so the exit-2 arm below was dead code
+# and a missing PyYAML still reported "fixtures do not discriminate". Verified:
+#   probe(){ return 2; };  if ! probe; then echo $?; fi   -> 0
+#   probe; echo $?                                        -> 2
+ctl_rc=$?
+if [ "$ctl_rc" = "2" ]; then
+  bad "8e's control could not run, so the fixtures are UNVERIFIED (install PyYAML)"
+elif [ "$ctl_rc" != "0" ]; then
+  bad "8e's fixtures do not discriminate - they pass a pattern known to be broken"
+fi
+
+# This reads the pattern OUT OF the grader file so the two cannot drift.
+if python3 - <<'PYEOF'
+import re, sys, pathlib
+grader = pathlib.Path("evals/recipes-named/graders/no-cook-offered.md")
+fixtures = pathlib.Path("evals/recipes-named/pattern-fixtures/no-cook-offered.yaml")
+if not grader.exists() or not fixtures.exists():
+    print(f"     missing {grader if not grader.exists() else fixtures}")
+    sys.exit(1)
+
+fm = []
+for i, line in enumerate(grader.read_text(encoding="utf-8").split("\n")):
+    if i == 0:
+        continue
+    if line.strip() == "---":
+        break
+    fm.append(line)
+pat = None
+for line in fm:
+    m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
+    if m:
+        pat = m.group(1)
+if pat is None:
+    print("     could not read `pattern:` out of the grader front matter")
+    sys.exit(1)
+rx = re.compile(pat, re.I)
+
+try:
+    import yaml
+except ImportError:
+    # Without this guard the ImportError propagates and the section reports
+    # "pattern disagrees with its own fixtures" -- accusing the pattern of a
+    # defect when the real problem is a missing dependency on this host.
+    print("     ! PyYAML not available on this host")
+    sys.exit(2)
+fx = yaml.safe_load(fixtures.read_text(encoding="utf-8")) or {}
+if not fx.get("must_match") and not fx.get("must_not_match"):
+    print("     ! fixtures file is empty or not parseable - nothing was checked")
+    sys.exit(2)
+fails = 0
+for s in fx.get("must_match", []):
+    if not rx.search(s):
+        print(f"     MISSED (must match): {s}")
+        fails += 1
+for s in fx.get("must_not_match", []):
+    if rx.search(s):
+        print(f"     FALSE POSITIVE (must not match): {s}")
+        fails += 1
+n = len(fx.get("must_match", [])) + len(fx.get("must_not_match", []))
+print(f"     {n - fails} of {n} fixture strings behave as documented")
+sys.exit(1 if fails else 0)
+PYEOF
+then
+  ok "no-cook-offered matches every documented offer and no required prose"
+else
+  rc=$?
+  # Exit 2 means the check could not RUN (no PyYAML, unreadable fixtures). Saying
+  # `ok` there would affirm a claim nothing verified -- the exact defect this
+  # release exists to remove -- so it is a failure, not a pass. CI has PyYAML;
+  # a host without it must not be able to green this silently.
+  if [ "$rc" = "2" ]; then
+    bad "8e could not run, so the pattern is UNVERIFIED - this is not a pass (install PyYAML)"
+  else
+    bad "no-cook-offered's pattern disagrees with its own fixtures - it would miss a real offer or fail a correct run"
+  fi
+fi
+
+echo; echo "== 8f. demo routes on the blocker CLASS, not on a verdict =="
+# A prompt change with no offline test is verified by prose alone. The full assertion
+# (a denied package host must route into `install`) needs an eval case that reproduces
+# that host, which does not exist yet. This is the cheap half: the contract that was
+# WRONG -- routing only "if there is no running Senzing", a verdict -- must not come
+# back, and the blocker-class wording must still be there. It cannot prove behavior;
+# it proves the instruction has not silently reverted.
+demo_skill=plugins/senzing/skills/demo/SKILL.md
+if [ ! -f "$demo_skill" ]; then
+  bad "$demo_skill is gone - this check is stale, point it at the new home"
+elif ! grep -q "The trigger is the BLOCKER CLASS" "$demo_skill"; then
+  bad "demo/SKILL.md lost the blocker-class routing rule - a denied host or missing permission will not route to install, and install's EULA contract is what that routing buys"
+elif ! grep -q "a sandboxed shell" "$demo_skill"; then
+  bad "demo/SKILL.md no longer names the sandboxed-shell blocker, the one that shipped install commands with no license agreement"
+else
+  ok "demo routes on the blocker class, and still names the blocker that caused the defect"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

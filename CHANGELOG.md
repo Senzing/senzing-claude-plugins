@@ -6,6 +6,86 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.19] - 2026-10-03
+
+### Changed
+
+- Version tracks MCP server **1.37.19**, whose `sdk_guide` fix is the server half of the
+  `recipes` cook-offer defect below. Verified live from the endpoint before this bump:
+  `sdk_guide(topic=install, platform=docker)` returns the gated wording and zero occurrences
+  of the old unconditional offer. CI enforces strict equality against the live agent card.
+
+### Fixed
+
+- **`demo` could ship install commands with no license agreement, when the blocker was not
+  "no SDK".** `demo-no-simulation/install-invoked` failed 1 of 2 runs on 2026-10-02 (eval run
+  `37062001623`). The failing run found its shell's sandbox denying outbound network to
+  `formulae.brew.sh` and ended on a menu — *"allow the network access so I can install and run
+  the real thing, or see the zero-install preview?"* — carrying `brew tap senzing/senzingsdk`
+  and `brew install --cask senzingsdk` while naming "the Senzing EULA" by phrase only. Grepped
+  across every assistant message in that trace: **zero** occurrences of the agreement URL. The
+  user was never shown the license by any route. The LLM `criteria` grader failed the same run
+  independently, 3 votes to 0.
+
+  The passing run differed in ROUTE, not wording: it invoked `install`, whose own contract
+  (`install/SKILL.md:79-87`) already requires the EULA in any turn ending on a blocker — naming
+  "a sandboxed host" and "a choice of paths you are putting to them" explicitly. That contract
+  lives inside the skill the failing run never entered; it called `sdk_guide(topic=install)`
+  directly instead, which `demo/SKILL.md` forbids by name.
+
+  The cause was the trigger's scope. `demo` routed to `install` only "**If there is no running
+  Senzing**" — a verdict. A model that classified its blocker as a host-permission problem
+  rather than an install problem read the rule as not applying, and invented a fork. The trigger
+  is now the **blocker class**: no SDK, a denied package host, a missing permission, a sandboxed
+  shell, an egress rule it cannot lift — anything `install` itself would have to clear routes
+  the same way, and "only the user can change this" is a reason to hand off rather than to stop
+  and offer a menu.
+
+  Deliberately NOT the fix tried and rejected before (recorded in `graders/install-invoked.md`):
+  that one required every install-pointing message to carry the URL and regressed the case from
+  1-of-2 to 2-of-2, because it punished runs that were correctly *delegating*. This changes
+  routing, not wording, and targets the opposite failure — a run that delegated to nobody.
+
+- **`recipes` offered part of the cook on a host that cannot cook — half the time.** On
+  2026-10-02 `recipes-named` scored a judge 0.50: two runs, **unanimous 3-0 in opposite
+  directions**, every deterministic grader green in both. The whole delta was the final
+  paragraph, which in one run offered to "sample just 500 records" and to stage a license file
+  "when we get to the Prep step" — on a machine with no SDK, where `recipes/SKILL.md` forbids
+  offering any part of the cook ("do not do it here, and do not offer it as an option either").
+
+  The model did not invent it. `sdk_guide(topic=install)` instructed it verbatim: "If no license
+  is available, offer three options: (1) continue with just 500 of their records as a sample
+  ...". That text is written for an imminent load and fired while merely explaining an install.
+  Two of our own instructions contradicted each other, and which one won was a coin flip per run
+  — not judge noise. Fixed on the server side in `sz-mcp-coworker` (all four occurrences now
+  require "records are about to be loaded on a working Senzing install", pinned by
+  `quality_sdk_guide_sample_offer_requires_imminent_load`).
+
+### Added
+
+- **`recipes-named/no-cook-offered`, a deterministic grader for the clause the judge could not
+  hold.** A boolean obligation honoured half the time is a defect, not a 0.5 — and a judge
+  verdict cannot be gated on, because the artifact carries no reasoning (`explanation` is
+  literally `"judge votes: FAIL FAIL FAIL"`). So the known surface forms gate deterministically
+  and the `criteria` judge clause stays for phrasings the pattern does not know. Absence is
+  asserted with `match: not_contains`; the `min`/`max` bounds belong to `tool_used` graders
+  only, and a `regex` grader carrying them fails its entire case to load.
+
+  **The discriminator is volition, not possession.** An offer is something the assistant would
+  carry out ("I could load only 500 of your records", "continue with just 500 …"); a fact is
+  something the product does ("the unlicensed tier will load only 500 of your records").
+  Describing what the recipe needs is mandatory; offering to do part of it is the violation.
+  Two earlier revisions got this wrong — one keyed on a verb list and both missed the server's
+  own wording and flagged a factual sentence; one keyed on possession and still flagged the
+  factual sentence. The gate is deliberately high precision and lower recall: a deterministic
+  grader that fails a correct run is worse than one that misses a novel phrasing.
+
+  **The claim is executable.** `check.sh` section 8e reads the pattern **out of the grader
+  file** and runs it against 22 fixture strings — the server's own wording, the verbatim trace
+  lines from eval run `37016809063`, and the prose the skill requires — so pattern and evidence
+  cannot drift. It earns its place: pointed at the first revision it reports `9 of 13`, naming
+  both defects that a review had caught by hand.
+
 ## [1.37.18] - 2026-10-02
 
 ### Changed
