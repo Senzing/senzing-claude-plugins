@@ -23,6 +23,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     routing fix, as "or skip install and I show you the zero-install preview". `no-install-or-preview-menu`.
   - **`poc-planner-grounded`**: plans omitted TBDs written in prose or tables from §9, and listed the
     license paths as agreeing, while `validate_plan.py` printed "plan is well formed". See Changed.
+- **`report-empty-instance`: the skill told the model to state the zero it forbids stating.** On
+  `internal://` the skill cannot see the repository, so it may relay only the user's zero, attributed in the
+  same sentence. But it also said "Zero → refuse: say so" and "running it is how the zero becomes established
+  fact", unscoped, in the same section. Across 38 arms under the current rubric the judge failed 3 and passed 35,
+  yet 14 carried the same unattributed sentence ("There are no entities — biggest or otherwise"); 11 of the 35
+  judge PASSes broke the rubric as written. Those lines are now scoped to persisted connections, the soft forms
+  ("there are no entities", "none exist", "Biggest entities: none") are named, and the reply answers both of the
+  user's questions inside the one attributed sentence. `no-own-voice-zero` asserts it (3 of 3 judge FAILs hit),
+  and `criteria` is split into three single-clause judges. The grader and the skill fix land together: the grader
+  alone would have moved the case from about 3 failing arms in 38 to about 14.
 - **`analyze` let its default workspace override the user's.** The Real Senzing E2E tells the model to keep
   the repository "inside this workspace"; the skill's default was `~/sz-workspace`, and a run that obeyed the
   default left the repository outside the directory the verifier (deliberately scoped to the scaffold

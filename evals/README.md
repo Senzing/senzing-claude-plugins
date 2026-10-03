@@ -103,7 +103,7 @@ a pattern cannot see. Each such grader has `pattern-fixtures/<name>.yaml` (real 
 cases are labelled in the file), and `check.sh` 8e/8g read the pattern **out of the grader** and run it against
 them, with controls proving the fixtures can fail. Current set: `no-cook-offered`, `no-duration`,
 `no-install-or-preview-menu`, `no-production-offer`, and `poc-planner-elicits`' `asks-data-block`,
-`asks-language-block`, `no-own-number`. A regex grader takes no `min`/`max` (those are `tool_used` keys and
+`asks-language-block`, `asks-hardware-block`, `asks-buy-decision`, `no-own-number`, and `report-empty-instance`'s `no-own-voice-zero`. A regex grader takes no `min`/`max` (those are `tool_used` keys and
 fail the whole case to load); absence is `match: not_contains`.
 
 Exit codes: `0` both clean · `1` a deterministic assertion failed · `2` the run is structurally
