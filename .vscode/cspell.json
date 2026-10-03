@@ -113,6 +113,7 @@
     ".git/**",
     "evals/results/**",
     "evals/*/grader-fixtures/**",
+    "evals/*/pattern-fixtures/**",
     "**/evals/results/**",
     "evals-real/resolve-truthset/fixtures/**",
     "evals-real/ground-truth/*.csv",

@@ -1,7 +1,7 @@
 ---
 description: >-
   "How long will a Senzing POC take?" routes to poc-planner (not ask) and is answered by asking —
-  the reply names no weeks or months, quotes only cited figures, and asks the rightsizing questions.
+  the reply names no duration at all, cited or not, and asks the rightsizing questions.
 tags: [poc-planner, ask, routing, no-fabrication]
 expected_outcome: >
   poc-planner fires, ask does not; the PoC guidance is retrieved; the reply says the duration is

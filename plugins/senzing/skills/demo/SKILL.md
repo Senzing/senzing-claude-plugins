@@ -158,10 +158,12 @@ second report.
      distinct `DATA_SOURCE` codes — the load step registers them. `mapping_workflow` is for the
      user's own data (`analyze`).
    - **Load into a fresh scratch repository exactly as `analyze` step 4 does — no confirmation
-     needed.** The scratch repo is throwaway and touches nothing of theirs. Load into the user's
-     **existing** repository only on their explicit request, and then confirm the target and the
-     record count first. Verify the load as `analyze` step 4 does (loaded vs submitted, error
-     count) before going on.
+     needed.** The scratch repo is throwaway and touches nothing of theirs. **Never offer, hint at
+     or ask about loading into their existing repository** — not "if you'd rather load it into
+     production, say so", not "I'll only do that if you explicitly ask". Saying production is
+     untouched is fine; saying it is *available* is an offer. Only if the USER raises their
+     existing repository themselves, confirm the target and the record count first.
+     Verify the load as `analyze` step 4 does (loaded vs submitted, error count) before going on.
    - **Drain the redo queue** as `analyze` step 5 does — get the probe from the MCP, drain to 0,
      report the number processed — before taking any entity count.
    - **Name the storage target in the write-up** — the repository, never a record. These two

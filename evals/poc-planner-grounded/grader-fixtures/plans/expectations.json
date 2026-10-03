@@ -14,11 +14,6 @@
         "why": "a §2 value that is neither the user's fact nor the TBD literal — an invented team member in a double-quoted scalar with no source"
       },
       {
-        "grader": "judge-sc-items-template-only",
-        "evidence": "guidance: comparable ER evaluations",
-        "why": "an eighth key under SC-1; SC-2's target 'F1 above 0.95 is a common bar' is a bar in a target"
-      },
-      {
         "grader": "judge-no-metric-threshold",
         "evidence": "F1 above 0.95",
         "why": "a metric threshold in the plan's own voice, uncited"

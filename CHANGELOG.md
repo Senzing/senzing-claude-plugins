@@ -6,6 +6,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Four judge failures were real defects, and the judge was the instrument, not the cause.** Every
+  recurring judge FAIL was unanimous (`FAIL FAIL FAIL`) on one of two runs, the signature of a real
+  behavioral difference. Each was diagnosed from the CI traces:
+  - **`poc-planner-how-long`**: the skill and the grader both *permitted* a cited duration, and
+    retrieval hands the model one ("mapping … less than 30 minutes per data source"). Across 34 arms
+    in 21 runs, 0 of 75 votes failed an arm without that sentence; 14 of 27 failed arms with it. A
+    decline now carries no duration at all, cited or not (`SKILL.md`, `criteria.md`), asserted by
+    `no-duration`.
+  - **`demo-scratch-repo`**: `demo/SKILL.md` said to load into the existing repository "only on
+    their explicit request", and the model recited that to the user as an offer — the exact shape
+    `criteria.md` names as the failure. The skill now says never to offer or hint at it; asserted by
+    `no-production-offer`.
+  - **`demo-no-simulation`**: the missing-license-agreement defect recurred once after the
+    blocker-class routing fix, as "or skip install and I show you the zero-install preview".
+    Asserted by `no-install-or-preview-menu`.
+  - **`poc-planner-grounded` open decisions**: plans omitted TBDs written in prose or tables from §9,
+    and `validate_plan.py` reported "plan is well formed" anyway. The validator now builds paths per
+    list item (`SC-1`, `SC-2`, `SC-3` were all collapsing to `id.target`, which is why two earlier
+    attempts at a stricter check failed), covers each exactly, and requires a prose TBD to name its
+    §9 key in backticks. The committed "correct" fixture itself had no §9 line for SC-3's three TBDs
+    and nine unkeyed prose TBDs; the old validator passed it. `check.sh` 8b pins a plan missing only
+    `SC-2.target`, and a prose TBD with no key.
+
+### Changed
+
+- **`judge-sc-items-template-only` is removed; the validator checks it.** The clause is mechanical
+  (the seven keys, every target the literal) and the judge failed plans that complied. 0 violations
+  in 32 real plans by script.
+- **`poc-planner-elicits/criteria` is split.** It bundled seven obligations, so a FAIL named none.
+  Data-asked, language-asked and no-own-number are regexes (0 false fails in 82 real replies); three
+  clauses stay with the judge, one each. 8 of 82 replies were judge FAILs that nothing visible
+  separates from passes, so this case's residual judge noise is unresolved.
+- **`check.sh` 8g** reads each fixture-backed regex grader's pattern out of its own file and runs it
+  against `pattern-fixtures/<name>.yaml` (real final messages; hand-written cases are labelled). It
+  controls itself: trivial patterns must fail the fixtures, and a host that cannot run it fails.
+- **`no-cook-offered`**: dropped a redundant `could\s+just` alternation; fixed an MD012 blank line.
+
+### Not fixed
+
+- **`judge-license-terms-not-reconciled`** is a real defect with a server-side cause: `sdk_guide`
+  returns three license paths that disagree (an Ask Senzing `eval_license` pointer, `submit_feedback`,
+  and the web form), and 30 of 32 plans omit the Ask Senzing path. Which path is canonical is a product
+  decision; the judge is not the problem.
+- **The judge is still not a hard gate.** Residual judge noise remains (`poc-planner-elicits`, license
+  terms). Enforcing now would block merges on it.
+
 ## [1.37.19] - 2026-10-03
 
 ### Changed

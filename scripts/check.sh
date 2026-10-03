@@ -232,6 +232,30 @@ else
   bad "validate_plan.py rejects fabricated-plan.md but not for the §9 omission — check the reason, not just the exit code"
 fi
 
+# The two mutations the old leaf-substring check could not see. Each starts from the CORRECT plan
+# and removes exactly one thing, so the reason it is rejected is the only thing that changed.
+vp_tmp="$(mktemp -d)"
+sed 's/SC-2 target, measured_against, decided_by/SC-2 measured_against, decided_by/' "$VP_OK" > "$vp_tmp/no-sc2-target.md"
+# shellcheck disable=SC2016  # the backticks are literal characters in the plan, not a command substitution
+sed 's/ (`data_subset_scope`)//' "$VP_OK" > "$vp_tmp/prose-no-key.md"
+cmp -s "$VP_OK" "$vp_tmp/no-sc2-target.md" && bad "8b mutation 1 did not change the plan - the test below proves nothing"
+cmp -s "$VP_OK" "$vp_tmp/prose-no-key.md" && bad "8b mutation 2 did not change the plan - the test below proves nothing"
+VP_OUT1="$(python3 "$VP" "$vp_tmp/no-sc2-target.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-2.target'" \
+   && ! printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-1.target'" \
+   && ! printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-3.target'"; then
+  ok "a plan missing ONLY SC-2.target is rejected for exactly that (not SC-1 or SC-3)"
+else
+  bad "validate_plan.py does not isolate SC-2.target - the leaf-substring weakness is back"
+fi
+VP_OUT2="$(python3 "$VP" "$vp_tmp/prose-no-key.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT2" | grep -q "names no §9 key"; then
+  ok "a prose TBD with no §9 key is rejected, naming the line"
+else
+  bad "validate_plan.py accepts a prose TBD that is never listed as open"
+fi
+rm -rf "$vp_tmp"
+
 echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
 # A tool_used grader that sets `max: 0` and omits `min` gets min defaulted to 1, so the
 # harness evaluates the range 1..0 — which NOTHING can satisfy. It fails every run,
@@ -462,6 +486,94 @@ else
   else
     bad "no-cook-offered's pattern disagrees with its own fixtures - it would miss a real offer or fail a correct run"
   fi
+fi
+
+echo; echo "== 8g. every other regex grader with fixtures does what its doc claims =="
+# Generic form of 8e. For each evals/<case>/pattern-fixtures/<name>.yaml (except no-cook-offered,
+# which has its own 8e), read `pattern:` OUT OF evals/<case>/graders/<name>.md and run it against
+# the fixtures. must_match = the pattern HITS (the offending text); must_not_match = it does not.
+# Exit 0 checked and clean, 1 disagreement, 2 could not run -- and 2 is a FAILURE: a check that
+# cannot run must never read as a pass.
+python3 - <<'PYEOF'
+import re, sys, pathlib
+try:
+    import yaml
+except ImportError:
+    print("     ! PyYAML not available on this host")
+    sys.exit(2)
+
+def front_matter_pattern(path):
+    lines = path.read_text(encoding="utf-8").split("\n")
+    fm = []
+    for i, line in enumerate(lines):
+        if i == 0:
+            continue
+        if line.strip() == "---":
+            break
+        fm.append(line)
+    pat, flags = None, 0
+    for line in fm:
+        m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
+        if m:
+            pat = m.group(1)
+        m = re.match(r"^flags:\s*(\w+)\s*$", line)
+        if m and "i" in m.group(1):
+            flags = re.I
+    return pat, flags
+
+def disagreements(rx, fx):
+    n = sum(1 for s in fx.get("must_match", []) if not rx.search(s))
+    return n + sum(1 for s in fx.get("must_not_match", []) if rx.search(s))
+
+files = [f for f in sorted(pathlib.Path("evals").glob("*/pattern-fixtures/*.yaml"))
+         if f.name != "no-cook-offered.yaml"]
+if not files:
+    print("     no fixture files found - nothing was checked")
+    sys.exit(2)
+bad = 0
+for f in files:
+    grader = f.parent.parent / "graders" / (f.stem + ".md")
+    if not grader.exists():
+        print(f"     {f}: no grader {grader.name} beside it")
+        bad += 1
+        continue
+    pat, flags = front_matter_pattern(grader)
+    if pat is None:
+        print(f"     {grader}: could not read `pattern:`")
+        bad += 1
+        continue
+    fx = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+    if not fx.get("must_match") or not fx.get("must_not_match"):
+        print(f"     {f}: needs BOTH must_match and must_not_match")
+        bad += 1
+        continue
+    # Controls: a pattern that never matches must fail must_match, and one that always
+    # matches must fail must_not_match -- otherwise these fixtures cannot discriminate.
+    never, always = re.compile(r"(?!x)x"), re.compile(r"")
+    if disagreements(never, fx) == 0 or disagreements(always, fx) == 0:
+        print(f"     {f}: fixtures do not discriminate (a trivial pattern passes them)")
+        bad += 1
+        continue
+    rx = re.compile(pat, flags)
+    d = disagreements(rx, fx)
+    n = len(fx["must_match"]) + len(fx["must_not_match"])
+    for s in fx["must_match"]:
+        if not rx.search(s):
+            print(f"     {f.name} MISSED: {s[:80]}")
+    for s in fx["must_not_match"]:
+        if rx.search(s):
+            print(f"     {f.name} FALSE POSITIVE: {s[:80]}")
+    print(f"     {f.parent.parent.name}/{f.stem}: {n - d} of {n} fixtures behave as documented")
+    bad += 1 if d else 0
+sys.exit(1 if bad else 0)
+PYEOF
+g_rc=$?
+if [ "$g_rc" = "0" ]; then
+  ok "every fixture-backed regex grader matches its offending text and none of its required prose"
+elif [ "$g_rc" = "2" ]; then
+  bad "8g could not run, so those patterns are UNVERIFIED - this is not a pass (install PyYAML)"
+else
+  bad "a regex grader disagrees with its own fixtures - it would miss real text or fail a correct run"
 fi
 
 echo; echo "== 8f. demo routes on the blocker CLASS, not on a verdict =="
