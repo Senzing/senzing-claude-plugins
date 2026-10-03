@@ -173,7 +173,8 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    - **Ingredients:** if the recipe uses repo-provided ingredients, `curl` them from
      `<raw base>/ingredients/<...>` into the workspace before the Cook step. If the user brings
      their own data, take the paths, keep PII local, and note where the mapping will differ.
-   - **Workspace:** use one (default `~/sz-workspace` or `$SZ_WORKSPACE`) and thread it through
+   - **Workspace:** use the location the user named ("this directory", a path) if they gave one,
+     otherwise a default (`~/sz-workspace` or `$SZ_WORKSPACE`), and thread it through
      every step (the writability probe already ran in pre-flight).
 5. **Cook the steps in order.** Walk the action sections as the recipe lays them out —
    *Prep → Cook → Plate → Plus* (names and count vary; cook whatever H2s are present). For each:

@@ -98,8 +98,12 @@ State the resolved input list to the user before proceeding — informational, n
    answer still does not change the mapping, which needs no SDK, no license and no install. State
    the assumption you are proceeding under and go. Exactly two exceptions: no input data was given
    at all, and a `senzing-poc-plan.md` row you need reads `TBD — decided by`.
-2. **Agree a workspace — and confirm the shell can actually write to it.** Default `~/sz-workspace`
-   (or `$SZ_WORKSPACE` if set). **Do not assume the shell and the file tools share one filesystem,
+2. **Agree a workspace — and confirm the shell can actually write to it.** **Where the user said to
+   put things wins.** "Inside this workspace", "in this directory", "here", or a path they gave IS
+   the workspace: probe the current directory (`cd . && pwd`) or that path, and never `~/sz-workspace`.
+   Only when the user named no location is the default `~/sz-workspace` (or `$SZ_WORKSPACE` if set)
+   used — a run that obeyed the default after being told "keep the scratch repository inside this
+   workspace" left the repository outside the directory the user would open. **Do not assume the shell and the file tools share one filesystem,
    or that the default path is writable** — some hosts sandbox the shell to a different filesystem
    than the file tools see. Verify by having the shell create the directory and write a probe file;
    if the default isn't writable, pick a directory the shell reports as writable.

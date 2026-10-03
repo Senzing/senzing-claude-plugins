@@ -271,6 +271,16 @@ if printf '%s' "$VP_OUT4" | grep -q "license terms agree"; then
 else
   bad "validate_plan.py accepts 'no discrepancy' about license terms the tools returned differently"
 fi
+# §3 target: the plan must not set one. Change only SC-1's target to a figure.
+# awk, not sed: `0,/re/s//x/` is GNU-only and silently changes nothing on BSD sed (the cmp below catches that).
+awk '!d && /target: TBD — decided by data platform lead/ { sub(/target: TBD — decided by data platform lead/, "target: F1 above 0.95"); d=1 } { print }' "$VP_OK" > "$vp_tmp/invented-target.md"
+cmp -s "$VP_OK" "$vp_tmp/invented-target.md" && bad "8b mutation 5 did not change the plan - the test below proves nothing"
+VP_OUT5="$(python3 "$VP" "$vp_tmp/invented-target.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT5" | grep -q "target is 'F1 above 0.95'"; then
+  ok "a plan that sets an SC target of its own is rejected, naming the figure"
+else
+  bad "validate_plan.py accepts an SC target the plan invented"
+fi
 rm -rf "$vp_tmp"
 
 echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
@@ -459,7 +469,7 @@ pat = None
 for line in fm:
     m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
     if m:
-        pat = m.group(1)
+        pat = m.group(1).replace("''", "'")  # YAML single-quote escape
 if pat is None:
     print("     could not read `pattern:` out of the grader front matter")
     sys.exit(1)
@@ -506,6 +516,9 @@ else
 fi
 
 echo; echo "== 8g. every other regex grader with fixtures does what its doc claims =="
+# DIALECT: the pattern is run with Python `re`; the eval harness may use another engine. Patterns stay in
+# the common subset (\\b \\w \\s \\d, (?:...), {m,n}, no lookbehind), but this proves Python behavior only:
+# read a pass as "the pattern and its fixtures agree", not "the harness agrees".
 # Generic form of 8e. For each evals/<case>/pattern-fixtures/<name>.yaml (except no-cook-offered,
 # which has its own 8e), read `pattern:` OUT OF evals/<case>/graders/<name>.md and run it against
 # the fixtures. must_match = the pattern HITS (the offending text); must_not_match = it does not.
@@ -532,7 +545,7 @@ def front_matter_pattern(path):
     for line in fm:
         m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
         if m:
-            pat = m.group(1)
+            pat = m.group(1).replace("''", "'")  # YAML single-quote escape
         m = re.match(r"^flags:\s*(\w+)\s*$", line)
         if m and "i" in m.group(1):
             flags = re.I
@@ -609,6 +622,19 @@ elif ! grep -q "a sandboxed shell" "$demo_skill"; then
   bad "demo/SKILL.md no longer names the sandboxed-shell blocker, the one that shipped install commands with no license agreement"
 else
   ok "demo routes on the blocker class, and still names the blocker that caused the defect"
+fi
+
+echo; echo "== 8h. analyze lets the user's named location beat the default workspace =="
+# The E2E case tells the model to keep the repository "inside this workspace", while the skill's
+# default was ~/sz-workspace. A run that followed the default left the repository where the
+# verifier (deliberately scoped to the scaffold directory) could not find it. Text guard only: it
+# proves the precedence rule has not been removed, not that a model obeys it.
+# shellcheck disable=SC2016  # the backticks are literal characters in the skill text
+if grep -q "Where the user said to" plugins/senzing/skills/analyze/SKILL.md \
+   && grep -qF 'never `~/sz-workspace`' plugins/senzing/skills/analyze/SKILL.md; then
+  ok "analyze states that the user's named location beats the default workspace"
+else
+  bad "analyze/SKILL.md lost the user-location-beats-default rule - the default can again override 'inside this workspace'"
 fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="

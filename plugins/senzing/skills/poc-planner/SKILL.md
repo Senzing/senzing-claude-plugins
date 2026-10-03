@@ -47,8 +47,7 @@ license terms here or from memory — call the tool named in each step and cite 
    except in a decline, below, where no duration appears at all.
    **Decline without naming a specimen.** Asked outright "how long will a POC take?", say the
    guidance carries no duration for the POC as a whole, say whose decision it is and what
-   determines it — and do **not**
-   illustrate the refusal with a number. *"I'm not going to hand you a '2 weeks' or '1 month'
+   determines it — and do **not** illustrate the refusal with a number. *"I'm not going to hand you a '2 weeks' or '1 month'
    estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
    its numbers, not its verbs. Same for a range, a "not even a ballpark like…", or a duration
    offered as what you are *not* saying. **A cited quote is not an exception here.** The guidance

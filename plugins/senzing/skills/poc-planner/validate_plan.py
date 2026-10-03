@@ -64,16 +64,23 @@ def block_tbd_paths(block: str) -> list[tuple]:
             continue
         ind, key, rest = len(m.group("ind")), m.group("key"), m.group("rest")
         if m.group("dash"):
-            while stack and stack[-1][0] >= ind:
+            # `key:` followed by `- a: b` at the SAME indent is valid YAML: the item belongs to that
+            # key, so only a previous sibling ITEM at this indent (or anything deeper) is popped.
+            while stack and (stack[-1][0] > ind or (stack[-1][0] == ind and not isinstance(stack[-1][1], str))):
                 stack.pop()
             parent = stack[-1][1] if stack and isinstance(stack[-1][1], str) else ""
             ctx = tuple(s for _, s in stack)
             counters[ctx] = counters.get(ctx, -1) + 1
-            label = _unquote(rest.split("#")[0]) if key in ("id", "name") else str(counters[ctx])
-            stack.append((ind, ("item", parent, label, counters[ctx])))
+            named = key in ("id", "name")
+            label = _unquote(rest.split("#")[0]) if named else str(counters[ctx])
+            stack.append((ind, ("item", parent, label, counters[ctx], named)))
             ind += len(m.group("dash"))
         while stack and stack[-1][0] >= ind:
             stack.pop()
+        if key in ("id", "name") and not m.group("dash") and stack and isinstance(stack[-1][1], tuple) \
+                and not stack[-1][1][4]:
+            _, par, _, n, _ = stack[-1][1]
+            stack[-1] = (stack[-1][0], ("item", par, _unquote(rest.split("#")[0]), n, True))
         segments = tuple(s for _, s in stack) + (key,)
         if LIT in rest:
             out.append(segments)
@@ -90,7 +97,7 @@ def fmt_path(segments: tuple) -> str:
     parts: list[str] = []
     for s in segments:
         if isinstance(s, tuple):
-            _, parent, label, _n = s
+            _, parent, label, _n, _named = s
             if parts and parts[-1] == parent:
                 parts[-1] = f"{parent}[{label}]"
             else:
@@ -116,8 +123,11 @@ def covered(segments: tuple, lines: list[str]) -> bool:
         ok = True
         for s in segments:
             if isinstance(s, tuple):
-                _, parent, label, n = s
-                if not (_token_in(label, line)
+                _, parent, label, n, named = s
+                # A positional label is a bare ordinal ("0", "1"): matching it as a word would let any
+                # stray digit on a §9 line ("250K", "3 sources") cover an unlabeled item. Only a name
+                # (`id`/`name`) is matched as a word; ordinals match only as parent[N] / parent[] / parent[*].
+                if not ((named and _token_in(label, line))
                         or (parent and any(f"{parent}[{x}]".lower() in low for x in ("", "*", n, label)))):
                     ok = False
                     break
@@ -283,11 +293,16 @@ def check(text: str) -> list[str]:
             if not mk or l.lstrip().startswith("#"):
                 continue
             k, rest = mk.group("key"), mk.group("rest").split(" #")[0].strip()
-            if mk.group("dash") and k == "id":
+            if mk.group("dash"):
+                item = "?"            # a new item: never report under the previous one's id
+            if k == "id":             # `id` need not be the first key of the item
                 item = _unquote(rest)
             if k == "target":
                 v = _unquote(rest)
-                if not re.fullmatch(r"TBD — decided by [^:\n\d%]+?", v) and not v.startswith("per user"):
+                # An owner may contain digits ("team 2", "SRE-1"); what is rejected is a ':' tail or a
+                # percent -- a figure after the owner. `per user ...` is also allowed: the user's own
+                # words, which is wider than "every target is the literal" and intended (rule 4b).
+                if not re.fullmatch(r"TBD — decided by [^:\n%]+?", v) and not v.startswith("per user"):
                     problems.append(
                         f"§3 {item}: target is '{v[:70]}'. A target is `TBD — decided by <owner>` or the user's "
                         f"own words marked `per user`; the plan does not set one."
