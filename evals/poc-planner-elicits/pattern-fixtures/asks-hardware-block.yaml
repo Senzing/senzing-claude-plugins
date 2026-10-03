@@ -1,0 +1,118 @@
+# must_match = the pattern HITS. must_not_match is HAND-WRITTEN (declarative text with no question); must_match is 2 REAL replies.
+must_match:
+- 'I retrieved Senzing''s own PoC guidance (9 sections of "The Path to a Successful Proof of Concept,"
+  https://senzing.zendesk.com/hc/en-us/articles/360047998914). You haven''t yet given me the specifics
+  that determine the shape of a plan — data volume, database, platform, who''s running it, or what "success"
+  means for your org — so rather than draft anything with placeholders, here are the questions the guidance
+  itself says a PoC has to answer. Once you answer these (even partially, "unknown" is fine), I''ll write
+  a structured plan to `./senzing-poc-plan.md` that a later step (`/senzing:analyze`, `/senzing:install`,
+  etc.) can act on directly.
+
+
+  **1. Data (from the guidance''s "Rightsizing for Success" section)**
+
+  - What data is required to demonstrate success to the business? Where does it live, and across how many
+  sources?
+
+  - Who owns that data, and is it cleared for use in an evaluation?
+
+  - How many records are actually required to satisfy your success outcomes (not your full production
+  volume — a representative slice)?
+
+
+  **2. Infrastructure**
+
+  - Total record count, and a breakdown per source system?
+
+  - Which database (Postgres/MySQL/MSSQL/other)?
+
+  - Which OS and platform — container or bare metal?
+
+  - Cloud or on-prem — and does that match where production would eventually live?
+
+  - What hardware is actually available for the PoC itself (not what production would eventually get)?
+
+  - What throughput and latency would you need to see to believe the result?
+
+
+  **3. People and tooling**
+
+  - Who will run the evaluation, and what''s their skill set?
+
+  - How much of their time is available for it?
+
+  - Which SDK language do you expect to use — Python, Java, C#, or something else?
+
+
+  **4. What "success" looks like**
+
+  The guidance names three shapes evaluations typically take — which is closest, or is it a mix?
+
+  - The quality of the resolved results (dedup accuracy, match/non-match correctness)
+
+  - A working functional integration with one of your existing systems
+
+  - Specific entity-graph scenarios you expect to find in your data (e.g., hidden relationships across
+  sources)
+
+
+  Also: does anyone already hold a number or bar for this — procurement, an architecture review, a regulator,
+  a business owner? If so, what is it, in their words?
+
+
+  Answer what you can — everything else becomes an explicit open question in the plan rather than a guess
+  from me.'
+- 'I pulled Senzing''s own PoC guidance from the MCP server (source: [The Path to a Successful Proof of
+  Concept (PoC)](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC)).
+  Since you haven''t given me constraints yet — no data volume, database, platform, or success bar — this
+  is a planning conversation, not a plan to write yet. A few notes from the guidance before the questions:
+
+
+  - It explicitly says it "isn''t a PoC project plan" — no phases or timeline, just what to get right.
+
+  - On rightsizing: *"If your evaluation use case is to ingest, entity resolve, and analyze 1 billion
+  records across multiple data sources, but all you have is one part-time person and a Windows VM, then
+  there is a mismatch between expectations and resources."*
+
+  - On scoping: most evaluations converge on two things — ease of adding data, and quality of the results.
+
+  - On data selection: *"Take a vertical slice, not a random sample"* — pick by last name, region, or
+  postal code so the same real-world entities actually show up across sources, rather than sampling randomly.
+
+
+  To turn this into a real plan (via `/senzing:poc-planner`, which will write a structured document),
+  I need answers — "not decided yet" is a fine answer for any of these:
+
+
+  **1. Data**
+
+  - What data is required to demonstrate success — which sources, how many records total and per source,
+  who owns it, can it be used for this evaluation?
+
+
+  **2. Infrastructure**
+
+  - Database (Postgres/MySQL/MSSQL/other)? OS/platform — container or bare metal? Cloud or on-prem? What
+  hardware is *actually available* for the PoC (not eventual production)? What throughput/latency would
+  you need to see to believe the result?
+
+
+  **3. People**
+
+  - Who runs it, what are their skills, and which SDK language (Python/Java/C#/Rust/TypeScript)?
+
+
+  **4. The buy decision**
+
+  - At the end, what would have to be true for your organization to say yes? Roughly: quality of resolved
+  results, a working functional integration with one of your systems, or specific entity-graph scenarios
+  you expect to find? And does anyone already hold a number or bar for this — procurement, an architecture
+  review, a regulator, a business owner?
+
+
+  Once you''ve got even partial answers, run `/senzing:poc-planner` again with them and it''ll draft the
+  actual plan document.'
+must_not_match:
+- We will profile your data, review your infrastructure and hardware, and recommend a structure.
+- 'Here is a plan: week one is data, then the platform and the database are chosen. Success means a good
+  match rate.'

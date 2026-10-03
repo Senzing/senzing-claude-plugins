@@ -249,6 +249,31 @@ def check(text: str) -> list[str]:
                 f"the plan just said was open."
             )
 
+    # License terms: the tools return license paths that DIFFER (the evaluation-license pointer,
+    # submit_feedback, the web form), and the skill's rule is to quote each and list the discrepancy
+    # in §9 -- never reconcile them. Plans repeatedly wrote "the tools agree" / "no discrepancy" and
+    # left §9 without a license line (30 of 32 real plans omitted at least one path). This cannot see
+    # the tool results, so it checks the two things it can: a license line exists in §9 whenever §6
+    # discusses licensing, and §6 does not call the license terms consistent.
+    sec6 = section(text, 6)
+    if re.search(r"licens", sec6, re.I):
+        if not any(re.search(r"licens", l, re.I) for l in od_lines):
+            problems.append(
+                "§6 discusses licensing but §9 open_decisions has no license line. The license paths the "
+                "tools returned differ; list that discrepancy under §9 (`license path`) instead of choosing one."
+            )
+        # A sentence is about license terms if it names licensing OR one of the paths the tools return:
+        # "the tools agree -- no discrepancy" rarely repeats the word "license".
+        lic_ctx = r"licens|submit_feedback|non-prod-license|eval_license|ask\s+senzing|sales@"
+        for sent in re.split(r"(?<=[.!?])\s+|\n", sec6):
+            if re.search(lic_ctx, sent, re.I) and re.search(
+                    r"\bno\s+discrepanc\w+|\b(?:tools?|paths?|sources?|terms)\s+(?:all\s+)?(?:agree|are\s+consistent|match)\b"
+                    r"|\bconsistent\s+(?:across|between)", sent, re.I):
+                problems.append(
+                    f"§6 says the license terms agree ('{sent.strip()[:80]}'). The tools returned differing "
+                    f"license paths; quote each with its tool and list the discrepancy in §9 -- do not reconcile them."
+                )
+
     # §3: every SC-n target is exactly `TBD — decided by <owner>` (or the user's own words, marked
     # `per user`) -- a measured target the plan invented is the plan deciding what only the user can.
     for block in yaml_blocks(section(text, 3)):

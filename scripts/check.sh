@@ -254,6 +254,23 @@ if printf '%s' "$VP_OUT2" | grep -q "names no §9 key"; then
 else
   bad "validate_plan.py accepts a prose TBD that is never listed as open"
 fi
+# License terms (same shape): remove only the §9 license line; and make only §6 claim the tools agree.
+grep -v 'license path' "$VP_OK" > "$vp_tmp/no-license-line.md"
+sed 's/The discrepancy between the paths/There is no discrepancy between the paths/' "$VP_OK" > "$vp_tmp/says-agree.md"
+cmp -s "$VP_OK" "$vp_tmp/no-license-line.md" && bad "8b mutation 3 did not change the plan - the test below proves nothing"
+cmp -s "$VP_OK" "$vp_tmp/says-agree.md" && bad "8b mutation 4 did not change the plan - the test below proves nothing"
+VP_OUT3="$(python3 "$VP" "$vp_tmp/no-license-line.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT3" | grep -q "no license line"; then
+  ok "a plan whose §6 discusses licensing but whose §9 has no license line is rejected"
+else
+  bad "validate_plan.py accepts a plan that never lists the license discrepancy as open"
+fi
+VP_OUT4="$(python3 "$VP" "$vp_tmp/says-agree.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT4" | grep -q "license terms agree"; then
+  ok "a plan that calls the license terms consistent is rejected"
+else
+  bad "validate_plan.py accepts 'no discrepancy' about license terms the tools returned differently"
+fi
 rm -rf "$vp_tmp"
 
 echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
