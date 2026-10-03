@@ -23,8 +23,8 @@ grader alone would have moved the case from ~3 to ~14 failing arms in 38. `repor
 persisted connections, names the soft forms, and says to answer both questions inside the one attributed sentence.
 
 A sentence is exempt if it attributes the zero ("you said", "told me", "your stat…") or is hypothetical ("would",
-"wrong reason") — quoting the skill's own caution is correct. Known gaps: number words, and curly apostrophes (0 of
-84 real arms use them). Fixtures: `pattern-fixtures/no-own-voice-zero.yaml`; `check.sh` 8g.
+"wrong reason") — quoting the skill's own caution is correct. Known gaps: number words, and curly apostrophes inside the zero phrases themselves ("there’s no entities"; 0 of
+84 real arms use them). The negation exemption does accept `n’t`. Fixtures: `pattern-fixtures/no-own-voice-zero.yaml`; `check.sh` 8g.
 
 ## Exemptions, and the mistake that sharpened them
 

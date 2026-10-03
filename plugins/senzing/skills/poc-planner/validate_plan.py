@@ -302,7 +302,7 @@ def check(text: str) -> list[str]:
             mk = KEY_RE.match(l)
             if not mk or l.lstrip().startswith("#"):
                 continue
-            k, rest = mk.group("key"), mk.group("rest").split(" #")[0].strip()
+            k, rest = mk.group("key"), _strip_comment(mk.group("rest")).strip()
             if mk.group("dash"):
                 item = "?"            # a new item: never report under the previous one's id
             if k == "id":             # `id` need not be the first key of the item
