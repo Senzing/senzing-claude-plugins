@@ -356,7 +356,7 @@ echo; echo "== 8e. no-cook-offered's pattern actually does what its doc claims =
 # the SAME comparison loop against a deliberately broken pattern (the first revision this
 # grader shipped, which missed the server's own wording and flagged a factual sentence)
 # and against the real one, asserting the broken one is rejected.
-if ! python3 - <<'CONTROL'
+python3 - <<'CONTROL'
 import re, sys, pathlib
 try:
     import yaml
@@ -386,13 +386,16 @@ if bf == 0:
 print(f"     positive control: the superseded pattern is rejected ({bf} fixture disagreements)")
 sys.exit(0)
 CONTROL
-then
-  ctl_rc=$?
-  if [ "$ctl_rc" = "2" ]; then
-    bad "8e's control could not run, so the fixtures are UNVERIFIED (install PyYAML)"
-  else
-    bad "8e's fixtures do not discriminate - they pass a pattern known to be broken"
-  fi
+# Capture the status from a BARE call. Inside the then-branch of `if ! cmd`, `$?` is the
+# status of the NEGATED expression -- always 0 -- so the exit-2 arm below was dead code
+# and a missing PyYAML still reported "fixtures do not discriminate". Verified:
+#   probe(){ return 2; };  if ! probe; then echo $?; fi   -> 0
+#   probe; echo $?                                        -> 2
+ctl_rc=$?
+if [ "$ctl_rc" = "2" ]; then
+  bad "8e's control could not run, so the fixtures are UNVERIFIED (install PyYAML)"
+elif [ "$ctl_rc" != "0" ]; then
+  bad "8e's fixtures do not discriminate - they pass a pattern known to be broken"
 fi
 
 # This reads the pattern OUT OF the grader file so the two cannot drift.

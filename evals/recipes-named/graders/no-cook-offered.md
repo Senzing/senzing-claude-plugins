@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:I|we)\s+(?:could|can|will|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsampl\w+\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
+pattern: '\b(?:I|we)\s+(?:could|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsampl\w+\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
 match: not_contains
 flags: i
 target: last_message
@@ -48,6 +48,13 @@ would carry out ("I could load only 500 of your records", "continue with just 50
 just 500 records"); a fact is something the product does ("the unlicensed tier will load only 500
 of your records"). Possession is NOT enough on its own, and an earlier revision that relied on it
 flagged that factual sentence -- caught in review, now a fixture.
+
+**`can` and `will` are deliberately NOT in the modal list**, though an earlier revision had
+them. "without a license we can load only 500 records" and "we will load only 500 of your
+records" are statements of the cap, and the skill must be able to make them. `could` carries the
+conditional-offer sense those two lack. This reverses a call made one revision earlier, which
+pinned `will` as "a commitment to act" — true in some sentences, and the tie goes to precision
+whenever a construct also appears in required prose.
 
 The gate is deliberately **high precision, lower recall**. A deterministic grader that fails a
 correct run is worse than one that misses a novel phrasing, because the judge clause still covers
