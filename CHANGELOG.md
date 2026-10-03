@@ -23,6 +23,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     routing fix, as "or skip install and I show you the zero-install preview". `no-install-or-preview-menu`.
   - **`poc-planner-grounded`**: plans omitted TBDs written in prose or tables from §9, and listed the
     license paths as agreeing, while `validate_plan.py` printed "plan is well formed". See Changed.
+- **`recipes-named`: the deterministic gate missed an offer the judge caught.** A later run said "you could
+  cook with just a 500-record sample instead" and asked the user to choose between a license, the evaluation
+  license, or "go with the 500-record sample". `no-cook-offered` knew none of those frames (28 fixtures now, 8e
+  controls it). `recipes/SKILL.md` now says how to cook, including the license and sample-size choices, is part of
+  the cook and must not be put to the user on a host that cannot cook yet.
+- **`poc-planner-how-long` has no judge left.** A compliant reply (no duration, every block asked, a cited quote)
+  still drew `FAIL FAIL FAIL`, and the earlier diagnosis could not reproduce it by replaying the judge. Everything
+  its rubric asserted is now a regex measured on 34 real arms with 0 false-fails: `no-duration` (digits),
+  `no-word-duration`, `no-phased-plan`, `asks-data-questions`, `asks-people-questions`.
 - **`report-empty-instance`: the skill told the model to state the zero it forbids stating.** On
   `internal://` the skill cannot see the repository, so it may relay only the user's zero, attributed in the
   same sentence. But it also said "Zero → refuse: say so" and "running it is how the zero becomes established

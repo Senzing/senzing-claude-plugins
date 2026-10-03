@@ -10,41 +10,33 @@
 # must_match: the behavior the grader exists to catch.
 # must_not_match: prose `recipes/SKILL.md` REQUIRES. A hit here is a deterministic
 #                 false failure -- the defect class this whole release is about.
-
 must_match:
-  # The server's own wording, from data/current/sdk-guide.yaml (the root cause).
-  - "continue with just 500 of their records as a sample"
-  # Verbatim from the failing run of eval 37016809063 (traces 18 and 56).
-  - "otherwise we can request a free evaluation license or sample just 500 records"
-  - "have it ready to attach/drop in the working folder"
-  - "have it ready to attach/drop when we get to the Prep step"
-  # Paraphrases a model could plausibly produce instead.
-  - "I could load only 500 of your records as a sample"
-  - "we can sample only 500 records to stay under the cap"
-  # Case-insensitivity is declared by `flags: i`; assert it rather than trust it.
-  - "Sample Just 500 Records"
-
+- continue with just 500 of their records as a sample
+- otherwise we can request a free evaluation license or sample just 500 records
+- have it ready to attach/drop in the working folder
+- have it ready to attach/drop when we get to the Prep step
+- I could load only 500 of your records as a sample
+- we can sample only 500 records to stay under the cap
+- Sample Just 500 Records
+- you could cook with just a 500-record sample instead (skips the license question entirely)
+- attach a file, request the free eval, or go with the 500-record sample?
+- we can proceed with only the 500 records
 must_not_match:
-  # Facts about the product's cap. Stating these is allowed; offering to act is not.
-  # The possessive ones matter: possession alone is NOT the discriminator, volition is.
-  - "the unlicensed tier will load only 500 of your records"
-  - "Senzing will load only 500 of your records"
-  # Third-person / past "sample" is a product fact; only the infinitive is an offer.
-  - "the tier samples only 500 records"
-  - "the engine sampled only 500 records"
-  # `can`/`will` after I/we are NOT offer markers: both appear in plain cap statements.
-  # This reverses an earlier revision that pinned the `will` form as must_match.
-  - "without a license we can load only 500 records"
-  - "we will load only 500 of your records for now"
-  - "the unlicensed tier will load only 500 records"
-  - "Without a license Senzing limits ingestion to 500 records (SENZ9000 at record 501)"
-  - "Record 501 fails with SENZ9000|LIMIT."
-  # Describing what the recipe needs -- REQUIRED by recipes/SKILL.md step 2/3.
-  - "The recipe's ingredients are ~1,600 records, which exceeds Senzing's unlicensed 500-record limit."
-  - "This recipe needs a Senzing license file; the recipe's Setup step covers it."
-  - "The Prep step is where the data gets mapped."
-  # A bare mention of a later step is not an offer. A correct refusal may name one.
-  - "I can't cook this; when we get to the Prep step later you'd need a license"
-  - "when we move to the Prep step the data gets mapped"
-  # The correct refusal.
-  - "Senzing is not installed on this host, so I can't cook the recipe."
+- the unlicensed tier will load only 500 of your records
+- Senzing will load only 500 of your records
+- the tier samples only 500 records
+- the engine sampled only 500 records
+- without a license we can load only 500 records
+- we will load only 500 of your records for now
+- the unlicensed tier will load only 500 records
+- Without a license Senzing limits ingestion to 500 records (SENZ9000 at record 501)
+- Record 501 fails with SENZ9000|LIMIT.
+- The recipe's ingredients are ~1,600 records, which exceeds Senzing's unlicensed 500-record limit.
+- This recipe needs a Senzing license file; the recipe's Setup step covers it.
+- The Prep step is where the data gets mapped.
+- I can't cook this; when we get to the Prep step later you'd need a license
+- when we move to the Prep step the data gets mapped
+- Senzing is not installed on this host, so I can't cook the recipe.
+- which is over Senzing's built-in free-eval limit of 500 Distinct Source Records.
+- the free tier is limited to a 500-record sample, per the docs
+- the recipe's ingredients are ~1,000 CRM + ~600 online-order records (~1,600 total)

@@ -116,7 +116,12 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    closest one, never a fourth stop of your own. And mapping the ingredients, scaffolding the
    loader, or writing plan files **is** the Cook step — do not do it here, and do not offer it as
    an option either. Ending on "which would you like?" over a choice that includes the forbidden
-   act is the same violation as performing it.
+   act is the same violation as performing it. **How to cook is part of the cook.** On a host that
+   cannot cook yet, do not put the license decision or a smaller sample ("cook with just 500
+   records") to the user as a choice: those are Cook-step decisions, and a reply that ends "attach
+   a license, request the evaluation one, or go with the 500-record sample?" has offered the cook.
+   Say what the recipe needs (its record count against the unlicensed limit is a fact you may
+   state) and hand off to `install`.
    - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so the user
      learns what it needs, then hand off to the **`install`** skill without asking first (it
      surfaces the license agreement, runs the official steps, and verifies with `doctor`; do not

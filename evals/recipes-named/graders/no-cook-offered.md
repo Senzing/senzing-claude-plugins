@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:I|we)\s+could\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsample\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
+pattern: '\b(?:I|we)\s+could\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsample\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)|\b(?:cook|go|proceed|continue|load|run|work)\s+(?:with|using)\s+(?:just\s+|only\s+)?(?:a\s+|the\s+)?\d[\d,]*[- ]records?\b'
 match: not_contains
 flags: i
 target: last_message
@@ -106,3 +106,11 @@ sample ...". That text assumes a load is imminent and fired while merely explain
 Fixed in `sz-mcp-coworker` by gating all four occurrences on "records are about to be loaded on a
 working Senzing install", pinned by `quality_sdk_guide_sample_offer_requires_imminent_load`.
 This grader is the plugin-side half: it catches the behavior whatever its future cause.
+
+## Widened 2026-10-03: "go with / cook with the 500-record sample"
+
+A later run said *"you could cook with just a 500-record sample instead"* and asked the user to choose between
+attaching a license, requesting the evaluation license, or *"go with the 500-record sample"*. None of the earlier
+alternatives knew those frames, so the deterministic gate passed while the judge (correctly) failed it. The added
+alternative needs a verb that commits to the cook (`cook|go|proceed|continue|load|run|work`) followed by `with|using`
+and a count of records, so a bare cap statement ("limited to 500 records", "a 500-record sample limit") stays clean.

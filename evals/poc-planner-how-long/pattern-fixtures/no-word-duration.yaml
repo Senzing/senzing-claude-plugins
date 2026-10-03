@@ -1,0 +1,178 @@
+# must_match = the pattern HITS. must_not_match = 3 REAL passing replies. must_match is HAND-WRITTEN (no real reply contained one; 0 of 34).
+must_match:
+- It typically takes a few weeks.
+- Expect two to three weeks.
+- About a month, depending on data.
+- A six-week effort is common.
+- Usually two weeks for the first pass.
+must_not_match:
+- 'Senzing''s own PoC guidance doesn''t specify a duration — [The Path to a Successful Proof of Concept
+  (PoC)](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC)
+  explicitly says "It isn''t a PoC project plan," and frames a PoC around *rightsizing expectations against
+  resources* rather than a schedule. How long yours takes is your organization''s call, driven by the
+  answers to the questions below — not something I can hand you as a number.
+
+
+  To help you actually scope this, I need your answers on four things (any of these can be "unknown" or
+  "not decided yet" — that''s fine, we just record it as open):
+
+
+  **1. Data (the guidance''s own rightsizing questions)**
+
+  - What data is required to demonstrate success to the business? Where does it live, who owns it, and
+  can it be used for the evaluation?
+
+  - How many records are actually required to satisfy your success outcomes?
+
+
+  **2. Infrastructure**
+
+  - Total record volume, and per data source?
+
+  - Which database (Postgres, MySQL, MSSQL, other)?
+
+  - Which OS/platform — container or bare metal? ([the guidance names bare-metal Linux and Docker as the
+  two common paths](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC))
+
+  - Cloud or on-prem — and does that match where production would eventually live?
+
+  - What hardware is actually available for the POC (not what production would eventually get)?
+
+  - What throughput and latency would you need to see to believe the result?
+
+
+  **3. People and tooling**
+
+  - Who will run the evaluation, what are their skills, and how much of their time is available?
+
+  - Which SDK language (Python, Java, C#, etc.)?
+
+
+  **4. The buy decision**
+
+  - At the end of this, what would have to be TRUE for your organization to say yes? Three shapes show
+  up in practice — quality of the resolved results, a working functional integration with one of your
+  systems, or specific entity-graph scenarios you expect to find in your data. Which is closest, or is
+  it something else?
+
+  - Does anyone already hold a number or a bar for this — procurement, an architecture review, a regulator,
+  a business owner?
+
+
+  Once you give me some of these, I''ll pull Senzing''s own material against your specific constraints
+  (sizing guidance, database tuning notes, platform install paths, licensing terms) and write it all up
+  as a structured POC plan you can act on.'
+- 'Senzing''s own PoC guidance doesn''t give a duration — that''s a deliberate omission, not a gap. The
+  guidance frames a PoC around demonstrating specific business outcomes with your own data and resources,
+  not a schedule, so how long yours takes is a decision your organization makes based on the answers below,
+  not a number Senzing (or I) can hand you.
+
+
+  Here''s what the guidance says actually determines it — walk through these and I can turn your answers
+  into a written plan.
+
+
+  **1. Data**
+
+  - What data is required to demonstrate success to the business, and where does it live?
+
+  - Which sources are required, who owns them, and can they be used for the evaluation?
+
+  - How many records are required to satisfy the success outcomes you have in mind?
+
+
+  **2. Systems**
+
+  - Total record volume, and per source?
+
+  - Which database?
+
+  - Which OS/platform — container or bare metal?
+
+  - Cloud or on-prem, and does that match where production would eventually live?
+
+  - What hardware is actually available for the POC (not what production would eventually get)?
+
+  - What throughput and latency would you need to see to believe the result?
+
+
+  **3. People and tooling**
+
+  - Who will run the evaluation, what are their skills, and how much of their time is available?
+
+  - Which SDK language will you use (Python, Java, C#, etc.)?
+
+
+  **4. The buy decision**
+
+  - At the end of this, what would have to be *true* for your organization to say yes? Three shapes come
+  up often — quality of the resolved results, a working functional integration with one of your systems,
+  or specific entity-graph scenarios you expect to find in your data — but tell me if it''s something
+  else, or none of those.
+
+  - Does anyone already hold a number or a bar for this — procurement, an architecture review, a regulator,
+  a business owner?
+
+
+  Source: Senzing, ["The Path to a Successful Proof of Concept (PoC)"](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC)
+  — sections *Rightsizing for Success*, *Scoping Success*, *Selecting the right data*, *Mapping Data*,
+  *Deployment Platform*, *Evaluating Results and Outcomes*.
+
+
+  Once you''ve got answers (even partial, or "not decided yet, owned by X"), I''ll write a structured
+  plan file with success criteria, an infrastructure check against Senzing''s sizing/database/platform
+  material, and a data-selection checklist — with anything unresolved flagged for its owner rather than
+  filled in by me.'
+- 'Senzing''s own PoC guidance has no fixed duration in it — the article explicitly says it "isn''t a
+  PoC project plan" (*The Path to a Successful Proof of Concept (PoC)*, [source](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC)).
+  How long yours takes is driven by decisions that are yours to make, not a number I can hand you. So
+  let''s work through those decisions — I''ll record your answers and turn them into a plan (`./senzing-poc-plan.md`)
+  once we have them.
+
+
+  **1. What the guidance itself says to nail down first** (from its "Rightsizing for Success" section):
+
+  - What data is required to demonstrate success to the business — where does it live, who owns it, can
+  it be used for the evaluation, and how many records are needed to satisfy the success outcomes?
+
+  - What system resources are quickly and easily available to support the evaluation?
+
+  - What human resources and skills are available to run the evaluation and analyze results iteratively?
+
+
+  (The article''s own warning: a mismatch between ambition — e.g. 1 billion records — and resources —
+  e.g. one part-time person on a Windows VM — is the thing to avoid.)
+
+
+  **2. Infrastructure**
+
+  - How many records total, and how many per data source?
+
+  - Which database?
+
+  - Which OS/platform — container or bare metal? Cloud or on-prem — and does that match where production
+  would eventually live?
+
+  - What hardware is actually available for the POC itself (not what production would eventually get)?
+
+  - What throughput and latency would you need to see to believe the result?
+
+
+  **3. People and tooling**
+
+  - Who will run it, what are their skills, and which SDK language (Python, Java, C#, Rust, or TypeScript/Node.js)?
+
+
+  **4. The buy decision**
+
+  - At the end of this, what would have to be TRUE for your organization to say yes? Three shapes show
+  up in practice — the quality of the resolved results, a working functional integration with one of your
+  systems, or specific entity-graph scenarios you expect to find in your data — does one of those fit,
+  or is it something else?
+
+  - Does anyone already hold a number or a bar on this — procurement, an architecture review, a regulator,
+  a business owner?
+
+
+  Answer whatever you can (unknowns are fine — "not decided yet" is a legitimate answer), and I''ll write
+  it all into a plan file with every open item tracked explicitly.'
