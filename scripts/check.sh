@@ -700,6 +700,15 @@ else
   bad "poc-planner/SKILL.md lost the retrieve-first rule - the decline path can again assert guidance it never opened"
 fi
 
+echo; echo "== 8k. recipes hands off to install instead of promising the cook =="
+# A run stopped on a menu of Cook-step questions and promised "I'll install ... then cook the recipe".
+# Text guard: the hand-off rule and its example must stay in recipes/SKILL.md.
+if grep -q "do not announce the cook" plugins/senzing/skills/recipes/SKILL.md; then
+  ok "recipes/SKILL.md says to hand off to install and not to announce the cook"
+else
+  bad "recipes/SKILL.md lost the hand-off rule - the install-then-cook promise can come back"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

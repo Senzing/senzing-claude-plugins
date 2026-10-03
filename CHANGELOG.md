@@ -36,6 +36,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   still drew `FAIL FAIL FAIL`, and the earlier diagnosis could not reproduce it by replaying the judge. Everything
   its rubric asserted is now a regex measured on 34 real arms with 0 false-fails: `no-duration` (digits),
   `no-word-duration`, `no-phased-plan`, `asks-data-questions`, `asks-people-questions`.
+- **`recipes-named`: the reply stopped on a menu of Cook-step questions and promised the cook.** On a host with no SDK
+  it asked for the license agreement, the language and a license file or evaluation license, and ended "Once I have
+  those, I'll install Senzing + Java, stand up a local instance, then cook the recipe's Prep → Cook → Plate → Plus
+  steps". The opus judge failed it 9 of 9 on replay and its passing control 9 of 9 PASS, so this is behavior. It
+  also did the install flow inline instead of handing off. `recipes/SKILL.md` now says to hand off and not announce
+  the cook, with this exact shape as the example; `no-cook-promise` asserts the narrow form (1 hit in 14 real
+  replies, the failing one) and `criteria` keeps the broader class.
 - **`report-empty-instance`: the skill told the model to state the zero it forbids stating.** On
   `internal://` the skill cannot see the repository, so it may relay only the user's zero, attributed in the
   same sentence. But it also said "Zero → refuse: say so" and "running it is how the zero becomes established
@@ -51,6 +58,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   default left the repository outside the directory the verifier (deliberately scoped to the scaffold
   directory) searches. The user's named location now wins; the default applies only when none was named.
   `check.sh` 8h pins the rule's text.
+
+### Added
+
+- Deterministic graders, each backed by `pattern-fixtures/<name>.yaml` and checked by `check.sh` 8e/8g:
+  `no-duration`, `no-word-duration`, `no-phased-plan`, `asks-data-questions`, `asks-people-questions`
+  (`poc-planner-how-long`); `asks-data-block`, `asks-language-block`, `asks-hardware-block`, `asks-buy-decision`,
+  `no-own-number` (`poc-planner-elicits`); `no-production-offer` (`demo-scratch-repo`);
+  `no-install-or-preview-menu` (`demo-no-simulation`); `no-own-voice-zero` (`report-empty-instance`);
+  `no-cook-promise` (`recipes-named`); and the file-targeted `no-invented-role-title` (`poc-planner-grounded`).
+- `check.sh`: 8f (demo routes on the blocker class and names the permission-conditional), 8h (the user's workspace
+  beats the default), 8i (explicit opus judge, enforced), 8j (decline retrieves first), 8k (recipes hands off).
 
 ### Changed
 

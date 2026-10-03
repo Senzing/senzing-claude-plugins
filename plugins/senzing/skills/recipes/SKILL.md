@@ -128,7 +128,13 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
      needed, `submit_feedback(category='license_request')`'s description states the current
      terms). Don't cook over a Senzing that won't stand up, and don't stop at the diagnosis
-     either.
+     either. **Hand off; do not
+     run the install flow yourself in the message, and do not announce the cook.** A reply that stops on a menu
+     ("Before I can cook, three things need your input: the license agreement, your language, whether you have a
+     license file or want the evaluation one") and ends "Once I have those, I'll install Senzing + Java, stand up a
+     local instance, then cook the recipe's Prep → Cook → Plate → Plus steps" has asked Cook-step questions and
+     proposed the cook. Invoke `install` (it asks what installing needs, in one message) and stop; the recipe
+     resumes when install has completed.
      **The license agreement URL must appear in the reply the user reads**, not only inside a
      sub-skill's own output: state `https://senzing.com/end-user-license-agreement/` in your
      message before anything installs. Delegating the hand-off does not discharge this — a run

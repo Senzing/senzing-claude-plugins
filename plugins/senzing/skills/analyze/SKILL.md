@@ -103,7 +103,8 @@ State the resolved input list to the user before proceeding — informational, n
    the workspace: probe the current directory (`cd . && pwd`) or that path, and never `~/sz-workspace`.
    Only when the user named no location is the default `~/sz-workspace` (or `$SZ_WORKSPACE` if set)
    used — a run that obeyed the default after being told "keep the scratch repository inside this
-   workspace" left the repository outside the directory the user would open. **Do not assume the shell and the file tools share one filesystem,
+   workspace" left the repository outside the directory the user would open. **Do not assume the
+   shell and the file tools share one filesystem,
    or that the default path is writable** — some hosts sandbox the shell to a different filesystem
    than the file tools see. Verify by having the shell create the directory and write a probe file;
    if the default isn't writable, pick a directory the shell reports as writable.
