@@ -28,6 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   license, or "go with the 500-record sample". `no-cook-offered` knew none of those frames (28 fixtures now, 8e
   controls it). `recipes/SKILL.md` now says how to cook, including the license and sample-size choices, is part of
   the cook and must not be put to the user on a host that cannot cook yet.
+- **Removing the cited-quote exemption made the decline skip retrieval.** With nothing to cite, one `how-long` run
+  loaded the skill and answered "Senzing's own guidance doesn't give a duration" without calling any tool: a claim
+  about a document it never opened. `poc-guidance-searched` caught it (this PR's own CI). The decline paragraph now
+  says to retrieve first and name the article; `check.sh` 8j pins it.
 - **`poc-planner-how-long` has no judge left.** A compliant reply (no duration, every block asked, a cited quote)
   still drew `FAIL FAIL FAIL`, and the earlier diagnosis could not reproduce it by replaying the judge. Everything
   its rubric asserted is now a regex measured on 34 real arms with 0 false-fails: `no-duration` (digits),

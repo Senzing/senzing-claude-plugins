@@ -47,13 +47,16 @@ license terms here or from memory — call the tool named in each step and cite 
    except in a decline, below, where no duration appears at all.
    **Decline without naming a specimen.** Asked outright "how long will a POC take?", say the
    guidance carries no duration for the POC as a whole, say whose decision it is and what
-   determines it — and do **not** illustrate the refusal with a number. *"I'm not going to hand you a '2 weeks' or '1 month'
-   estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
+   determines it — and do **not** illustrate the refusal with a number. *"I'm not going to hand you a
+   '2 weeks' or '1 month' estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
    its numbers, not its verbs. Same for a range, a "not even a ballpark like…", or a duration
    offered as what you are *not* saying. **A cited quote is not an exception here.** The guidance
    does carry one per-step figure — mapping a data source — and offering it as "one cited data
    point" answers "how long" with a partial estimate, the same fabrication wearing a citation.
-   Retrieval will hand you that sentence; do not pass it on. A reply to "how long" contains no
+   **Retrieve first.** "The guidance carries no duration for the POC as a whole" is a claim about Senzing's guidance:
+   make it only after the `search_docs` retrieval at the top of this skill, and name the article you retrieved. A
+   decline written from this paragraph alone is a Senzing claim with no source, about a document you have not opened — a
+   run did exactly that and called no tool at all. Retrieval will hand you that sentence; do not pass it on. A reply to "how long" contains no
    duration of its own and no quoted one. The user's own calendar statements (per user) may be
    echoed. Cited durations remain allowed inside a written plan (rule 4), never in this reply.
 2. **Ask, don't answer.** Success is whatever must be demonstrated for *their* organization to

@@ -647,6 +647,16 @@ else
   bad "ci.yml no longer pins EVAL_JUDGE_MODEL: claude-opus-5 and EVAL_JUDGE_ENFORCE: \"1\" - the noisy judge or an unenforced gate is back"
 fi
 
+echo; echo "== 8j. poc-planner's decline retrieves before it claims =="
+# Removing the cited-quote exemption took away the model's reason to retrieve on the "how long" fast
+# path: a run answered "Senzing's own guidance doesn't give a duration" without calling any tool.
+# Text guard: the retrieve-first rule must stay in the decline paragraph.
+if grep -q '\*\*Retrieve first\.\*\*' plugins/senzing/skills/poc-planner/SKILL.md; then
+  ok "poc-planner's decline paragraph says to retrieve before claiming what the guidance says"
+else
+  bad "poc-planner/SKILL.md lost the retrieve-first rule - the decline path can again assert guidance it never opened"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
