@@ -1,0 +1,196 @@
+# Fixtures for graders/no-duration.md.
+# First 8 must_match + 3 must_not_match: REAL final messages from CI eval runs (not paraphrases).
+# The rest are HAND-WRITTEN, one per duration unit, so dropping a unit from the pattern is caught.
+must_match:
+- The article also says data mapping itself "usually takes less than 30 minutes per data source" (per
+  source_url above) — but that's one step, not the whole POC.
+- 'One more data point worth having in view before you size anything: mapping a single data source typically
+  takes under 30 minutes once you have someone who understands the schema and desired outcomes (same source
+  above) — that''s the one concrete time figure the guidance gives, and it''s just for mapping, not the
+  whole POC.'
+- 'One concrete, narrower data point it does give (not an overall POC duration — just one step within
+  it): "The initial mapping process usually takes less than 30 minutes per data source." — same source.'
+- '- Mapping a data source "usually takes less than 30 minutes per data source" once you know your fields
+  (per the *Mapping Data* section).'
+- 'One concrete, scoped figure the guidance does give: *"The initial mapping process usually takes less
+  than 30 minutes per data source"* (same article, "Mapping Data" section) — but that''s about mapping
+  one source''s fields, not the length of a POC as a whole.'
+- 'One component duration the guidance does quote directly: *"The initial mapping process usually takes
+  less than 30 minutes per data source"* (same source) — that''s specifically the field-mapping step per
+  source, not the whole POC.'
+- 'One concrete, cited data point that *is* in the guidance, scoped narrowly to one step: "The initial
+  mapping process usually takes less than 30 minutes per data source." (same article, "Mapping Data")
+  — that''s about mapping alone, not the whole evaluation.'
+- 'One grounded data point that *is* in the guidance: mapping a single data source is typically quick
+  — "the initial mapping process usually takes less than 30 minutes per data source" (same article) —
+  but that''s one step, not the whole PoC.'
+- A typical POC runs 2-3 weeks end to end.
+- Plan for 6 to 8 weeks.
+- About 3 months, depending on data volume.
+- Roughly 10 days of mapping work.
+- Allow 4 hours for the first load.
+- Two 2-week sprints should cover it.
+- 'Budget one quarter: 1 quarter is common.'
+must_not_match:
+- 'Senzing''s own PoC guidance doesn''t name a duration, and that''s deliberate — the article is explicit
+  that it "isn''t a PoC project plan" (*[The Path to a Successful Proof of Concept (PoC)](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC)*,
+  "Overview"). How long yours takes is driven entirely by things only you know — your data, your hardware,
+  your people''s time, and what your organization needs to see before it will say yes. So rather than
+  give you a figure, let me walk through what the guidance says actually determines it, and get your answers
+  down.
+
+
+  **1. The guidance''s own starting questions** (from "Rightsizing for Success"):
+
+  - What data is required to demonstrate success to the business — where does it live, which sources are
+  needed, who owns it and can it be used for the evaluation, and how many records are required to satisfy
+  your success outcomes?
+
+  - What systems are quickly and easily available to support the evaluation?
+
+  - Who will run it, and what human resources and skills are available to support the evaluation and iterative
+  analysis of results?
+
+
+  The article is blunt about mismatches here: *"If your evaluation use case is to ingest, entity resolve,
+  and analyze 1 billion records across multiple data sources, but all you have is one part-time person
+  and a Windows VM, then there is a mismatch between expectations and resources."*
+
+
+  **2. Infrastructure**
+
+  - How many records, in total and per source?
+
+  - Which database?
+
+  - Which OS/platform — container or bare metal?
+
+  - Cloud or on-prem — and does that match where production would eventually live?
+
+  - What hardware is actually available for the POC (not what production would eventually get)?
+
+  - What throughput and latency would you need to see to believe the result?
+
+
+  **3. People and tooling**
+
+  - Who runs it, what''s their skill level, and which SDK language (Python, Java, C#, Rust, or TypeScript/Node.js)?
+
+
+  **4. The buy decision**
+
+  - At the end of this, what would have to be TRUE for your organization to say yes? Three shapes show
+  up in practice — quality of the resolved results, a working functional integration with one of your
+  systems, or specific entity-graph scenarios you expect to find in your data — but tell me in your own
+  terms first; these are just examples, not a closed list.
+
+  - Does anyone already hold a number or a bar on this — procurement, an architecture review, a regulator,
+  a business owner?
+
+
+  Answer whatever you can (unknowns are fine — "not decided yet" is a valid answer for any of these).
+  Once I have even a few of these, I can pull Senzing''s sizing, database-tuning, and licensing material
+  against your actual constraints and write it up as a structured plan at `./senzing-poc-plan.md` — with
+  anything still open marked for whoever owns that decision.'
+- 'Senzing''s own PoC guidance doesn''t give a duration — there''s no "typical length" or schedule in
+  it. The overview is explicit about that:
+
+
+  > "This article will highlight key items of consideration for a successful PoC. It isn''t a PoC project
+  plan." — [The Path to a Successful Proof of Concept (PoC)](https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC)
+
+
+  How long it takes is determined by decisions that are yours to make, not Senzing''s to prescribe. The
+  guidance frames it as a fit between what you need to prove and what you bring to it:
+
+
+  > "If your evaluation use case is to ingest, entity resolve, and analyze 1 billion records across multiple
+  data sources, but all you have is one part-time person and a Windows VM, then there is a mismatch between
+  expectations and resources." — same article, "Rightsizing for Success"
+
+
+  So rather than give you a number, let me get the inputs that actually determine it:
+
+
+  **Data** — What data do you need to demonstrate success? Where does it live, who owns it, can it be
+  used for an evaluation, and roughly how many records (total and per source)?
+
+
+  **Systems** — What hardware/database/platform is actually available to you for this POC (not what production
+  would eventually get)? Bare metal, Docker, cloud or on-prem? Does that match where production would
+  eventually live?
+
+
+  **People** — Who will run it, what are their skills, and which SDK language would they use?
+
+
+  **The buy decision** — At the end of this, what would have to be *true* for your organization to say
+  yes? That''s usually one of: the quality of the resolved results, a working functional integration with
+  one of your systems, or specific entity-graph scenarios you expect to find in your data. Which is closest
+  — or is it something else? And separately: does anyone already hold a number or a bar (procurement,
+  an architecture review, a regulator, a business owner) that this has to clear?
+
+
+  Answer what you can — "unknown" is fine for any of these — and I''ll turn it into a structured POC plan
+  with `/senzing:poc-planner`.'
+- 'Senzing''s own PoC guidance ("The Path to a Successful Proof of Concept," Senzing Help Center) carries
+  no duration, timeline, or week/phase count anywhere in it — it''s explicit that it "isn''t a PoC project
+  plan." So I''m not going to hand you a figure of my own; how long it takes is your organization''s decision,
+  and the guidance frames it as depending on three things you''d set, not a clock:
+
+
+  > "What data is required to demonstrate success to the business? ... What system resources are quickly
+  and easily available to support the evaluation? ... What human resources and skills are available to
+  support the evaluation and iterative analysis of the results?"
+
+  (source: https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC,
+  "Rightsizing for Success")
+
+
+  The same section is blunt about the failure mode when those three aren''t sized against each other first:
+  *"If your evaluation use case is to ingest, entity resolve, and analyze 1 billion records across multiple
+  data sources, but all you have is one part-time person and a Windows VM, then there is a mismatch between
+  expectations and resources."*
+
+
+  To help you actually scope this (not estimate a duration, but work out what''s really being committed
+  to), I''d want to know:
+
+
+  **Data**
+
+  - What data is required to demonstrate success to the business — which sources, how much of each, who
+  owns it, and is it clear you can use it for this evaluation?
+
+
+  **Systems**
+
+  - What hardware/environment is realistically available to you for the POC (not what production would
+  eventually get)? Bare metal, Docker, cloud?
+
+  - Which database, which OS/platform?
+
+
+  **People**
+
+  - Who will actually run this, what''s their skill level, and roughly how much of their time is available?
+
+  - Which SDK language would they use?
+
+
+  **The buy decision**
+
+  - At the end of this, what would have to be *true* for your organization to say yes? Is it the quality
+  of the resolved results, a working integration with an existing system, or specific entity-graph scenarios
+  you expect to find in your data — or something else?
+
+  - Does anyone already hold a number or bar for this — procurement, an architecture review, a regulator,
+  a business owner?
+
+
+  If you can give me even partial answers on these, I can put together a structured POC plan (`/senzing:poc-planner`)
+  that records your decisions and flags what''s still open — still with no invented schedule, just your
+  constraints laid out against what Senzing''s guidance says bears on each one.'
+- It depends on your data sources, the systems involved, who runs it, and what must be true for you to
+  buy.
+- That duration is yours to work out - here is what determines it.

@@ -6,6 +6,118 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Four recurring judge failures were real defects, and the judge was the instrument.** Every one
+  was unanimous (`FAIL FAIL FAIL`) on one of two runs, the signature of a real behavioral difference.
+  Each was diagnosed from the CI traces:
+  - **`poc-planner-how-long`**: the skill and the grader both permitted a cited duration, and retrieval
+    hands the model one ("mapping … less than 30 minutes per data source"). Across 34 arms in 21 runs,
+    0 of 75 votes failed an arm without that sentence; 14 of 27 failed arms with it. A decline now carries
+    no duration at all, cited or not; `no-duration` asserts it.
+  - **`demo-scratch-repo`**: `demo/SKILL.md` said to load into the existing repository "only on their
+    explicit request", and the model recited that as an offer, the exact shape `criteria.md` names as the
+    failure (the judge had passed 12 of the 19 arms carrying it). The skill now says never to offer or hint
+    at it; `no-production-offer` asserts it.
+  - **`demo-no-simulation`**: the missing-license-agreement defect recurred once after the blocker-class
+    routing fix, as "or skip install and I show you the zero-install preview". `no-install-or-preview-menu`.
+  - **`poc-planner-grounded`**: plans omitted TBDs written in prose or tables from §9, and listed the
+    license paths as agreeing, while `validate_plan.py` printed "plan is well formed". See Changed.
+- **`recipes-named`: the deterministic gate missed an offer the judge caught.** A later run said "you could
+  cook with just a 500-record sample instead" and asked the user to choose between a license, the evaluation
+  license, or "go with the 500-record sample". `no-cook-offered` knew none of those frames (28 fixtures now, 8e
+  controls it). `recipes/SKILL.md` now says how to cook, including the license and sample-size choices, is part of
+  the cook and must not be put to the user on a host that cannot cook yet.
+- **Removing the cited-quote exemption made the decline skip retrieval.** With nothing to cite, one `how-long` run
+  loaded the skill and answered "Senzing's own guidance doesn't give a duration" without calling any tool: a claim
+  about a document it never opened. `poc-guidance-searched` caught it (this PR's own CI). The decline paragraph now
+  says to retrieve first and name the article; `check.sh` 8j pins it.
+- **`poc-planner-how-long` has no judge left.** A compliant reply (no duration, every block asked, a cited quote)
+  still drew `FAIL FAIL FAIL`, and the earlier diagnosis could not reproduce it by replaying the judge. Everything
+  its rubric asserted is now a regex measured on 34 real arms with 0 false-fails: `no-duration` (digits),
+  `no-word-duration`, `no-phased-plan`, `asks-data-questions`, `asks-people-questions`.
+- **`recipes-named`: the reply stopped on a menu of Cook-step questions and promised the cook.** On a host with no SDK
+  it asked for the license agreement, the language and a license file or evaluation license, and ended "Once I have
+  those, I'll install Senzing + Java, stand up a local instance, then cook the recipe's Prep → Cook → Plate → Plus
+  steps". The opus judge failed it 9 of 9 on replay and its passing control 9 of 9 PASS, so this is behavior. It
+  also did the install flow inline instead of handing off. `recipes/SKILL.md` now says to hand off and not announce
+  the cook, with this exact shape as the example; `no-cook-promise` asserts the narrow form (1 hit in 14 real
+  replies, the failing one) and `criteria` keeps the broader class.
+- **`report-empty-instance`: the skill told the model to state the zero it forbids stating.** On
+  `internal://` the skill cannot see the repository, so it may relay only the user's zero, attributed in the
+  same sentence. But it also said "Zero → refuse: say so" and "running it is how the zero becomes established
+  fact", unscoped, in the same section. Across 38 arms under the current rubric the judge failed 3 and passed 35,
+  yet 14 carried the same unattributed sentence ("There are no entities — biggest or otherwise"); 11 of the 35
+  judge PASSes broke the rubric as written. Those lines are now scoped to persisted connections, the soft forms
+  ("there are no entities", "none exist", "Biggest entities: none") are named, and the reply answers both of the
+  user's questions inside the one attributed sentence. `no-own-voice-zero` asserts it (3 of 3 judge FAILs hit),
+  and `criteria` is split into three single-clause judges. The grader and the skill fix land together: the grader
+  alone would have moved the case from about 3 failing arms in 38 to about 14.
+- **`analyze` let its default workspace override the user's.** The Real Senzing E2E tells the model to keep
+  the repository "inside this workspace"; the skill's default was `~/sz-workspace`, and a run that obeyed the
+  default left the repository outside the directory the verifier (deliberately scoped to the scaffold
+  directory) searches. The user's named location now wins; the default applies only when none was named.
+  `check.sh` 8h pins the rule's text.
+
+### Added
+
+- Deterministic graders, each backed by `pattern-fixtures/<name>.yaml` and checked by `check.sh` 8e/8g:
+  `no-duration`, `no-word-duration`, `no-phased-plan`, `asks-data-questions`, `asks-people-questions`
+  (`poc-planner-how-long`); `asks-data-block`, `asks-language-block`, `asks-hardware-block`, `asks-buy-decision`,
+  `no-own-number` (`poc-planner-elicits`); `no-production-offer` (`demo-scratch-repo`);
+  `no-install-or-preview-menu` (`demo-no-simulation`); `no-own-voice-zero` (`report-empty-instance`);
+  `no-cook-promise` (`recipes-named`); and the file-targeted `no-invented-role-title` (`poc-planner-grounded`).
+- `check.sh`: 8f (demo routes on the blocker class and names the permission-conditional), 8h (the user's workspace
+  beats the default), 8i (explicit opus judge, enforced), 8j (decline retrieves first), 8k (recipes hands off).
+
+### Changed
+
+- **The judge is an explicit `claude-opus-5`, and the judge gate is enforced in CI.** The judge was `sonnet`, which
+  the pinned CLI (2.1.269) resolves to `claude-sonnet-5` with no thinking: about 14 output tokens per call, so it
+  writes its verdict first and argues afterwards, and any reply containing the word FAIL counts as a FAIL vote.
+  Replayed CI-style, a compliant `poc-planner-how-long` reply failed 9 of 12 votes and its passing control arm failed
+  as often, so the vote did not measure the reply; an opus judge passed both arms 12/12 and failed the real
+  `recipes-named` violation 6/6 (control 6/6 PASS). Every earlier "judge noise" diagnosis in this file is explained by
+  this. `check.sh` 8i pins the model id and the enforcement.
+- **`validate_plan.py` is exact, and the model loops on it.** Paths are built per list item (`SC-1`, `SC-2`,
+  `SC-3` were all collapsing to `id.target`, which is why two earlier attempts at a stricter check failed the
+  correct fixture); §9 coverage names every segment on one line; a prose TBD must name its §9 key in
+  backticks; each SC target must be the literal; the license discrepancy must be listed in §9 and §6 must not
+  call the terms consistent. The committed "correct" fixture had no §9 line for SC-3's three TBDs and nine
+  unkeyed prose TBDs, and the old validator accepted it. Measured on 36 real plan files: no crashes; 32 are
+  now rejected, at a median of 4 named problems each (23 unkeyed prose TBDs, 15 missing license lines, 5
+  claiming the terms agree, 0 missing YAML paths).
+  Hardened after review: an owner may contain digits; an item's `id` need not be its first key; a list at the
+  same indent as its parent key keeps its parent; a positional item is no longer "covered" by a stray digit.
+  `check.sh` 8b pins five isolating mutations (only `SC-2.target`; keyless prose TBD; no license line; "no
+  discrepancy"; an invented target), each changing exactly one thing.
+- **`judge-sc-items-template-only` is removed; the validator checks it** (0 violations in 32 real plans; the
+  judge failed plans that complied).
+- **`judge-no-invented-role` is replaced by the `no-invented-role-title` regex.** Under the opus judge, a plan that
+  restated the guidance's own question ("whether procurement, an architecture review, or a business owner already
+  holds a number") failed the clause unanimously in CI, while the judge's own replay split on the same plan: a role
+  named inside an open question is not a role assigned. The clause's list is enumerable (sponsor, project manager,
+  work-stream lead, product owner, steering committee, scrum master, responsibility matrix), so it is a pattern. It
+  matches unquoted lines only (a cited quote that names a role is allowed, and the correct fixture carries one);
+  0 of 36 real plans, 0 on the correct fixture, a hit on the fabricated one.
+- **`poc-planner-elicits/criteria` is split.** It bundled seven obligations, so a FAIL named none. Data,
+  language, hardware and buy-decision asked, and no-own-number, are regexes (0 misses or hits in 82 real
+  replies; the first hardware and buy-decision patterns each missed one, and both misses were the pattern's
+  fault). One judge clause remains, `judge-claims-sourced`. 8 of 82 replies were judge FAILs that nothing
+  visible separates from passes, so any residual failure there is judge noise.
+- **`check.sh` 8g** reads each fixture-backed regex grader's pattern out of its own file and runs it against
+  `pattern-fixtures/<name>.yaml` (real final messages; hand-written cases are labelled). Controls: a
+  never-matching and an always-matching pattern must both fail the fixtures; a host that cannot run it fails.
+  It runs Python `re`, which proves pattern/fixture agreement, not the harness engine's.
+- `no-cook-offered`: dropped a redundant `could\s+just` alternation.
+
+### Open
+
+- `analyze`'s workspace rule is a text guard; whether models obey it is measured by the E2E.
+- `demo-no-simulation` arm "tell me which of these paths to unblock" passes under the opus judge, because
+  `criteria.md` explicitly allows "which install path" questions while `demo/SKILL.md` says the zero-install tier
+  is taken, not offered. The two disagree; left alone, since resolving it is a policy choice.
+
 ## [1.37.19] - 2026-10-03
 
 ### Changed

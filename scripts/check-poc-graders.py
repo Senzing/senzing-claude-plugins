@@ -213,9 +213,14 @@ def check_judge_clauses(expectations: dict) -> int:
 def main() -> int:
     failures = 0
     graders = load_regex_graders()
-    neg = [g for g in graders if g["match"] == "not_contains"]
-    print(f"== poc-planner graders: {len(graders)} regex ({len(neg)} not_contains) across "
-          f"{len({g['case'] for g in graders})} cases ==")
+    # Only graders that read a PLAN FILE are exposed to the hazard this section guards: a plan is
+    # REQUIRED to quote the corpus, so a not_contains grader on it can fail a correct run. A
+    # `last_message` grader reads a reply with no obligation to quote anything -- and
+    # poc-planner-how-long/no-duration exists precisely because quoting a duration in that decline
+    # IS the violation. Scoping it out is the premise of the check, not an exemption from it.
+    neg = [g for g in graders if g["match"] == "not_contains" and g["file_target"]]
+    print(f"== poc-planner graders: {len(graders)} regex ({len(neg)} not_contains, file-targeted) "
+          f"across {len({g['case'] for g in graders})} cases ==")
 
     # A. Every not_contains grader against every verbatim corpus fixture.
     corpus = sorted(p for p in (FIXTURES / "corpus").iterdir() if p.suffix in {".txt", ".json"})

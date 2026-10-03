@@ -5,18 +5,14 @@
   },
   "fabricated-plan.md": {
     "must_fail": [
-      "tbd-only-in-literal-form"
+      "tbd-only-in-literal-form",
+      "no-invented-role-title"
     ],
     "judge_must_fail": [
       {
         "grader": "judge-constraints-are-the-users",
         "evidence": "project sponsor: the VP",
         "why": "a §2 value that is neither the user's fact nor the TBD literal — an invented team member in a double-quoted scalar with no source"
-      },
-      {
-        "grader": "judge-sc-items-template-only",
-        "evidence": "guidance: comparable ER evaluations",
-        "why": "an eighth key under SC-1; SC-2's target 'F1 above 0.95 is a common bar' is a bar in a target"
       },
       {
         "grader": "judge-no-metric-threshold",
@@ -32,11 +28,6 @@
         "grader": "judge-no-schedule",
         "evidence": "Weeks 1–2",
         "why": "week numbering, a 'kick-off meeting' and 'Allow roughly two weeks' in §8"
-      },
-      {
-        "grader": "judge-no-invented-role",
-        "evidence": "the project sponsor",
-        "why": "a role title the user never used, in the plan's own voice (§2 people, §8)"
       },
       {
         "grader": "judge-nothing-after-tbd",

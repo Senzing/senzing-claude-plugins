@@ -56,18 +56,23 @@ entities"). If none is given, ask what they want to see before running anything.
      the sentence that states it — *"you said the repository is brand new, so there is nothing to
      report on yet"*. A zero in your own voice is a finding: no `Entity count: 0`, no stat line,
      no table cell, no "the repository is empty" — the same number, unattributed, is the
-     certification this branch forbids. The
+     certification this branch forbids — and so are its softer forms: "there are no entities", "none exist",
+     "Biggest entities: none". The user asked two things (the biggest entities, and why); answer BOTH inside the
+     one attributed sentence — *"you said the repository is brand new, so there are no biggest entities to show
+     and no resolution to explain yet"* — and say nothing else about absence. The
      `reports` SQL counts entities too, but only against the mart tables it describes, which
      exist only if the user built them — use it when they have. On a persisted connection, show
-     the number. **Zero → refuse**: say so and offer `/senzing:analyze` to load data first. To be explicit, because
+     the number. On a persisted connection, a **zero → refuse**: say so and offer `/senzing:analyze` to load data first (never on the
+     `internal://` branch above, where you cannot see the repository). To be explicit, because
      "report" is both this skill's name and the thing it emits: **you DO run this skill on an
-     empty repository** — running it is how the zero becomes established fact instead of a guess.
+     empty repository** — on a persisted connection, running it is how a zero becomes established fact instead of a guess; on `internal://` it never does.
      What you must never do is emit entity findings, counts or a dashboard from an empty one.
      **End with the hand-off as a runnable command.** Whenever you refuse or redirect, your last
      message names `/senzing:analyze` (their files) or `/senzing:demo` (sample data) literally —
      not "load some data first", and not only earlier in the conversation. A summary that drops
      the command leaves the user with a refusal and no next step.
-     Run, establish zero, say so, hand off. Never decline to run because you suspect it is empty.
+     Run; on a persisted connection establish the zero and say so; on `internal://` relay only the user's own zero,
+     attributed; then hand off. Never decline to run because you suspect it is empty.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,

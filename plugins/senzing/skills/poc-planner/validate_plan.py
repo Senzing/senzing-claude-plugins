@@ -32,33 +32,153 @@ def yaml_blocks(text: str) -> list[str]:
     return re.findall(r"```ya?ml\n(.*?)```", text, re.S)
 
 
-def tbd_paths(text: str) -> list[str]:
-    """Every TBD in the document, as a dotted path. Nested keys count separately.
+LIT = "TBD — decided by"
+KEY_RE = re.compile(r"^(?P<ind>\s*)(?P<dash>-\s+)?(?P<key>[A-Za-z_]\w*):(?P<rest>.*)$")
 
-    A §2 block like
-        performance_required:
-          throughput: TBD — decided by X
-          latency:    TBD — decided by X
-    is TWO open decisions. Plans have repeatedly listed only the parent in §9, so
-    the children silently never get decided.
+
+def _strip_comment(v: str) -> str:
+    """Drop a trailing YAML comment. It starts at whitespace + '#', so `SC-#2` keeps its '#'."""
+    return re.split(r"\s#", v, maxsplit=1)[0]
+
+
+def _unquote(v: str) -> str:
+    v = v.strip()
+    return v[1:-1] if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'" else v
+
+
+def block_tbd_paths(block: str) -> list[tuple]:
+    """Each TBD value in one yaml block, as a tuple of path segments.
+
+    A list item (`- key: v`) is its OWN node, one level below its parent key and above its keys.
+    Its segment is ("item", parent, label, ordinal), labelled by the item's `id`/`name` value
+    (SC-2, CRM export) or its position. So
+        - id: SC-2
+          target: TBD — decided by X
+    is ((item SC-2), "target") -- NOT "id.target", which is what the earlier builder produced and
+    why every stricter §9 check failed the correct fixture: SC-1, SC-2 and SC-3 all collapsed to
+    the same path, so a plan missing only SC-2's target was indistinguishable from a complete one.
     """
-    found: list[str] = []
-    for block in yaml_blocks(text):
-        stack: list[tuple[int, str]] = []
-        for line in block.split("\n"):
-            if not line.strip() or line.lstrip().startswith("#"):
-                continue
-            m = re.match(r"^(\s*)-?\s*([A-Za-z_][\w]*):(.*)$", line)
-            if not m:
-                continue
-            indent, key, rest = len(m.group(1)), m.group(2), m.group(3)
-            while stack and stack[-1][0] >= indent:
+    out: list[tuple] = []
+    stack: list[tuple[int, object]] = []
+    counters: dict[tuple, int] = {}
+    for line in block.split("\n"):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        m = KEY_RE.match(line)
+        if not m:
+            continue
+        ind, key, rest = len(m.group("ind")), m.group("key"), m.group("rest")
+        if m.group("dash"):
+            # `key:` followed by `- a: b` at the SAME indent is valid YAML: the item belongs to that
+            # key, so only a previous sibling ITEM at this indent (or anything deeper) is popped.
+            while stack and (stack[-1][0] > ind or (stack[-1][0] == ind and not isinstance(stack[-1][1], str))):
                 stack.pop()
-            path = ".".join([k for _, k in stack] + [key])
-            if "TBD — decided by" in rest:
-                found.append(path)
-            stack.append((indent, key))
-    return found
+            parent = stack[-1][1] if stack and isinstance(stack[-1][1], str) else ""
+            ctx = tuple(s for _, s in stack)
+            counters[ctx] = counters.get(ctx, -1) + 1
+            named = key in ("id", "name")
+            label = _unquote(_strip_comment(rest)) if named else str(counters[ctx])
+            stack.append((ind, ("item", parent, label, counters[ctx], named)))
+            ind += len(m.group("dash"))
+        while stack and stack[-1][0] >= ind:
+            stack.pop()
+        if key in ("id", "name") and not m.group("dash") and stack and isinstance(stack[-1][1], tuple) \
+                and not stack[-1][1][4]:
+            old_item = stack[-1][1]
+            _, par, _, n, _ = old_item
+            new_item = ("item", par, _unquote(_strip_comment(rest)), n, True)
+            stack[-1] = (stack[-1][0], new_item)
+            # A TBD seen BEFORE this item's id was recorded under the positional label: relabel it too.
+            out[:] = [tuple(new_item if s == old_item else s for s in segments) for segments in out]
+        segments = tuple(s for _, s in stack) + (key,)
+        if LIT in rest:
+            out.append(segments)
+        stack.append((ind, key))
+    return out
+
+
+def tbd_paths(text: str) -> list[tuple]:
+    """Every TBD in every yaml block of the document, nested keys counted separately."""
+    return [segments for block in yaml_blocks(text) for segments in block_tbd_paths(block)]
+
+
+def fmt_path(segments: tuple) -> str:
+    parts: list[str] = []
+    for s in segments:
+        if isinstance(s, tuple):
+            _, parent, label, _n, _named = s
+            if parts and parts[-1] == parent:
+                parts[-1] = f"{parent}[{label}]"
+            else:
+                parts.append(label)
+        else:
+            parts.append(s)
+    return ".".join(parts)
+
+
+def _token_in(tok: str, line: str) -> bool:
+    return re.search(rf"(?<![\w-]){re.escape(tok)}(?![\w-])", line, re.I) is not None
+
+
+def covered(segments: tuple, lines: list[str]) -> bool:
+    """A §9 line covers a path only if it names EVERY segment of it, on that one line.
+
+    A list item is named by its label (SC-2), its position parent[N], or the all-items forms
+    parent[] / parent[*]; a key is named as a whole token (so `SC-1` never matches `SC-10`, and
+    `SC-1 target` cannot cover SC-2's target the way the old leaf-substring match allowed).
+    """
+    for line in lines:
+        low = line.lower()
+        ok = True
+        for s in segments:
+            if isinstance(s, tuple):
+                _, parent, label, n, named = s
+                # A positional label is a bare ordinal ("0", "1"): matching it as a word would let any
+                # stray digit on a §9 line ("250K", "3 sources") cover an unlabeled item. Only a name
+                # (`id`/`name`) is matched as a word; ordinals match only as parent[N] / parent[] / parent[*].
+                if not ((named and _token_in(label, line))
+                        or (parent and any(f"{parent}[{x}]".lower() in low for x in ("", "*", n, label)))):
+                    ok = False
+                    break
+            elif not _token_in(s, line):
+                ok = False
+                break
+        if ok:
+            return True
+    return False
+
+
+def open_decision_lines(text: str) -> list[str]:
+    """The list items under §9's `open_decisions:` key."""
+    sec9 = section(text, 9)
+    if "open_decisions:" not in sec9:
+        return []
+    out: list[str] = []
+    for l in sec9.split("open_decisions:", 1)[1].split("\n")[1:]:
+        if re.match(r"^\S", l) or l.startswith("```"):
+            break
+        if l.strip().startswith("- "):
+            out.append(l.strip()[2:])
+    return out
+
+
+def prose_tbd_lines(text: str) -> list[tuple[int, str]]:
+    """Lines that state a TBD in prose or a table: outside yaml fences and outside §9.
+
+    Skips a literal wrapped in backticks (prose explaining the rule) and `#` comment lines.
+    """
+    inside, out = False, []
+    s9 = text.find("\n## 9.")
+    s9_line = text[:s9].count("\n") + 2 if s9 >= 0 else 10**9
+    for i, l in enumerate(text.split("\n"), 1):
+        if l.startswith("```"):
+            inside = not inside
+            continue
+        if inside or i >= s9_line or LIT not in l or l.lstrip().startswith("#"):
+            continue
+        if any(l[max(0, m.start() - 1):m.start()] != "`" for m in re.finditer(re.escape(LIT), l)):
+            out.append((i, l))
+    return out
 
 
 def section(text: str, n: int) -> str:
@@ -79,16 +199,37 @@ def check(text: str) -> list[str]:
         if marker not in text:
             problems.append(f"missing section '{marker}' — downstream skills parse by these headings")
 
-    # Every TBD appears in §9 open_decisions, nested ones included.
+    # Every TBD appears in §9 open_decisions, nested ones included -- EXACTLY, not by leaf word.
+    # The previous check searched for the leaf key anywhere in §9, so a plan missing only
+    # SC-2.target passed whenever any other line said "target".
     sec9 = section(text, 9)
-    opened = sec9.split("open_decisions:", 1)[1] if "open_decisions:" in sec9 else ""
-    for path in tbd_paths(text):
-        leaf = path.split(".")[-1]
-        if path not in opened and leaf not in opened:
+    od_lines = open_decision_lines(text)
+    if sec9 and not od_lines and any(True for _ in tbd_paths(text)):
+        problems.append("§9 has no `open_decisions:` list, but the plan carries TBDs - every one needs a line there")
+    for segments in tbd_paths(text):
+        if not covered(segments, od_lines):
             problems.append(
-                f"§9 open_decisions does not list '{path}'. Every TBD gets a line, including "
-                f"nested keys — a downstream skill reads §9 to find what is still open, so one "
-                f"missing here is a decision nobody ever makes."
+                f"§9 open_decisions does not list '{fmt_path(segments)}'. Every TBD gets a line, including "
+                f"nested keys and each SC-n separately -- one line must name the item AND the key. A "
+                f"downstream skill reads §9 to find what is still open, so one missing here is a "
+                f"decision nobody ever makes."
+            )
+
+    # A TBD written in prose or a table is an open decision too ("anywhere in the plan"), and it
+    # was the commonest way plans left decisions out of §9. Name it: put the §9 key in backticks on
+    # the same line, and give that key a §9 line, so the two can be matched exactly.
+    for i, l in prose_tbd_lines(text):
+        keys = [k for k in re.findall(r"`([A-Za-z_][\w.\[\]*-]*)`", l) if not k.startswith("TBD")]
+        if not keys:
+            problems.append(
+                f"line {i}: states `{LIT}` in prose but names no §9 key. Put the key it is tracked under in "
+                f"backticks on this line (for example `data_subset_scope`) and add a §9 open_decisions "
+                f"line naming that key -- otherwise this decision is never listed as open."
+            )
+        elif not any(_token_in(k, od) for k in keys for od in od_lines):
+            problems.append(
+                f"line {i}: names {', '.join('`'+k+'`' for k in keys)} but none of them appears in a §9 "
+                f"open_decisions line. Add a line for the key this decision is tracked under."
             )
 
     # Nothing after the TBD literal except a §9 pointer naming WHAT is open.
@@ -127,14 +268,60 @@ def check(text: str) -> list[str]:
                 f"the plan just said was open."
             )
 
-    # §3 success criteria use the template's seven keys and no others.
-    for block in yaml_blocks(section(text, 3)):
-        for key in re.findall(r"^\s*-?\s*([A-Za-z_][\w]*):", block, re.M):
-            if key not in SC_KEYS:
+    # License terms: the tools return license paths that DIFFER (the evaluation-license pointer,
+    # submit_feedback, the web form), and the skill's rule is to quote each and list the discrepancy
+    # in §9 -- never reconcile them. Plans repeatedly wrote "the tools agree" / "no discrepancy" and
+    # left §9 without a license line (30 of 32 real plans omitted at least one path). This cannot see
+    # the tool results, so it checks the two things it can: a license line exists in §9 whenever §6
+    # discusses licensing, and §6 does not call the license terms consistent.
+    sec6 = section(text, 6)
+    if re.search(r"licens", sec6, re.I):
+        if not any(re.search(r"licens", l, re.I) for l in od_lines):
+            problems.append(
+                "§6 discusses licensing but §9 open_decisions has no license line. The license paths the "
+                "tools returned differ; list that discrepancy under §9 (`license path`) instead of choosing one."
+            )
+        # A sentence is about license terms if it names licensing OR one of the paths the tools return:
+        # "the tools agree -- no discrepancy" rarely repeats the word "license".
+        lic_ctx = r"licens|submit_feedback|non-prod-license|eval_license|ask\s+senzing|sales@"
+        for sent in re.split(r"(?<=[.!?])\s+|\n", sec6):
+            if re.search(lic_ctx, sent, re.I) and re.search(
+                    r"\bno\s+discrepanc\w+|\b(?:tools?|paths?|sources?|terms)\s+(?:all\s+)?(?:agree|are\s+consistent|match)\b"
+                    r"|\bconsistent\s+(?:across|between)", sent, re.I):
                 problems.append(
-                    f"§3 uses key '{key}', which is not one of the seven the template defines "
+                    f"§6 says the license terms agree ('{sent.strip()[:80]}'). The tools returned differing "
+                    f"license paths; quote each with its tool and list the discrepancy in §9 -- do not reconcile them."
+                )
+
+    # §3 success criteria, one pass per block: (1) only the template's seven keys; (2) every SC-n target is
+    # exactly `TBD — decided by <owner>` (or the user's own words, marked `per user`) -- a measured target the plan
+    # invented is the plan deciding what only the user can.
+    for block in yaml_blocks(section(text, 3)):
+        item = "?"
+        for l in block.split("\n"):
+            mk = KEY_RE.match(l)
+            if not mk or l.lstrip().startswith("#"):
+                continue
+            k, rest = mk.group("key"), _strip_comment(mk.group("rest")).strip()
+            if mk.group("dash"):
+                item = "?"            # a new item: never report under the previous one's id
+            if k == "id":             # `id` need not be the first key of the item
+                item = _unquote(rest)
+            if k not in SC_KEYS:
+                problems.append(
+                    f"§3 uses key '{k}', which is not one of the seven the template defines "
                     f"({', '.join(sorted(SC_KEYS))}). Extra keys are the plan inventing structure."
                 )
+            if k == "target":
+                v = _unquote(rest)
+                # An owner may contain digits ("team 2", "SRE-1"); what is rejected is a ':' tail or a
+                # percent -- a figure after the owner. `per user ...` is also allowed: the user's own
+                # words, which is wider than "every target is the literal" and intended (rule 4b).
+                if not re.fullmatch(r"TBD — decided by [^:\n%]+?", v) and not v.startswith("per user"):
+                    problems.append(
+                        f"§3 {item}: target is '{v[:70]}'. A target is `TBD — decided by <owner>` or the user's "
+                        f"own words marked `per user`; the plan does not set one."
+                    )
 
     # Every yaml block must actually parse — a plan is read, not just displayed.
     try:

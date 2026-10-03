@@ -115,7 +115,11 @@ second report.
    that turns the license answer into a fork instead of an answer.
    So do not preview, promise or offer the zero-install tier alongside it: "either way I can
    proceed to the zero-install fallback next — let me know how you'd like to proceed" is the menu
-   again, one step later. The tier is not mentioned until `install` has actually ended its turn
+   again, one step later. The same goes for a conditional attached to the permission request:
+   "…or, if you'd rather not change the sandbox network rules, I can fall back to a zero-install
+   preview" is an alternative to installing, and it turns the permission question into a fork. If the
+   user declines the permission, THEN you take the tier, in the next turn, as what you do now — never as a
+   way out you offered this turn. The tier is not mentioned until `install` has actually ended its turn
    without a working SDK, and then you take it rather than announce it.
 
    **The zero-install tier is what you do AFTER `install` has ended its turn without a working
@@ -158,10 +162,12 @@ second report.
      distinct `DATA_SOURCE` codes — the load step registers them. `mapping_workflow` is for the
      user's own data (`analyze`).
    - **Load into a fresh scratch repository exactly as `analyze` step 4 does — no confirmation
-     needed.** The scratch repo is throwaway and touches nothing of theirs. Load into the user's
-     **existing** repository only on their explicit request, and then confirm the target and the
-     record count first. Verify the load as `analyze` step 4 does (loaded vs submitted, error
-     count) before going on.
+     needed.** The scratch repo is throwaway and touches nothing of theirs. **Never offer, hint at
+     or ask about loading into their existing repository** — not "if you'd rather load it into
+     production, say so", not "I'll only do that if you explicitly ask". Saying production is
+     untouched is fine; saying it is *available* is an offer. Only if the USER raises their
+     existing repository themselves, confirm the target and the record count first.
+     Verify the load as `analyze` step 4 does (loaded vs submitted, error count) before going on.
    - **Drain the redo queue** as `analyze` step 5 does — get the probe from the MCP, drain to 0,
      report the number processed — before taking any entity count.
    - **Name the storage target in the write-up** — the repository, never a record. These two
