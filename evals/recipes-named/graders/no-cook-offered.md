@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:I|we)\s+(?:could|can|will|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsampl\w+\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bwhen\s+we\s+(?:get|move)\s+to\s+the\s+\w+\s+step|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
+pattern: '\b(?:I|we)\s+(?:could|can|will|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsampl\w+\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
 match: not_contains
 flags: i
 target: last_message
@@ -65,6 +65,16 @@ failing run's (`have it ready to attach`, `when we get to the Prep step`,
 recipe's ~1,600-record size, quoting the 500-record unlicensed cap, naming the Setup step, or
 saying the Prep step is where mapping happens all stay clean. Describing what the recipe *needs*
 is required by the skill; offering to *do* part of it is the violation.
+
+## What is deliberately NOT matched
+
+A bare mention of a later step — "when we get to the Prep step" — is **not** an alternative.
+It is not offer-framed, and it fires on a correct refusal that merely names what would come
+later ("I can't cook this; when we get to the Prep step you'd need a license"). The failing run
+that motivated this grader said *"have it ready to attach/drop … when we get to the Prep step"*
+— the staging verb is the part that commits to a cook, and `have it ready to (attach|drop)`
+catches it without the false-positive surface. Dropping the bare form costs nothing on the real
+trace and removes a whole class of correct-refusal failures.
 
 ## Keep it inside the common regex subset
 

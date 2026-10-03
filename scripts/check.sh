@@ -357,7 +357,15 @@ echo; echo "== 8e. no-cook-offered's pattern actually does what its doc claims =
 # grader shipped, which missed the server's own wording and flagged a factual sentence)
 # and against the real one, asserting the broken one is rejected.
 if ! python3 - <<'CONTROL'
-import re, sys, pathlib, yaml
+import re, sys, pathlib
+try:
+    import yaml
+except ImportError:
+    # Same guard as the main block. Without it a missing dependency reports
+    # "8e's fixtures do not discriminate" -- blaming the fixtures for a host
+    # problem, which is the exact mistake the main block's exit 2 was added for.
+    print("     ! PyYAML not available on this host")
+    sys.exit(2)
 fixtures = pathlib.Path("evals/recipes-named/pattern-fixtures/no-cook-offered.yaml")
 fx = yaml.safe_load(fixtures.read_text(encoding="utf-8")) or {}
 
@@ -366,9 +374,8 @@ def failures(pat):
     n = sum(1 for s in fx.get("must_match", []) if not rx.search(s))
     return n + sum(1 for s in fx.get("must_not_match", []) if rx.search(s))
 
-# The first revision: keyed on a stemmed-verb list.
-_stem = "sample"[:5]  # spelled via a slice so the dictionary check sees a real word
-broken = (r'(' + _stem + r'\w*|load\w*|us\w*)\s+(just|only)\s+\d[\d,]*\s+'
+# The first revision: keyed on a list of stemmed verbs.
+broken = (r'(sampl\w*|load\w*|us\w*)\s+(just|only)\s+\d[\d,]*\s+'
           r'(of\s+(your|their|the)\s+)?records|when we (get|move) to the \w+ step'
           r'|have it ready to (attach|drop)')
 bf = failures(broken)
@@ -380,7 +387,12 @@ print(f"     positive control: the superseded pattern is rejected ({bf} fixture 
 sys.exit(0)
 CONTROL
 then
-  bad "8e's fixtures do not discriminate - they pass a pattern known to be broken"
+  ctl_rc=$?
+  if [ "$ctl_rc" = "2" ]; then
+    bad "8e's control could not run, so the fixtures are UNVERIFIED (install PyYAML)"
+  else
+    bad "8e's fixtures do not discriminate - they pass a pattern known to be broken"
+  fi
 fi
 
 # This reads the pattern OUT OF the grader file so the two cannot drift.
@@ -447,6 +459,24 @@ else
   else
     bad "no-cook-offered's pattern disagrees with its own fixtures - it would miss a real offer or fail a correct run"
   fi
+fi
+
+echo; echo "== 8f. demo routes on the blocker CLASS, not on a verdict =="
+# A prompt change with no offline test is verified by prose alone. The full assertion
+# (a denied package host must route into `install`) needs an eval case that reproduces
+# that host, which does not exist yet. This is the cheap half: the contract that was
+# WRONG -- routing only "if there is no running Senzing", a verdict -- must not come
+# back, and the blocker-class wording must still be there. It cannot prove behavior;
+# it proves the instruction has not silently reverted.
+demo_skill=plugins/senzing/skills/demo/SKILL.md
+if [ ! -f "$demo_skill" ]; then
+  bad "$demo_skill is gone - this check is stale, point it at the new home"
+elif ! grep -q "The trigger is the BLOCKER CLASS" "$demo_skill"; then
+  bad "demo/SKILL.md lost the blocker-class routing rule - a denied host or missing permission will not route to install, and install's EULA contract is what that routing buys"
+elif ! grep -q "a sandboxed shell" "$demo_skill"; then
+  bad "demo/SKILL.md no longer names the sandboxed-shell blocker, the one that shipped install commands with no license agreement"
+else
+  ok "demo routes on the blocker class, and still names the blocker that caused the defect"
 fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="

@@ -94,9 +94,10 @@ second report.
    a reason to hand off, not a reason to stop and offer a menu: the permission request belongs
    inside install's license-agreement message, which asks for both at once. Classifying a
    blocker as a host problem rather than an install problem does not take you out of this
-   rule. (If an evaluation license turns out to be needed,
-   `submit_feedback(category='license_request')` requests one; its description states the current
-   terms — do not quote a duration from memory.) Resume the demo the moment install completes.
+   rule.
+   (If an evaluation license turns out to be needed, `submit_feedback(category='license_request')`
+   requests one; its description states the current terms — do not quote a duration from memory.)
+   Resume the demo the moment install completes.
    **If you hand over install STEPS yourself, that same message carries the license-agreement
    URL** — never "the EULA link is above". A reader acts on the message in front of them, and a
    backward reference makes them scroll for the one thing they must agree to. The URL comes from

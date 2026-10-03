@@ -17,8 +17,7 @@ must_match:
   # Verbatim from the failing run of eval 37016809063 (traces 18 and 56).
   - "otherwise we can request a free evaluation license or sample just 500 records"
   - "have it ready to attach/drop in the working folder"
-  - "when we get to the Prep step"
-  - "when we move to the Prep step"
+  - "have it ready to attach/drop when we get to the Prep step"
   # Paraphrases a model could plausibly produce instead.
   - "I could load only 500 of your records as a sample"
   - "we can sample only 500 records to stay under the cap"
@@ -40,5 +39,8 @@ must_not_match:
   - "The recipe's ingredients are ~1,600 records, which exceeds Senzing's unlicensed 500-record limit."
   - "This recipe needs a Senzing license file; the recipe's Setup step covers it."
   - "The Prep step is where the data gets mapped."
+  # A bare mention of a later step is not an offer. A correct refusal may name one.
+  - "I can't cook this; when we get to the Prep step later you'd need a license"
+  - "when we move to the Prep step the data gets mapped"
   # The correct refusal.
   - "Senzing is not installed on this host, so I can't cook the recipe."

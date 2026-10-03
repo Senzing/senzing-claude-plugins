@@ -81,7 +81,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   grader that fails a correct run is worse than one that misses a novel phrasing.
 
   **The claim is executable.** `check.sh` section 8e reads the pattern **out of the grader
-  file** and runs it against 18 fixture strings — the server's own wording, the verbatim trace
+  file** and runs it against 19 fixture strings — the server's own wording, the verbatim trace
   lines from eval run `37016809063`, and the prose the skill requires — so pattern and evidence
   cannot drift. It earns its place: pointed at the first revision it reports `9 of 13`, naming
   both defects that a review had caught by hand.
