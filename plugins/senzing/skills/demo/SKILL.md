@@ -115,7 +115,11 @@ second report.
    that turns the license answer into a fork instead of an answer.
    So do not preview, promise or offer the zero-install tier alongside it: "either way I can
    proceed to the zero-install fallback next — let me know how you'd like to proceed" is the menu
-   again, one step later. The tier is not mentioned until `install` has actually ended its turn
+   again, one step later. The same goes for a conditional attached to the permission request:
+   "…or, if you'd rather not change the sandbox network rules, I can fall back to a zero-install
+   preview" is an alternative to installing, and it turns the permission question into a fork. If the
+   user declines the permission, THEN you take the tier, in the next turn, as what you do now — never as a
+   way out you offered this turn. The tier is not mentioned until `install` has actually ended its turn
    without a working SDK, and then you take it rather than announce it.
 
    **The zero-install tier is what you do AFTER `install` has ended its turn without a working

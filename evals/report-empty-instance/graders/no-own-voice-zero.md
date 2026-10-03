@@ -35,3 +35,7 @@ is empty"*, and `criteria` says quoting that caution is correct. The first versi
 first fixtures listed them under `must_match`, locking the false positives in; a review caught it. The `would`
 exemption also did not match `wouldn't`. Every remaining hit on a judge-passing arm was read by hand: each states the
 zero in the reply's own voice ("Either way, there are no entities").
+
+**Known gap (wider than number words).** The negation exemption is per sentence, so an own-voice zero that happens to
+carry a negation ("Nothing is loaded and not one entity exists") is exempt, as is any own-voice zero hedged with
+"not". Accepted: the alternative is false-failing the skill's own cautions, which is how the first version failed.

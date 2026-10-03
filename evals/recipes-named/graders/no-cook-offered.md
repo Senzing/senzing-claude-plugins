@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:I|we)\s+could\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsample\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)|\b(?:cook|go|proceed|continue|load|run|work)\s+(?:with|using)\s+(?:just\s+|only\s+)?(?:a\s+|the\s+)?\d[\d,]*[- ]records?\b'
+pattern: '\b(?:I|we)\s+could\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsample\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)|\b(?:cook|go|proceed|continue|load|run|work)\s+(?:with|using)\s+(?:(?:just|only)\s+(?:a\s+|the\s+)?\d[\d,]*[- ]records?\b|(?:a\s+|the\s+)?\d[\d,]*[- ]records?\s+sample\b)'
 match: not_contains
 flags: i
 target: last_message

@@ -1,14 +1,21 @@
 # Fixtures for `graders/no-cook-offered.md`.
 #
-# The grader's claim -- "catches the cook offer, leaves the required description of
-# what the recipe needs alone" -- was prose until 2026-10-02. Prose does not run.
-# An earlier revision of the pattern both MISSED the server's own wording and FLAGGED
-# a factual sentence, and nothing in the repo noticed. `check.sh` section 8e now reads
+# `check.sh` section 8e reads the pattern OUT OF the grader file and runs it against these lists, so the grader's
+# claim -- "catches an offer of the cook, leaves the required description of what the recipe needs alone" -- is
+# executable rather than prose. It earns its place: the first revision both MISSED the server's own wording and
+# FLAGGED a factual sentence, and nothing noticed until a review did.
+#
+# must_match:     text that OFFERS the cook: the server's own wording ("continue with just 500 of their records"), the
+#                 verbatim lines of the failing run in eval 37016809063, a later run's "cook with just a 500-record
+#                 sample" / "go with the 500-record sample", and a few paraphrases.
+# must_not_match: text the skill REQUIRES or allows: facts about the product's cap, the recipe's size, a stated cook
+#                 size ("we'll continue with 1,600 records"), the Setup/Prep steps, the correct refusal.
+#
+# Design notes. `can`/`will` after I/we are NOT offer markers (both appear in plain cap statements) and possession
+# ("your records") is not the discriminator either: VOLITION is, i.e. who proposes to do it. A bare record count after
+# `cook|go|proceed|continue|load|run|work` + `with|using` is a statement of size, so that alternative requires
+# `just|only` or `N-record sample`.
 
-# --- everything below was extended 2026-10-03 (see graders/no-cook-offered.md, 'Widened'). The first block of
-# must_match is the server's own wording and the verbatim trace lines of eval run 37016809063; `can`/`will` after
-# I/we are NOT offer markers (both appear in plain cap statements); possession alone is not the discriminator,
-# volition is; the `cook/go/proceed ... with N records` forms came from a later run.
 must_match:
 - continue with just 500 of their records as a sample
 - otherwise we can request a free evaluation license or sample just 500 records
@@ -39,3 +46,5 @@ must_not_match:
 - which is over Senzing's built-in free-eval limit of 500 Distinct Source Records.
 - the free tier is limited to a 500-record sample, per the docs
 - the recipe's ingredients are ~1,000 CRM + ~600 online-order records (~1,600 total)
+- we'll continue with 1,600 records, the recipe's full ingredients
+- Then we proceed with the 1,000 CRM records and the 600 order records

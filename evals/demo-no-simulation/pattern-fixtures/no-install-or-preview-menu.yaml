@@ -32,6 +32,10 @@ must_match:
 - '2. **Skip install** and I show you the zero-install preview instead: real sample data pulled from Senzing''s
   server, validated against the Entity Specification — but no actual resolution, since that requires the
   engine.'
+- '(or if you''d rather not change sandbox network rules, I can instead fall back to a **zero-install
+  preview**: pull sample data'
+- in which case I'd fall back to a zero-install preview (validated sample data only, no simulated resolution)
+  or Docker.
 must_not_match:
 - 'Senzing isn''t installed yet. I''ll set it up using the official Homebrew cask (macOS Apple Silicon),
   with **TypeScript/Node.js** as the language — it''s the only toolchain already available on this machine
@@ -161,3 +165,6 @@ must_not_match:
 
   Let me know which path you''d like, and confirm the EULA, and I''ll continue from there — including
   running the demo the moment a working Senzing is available.'
+- Install is blocked, so I'll fall back to the zero-install tier and show validated records.
+- I fell back to the zero-install tier; here are the validated records.
+- Falling back to the zero-install tier now.

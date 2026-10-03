@@ -297,6 +297,12 @@ if paths("- shape: x\n  id: SC-9\n  target: TBD — decided by a\n") != ["SC-9.t
 # a list at the SAME indent as its parent key belongs to that parent (valid YAML)
 if paths("open_decisions:\n- k: TBD — decided by a\n") != ["open_decisions[0].k"]:
     fail.append("same-indent list lost its parent")
+# a TBD that appears BEFORE its item's id is still reported under that id
+if paths("- target: TBD — decided by a\n  id: SC-2\n") != ["SC-2.target"]:
+    fail.append("a TBD before its item's id is reported under the positional label")
+# a '#' inside an id is not a comment (a comment needs whitespace before it)
+if paths("- id: SC-#2\n  target: TBD — decided by a\n") != ["SC-#2.target"]:
+    fail.append("an id containing '#' is truncated")
 # an owner may contain a digit
 if not re.match(r"TBD — decided by [^:\n%]+?$", "TBD — decided by platform lead 2"):
     fail.append("an owner containing a digit is rejected")
@@ -653,6 +659,8 @@ if [ ! -f "$demo_skill" ]; then
   bad "$demo_skill is gone - this check is stale, point it at the new home"
 elif ! grep -q "The trigger is the BLOCKER CLASS" "$demo_skill"; then
   bad "demo/SKILL.md lost the blocker-class routing rule - a denied host or missing permission will not route to install, and install's EULA contract is what that routing buys"
+elif ! grep -q "a conditional attached to the permission request" "$demo_skill"; then
+  bad "demo/SKILL.md lost the permission-conditional example - 'if you'd rather not change the sandbox rules I can fall back to a zero-install preview' is the shape that recurred after the first rule"
 elif ! grep -q "a sandboxed shell" "$demo_skill"; then
   bad "demo/SKILL.md no longer names the sandboxed-shell blocker, the one that shipped install commands with no license agreement"
 else

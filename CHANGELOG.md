@@ -71,7 +71,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   claiming the terms agree, 0 missing YAML paths).
   Hardened after review: an owner may contain digits; an item's `id` need not be its first key; a list at the
   same indent as its parent key keeps its parent; a positional item is no longer "covered" by a stray digit.
-  `check.sh` 8b pins six isolating mutations (only `SC-2.target`; keyless prose TBD; no license line; "no
+  `check.sh` 8b pins five isolating mutations (only `SC-2.target`; keyless prose TBD; no license line; "no
   discrepancy"; an invented target), each changing exactly one thing.
 - **`judge-sc-items-template-only` is removed; the validator checks it** (0 violations in 32 real plans; the
   judge failed plans that complied).

@@ -34,3 +34,8 @@ stated in the plan's own voice, and a quoted one sits on a line that carries its
 precision on purpose: a role smuggled inside a double-quoted YAML scalar escapes this grader, and
 `judge-constraints-are-the-users` still reads that case. Measured: 0 of 36 real plans, 0 on the correct fixture, and a
 hit on the fabricated one ("a kick-off meeting with the VP and the project sponsor").
+
+**Known trade-offs.** A bare `sponsor` on an unquoted line would also fail "no sponsor was named"; none of 36 real plans
+says that, and the validator loop surfaces it. A role placed inside a double-quoted YAML scalar escapes this grader by
+design and is covered by `judge-constraints-are-the-users`, whose fabricated-plan evidence is exactly that shape
+(`people: "per user: two engineers; project sponsor: the VP"`, `expectations.json`).

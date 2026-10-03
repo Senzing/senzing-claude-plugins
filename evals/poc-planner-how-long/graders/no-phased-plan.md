@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:phase|stage|sprint|milestone|week|month)\s+(?:\d+|one|two|three|four)\b(?!\s*(?:of\s+the\s+guidance|question))'
+pattern: '\b(?:phase|stage|sprint|milestone|week|month)\s+(?:\d+|one|two|three|four)\b'
 match: not_contains
 flags: i
 target: last_message

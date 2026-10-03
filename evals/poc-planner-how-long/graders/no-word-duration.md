@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:a\s+few|several|a\s+couple\s+of|couple\s+of|handful\s+of)\s+(?:weeks?|months?|days?|hours?|quarters?|sprints?)\b|\b(?:typically|usually|generally|normally|roughly|about|around)\s+(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|twelve)\s+(?:weeks?|months?|days?|hours?|quarters?|sprints?)\b|\b(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|twelve)[-\s](?:to|or)[-\s](?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|twelve)\s+(?:weeks?|months?|days?|hours?|quarters?|sprints?)\b|\b(?:one|two|three|four|five|six|eight|ten|twelve)[-\s](?:week|month|day|sprint)\b'
+pattern: '\b(?:a\s+few|several|a\s+couple\s+of|couple\s+of|handful\s+of)\s+(?:weeks?|months?|days?|hours?|quarters?|sprints?)\b|\b(?:typically|usually|generally|normally|roughly|about|around)\s+(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|twelve)\s+(?:weeks?|months?|days?|hours?|quarters?|sprints?)\b|\b(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|twelve)[-\s](?:to|or)[-\s](?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|twelve)\s+(?:weeks?|months?|days?|hours?|quarters?|sprints?)\b|\b(?:one|two|three|four|five|six|eight|ten|twelve)-(?:week|month|day|sprint)\b'
 match: not_contains
 flags: i
 target: last_message

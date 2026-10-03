@@ -36,6 +36,11 @@ LIT = "TBD — decided by"
 KEY_RE = re.compile(r"^(?P<ind>\s*)(?P<dash>-\s+)?(?P<key>[A-Za-z_]\w*):(?P<rest>.*)$")
 
 
+def _strip_comment(v: str) -> str:
+    """Drop a trailing YAML comment. It starts at whitespace + '#', so `SC-#2` keeps its '#'."""
+    return re.split(r"\s#", v, maxsplit=1)[0]
+
+
 def _unquote(v: str) -> str:
     v = v.strip()
     return v[1:-1] if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'" else v
@@ -72,15 +77,19 @@ def block_tbd_paths(block: str) -> list[tuple]:
             ctx = tuple(s for _, s in stack)
             counters[ctx] = counters.get(ctx, -1) + 1
             named = key in ("id", "name")
-            label = _unquote(rest.split("#")[0]) if named else str(counters[ctx])
+            label = _unquote(_strip_comment(rest)) if named else str(counters[ctx])
             stack.append((ind, ("item", parent, label, counters[ctx], named)))
             ind += len(m.group("dash"))
         while stack and stack[-1][0] >= ind:
             stack.pop()
         if key in ("id", "name") and not m.group("dash") and stack and isinstance(stack[-1][1], tuple) \
                 and not stack[-1][1][4]:
-            _, par, _, n, _ = stack[-1][1]
-            stack[-1] = (stack[-1][0], ("item", par, _unquote(rest.split("#")[0]), n, True))
+            old_item = stack[-1][1]
+            _, par, _, n, _ = old_item
+            new_item = ("item", par, _unquote(_strip_comment(rest)), n, True)
+            stack[-1] = (stack[-1][0], new_item)
+            # A TBD seen BEFORE this item's id was recorded under the positional label: relabel it too.
+            out[:] = [tuple(new_item if s == old_item else s for s in segments) for segments in out]
         segments = tuple(s for _, s in stack) + (key,)
         if LIT in rest:
             out.append(segments)

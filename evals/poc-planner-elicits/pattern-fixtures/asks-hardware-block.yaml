@@ -1,4 +1,5 @@
 # must_match = the pattern HITS. must_not_match is HAND-WRITTEN (declarative text with no question); must_match is 2 REAL replies.
+# The last must_not_match is a reply that asks about data, people and language but NOT infrastructure: this pattern's own negative.
 must_match:
 - 'I retrieved Senzing''s own PoC guidance (9 sections of "The Path to a Successful Proof of Concept,"
   https://senzing.zendesk.com/hc/en-us/articles/360047998914). You haven''t yet given me the specifics
@@ -116,3 +117,4 @@ must_not_match:
 - We will profile your data, review your infrastructure and hardware, and recommend a structure.
 - 'Here is a plan: week one is data, then the platform and the database are chosen. Success means a good
   match rate.'
+- What data do you have, and who will run it? Which SDK language would your team use?
