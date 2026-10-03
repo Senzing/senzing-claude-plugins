@@ -75,6 +75,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   discrepancy"; an invented target), each changing exactly one thing.
 - **`judge-sc-items-template-only` is removed; the validator checks it** (0 violations in 32 real plans; the
   judge failed plans that complied).
+- **`judge-no-invented-role` is replaced by the `no-invented-role-title` regex.** Under the opus judge, a plan that
+  restated the guidance's own question ("whether procurement, an architecture review, or a business owner already
+  holds a number") failed the clause unanimously in CI, while the judge's own replay split on the same plan: a role
+  named inside an open question is not a role assigned. The clause's list is enumerable (sponsor, project manager,
+  work-stream lead, product owner, steering committee, scrum master, responsibility matrix), so it is a pattern. It
+  matches unquoted lines only (a cited quote that names a role is allowed, and the correct fixture carries one);
+  0 of 36 real plans, 0 on the correct fixture, a hit on the fabricated one.
 - **`poc-planner-elicits/criteria` is split.** It bundled seven obligations, so a FAIL named none. Data,
   language, hardware and buy-decision asked, and no-own-number, are regexes (0 misses or hits in 82 real
   replies; the first hardware and buy-decision patterns each missed one, and both misses were the pattern's

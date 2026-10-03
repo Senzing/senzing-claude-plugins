@@ -5,7 +5,8 @@
   },
   "fabricated-plan.md": {
     "must_fail": [
-      "tbd-only-in-literal-form"
+      "tbd-only-in-literal-form",
+      "no-invented-role-title"
     ],
     "judge_must_fail": [
       {
@@ -27,11 +28,6 @@
         "grader": "judge-no-schedule",
         "evidence": "Weeks 1–2",
         "why": "week numbering, a 'kick-off meeting' and 'Allow roughly two weeks' in §8"
-      },
-      {
-        "grader": "judge-no-invented-role",
-        "evidence": "the project sponsor",
-        "why": "a role title the user never used, in the plan's own voice (§2 people, §8)"
       },
       {
         "grader": "judge-nothing-after-tbd",
