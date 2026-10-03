@@ -29,6 +29,9 @@ must_not_match:
   # The possessive ones matter: possession alone is NOT the discriminator, volition is.
   - "the unlicensed tier will load only 500 of your records"
   - "Senzing will load only 500 of your records"
+  # Third-person / past "sample" is a product fact; only the infinitive is an offer.
+  - "the tier samples only 500 records"
+  - "the engine sampled only 500 records"
   # `can`/`will` after I/we are NOT offer markers: both appear in plain cap statements.
   # This reverses an earlier revision that pinned the `will` form as must_match.
   - "without a license we can load only 500 records"

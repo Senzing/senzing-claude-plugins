@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.37.19] - 2026-10-02
+## [1.37.19] - 2026-10-03
 
 ### Changed
 
@@ -81,7 +81,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   grader that fails a correct run is worse than one that misses a novel phrasing.
 
   **The claim is executable.** `check.sh` section 8e reads the pattern **out of the grader
-  file** and runs it against 20 fixture strings — the server's own wording, the verbatim trace
+  file** and runs it against 22 fixture strings — the server's own wording, the verbatim trace
   lines from eval run `37016809063`, and the prose the skill requires — so pattern and evidence
   cannot drift. It earns its place: pointed at the first revision it reports `9 of 13`, naming
   both defects that a review had caught by hand.
@@ -234,6 +234,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `poc-planner` rule 1 and the §2 template lose the spellings they carried only to satisfy
   regexes. Thresholds, `gate.py` and the judge's non-gating status are untouched.
 
+
 ### Changed
 
 - Tracks Senzing MCP server v1.37.16, whose container install route now carries
@@ -325,6 +326,7 @@ Claude plugin directory review findings from 1.37.13-3.
   root drifted. Both now fail loudly, and the validate check distinguishes an invalid manifest
   from a CLI that could not run.
 
+
 ### Changed
 
 - **The eval harness moved out of the plugin folder.** `plugins/senzing/evals/` and
@@ -393,6 +395,7 @@ plugin directory's review findings on 1.37.13-2.
   mean failing the listing to satisfy a stale local schema. `scripts/check.sh` now allows
   exactly those two by name, each cited to the portal finding that demanded it, and every
   other `--strict` complaint stays fatal — verified red-on-removal with a bogus field.
+
 
 ## [1.37.13-2] - 2026-09-26
 
@@ -761,6 +764,7 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
 - **`install`** — install and set up Senzing. Reproduces no install commands; detects the host, takes the official steps from `sdk_guide`, surfaces the EULA, then verifies with `doctor`. Previously buried at the end of `doctor`'s description where the command picker truncated it.
 - Explicit "Not for X — use Y" boundaries on every skill description. Weak-model routing measured 17/20 → 20/20.
 
+
 - **`ask` skill** — answer any Senzing question grounded solely in the hosted MCP. The only
   skill that works on an information-only host (no shell, no Senzing install), so it now leads
   the session banner.
@@ -780,6 +784,7 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
 ### Changed
 
 - Synced to MCP server **v1.37.4**, which carries the v1.37.3 security fix (CVE-2026-14456, HIGH, `libssl3t64` on both deployed images) plus a batch of field-reported corrections: `get_sample_data` no longer blocking a guided download, `brianmacy/sz-cpp-sdk` indexed as a community C++ SDK, a search-index chunker that was blind to level-1 `#` headings (10,968 → 11,217 chunks corpus-wide), `plan-a-poc` no longer inventing PoC success criteria, and `sdk_guide(full_pipeline)` honouring `record_count`. Tool surface unchanged. Note the CI gate compares `plugin.json` against the **live** agent-card, so a plugin version bump must follow the server deploy rather than lead it — this branch was blocked by that gate until the bump, which is the gate working as designed.
+
 
 - **`ask`** names `poc-planner` in its Not-for clause, no longer claims to be the only skill
   that works on an information-only host, and now grounds arithmetic as well as retrieval: it
@@ -861,6 +866,7 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
 - **`build` required `doctor` checks 4–9 green**, which is unreachable on a healthy machine (7 is ➖ when the config env var is unset, 8 cascades, 9 is ⚠️ on the built-in eval license).
 - **`report` claimed the entity count works on `internal://`**, which the MCP contradicts — that store lives only in the process that loaded it, so a Bash-run export counts zero.
 - Numerous restated Senzing facts replaced with tool calls, per the rule that the MCP owns facts and the plugin owns workflow.
+
 
 - **`capture_state.sh` had never written a state file — three independent defects.**
   (1) It read `.tool_response.state`, but an MCP tool's `tool_response` is a CallToolResult

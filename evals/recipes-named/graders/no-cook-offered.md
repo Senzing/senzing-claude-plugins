@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:I|we)\s+(?:could|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsampl\w+\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
+pattern: '\b(?:I|we)\s+(?:could|could\s+just)\s+(?:\w+\s+){0,2}(?:sampl\w+|load|use|run|do|take)\s+(?:just|only)\s+\d[\d,]*|\bsample\s+(?:just|only)\s+\d[\d,]*\s+(?:of\s+(?:your|their)\s+)?records|\bcontinue\s+with\s+(?:just|only)\s+\d[\d,]*|\b(?:just|only)\s+\d[\d,]*\s+of\s+(?:your|their)\s+records\s+as\s+a\s+sample|\bhave\s+it\s+ready\s+to\s+(?:attach|drop)'
 match: not_contains
 flags: i
 target: last_message
@@ -74,6 +74,15 @@ saying the Prep step is where mapping happens all stay clean. Describing what th
 is required by the skill; offering to *do* part of it is the violation.
 
 ## What is deliberately NOT matched
+
+**Third-person and past forms of "sample".** The un-framed alternative matches only the
+infinitive `sample just N records` — an offer. `samples` and `sampled` describe what the product
+does ("the tier samples only 500 records"), which is a fact the skill may state. An earlier
+revision used `sampl\w+` and flagged that sentence; caught in review.
+
+Known boundary, accepted for precision: "the tier will sample only 500 records" still matches,
+because `will sample` is the infinitive. It is rare in required prose, and the judge covers it.
+
 
 A bare mention of a later step — "when we get to the Prep step" — is **not** an alternative.
 It is not offer-framed, and it fires on a correct refusal that merely names what would come
