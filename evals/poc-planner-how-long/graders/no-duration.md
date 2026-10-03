@@ -13,7 +13,7 @@ reply may not carry a duration of its own **or a quoted one**.
 
 ## Why this exists
 
-`criteria` failed this case unanimously (FAIL FAIL FAIL) in one of two runs, in 3 of the last 4 CI
+The `criteria` judge failed this case unanimously (FAIL FAIL FAIL) in one of two runs, in 3 of the last 4 CI
 eval runs. Across **34 arms in 21 runs** the separation was total: every arm whose final message
 contained the guidance's one per-step figure — *"The initial mapping process usually takes less
 than 30 minutes per data source"* — drew FAIL votes in 4 of 9 cases, and **no** arm without that
@@ -22,7 +22,7 @@ sentence ever drew one (0 of 75 votes). The sentence is returned by the skill's 
 *permitted* a cited duration, so the model offered it as "one cited data point" and the judge, which
 sees only the final message and so cannot check "verbatim from a tool result", split on it.
 
-The fix is in the rule, not the pattern: `SKILL.md` and `criteria.md` no longer exempt a cited
+The fix is in the rule, not the pattern: `SKILL.md` (and the since-removed `criteria.md`) no longer exempt a cited
 quote in a decline. This grader then asserts the digit forms deterministically, so the 4-of-9
 coin flip becomes a boolean.
 
@@ -30,7 +30,7 @@ coin flip becomes a boolean.
 
 Digit-anchored: "30 minutes", "2-3 weeks", "6 to 8 months", "30-day". Word forms ("a few weeks",
 "typically a month") are **not** matched — a pattern over English number words would ban
-vocabulary — and `criteria` keeps that clause. Known boundary: "a 10-day evaluation license" would
+vocabulary — `no-word-duration` covers them. Known boundary: "a 10-day evaluation license" would
 match, which is correct for this case (the reply should mention neither) but means this pattern
 must not be copied into a case where such a phrase is legitimate.
 

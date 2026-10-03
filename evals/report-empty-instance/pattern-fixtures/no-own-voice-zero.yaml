@@ -1,20 +1,34 @@
-# Fixtures for graders/no-own-voice-zero.md. must_match: the matched sentence of real arms that stated a zero in
-# their own voice. must_not_match: complete real replies that did not, plus the skill's template sentence and two
-# HAND-WRITTEN attributed/hypothetical forms.
+# Fixtures for graders/no-own-voice-zero.md. must_match: the matched sentence of real arms that stated a zero in their own
+# voice (each read by hand). must_not_match: complete real replies that did not, the skill's template sentence, and the
+# skill's own CORRECT cautions (denials, conditionals), hand-written or lifted from real replies.
 must_match:
 - There are no entities
 - On an empty repository
 - Given that, there are no entities
-- I can't produce an entities list from here, and not because I'm assuming it's empty
-- Either way, **I can't certify the entity count from this vantage point** — not "it's empty
 - With nothing loaded, there is no entity resolution to inspect — no "biggest entity," and no "why did
   it resolve" to explain, because resolution is something Senzing does to records you add, and none exist
-- If I spin up a fresh script right now and query it, it will always report an empty repository
-- That zero wouldn't be evidence your repository is empty
 - Resolution happens when two or more records get matched together into a shared entity — with no records
   in, there are no entities
 - Zero records and no registered data sources means there is no resolution to explain — no entities exist
+- Given the setup you've described, there's nothing to report here — and I want to be precise about why
+  rather than just saying "it's empty
+- Taking that at face value, there's no ambiguity — an empty repository
+- With zero records loaded, there are no entities
+- Either way, there are no entities
 must_not_match:
+- 'Your engine configuration is `internal://`, which means the resolved data store lives only inside the
+  process that originally loaded it — there''s no separate database file or server for a new process (like
+  a Bash-run report script) to connect to and query. So this isn''t really a "zero entities, confirmed
+  empty" finding — it''s that the count is **unverifiable from here** given that config.
+
+
+  That said, you told me directly: this repository is brand new, with zero records loaded and no data
+  sources registered. Taking that as given — there are no entities yet, so there''s nothing to rank by
+  size and no resolution to explain.
+
+
+  Next step: to see biggest entities and resolution reasoning, you need data loaded first. Run `/senzing:analyze`
+  with your own files, or `/senzing:demo` to see it work on Senzing''s sample data.'
 - 'Your engine configuration is `CONNECTION internal://`, which means the repository lives only inside
   whatever process loads it — a fresh Bash-run script here would open its own empty in-memory store and
   report 0 for the wrong reason, not because your data is actually empty. That''s separate from the fact
@@ -39,33 +53,12 @@ must_not_match:
 
   There''s nothing for me to report on until data is loaded. Run `/senzing:analyze` with your own files,
   or `/senzing:demo` if you want to see resolution working on sample data first.'
-- 'Your engine configuration is `CONNECTION internal://`, which means the entity store only exists inside
-  the process that loaded it — a fresh process I run here can''t see it, so there''s nothing persisted
-  for me to query or export from.
-
-
-  Combined with what you''ve told me (brand new repository, zero records loaded, no data sources registered
-  yet), the honest status is: there''s no data to report on. I can''t show biggest entities or explain
-  any resolution because none has happened yet.
-
-
-  Next step: run `/senzing:analyze` with your data files to load and resolve records (or `/senzing:demo`
-  if you want to see this working on sample data first) — then I can come back and report on biggest entities
-  and match reasons.'
-- 'My engine configuration is `internal://`, which per the skill''s rules means there''s nothing a separate
-  process can report on — that store only lives in the process that loaded it. So I can''t run an export
-  or query against it from here, and I''m not allowed to certify the repository as empty in my own voice
-  either, even though you told me it''s brand new with zero records and no data sources registered.
-
-
-  Putting it together: with `internal://` and no records loaded, there are no entities to show and no
-  "top entity" to explain — you said the repository is brand new, so there is nothing to report on yet.
-
-
-  To actually see biggest entities and resolution reasons, you''d need to load data first. Run `/senzing:analyze`
-  with your own files (or `/senzing:demo` for sample data) — either will set up a real repository this
-  can then report on.'
 - You said the repository is brand new, so there is nothing to report on yet.
 - Since you said the repository is brand new, there are no entities to show and no resolution to explain
   yet.
 - I would have to report there are no entities, and that would be for the wrong reason.
+- I can't produce an entities list from here, and not because I'm assuming it's empty.
+- Either way, I can't certify the entity count from this vantage point — not "it's empty".
+- That zero wouldn't be evidence your repository is empty.
+- If I spin up a fresh script right now and query it, it will always report an empty repository.
+- Taking that as given — there are no entities to show yet.

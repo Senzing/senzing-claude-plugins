@@ -284,8 +284,9 @@ def check(text: str) -> list[str]:
                     f"license paths; quote each with its tool and list the discrepancy in §9 -- do not reconcile them."
                 )
 
-    # §3: every SC-n target is exactly `TBD — decided by <owner>` (or the user's own words, marked
-    # `per user`) -- a measured target the plan invented is the plan deciding what only the user can.
+    # §3 success criteria, one pass per block: (1) only the template's seven keys; (2) every SC-n target is
+    # exactly `TBD — decided by <owner>` (or the user's own words, marked `per user`) -- a measured target the plan
+    # invented is the plan deciding what only the user can.
     for block in yaml_blocks(section(text, 3)):
         item = "?"
         for l in block.split("\n"):
@@ -297,6 +298,11 @@ def check(text: str) -> list[str]:
                 item = "?"            # a new item: never report under the previous one's id
             if k == "id":             # `id` need not be the first key of the item
                 item = _unquote(rest)
+            if k not in SC_KEYS:
+                problems.append(
+                    f"§3 uses key '{k}', which is not one of the seven the template defines "
+                    f"({', '.join(sorted(SC_KEYS))}). Extra keys are the plan inventing structure."
+                )
             if k == "target":
                 v = _unquote(rest)
                 # An owner may contain digits ("team 2", "SRE-1"); what is rejected is a ':' tail or a
@@ -307,15 +313,6 @@ def check(text: str) -> list[str]:
                         f"§3 {item}: target is '{v[:70]}'. A target is `TBD — decided by <owner>` or the user's "
                         f"own words marked `per user`; the plan does not set one."
                     )
-
-    # §3 success criteria use the template's seven keys and no others.
-    for block in yaml_blocks(section(text, 3)):
-        for key in re.findall(r"^\s*-?\s*([A-Za-z_][\w]*):", block, re.M):
-            if key not in SC_KEYS:
-                problems.append(
-                    f"§3 uses key '{key}', which is not one of the seven the template defines "
-                    f"({', '.join(sorted(SC_KEYS))}). Extra keys are the plan inventing structure."
-                )
 
     # Every yaml block must actually parse — a plan is read, not just displayed.
     try:

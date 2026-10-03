@@ -178,7 +178,8 @@ if [ "$expected" -eq 0 ]; then
 fi
 echo "== $expected eval case(s) on disk under $here =="
 echo "== staged plugin tree: $plugin_dir (eval dir: $eval_dir_name) | results: $out_dir =="
-echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${EVAL_JUDGE_MODEL:-claude-opus-5} =="
+judge_model="${EVAL_JUDGE_MODEL:-claude-opus-5}"
+echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${judge_model} =="
 
 # The early-access rollout is a per-organization server-side flag that a headless CI runner
 # cannot receive; this is the CLI's own documented enablement variable for that situation
@@ -207,7 +208,7 @@ args=(
   # nothing after it) and a judge that misses them fails OPEN.
   # --judge-model is global, so this applies suite-wide, not per case.
   --model "${EVAL_MODEL:-sonnet}"
-  --judge-model "${EVAL_JUDGE_MODEL:-claude-opus-5}"
+  --judge-model "${judge_model}"
   --runs "${EVAL_RUNS:-2}"
   # Deliberately 0 — the CLI must NOT issue the verdict. Its --threshold is compared against
   # a single blended score: the fraction of a case's graders that passed, judge and

@@ -235,6 +235,9 @@ fi
 # The two mutations the old leaf-substring check could not see. Each starts from the CORRECT plan
 # and removes exactly one thing, so the reason it is rejected is the only thing that changed.
 vp_tmp="$(mktemp -d)"
+# ONE combined EXIT trap: bash keeps a single trap per signal, so a second `trap ... EXIT` would silently replace the
+# section-6 cleanup of $tmp. Both directories are removed on any exit, not just the happy path.
+trap 'rm -rf "${tmp:-}" "${vp_tmp:-}"' EXIT
 sed 's/SC-2 target, measured_against, decided_by/SC-2 measured_against, decided_by/' "$VP_OK" > "$vp_tmp/no-sc2-target.md"
 # shellcheck disable=SC2016  # the backticks are literal characters in the plan, not a command substitution
 sed 's/ (`data_subset_scope`)//' "$VP_OK" > "$vp_tmp/prose-no-key.md"
@@ -280,6 +283,38 @@ if printf '%s' "$VP_OUT5" | grep -q "target is 'F1 above 0.95'"; then
   ok "a plan that sets an SC target of its own is rejected, naming the figure"
 else
   bad "validate_plan.py accepts an SC target the plan invented"
+fi
+# Path-builder unit probes: the four shapes a real plan can take that the fixtures do not exercise.
+if python3 - <<'PYEOF'
+import re, sys
+sys.path.insert(0, "plugins/senzing/skills/poc-planner")
+import validate_plan as vp
+fail = []
+def paths(block): return [vp.fmt_path(x) for x in vp.block_tbd_paths(block)]
+# an `id` that is not the first key still labels its item
+if paths("- shape: x\n  id: SC-9\n  target: TBD — decided by a\n") != ["SC-9.target"]:
+    fail.append("id-not-first item is not labelled by its id")
+# a list at the SAME indent as its parent key belongs to that parent (valid YAML)
+if paths("open_decisions:\n- k: TBD — decided by a\n") != ["open_decisions[0].k"]:
+    fail.append("same-indent list lost its parent")
+# an owner may contain a digit
+if not re.match(r"TBD — decided by [^:\n%]+?$", "TBD — decided by platform lead 2"):
+    fail.append("an owner containing a digit is rejected")
+# positional (unlabeled) items: only parent[N]/[]/[*] cover them, never a stray digit
+items = vp.block_tbd_paths("data_sources:\n  - owner: TBD — decided by a\n  - owner: TBD — decided by a\n")
+if [vp.covered(x, ["data_sources owner and 1 more"]) for x in items] != [False, False]:
+    fail.append("a stray digit covers an unlabeled item")
+if [vp.covered(x, ["data_sources[1] owner"]) for x in items] != [False, True]:
+    fail.append("parent[N] does not cover exactly item N")
+if [vp.covered(x, ["data_sources[] owner"]) for x in items] != [True, True]:
+    fail.append("parent[] does not cover every item")
+for f in fail: print("     " + f)
+sys.exit(1 if fail else 0)
+PYEOF
+then
+  ok "path-builder unit probes: id-not-first, same-indent list, digit in owner, positional coverage"
+else
+  bad "validate_plan.py path-builder regressed on a shape the fixtures do not exercise"
 fi
 rm -rf "$vp_tmp"
 
