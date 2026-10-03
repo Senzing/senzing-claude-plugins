@@ -637,6 +637,16 @@ else
   bad "analyze/SKILL.md lost the user-location-beats-default rule - the default can again override 'inside this workspace'"
 fi
 
+echo; echo "== 8i. the CI judge is an explicit strong model and the judge gate is enforced =="
+# The judge was `sonnet`, which the pinned CLI resolved to a no-thinking model whose votes did not
+# track the reply. A text guard only: it proves the configuration has not reverted.
+if grep -q 'EVAL_JUDGE_MODEL: claude-opus-5' .github/workflows/ci.yml \
+   && grep -q 'EVAL_JUDGE_ENFORCE: "1"' .github/workflows/ci.yml; then
+  ok "ci.yml pins the opus judge and enforces the judge gate"
+else
+  bad "ci.yml no longer pins EVAL_JUDGE_MODEL: claude-opus-5 and EVAL_JUDGE_ENFORCE: \"1\" - the noisy judge or an unenforced gate is back"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

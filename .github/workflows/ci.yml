@@ -267,7 +267,14 @@ jobs:
       # to whatever the environment produced, which made a local pass and a CI
       # pass two different measurements of two different models.
       EVAL_MODEL: sonnet
-      EVAL_JUDGE_MODEL: sonnet
+      # The judge was `sonnet`, which CLI 2.1.269 resolves to claude-sonnet-5 with NO thinking: it writes
+      # its verdict first and argues afterwards, and any reply containing the word FAIL counts as a FAIL
+      # vote. Replayed CI-style, a compliant `poc-planner-how-long` reply failed 9 of 12 votes and its
+      # passing control arm failed as often, so the vote did not measure the reply. An explicit opus judge
+      # passed both arms 12/12 and failed the real `recipes-named` violation 6/6. Explicit id, not an alias,
+      # so a CLI that remaps aliases cannot silently change the instrument.
+      EVAL_JUDGE_MODEL: claude-opus-5
+      EVAL_JUDGE_ENFORCE: "1"
       # Pinned deliberately — see the install step. Keep in step with local dev.
       # 2.1.269 is chosen between two CLI bugs, both measured on this suite.
       #   At or below 2.1.268: the CLI writes its own sandbox config with //tmp and

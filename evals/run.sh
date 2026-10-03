@@ -23,7 +23,7 @@
 #        EVAL_JUDGE_THRESHOLD (default 0.8; EVAL_THRESHOLD honored as the old name)
 #        EVAL_JUDGE_ENFORCE=1 makes the judge score a hard gate too (default: reported only)
 #        EVAL_CONCURRENCY (default 3)  EVAL_JSON (default <evals>/results/ci.json)
-#        EVAL_MODEL (default sonnet)   EVAL_JUDGE_MODEL (default sonnet)
+#        EVAL_MODEL (default sonnet)   EVAL_JUDGE_MODEL (default claude-opus-5)
 # Needs: ANTHROPIC_API_KEY (or a logged-in claude), the sandbox backend for Bash grants
 #        (macOS: built in; Linux: bubblewrap + socat), and network to mcp.senzing.com.
 set -euo pipefail
@@ -178,7 +178,7 @@ if [ "$expected" -eq 0 ]; then
 fi
 echo "== $expected eval case(s) on disk under $here =="
 echo "== staged plugin tree: $plugin_dir (eval dir: $eval_dir_name) | results: $out_dir =="
-echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${EVAL_JUDGE_MODEL:-sonnet} =="
+echo "== subject model: ${EVAL_MODEL:-sonnet} | judge model: ${EVAL_JUDGE_MODEL:-claude-opus-5} =="
 
 # The early-access rollout is a per-organization server-side flag that a headless CI runner
 # cannot receive; this is the CLI's own documented enablement variable for that situation
@@ -207,7 +207,7 @@ args=(
   # nothing after it) and a judge that misses them fails OPEN.
   # --judge-model is global, so this applies suite-wide, not per case.
   --model "${EVAL_MODEL:-sonnet}"
-  --judge-model "${EVAL_JUDGE_MODEL:-sonnet}"
+  --judge-model "${EVAL_JUDGE_MODEL:-claude-opus-5}"
   --runs "${EVAL_RUNS:-2}"
   # Deliberately 0 — the CLI must NOT issue the verdict. Its --threshold is compared against
   # a single blended score: the fraction of a case's graders that passed, judge and

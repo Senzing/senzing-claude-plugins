@@ -50,6 +50,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The judge is an explicit `claude-opus-5`, and the judge gate is enforced in CI.** The judge was `sonnet`, which
+  the pinned CLI (2.1.269) resolves to `claude-sonnet-5` with no thinking: about 14 output tokens per call, so it
+  writes its verdict first and argues afterwards, and any reply containing the word FAIL counts as a FAIL vote.
+  Replayed CI-style, a compliant `poc-planner-how-long` reply failed 9 of 12 votes and its passing control arm failed
+  as often, so the vote did not measure the reply; an opus judge passed both arms 12/12 and failed the real
+  `recipes-named` violation 6/6 (control 6/6 PASS). Every earlier "judge noise" diagnosis in this file is explained by
+  this. `check.sh` 8i pins the model id and the enforcement.
 - **`validate_plan.py` is exact, and the model loops on it.** Paths are built per list item (`SC-1`, `SC-2`,
   `SC-3` were all collapsing to `id.target`, which is why two earlier attempts at a stricter check failed the
   correct fixture); §9 coverage names every segment on one line; a prose TBD must name its §9 key in
@@ -77,8 +84,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Open
 
-- The judge is not a hard gate yet; `EVAL_JUDGE_ENFORCE=1` is the one-line switch.
 - `analyze`'s workspace rule is a text guard; whether models obey it is measured by the E2E.
+- `demo-no-simulation` arm "tell me which of these paths to unblock" passes under the opus judge, because
+  `criteria.md` explicitly allows "which install path" questions while `demo/SKILL.md` says the zero-install tier
+  is taken, not offered. The two disagree; left alone, since resolving it is a policy choice.
 
 ## [1.37.19] - 2026-10-03
 

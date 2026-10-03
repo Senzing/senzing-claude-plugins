@@ -63,7 +63,7 @@ jobs:
       # The judge stays on sonnet. Grading an opus run with opus is not an
       # independent check, and holding the judge constant is what makes this
       # result comparable with the gate's.
-      EVAL_JUDGE_MODEL: sonnet
+      EVAL_JUDGE_MODEL: claude-opus-5   # see ci.yml: the sonnet judge (no thinking) was the instrument's defect
       # Keep in lockstep with ci.yml. 2.1.269 sits between two CLI bugs, both
       # measured on this suite — see the long note in ci.yml before bumping.
       CLAUDE_CLI_VERSION: "2.1.269"

@@ -84,17 +84,20 @@ two independent verdicts:
 | | Graders | Rule | Gates the suite? |
 |---|---|---|---|
 | **Deterministic** | `regex`, `tool_used`, `tool_order`, `file_exists` | **Every** grader must pass in **every** run. No averaging, no weighting, no threshold. | **Yes** — exit 1 |
-| **Judge** | `llm` | Mean of the per-run judge verdicts, compared to `EVAL_JUDGE_THRESHOLD` (default 0.8) | Reported, not gating — `EVAL_JUDGE_ENFORCE=1` / `--enforce-judge` makes it exit 3 |
+| **Judge** | `llm` | Mean of the per-run judge verdicts, compared to `EVAL_JUDGE_THRESHOLD` (default 0.8) | **Yes in CI** (`EVAL_JUDGE_ENFORCE=1`, 2026-10-03) — exit 3; locally it is reported unless you set it |
 
 A deterministic grader that passes one run and fails the next is a **failure**, not a 0.5: a
 boolean obligation the skill honours half the time is a defect.
 
-**Why the judge is reported rather than enforced, for now.** The CLI records the judge's *votes*
-(`judgeVotes: [false,false,false]`) and the evidence it was shown, but **not its reasoning** —
-neither `ci.json` nor `report.html` carries a why. A judge FAIL is therefore not diagnosable from
-the artifact, and a merge gate nobody can act on is a merge gate that gets disabled. It is still
-printed per case, aggregated, and raised as a CI `::warning::` with the case list, so nothing
-averages it away. Capture the reasoning and it can be flipped to enforced.
+**Why the judge is enforced now, and what had to change first.** The CLI records the judge's *votes* but not its
+reasoning, so a FAIL could not be diagnosed from the artifact — and the votes turned out not to measure the reply.
+CI pins CLI 2.1.269, which resolves `--judge-model sonnet` to `claude-sonnet-5` **with no thinking**: ~14 output
+tokens per call, so it writes its verdict first and argues afterwards, and the harness counts any reply containing
+the word FAIL as a FAIL vote. Replayed CI-style (`judge.py` from the diagnosis), a compliant `poc-planner-how-long`
+reply failed 9 of 12 votes and its passing control arm failed as often. With an explicit `claude-opus-5` judge, no
+thinking: both arms 12/12 PASS, and the real `recipes-named` violation failed 6/6 against a control that passed
+6/6. The instrument was the defect, so it was changed, and the checkable clauses moved to deterministic graders.
+The judge model is an explicit id so a CLI that remaps aliases cannot silently change it; `check.sh` 8i pins that.
 
 **Fixture-backed regex graders (2026-10-03).** A judge FAIL that is unanimous on one run of two is a real
 behavioral difference, not noise (`recipes-named`, `demo-no-simulation`, `poc-planner-how-long`,
