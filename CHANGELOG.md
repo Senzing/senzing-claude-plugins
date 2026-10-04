@@ -24,7 +24,12 @@ passed on the PR — three real behaviors the skill text left room for, per "a f
 - **demo recited the forbidden production offer** ("…never touched, and I won't load into it unless you ask for
   that explicitly" — `no-production-offer`). The skill gave the rule but not the sentence; it now gives the whole
   sentence ("Your production repository is never touched.") and names what must not follow it.
-- `scripts/check.sh`: probes for all three.
+- **demo offered the zero-install fallback in other words** (PR #63's own eval, `demo-no-simulation/criteria`, 3-0
+  FAIL): "If either can't be granted here, say so and I'll fall back to showing you validated … sample data — but I
+  won't do that silently; I wanted to ask first." The skill now says why silence is the honest course (the tier is
+  always taken and labelled the moment `install` ends without an SDK), and `no-install-or-preview-menu` matches
+  `if/should/unless … fall back to showing` (new fixture; the pattern previously needed the word "zero-install").
+- `scripts/check.sh`: probes for the first three.
 
 ## [1.37.19-1] - 2026-10-04
 

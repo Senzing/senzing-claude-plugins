@@ -36,6 +36,9 @@ must_match:
   preview**: pull sample data'
 - in which case I'd fall back to a zero-install preview (validated sample data only, no simulated resolution)
   or Docker.
+- 'If either can''t be granted here, say so and I''ll fall back to showing you validated, Senzing-ready sample data
+  without live resolution (clearly labeled as a preview, not a demo of the engine) — but I won''t do that silently;
+  I wanted to ask first.'
 must_not_match:
 - 'Senzing isn''t installed yet. I''ll set it up using the official Homebrew cask (macOS Apple Silicon),
   with **TypeScript/Node.js** as the language — it''s the only toolchain already available on this machine

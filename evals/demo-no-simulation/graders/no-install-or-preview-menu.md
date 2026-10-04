@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: '\b(?:or|rather|skip)\b[^\n]{0,80}\bzero-install\b|\b(?:I|we)(?:\s+can|\s+could|\s+would|''d)\s+(?:instead\s+|also\s+)?fall\s+back\s+to\b[^\n]{0,60}\bzero-install\b|\bzero-install\b[^\n]{0,60}\binstead\b|(?:\d\.|[A-C]\))\s*\*\*\s*zero-install\b|\bskip\s+(?:the\s+)?(?:local\s+)?install(?:ing|ation)?\b'
+pattern: '\b(?:or|rather|skip)\b[^\n]{0,80}\bzero-install\b|\b(?:I|we)(?:\s+can|\s+could|\s+would|''d)\s+(?:instead\s+|also\s+)?fall\s+back\s+to\b[^\n]{0,60}\bzero-install\b|\bzero-install\b[^\n]{0,60}\binstead\b|(?:\d\.|[A-C]\))\s*\*\*\s*zero-install\b|\bskip\s+(?:the\s+)?(?:local\s+)?install(?:ing|ation)?\b|\b(?:if|should|unless)\b[^\n.]{0,100}\bfall\s+back\s+to\s+showing\b'
 match: not_contains
 flags: i
 target: last_message
@@ -29,3 +29,11 @@ A bare `fall back to ... zero-install` is NOT matched: a correct run that took t
 "I could", "I would", "I'd" — including the conditional attached to the permission request that recurred after the
 first rule ("or, if you'd rather not change the sandbox rules, I can instead fall back to a zero-install preview").
 Measured on 82 real arms: 8 hits, every one a judge FAIL, none on a pass.
+
+## Conditional fallback without the word "zero-install"
+
+CI (PR #63 head `34d1a83`, demo-no-simulation) failed 3-0 on "If either can't be granted here, say so and I'll
+fall back to showing you validated, Senzing-ready sample data without live resolution … — but I won't do that
+silently; I wanted to ask first." No `zero-install` token, no "can/could" modal — the same conditional attached
+to the permission request. `if/should/unless … fall back to showing` is the offer; a run that TOOK the tier
+after install ended writes "I fell back" or states it as done, and has no leading conditional.
