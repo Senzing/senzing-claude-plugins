@@ -1,0 +1,170 @@
+# Fixtures for graders/no-install-or-preview-menu.md. Real final messages from CI eval runs.
+# must_match: the offending line of each arm that ended on an install-or-preview menu.
+# must_not_match: COMPLETE replies the judge passed.
+must_match:
+- '2. **Zero-install preview**: I show you real Senzing sample data and what it validates as, but without
+  an SDK I cannot actually run entity resolution — no matches, no scores, no merges, just the input data
+  labeled honestly as unresolved.'
+- '- **C)** Skip installing for now — I''ll show you the real Senzing sample data and what it looks like
+  once validated against the Entity Spec, clearly labeled as "not yet resolved" (no simulated matches,
+  no invented results).'
+- 'One more flag: when I probed for an existing install a moment ago, `brew`''s network call to `formulae.brew.sh`
+  was denied by this sandbox''s egress filter. The actual install additionally needs `github.com` (tap)
+  and `ghcr.io` (cask download). If those aren''t allowlisted either, the install will fail partway —
+  let me know if you want to grant that network access, or if you''d rather I fall back to a zero-install
+  preview (validated sample data only, no real resolution) instead.'
+- '**License:** Installing Senzing requires accepting the Senzing **End User License Agreement (EULA)**
+  — see https://senzing.com/end-user-license-agreement/. **Do you accept the EULA?** Once you confirm,
+  I''ll run the install and verify it (checking `libSz.dylib` actually exists, not just a zero exit code)
+  — though given the `formulae.brew.sh` network denial I already hit, this may fail on network grounds
+  regardless, in which case I''d fall back to a zero-install preview (validated sample data only, no simulated
+  resolution) or Docker.'
+- '2. **Zero-install preview**: I pull real Senzing sample data and show you the validated, Senzing-ready
+  records — but I can''t show actual resolution results (entities, merges, scores) without the engine,
+  so I won''t fabricate any.'
+- Let me know and I'll run it (or if it fails on sandbox network restrictions, I'll fall back to a zero-install
+  validated-data preview and tell you clearly that no live resolution ran).
+- '2. Since Java/.NET aren''t available here, which would you like: (a) I attempt `brew install` of Java/.NET
+  too so we can use an officially-supported language, or (b) use the community-supported TypeScript/Node.js
+  SDK instead (Node is more likely preinstalled — I haven''t checked yet), or (c) skip local install and
+  I show you validated Senzing-ready sample data without actually running the resolution engine (clearly
+  labeled as not a real resolution)?'
+- '2. **Skip install** and I show you the zero-install preview instead: real sample data pulled from Senzing''s
+  server, validated against the Entity Specification — but no actual resolution, since that requires the
+  engine.'
+- '(or if you''d rather not change sandbox network rules, I can instead fall back to a **zero-install
+  preview**: pull sample data'
+- in which case I'd fall back to a zero-install preview (validated sample data only, no simulated resolution)
+  or Docker.
+must_not_match:
+- 'Senzing isn''t installed yet. I''ll set it up using the official Homebrew cask (macOS Apple Silicon),
+  with **TypeScript/Node.js** as the language — it''s the only toolchain already available on this machine
+  (Node v24.20.0; no Java, .NET, or configured Rust toolchain found). Note: the TypeScript SDK is community-maintained,
+  not official, and installs from GitHub rather than npm (`npm install brianmacy/sz-napi`).
+
+
+  **Before proceeding, I need your agreement to the Senzing End User License Agreement (EULA):** https://senzing.com/end-user-license-agreement/
+
+
+  Installing requires accepting this EULA (brew will also prompt for it). Steps I''ll run once you confirm:
+
+
+  ```bash
+
+  brew tap senzing/senzingsdk https://github.com/Senzing/homebrew-senzingsdk
+
+  brew trust senzing/senzingsdk
+
+  HOMEBREW_SENZING_ACCEPT_EULA=i_accept_the_senzing_eula brew install --cask senzingsdk
+
+  ```
+
+
+  Then verify the install actually landed (a zero exit code alone doesn''t guarantee it did), set up environment
+  variables (`SENZING_ROOT`, `DYLD_LIBRARY_PATH`), and install the TypeScript SDK wrapper.
+
+
+  Do you accept the Senzing EULA and want me to proceed with this install?'
+- 'I have what''s needed to install. Before running anything, a few things need your input:
+
+
+  **Is this the machine you want Senzing on?** This session is running in a sandboxed Claude Code environment
+  (`CLAUDECODE=1`, entrypoint `sdk-cli`) with restricted filesystem/network access (I already saw Homebrew''s
+  own network call to `formulae.brew.sh` denied by the sandbox). This may be a disposable cloud sandbox
+  rather than your actual laptop. If it''s not your machine, installing here would land Senzing in a throwaway
+  environment. Let me know if this is the right host — if not, run `/senzing:install` in Claude Code directly
+  on the machine you want it on.
+
+
+  **License — the Senzing End User License Agreement.** Installing requires accepting it: see [senzing.com/end-user-license-agreement](https://senzing.com/end-user-license-agreement/).
+  **Do you accept the EULA?** I won''t run the install until you confirm.
+
+
+  **Language choice.** This host is macOS arm64 (Homebrew). Senzing officially supports Java and C# here;
+  Rust and TypeScript are community wrappers. I checked the toolchains present:
+
+  - Java: not found (`java -version` fails)
+
+  - .NET: not found
+
+  - Node.js: v24.20 ✅ present (TypeScript binding, but its package isn''t on npm — installs from GitHub
+  directly)
+
+  - Rust: cargo present but no default toolchain configured
+
+
+  Since none of the officially-supported toolchains (Java/.NET) exist here and installing one would be
+  an extra step, I''d lean toward **TypeScript** (Node already works) unless you''d prefer I install a
+  JDK for the official Java SDK instead.
+
+
+  **The install itself, if you confirm:**
+
+  ```bash
+
+  brew tap senzing/senzingsdk https://github.com/Senzing/homebrew-senzingsdk
+
+  brew trust senzing/senzingsdk
+
+  HOMEBREW_SENZING_ACCEPT_EULA=i_accept_the_senzing_eula brew install --cask senzingsdk
+
+  ```
+
+  This needs network access to `github.com` and `ghcr.io`, plus Homebrew''s own `formulae.brew.sh` — all
+  of which may need to be allowed through this session''s sandbox, since one already got denied.
+
+
+  Let me know: (1) proceed on this host or not, (2) EULA acceptance, (3) Java or TypeScript.'
+- 'Senzing isn''t installed here, and I''ve hit two blockers trying to install it in this shell:
+
+
+  **1. This shell is likely not your persistent machine.** The hostname (`iad20-fj918-...-6EBE437DA791.local`)
+  and kernel (`RELEASE_ARM64_VMAPPLE`) indicate a disposable cloud VM, not a machine where an install
+  would stick around. I''m proceeding to give you the steps anyway — correct me if this actually is your
+  persistent host.
+
+
+  **2. Network egress is blocked to the two hosts the Homebrew install needs.** `github.com` (for the
+  Senzing Homebrew tap) and `ghcr.io` (for the cask download) both returned `403 blocked-by-allowlist`
+  from this sandbox''s proxy — confirmed by direct `curl`, not inferred. `mcp.senzing.com` and `raw.githubusercontent.com`
+  work fine; those two don''t.
+
+
+  **Official install steps for macOS (Apple Silicon), from the Senzing MCP:**
+
+  ```bash
+
+  brew tap senzing/senzingsdk https://github.com/Senzing/homebrew-senzingsdk
+
+  brew trust senzing/senzingsdk
+
+  brew install --cask senzingsdk
+
+  ```
+
+  (Verify afterward with `test -f "$(brew --prefix)/opt/senzing/er/lib/libSz.dylib"` — a zero exit code
+  from `brew install` does **not** by itself prove it installed; on this platform a misconfigured EULA
+  env var lets the cask silently install nothing while still printing success.)
+
+
+  **Before running this, you need to accept the Senzing End User License Agreement (EULA):** https://senzing.com/end-user-license-agreement/
+  — do you accept it?
+
+
+  Given the network block, your options are:
+
+  - **Allow `github.com` and `ghcr.io`** for this sandbox, if that''s something you control, and I''ll
+  retry the install here.
+
+  - **Run these commands yourself** in a real terminal on your Mac (outside this sandboxed session) —
+  I can then verify it with `doctor` once it''s done.
+
+  - **Docker**, if this is meant to run in a container — same network caveat likely applies depending
+  on how that container''s egress is configured.
+
+
+  Let me know which path you''d like, and confirm the EULA, and I''ll continue from there — including
+  running the demo the moment a working Senzing is available.'
+- Install is blocked, so I'll fall back to the zero-install tier and show validated records.
+- I fell back to the zero-install tier; here are the validated records.
+- Falling back to the zero-install tier now.

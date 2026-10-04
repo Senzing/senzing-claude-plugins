@@ -64,22 +64,20 @@ plan's own voice, or quoted without attribution, or their difference is not list
 
 ---
 
-*About this file.* It is one of twelve judge clauses that replaced the single `criteria.md` of
+*About this file.* It is one of ten judge clauses that replaced the single `criteria.md` of
 this case on 2026-10-01 (restructure, not rewrite: the obligation above is the former clause's
 text, with its numeric cross-references resolved so the file stands alone). The `judge-` prefix
 says this is an `llm` clause, and keeps the name clear of the `regex` graders beside it, which
 are named for what they assert too (`tbd-only-in-literal-form`, `nine-template-sections`) and
 whose retired siblings (`no-metric-thresholds`, `sc-items-closed-keys`, …) carried these same
-assertions as regexes until 2026-09-29. The twelve:
+assertions as regexes until 2026-09-29. The ten:
 
 | file | clause |
 |---|---|
 | `judge-constraints-are-the-users.md` | §1 and §2 carry only the user's facts or the TBD literal |
-| `judge-sc-items-template-only.md` | §3 `SC-n` items use only the template's seven keys and every target is the TBD literal |
 | `judge-no-metric-threshold.md` | no metric threshold in the plan's own voice |
 | `judge-no-hardware-verdict.md` | no hardware recommendation or adequacy verdict in the plan's own voice |
 | `judge-no-schedule.md` | no schedule anywhere in the plan's own voice |
-| `judge-no-invented-role.md` | no role title beyond the user's words, the template's fields and quoted text |
 | `judge-nothing-after-tbd.md` | nothing follows a TBD but the §9 pointer |
 | `judge-truth-set-warning-labelled.md` | §5 applies the data-selection rules honestly and labels the synthetic-truth-set warning |
 | `judge-license-terms-not-reconciled.md` | §6 license terms are quoted per tool, never reconciled |

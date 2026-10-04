@@ -43,14 +43,22 @@ license terms here or from memory — call the tool named in each step and cite 
    durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
    "planner" that invents one has fabricated the most consequential part of the document. The
    template below has no schedule section; do not add one. The only time words allowed anywhere
-   are the user's own calendar statements (per user) and verbatim, cited quotes from a tool.
+   are the user's own calendar statements (per user) and verbatim, cited quotes from a tool —
+   except in a decline, below, where no duration appears at all.
    **Decline without naming a specimen.** Asked outright "how long will a POC take?", say the
-   guidance carries no duration, say whose decision it is and what determines it — and do **not**
-   illustrate the refusal with a number. *"I'm not going to hand you a '2 weeks' or '1 month'
-   estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
+   guidance carries no duration for the POC as a whole, say whose decision it is and what
+   determines it — and do **not** illustrate the refusal with a number. *"I'm not going to hand you a
+   '2 weeks' or '1 month' estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
    its numbers, not its verbs. Same for a range, a "not even a ballpark like…", or a duration
-   offered as what you are *not* saying. The only durations that may appear are a cited quote
-   from a tool and the user's own calendar.
+   offered as what you are *not* saying. **A cited quote is not an exception here.** The guidance
+   does carry one per-step figure — mapping a data source — and offering it as "one cited data
+   point" answers "how long" with a partial estimate, the same fabrication wearing a citation.
+   **Retrieve first.** "The guidance carries no duration for the POC as a whole" is a claim about Senzing's guidance:
+   make it only after the `search_docs` retrieval at the top of this skill, and name the article you retrieved. A
+   decline written from this paragraph alone is a Senzing claim with no source, about a document you have not opened — a
+   run did exactly that and called no tool at all. Retrieval will hand you that sentence; do not pass it on. A reply to "how long" contains no
+   duration of its own and no quoted one. The user's own calendar statements (per user) may be
+   echoed. Cited durations remain allowed inside a written plan (rule 4), never in this reply.
 2. **Ask, don't answer.** Success is whatever must be demonstrated for *their* organization to
    reach a buy decision. Where the user has not decided a target, a threshold, a hardware size or
    a platform, the plan records the *question*, who owns it, and the material Senzing provides
@@ -132,7 +140,8 @@ license terms here or from memory — call the tool named in each step and cite 
    host** — a tool note about the environment the tool itself runs in (a single-threaded LLM
    container, say) is not a fact about their machine. Where two tools disagree (license terms,
    limits, contacts), quote each with its attribution and list the discrepancy under §9
-   `open_decisions`; never reconcile them yourself. Declining to engage with sizing is as wrong
+   `open_decisions` — the §9 line names the differing sources only (`license path: <tool> vs <tool>`);
+   each side's figures stay on its own quoted line, never on the §9 line; never reconcile them yourself. Declining to engage with sizing is as wrong
    as answering from memory — the value is in the assembly.
 6. **Truth sets — warn, and never build one (plugin rule).** Where the retrieved guidance
    discusses a truth set, quote it and add this labelled note: *"A synthetic or generated truth
@@ -299,7 +308,8 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    `compatibility_notes`, `sdk_guide(topic="install")`'s gotchas, and `submit_feedback`'s tool
    description (its current terms and the fields a request needs). Quote each that you retrieved,
    attributed to its tool; where they name different paths, limits or contacts, list the
-   discrepancy under §9 `open_decisions` (rule 5). If the user's stated volume exceeds a record
+   discrepancy under §9 `open_decisions` (rule 5) as `license path: <tool> vs <tool>` — no cap, day count or
+   volume on that line; those sit on the quoted lines above. If the user's stated volume exceeds a record
    limit a tool quotes, say so plainly and set it against the retrieved *vertical slice* rule —
    the slice they will actually load is their decision (`per user` or TBD), not yours. State no
    duration or record limit from memory, and do not submit a request from this skill.
@@ -438,6 +448,11 @@ open_decisions:        # one line per open decision, verbatim, with the section 
   # and performance_required.latency. Listing only top-level keys silently drops the nested
   # ones, and a downstream skill reading §9 to find what is still open never learns they exist.
   # Count the TBDs in the document, count the lines here, and make the two numbers match.
+  # A TBD written in PROSE or a TABLE CELL is an open decision too, and the commonest way plans
+  # leave one out. Name it where it is written -- the key in backticks on that same line, e.g.
+  # "subset (`data_subset_scope`): TBD — decided by <owner>" -- and give that key a line here.
+  # validate_plan.py checks this exactly: a prose TBD naming no key, or a key with no line here,
+  # is reported by line number. Each SC-n is listed separately; "SC-1 target" does not cover SC-2.
   - "TBD — decided by <owner>: <field or SC-n>"   # names WHAT is open; no number, version or hint after it
 not_indexed: []
 ```

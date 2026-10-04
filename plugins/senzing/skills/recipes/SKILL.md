@@ -116,14 +116,25 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    closest one, never a fourth stop of your own. And mapping the ingredients, scaffolding the
    loader, or writing plan files **is** the Cook step — do not do it here, and do not offer it as
    an option either. Ending on "which would you like?" over a choice that includes the forbidden
-   act is the same violation as performing it.
+   act is the same violation as performing it. **How to cook is part of the cook.** On a host that
+   cannot cook yet, do not put the license decision or a smaller sample ("cook with just 500
+   records") to the user as a choice: those are Cook-step decisions, and a reply that ends "attach
+   a license, request the evaluation one, or go with the 500-record sample?" has offered the cook.
+   Say what the recipe needs (its record count against the unlicensed limit is a fact you may
+   state) and hand off to `install`.
    - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so the user
      learns what it needs, then hand off to the **`install`** skill without asking first (it
      surfaces the license agreement, runs the official steps, and verifies with `doctor`; do not
      route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
      needed, `submit_feedback(category='license_request')`'s description states the current
      terms). Don't cook over a Senzing that won't stand up, and don't stop at the diagnosis
-     either.
+     either. **Hand off; do not
+     run the install flow yourself in the message, and do not announce the cook.** A reply that stops on a menu
+     ("Before I can cook, three things need your input: the license agreement, your language, whether you have a
+     license file or want the evaluation one") and ends "Once I have those, I'll install Senzing + Java, stand up a
+     local instance, then cook the recipe's Prep → Cook → Plate → Plus steps" has asked Cook-step questions and
+     proposed the cook. Invoke `install` (it asks what installing needs, in one message) and stop; the recipe
+     resumes when install has completed.
      **The license agreement URL must appear in the reply the user reads**, not only inside a
      sub-skill's own output: state `https://senzing.com/end-user-license-agreement/` in your
      message before anything installs. Delegating the hand-off does not discharge this — a run
@@ -173,7 +184,8 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    - **Ingredients:** if the recipe uses repo-provided ingredients, `curl` them from
      `<raw base>/ingredients/<...>` into the workspace before the Cook step. If the user brings
      their own data, take the paths, keep PII local, and note where the mapping will differ.
-   - **Workspace:** use one (default `~/sz-workspace` or `$SZ_WORKSPACE`) and thread it through
+   - **Workspace:** use the location the user named ("this directory", a path) if they gave one,
+     otherwise a default (`~/sz-workspace` or `$SZ_WORKSPACE`), and thread it through
      every step (the writability probe already ran in pre-flight).
 5. **Cook the steps in order.** Walk the action sections as the recipe lays them out —
    *Prep → Cook → Plate → Plus* (names and count vary; cook whatever H2s are present). For each:

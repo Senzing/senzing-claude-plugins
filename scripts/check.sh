@@ -232,6 +232,108 @@ else
   bad "validate_plan.py rejects fabricated-plan.md but not for the §9 omission — check the reason, not just the exit code"
 fi
 
+# The two mutations the old leaf-substring check could not see. Each starts from the CORRECT plan
+# and removes exactly one thing, so the reason it is rejected is the only thing that changed.
+vp_tmp="$(mktemp -d)"
+# ONE combined EXIT trap: bash keeps a single trap per signal, so a second `trap ... EXIT` would silently replace the
+# section-6 cleanup of $tmp. Both directories are removed on any exit, not just the happy path.
+trap 'rm -rf "${tmp:-}" "${vp_tmp:-}"' EXIT
+sed 's/SC-2 target, measured_against, decided_by/SC-2 measured_against, decided_by/' "$VP_OK" > "$vp_tmp/no-sc2-target.md"
+# shellcheck disable=SC2016  # the backticks are literal characters in the plan, not a command substitution
+sed 's/ (`data_subset_scope`)//' "$VP_OK" > "$vp_tmp/prose-no-key.md"
+cmp -s "$VP_OK" "$vp_tmp/no-sc2-target.md" && bad "8b mutation 1 did not change the plan - the test below proves nothing"
+cmp -s "$VP_OK" "$vp_tmp/prose-no-key.md" && bad "8b mutation 2 did not change the plan - the test below proves nothing"
+VP_OUT1="$(python3 "$VP" "$vp_tmp/no-sc2-target.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-2.target'" \
+   && ! printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-1.target'" \
+   && ! printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-3.target'"; then
+  ok "a plan missing ONLY SC-2.target is rejected for exactly that (not SC-1 or SC-3)"
+else
+  bad "validate_plan.py does not isolate SC-2.target - the leaf-substring weakness is back"
+fi
+VP_OUT2="$(python3 "$VP" "$vp_tmp/prose-no-key.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT2" | grep -q "names no §9 key"; then
+  ok "a prose TBD with no §9 key is rejected, naming the line"
+else
+  bad "validate_plan.py accepts a prose TBD that is never listed as open"
+fi
+# License terms (same shape): remove only the §9 license line; and make only §6 claim the tools agree.
+grep -v 'license path' "$VP_OK" > "$vp_tmp/no-license-line.md"
+sed 's/The discrepancy between the paths/There is no discrepancy between the paths/' "$VP_OK" > "$vp_tmp/says-agree.md"
+cmp -s "$VP_OK" "$vp_tmp/no-license-line.md" && bad "8b mutation 3 did not change the plan - the test below proves nothing"
+cmp -s "$VP_OK" "$vp_tmp/says-agree.md" && bad "8b mutation 4 did not change the plan - the test below proves nothing"
+VP_OUT3="$(python3 "$VP" "$vp_tmp/no-license-line.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT3" | grep -q "no license line"; then
+  ok "a plan whose §6 discusses licensing but whose §9 has no license line is rejected"
+else
+  bad "validate_plan.py accepts a plan that never lists the license discrepancy as open"
+fi
+VP_OUT4="$(python3 "$VP" "$vp_tmp/says-agree.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT4" | grep -q "license terms agree"; then
+  ok "a plan that calls the license terms consistent is rejected"
+else
+  bad "validate_plan.py accepts 'no discrepancy' about license terms the tools returned differently"
+fi
+# §9 license line: it names the differing SOURCES; a cap/day count/volume on it is a hint after a TBD
+# (CI: every judge vote failed a §9 line restating "10-day/250K-record" and "500-record sample").
+awk '/^ *- "TBD.*license path/ && !d { sub(/license path/, "license path (10-day, 250K-record offer vs 500-record sample)"); d=1 } { print }' "$VP_OK" > "$vp_tmp/license-figure.md"
+cmp -s "$VP_OK" "$vp_tmp/license-figure.md" && bad "8b license-figure mutation did not change the plan - the test below proves nothing"
+VP_OUT_LF="$(python3 "$VP" "$vp_tmp/license-figure.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT_LF" | grep -q "§9 license line carries a figure"; then
+  ok "a §9 license line carrying a cap, day count or volume is rejected"
+else
+  bad "validate_plan.py accepts a §9 license line that restates the figures"
+fi
+# §3 target: the plan must not set one. Change only SC-1's target to a figure.
+# awk, not sed: `0,/re/s//x/` is GNU-only and silently changes nothing on BSD sed (the cmp below catches that).
+awk '!d && /target: TBD — decided by data platform lead/ { sub(/target: TBD — decided by data platform lead/, "target: F1 above 0.95"); d=1 } { print }' "$VP_OK" > "$vp_tmp/invented-target.md"
+cmp -s "$VP_OK" "$vp_tmp/invented-target.md" && bad "8b mutation 5 did not change the plan - the test below proves nothing"
+VP_OUT5="$(python3 "$VP" "$vp_tmp/invented-target.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT5" | grep -q "target is 'F1 above 0.95'"; then
+  ok "a plan that sets an SC target of its own is rejected, naming the figure"
+else
+  bad "validate_plan.py accepts an SC target the plan invented"
+fi
+# Path-builder unit probes: the four shapes a real plan can take that the fixtures do not exercise.
+if python3 - <<'PYEOF'
+import re, sys
+sys.path.insert(0, "plugins/senzing/skills/poc-planner")
+import validate_plan as vp
+fail = []
+def paths(block): return [vp.fmt_path(x) for x in vp.block_tbd_paths(block)]
+# an `id` that is not the first key still labels its item
+if paths("- shape: x\n  id: SC-9\n  target: TBD — decided by a\n") != ["SC-9.target"]:
+    fail.append("id-not-first item is not labelled by its id")
+# a list at the SAME indent as its parent key belongs to that parent (valid YAML)
+if paths("open_decisions:\n- k: TBD — decided by a\n") != ["open_decisions[0].k"]:
+    fail.append("same-indent list lost its parent")
+# a TBD that appears BEFORE its item's id is still reported under that id
+if paths("- target: TBD — decided by a\n  id: SC-2\n") != ["SC-2.target"]:
+    fail.append("a TBD before its item's id is reported under the positional label")
+# a '#' inside an id is not a comment (a comment needs whitespace before it)
+if paths("- id: SC-#2\n  target: TBD — decided by a\n") != ["SC-#2.target"]:
+    fail.append("an id containing '#' is truncated")
+# an owner may contain a digit
+if not re.match(r"TBD — decided by [^:\n%]+?$", "TBD — decided by platform lead 2"):
+    fail.append("an owner containing a digit is rejected")
+# positional (unlabeled) items: only parent[N]/[]/[*] cover them, never a stray digit
+items = vp.block_tbd_paths("data_sources:\n  - owner: TBD — decided by a\n  - owner: TBD — decided by a\n")
+if [vp.covered(x, ["data_sources owner and 1 more"]) for x in items] != [False, False]:
+    fail.append("a stray digit covers an unlabeled item")
+if [vp.covered(x, ["data_sources[1] owner"]) for x in items] != [False, True]:
+    fail.append("parent[N] does not cover exactly item N")
+if [vp.covered(x, ["data_sources[] owner"]) for x in items] != [True, True]:
+    fail.append("parent[] does not cover every item")
+for f in fail: print("     " + f)
+sys.exit(1 if fail else 0)
+PYEOF
+then
+  ok "path-builder unit probes: id-not-first, same-indent list, digit in owner, positional coverage"
+else
+  bad "validate_plan.py path-builder regressed on a shape the fixtures do not exercise"
+fi
+rm -rf "$vp_tmp"
+
 echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
 # A tool_used grader that sets `max: 0` and omits `min` gets min defaulted to 1, so the
 # harness evaluates the range 1..0 — which NOTHING can satisfy. It fails every run,
@@ -418,7 +520,7 @@ pat = None
 for line in fm:
     m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
     if m:
-        pat = m.group(1)
+        pat = m.group(1).replace("''", "'")  # YAML single-quote escape
 if pat is None:
     print("     could not read `pattern:` out of the grader front matter")
     sys.exit(1)
@@ -464,6 +566,97 @@ else
   fi
 fi
 
+echo; echo "== 8g. every other regex grader with fixtures does what its doc claims =="
+# DIALECT: the pattern is run with Python `re`; the eval harness may use another engine. Patterns stay in
+# the common subset (\\b \\w \\s \\d, (?:...), {m,n}, no lookbehind), but this proves Python behavior only:
+# read a pass as "the pattern and its fixtures agree", not "the harness agrees".
+# Generic form of 8e. For each evals/<case>/pattern-fixtures/<name>.yaml (except no-cook-offered,
+# which has its own 8e), read `pattern:` OUT OF evals/<case>/graders/<name>.md and run it against
+# the fixtures. must_match = the pattern HITS (the offending text); must_not_match = it does not.
+# Exit 0 checked and clean, 1 disagreement, 2 could not run -- and 2 is a FAILURE: a check that
+# cannot run must never read as a pass.
+python3 - <<'PYEOF'
+import re, sys, pathlib
+try:
+    import yaml
+except ImportError:
+    print("     ! PyYAML not available on this host")
+    sys.exit(2)
+
+def front_matter_pattern(path):
+    lines = path.read_text(encoding="utf-8").split("\n")
+    fm = []
+    for i, line in enumerate(lines):
+        if i == 0:
+            continue
+        if line.strip() == "---":
+            break
+        fm.append(line)
+    pat, flags = None, 0
+    for line in fm:
+        m = re.match(r"^pattern:\s*'(.*)'\s*$", line)
+        if m:
+            pat = m.group(1).replace("''", "'")  # YAML single-quote escape
+        m = re.match(r"^flags:\s*(\w+)\s*$", line)
+        if m and "i" in m.group(1):
+            flags = re.I
+    return pat, flags
+
+def disagreements(rx, fx):
+    n = sum(1 for s in fx.get("must_match", []) if not rx.search(s))
+    return n + sum(1 for s in fx.get("must_not_match", []) if rx.search(s))
+
+files = [f for f in sorted(pathlib.Path("evals").glob("*/pattern-fixtures/*.yaml"))
+         if f.name != "no-cook-offered.yaml"]
+if not files:
+    print("     no fixture files found - nothing was checked")
+    sys.exit(2)
+bad = 0
+for f in files:
+    grader = f.parent.parent / "graders" / (f.stem + ".md")
+    if not grader.exists():
+        print(f"     {f}: no grader {grader.name} beside it")
+        bad += 1
+        continue
+    pat, flags = front_matter_pattern(grader)
+    if pat is None:
+        print(f"     {grader}: could not read `pattern:`")
+        bad += 1
+        continue
+    fx = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+    if not fx.get("must_match") or not fx.get("must_not_match"):
+        print(f"     {f}: needs BOTH must_match and must_not_match")
+        bad += 1
+        continue
+    # Controls: a pattern that never matches must fail must_match, and one that always
+    # matches must fail must_not_match -- otherwise these fixtures cannot discriminate.
+    never, always = re.compile(r"(?!x)x"), re.compile(r"")
+    if disagreements(never, fx) == 0 or disagreements(always, fx) == 0:
+        print(f"     {f}: fixtures do not discriminate (a trivial pattern passes them)")
+        bad += 1
+        continue
+    rx = re.compile(pat, flags)
+    d = disagreements(rx, fx)
+    n = len(fx["must_match"]) + len(fx["must_not_match"])
+    for s in fx["must_match"]:
+        if not rx.search(s):
+            print(f"     {f.name} MISSED: {s[:80]}")
+    for s in fx["must_not_match"]:
+        if rx.search(s):
+            print(f"     {f.name} FALSE POSITIVE: {s[:80]}")
+    print(f"     {f.parent.parent.name}/{f.stem}: {n - d} of {n} fixtures behave as documented")
+    bad += 1 if d else 0
+sys.exit(1 if bad else 0)
+PYEOF
+g_rc=$?
+if [ "$g_rc" = "0" ]; then
+  ok "every fixture-backed regex grader matches its offending text and none of its required prose"
+elif [ "$g_rc" = "2" ]; then
+  bad "8g could not run, so those patterns are UNVERIFIED - this is not a pass (install PyYAML)"
+else
+  bad "a regex grader disagrees with its own fixtures - it would miss real text or fail a correct run"
+fi
+
 echo; echo "== 8f. demo routes on the blocker CLASS, not on a verdict =="
 # A prompt change with no offline test is verified by prose alone. The full assertion
 # (a denied package host must route into `install`) needs an eval case that reproduces
@@ -476,10 +669,64 @@ if [ ! -f "$demo_skill" ]; then
   bad "$demo_skill is gone - this check is stale, point it at the new home"
 elif ! grep -q "The trigger is the BLOCKER CLASS" "$demo_skill"; then
   bad "demo/SKILL.md lost the blocker-class routing rule - a denied host or missing permission will not route to install, and install's EULA contract is what that routing buys"
+elif ! grep -q "a conditional attached to the permission request" "$demo_skill"; then
+  bad "demo/SKILL.md lost the permission-conditional example - 'if you'd rather not change the sandbox rules I can fall back to a zero-install preview' is the shape that recurred after the first rule"
 elif ! grep -q "a sandboxed shell" "$demo_skill"; then
   bad "demo/SKILL.md no longer names the sandboxed-shell blocker, the one that shipped install commands with no license agreement"
 else
   ok "demo routes on the blocker class, and still names the blocker that caused the defect"
+fi
+
+echo; echo "== 8h. analyze lets the user's named location beat the default workspace =="
+# The E2E case tells the model to keep the repository "inside this workspace", while the skill's
+# default was ~/sz-workspace. A run that followed the default left the repository where the
+# verifier (deliberately scoped to the scaffold directory) could not find it. Text guard only: it
+# proves the precedence rule has not been removed, not that a model obeys it.
+# shellcheck disable=SC2016  # the backticks are literal characters in the skill text
+if grep -q "Where the user said to" plugins/senzing/skills/analyze/SKILL.md \
+   && grep -qF 'never `~/sz-workspace`' plugins/senzing/skills/analyze/SKILL.md; then
+  ok "analyze states that the user's named location beats the default workspace"
+else
+  bad "analyze/SKILL.md lost the user-location-beats-default rule - the default can again override 'inside this workspace'"
+fi
+
+echo; echo "== 8i. the CI judge is an explicit strong model and the judge gate is enforced =="
+# The judge was `sonnet`, which the pinned CLI resolved to a no-thinking model whose votes did not
+# track the reply. A text guard only: it proves the configuration has not reverted.
+if grep -q 'EVAL_JUDGE_MODEL: claude-opus-5' .github/workflows/ci.yml \
+   && grep -q 'EVAL_JUDGE_ENFORCE: "1"' .github/workflows/ci.yml; then
+  ok "ci.yml pins the opus judge and enforces the judge gate"
+else
+  bad "ci.yml no longer pins EVAL_JUDGE_MODEL: claude-opus-5 and EVAL_JUDGE_ENFORCE: \"1\" - the noisy judge or an unenforced gate is back"
+fi
+
+echo; echo "== 8j. poc-planner's decline retrieves before it claims =="
+# Removing the cited-quote exemption took away the model's reason to retrieve on the "how long" fast
+# path: a run answered "Senzing's own guidance doesn't give a duration" without calling any tool.
+# Text guard: the retrieve-first rule must stay in the decline paragraph.
+if grep -q '\*\*Retrieve first\.\*\*' plugins/senzing/skills/poc-planner/SKILL.md; then
+  ok "poc-planner's decline paragraph says to retrieve before claiming what the guidance says"
+else
+  bad "poc-planner/SKILL.md lost the retrieve-first rule - the decline path can again assert guidance it never opened"
+fi
+
+echo; echo "== 8k. recipes hands off to install instead of promising the cook =="
+# A run stopped on a menu of Cook-step questions and promised "I'll install ... then cook the recipe".
+# Text guard: the hand-off rule and its example must stay in recipes/SKILL.md.
+if grep -q "do not announce the cook" plugins/senzing/skills/recipes/SKILL.md; then
+  ok "recipes/SKILL.md says to hand off to install and not to announce the cook"
+else
+  bad "recipes/SKILL.md lost the hand-off rule - the install-then-cook promise can come back"
+fi
+
+# The judge sees only head+tail of the trace, so `install`'s own message (plan + EULA + one question)
+# looks like "running the install flow inline" unless the criterion says it is the hand-off. Prior
+# CI judges split 3-0 FAIL / 3-0 PASS on that shape; the clause and its FAIL boundary must stay.
+if grep -q "own message is the hand-off" evals/recipes-named/graders/criteria.md \
+   && grep -q "FAIL only for COOK-step content" evals/recipes-named/graders/criteria.md; then
+  ok "recipes-named criteria treats install's own message as the hand-off and fails only cook-step content"
+else
+  bad "recipes-named criteria lost the install-message clause - the judge will fail the correct hand-off at random"
 fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="

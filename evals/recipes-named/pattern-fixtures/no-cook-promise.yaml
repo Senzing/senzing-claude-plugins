@@ -1,0 +1,11 @@
+# Fixtures for graders/no-cook-promise.md. must_match: the sentence from the failing run (eval 37153357592).
+# must_not_match: sentences from judge-PASSING real replies (the hand-off and the resume), plus HAND-WRITTEN refusals.
+must_match:
+- Once I have those, I'll install Senzing + Java, stand up a local instance, then cook the recipe's Prep → Cook
+  → Plate → Plus steps (map/load CRM, serve it as a Customer 360 app, then add in online orders and re-resolve).
+- I'll install the SDK and set up a local database, then cook the recipe.
+must_not_match:
+- tell me once libSz.dylib shows up, and I'll pick up from there — re-run doctor, then cook the Customer 360 recipe.
+- I'll run the install right here, then verify it and pick back up on the recipe.
+- Senzing is not installed on this host, so I can't cook the recipe; I'm handing off to install.
+- The recipe needs about 1,579 records, which is over the unlicensed 500-record limit.
