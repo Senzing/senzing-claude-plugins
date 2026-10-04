@@ -123,7 +123,11 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    Say what the recipe needs (its record count against the unlicensed limit is a fact you may
    state) and hand off to `install`.
    - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so the user
-     learns what it needs, then hand off to the **`install`** skill without asking first (it
+     learns what it needs, **then** hand off to the **`install`** skill without asking first.
+     **Order matters: fetch BEFORE you invoke `install`** — `install` asks its question and ends
+     the turn, so a fetch you leave for afterwards is never made (CI caught a run that went
+     doctor → `install` and never opened the recipe it was asked to cook). Run the catalog `curl`,
+     match the id, fetch `recipes/<id>.md`, and only then invoke `install` (it
      surfaces the license agreement, runs the official steps, and verifies with `doctor`; do not
      route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
      needed, `submit_feedback(category='license_request')`'s description states the current

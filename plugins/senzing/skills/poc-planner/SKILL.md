@@ -406,11 +406,14 @@ data_sources:
     approx_records:
     entity_types:
     identifying_columns: []
-database:            # their words, e.g. PostgreSQL — or TBD — decided by <owner>
-os_platform:          # the user's words
-platform_id:          # an id from sdk_guide's platform tree, or TBD — decided by <owner>
+# database, os_platform, languages: their words (e.g. PostgreSQL, ["Python"]), or the TBD literal
+# platform_id: an id from sdk_guide's platform tree, or the TBD literal
+# DELETE these comment lines, and never leave a `# …` after a value you fill in.
+database:
+os_platform:
+platform_id:
 cloud:
-languages: []        # their words, e.g. ["Python"]
+languages: []
 hardware_available:
 performance_required:
   throughput:
@@ -420,13 +423,17 @@ calendar:
 ```
 ## 3. Success criteria
 ```yaml
+# shape is one of: er_quality | functional_integration | entity_graph_scenario | other
+# statement: what must be shown, per user · measurement: as the tool names it — source: <url>
+# target: "per user: <their words>" or the TBD literal — these seven keys only
+# DELETE these comment lines, and never leave a `# …` after a value you fill in.
 - id: SC-1
-  shape:               # er_quality | functional_integration | entity_graph_scenario | other
-  statement:           # what must be shown, per user
-  measurement:         # as the tool names it — source: <url>
+  shape:
+  statement:
+  measurement:
   measured_against:
   decided_by:
-  target:              # "per user: <their words>" or "TBD — decided by <owner>" — these seven keys only
+  target:
 ```
 ## 4. What must be true to buy — goal and scope
 ## 5. Data selection checklist

@@ -251,6 +251,12 @@ def check(text: str) -> list[str]:
         m = TBD_RE.search(stripped)
         if not m:
             continue
+        if re.search(r"TBD — decided by [^#\n]*\s#\s", stripped) and line not in sec9:
+            problems.append(
+                f"line {i}: a template comment rides on a TBD line — '{stripped[:70]}'. Delete the `# …` "
+                f"after the owner: a candidate list there answers the question the line says is open."
+            )
+            continue
         tail = (m.group("tail") or "").lstrip(":").strip()
         if not tail:
             continue

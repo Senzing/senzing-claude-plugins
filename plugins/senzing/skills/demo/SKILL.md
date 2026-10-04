@@ -165,7 +165,10 @@ second report.
      needed.** The scratch repo is throwaway and touches nothing of theirs. **Never offer, hint at
      or ask about loading into their existing repository** — not "if you'd rather load it into
      production, say so", not "I'll only do that if you explicitly ask". Saying production is
-     untouched is fine; saying it is *available* is an offer. Only if the USER raises their
+     untouched is fine; saying it is *available* is an offer. The whole sentence is "Your
+     production repository is never touched." — full stop; no "unless", "only if", "until you
+     ask" after it (CI caught "…is never touched, and I won't load into it unless you ask for
+     that explicitly"). Only if the USER raises their
      existing repository themselves, confirm the target and the record count first.
      Verify the load as `analyze` step 4 does (loaded vs submitted, error count) before going on.
    - **Drain the redo queue** as `analyze` step 5 does — get the probe from the MCP, drain to 0,

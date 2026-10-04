@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.19-2] - 2026-10-04
+
+Plugin-only patch. The post-merge eval on `main` (run 37196169047) failed four assertions on code that had
+passed on the PR — three real behaviors the skill text left room for, per "a flaky assertion is a product defect".
+
+### Fixed
+
+- **poc-planner kept a template comment on a TBD line.** `shape: TBD — decided by <owner>   # er_quality |
+  functional_integration | …` left the template's candidate list after the literal (unanimous judge FAIL on
+  `judge-nothing-after-tbd`). The template's `# …` guidance now sits on its own lines above the keys with
+  "delete these", and `validate_plan.py` rejects any `# …` riding on a TBD line (its owner pattern swallowed
+  the comment, so it never saw one).
+- **recipes handed off to `install` without fetching the named recipe** (`correct-recipe-fetched` and
+  `doctor-before-recipe` failed: no Bash after doctor). `install` ends the turn, so a fetch left for afterwards
+  never happens; the skill now says to fetch BEFORE invoking it.
+- **demo recited the forbidden production offer** ("…never touched, and I won't load into it unless you ask for
+  that explicitly" — `no-production-offer`). The skill gave the rule but not the sentence; it now gives the whole
+  sentence ("Your production repository is never touched.") and names what must not follow it.
+- `scripts/check.sh`: probes for all three.
+
 ## [1.37.19-1] - 2026-10-04
 
 Plugin-only patch on server 1.37.19 (skills, graders, validator; no server change).
