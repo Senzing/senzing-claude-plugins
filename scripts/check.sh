@@ -274,6 +274,16 @@ if printf '%s' "$VP_OUT4" | grep -q "license terms agree"; then
 else
   bad "validate_plan.py accepts 'no discrepancy' about license terms the tools returned differently"
 fi
+# §9 license line: it names the differing SOURCES; a cap/day count/volume on it is a hint after a TBD
+# (CI: every judge vote failed a §9 line restating "10-day/250K-record" and "500-record sample").
+awk '/^ *- "TBD.*license path/ && !d { sub(/license path/, "license path (10-day, 250K-record offer vs 500-record sample)"); d=1 } { print }' "$VP_OK" > "$vp_tmp/license-figure.md"
+cmp -s "$VP_OK" "$vp_tmp/license-figure.md" && bad "8b license-figure mutation did not change the plan - the test below proves nothing"
+VP_OUT_LF="$(python3 "$VP" "$vp_tmp/license-figure.md" 2>&1 || true)"
+if printf '%s' "$VP_OUT_LF" | grep -q "§9 license line carries a figure"; then
+  ok "a §9 license line carrying a cap, day count or volume is rejected"
+else
+  bad "validate_plan.py accepts a §9 license line that restates the figures"
+fi
 # §3 target: the plan must not set one. Change only SC-1's target to a figure.
 # awk, not sed: `0,/re/s//x/` is GNU-only and silently changes nothing on BSD sed (the cmp below catches that).
 awk '!d && /target: TBD — decided by data platform lead/ { sub(/target: TBD — decided by data platform lead/, "target: F1 above 0.95"); d=1 } { print }' "$VP_OK" > "$vp_tmp/invented-target.md"
@@ -707,6 +717,16 @@ if grep -q "do not announce the cook" plugins/senzing/skills/recipes/SKILL.md; t
   ok "recipes/SKILL.md says to hand off to install and not to announce the cook"
 else
   bad "recipes/SKILL.md lost the hand-off rule - the install-then-cook promise can come back"
+fi
+
+# The judge sees only head+tail of the trace, so `install`'s own message (plan + EULA + one question)
+# looks like "running the install flow inline" unless the criterion says it is the hand-off. Prior
+# CI judges split 3-0 FAIL / 3-0 PASS on that shape; the clause and its FAIL boundary must stay.
+if grep -q "own message is the hand-off" evals/recipes-named/graders/criteria.md \
+   && grep -q "FAIL only for COOK-step content" evals/recipes-named/graders/criteria.md; then
+  ok "recipes-named criteria treats install's own message as the hand-off and fails only cook-step content"
+else
+  bad "recipes-named criteria lost the install-message clause - the judge will fail the correct hand-off at random"
 fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="

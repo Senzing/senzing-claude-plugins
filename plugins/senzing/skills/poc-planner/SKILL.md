@@ -140,7 +140,8 @@ license terms here or from memory — call the tool named in each step and cite 
    host** — a tool note about the environment the tool itself runs in (a single-threaded LLM
    container, say) is not a fact about their machine. Where two tools disagree (license terms,
    limits, contacts), quote each with its attribution and list the discrepancy under §9
-   `open_decisions`; never reconcile them yourself. Declining to engage with sizing is as wrong
+   `open_decisions` — the §9 line names the differing sources only (`license path: <tool> vs <tool>`);
+   each side's figures stay on its own quoted line, never on the §9 line; never reconcile them yourself. Declining to engage with sizing is as wrong
    as answering from memory — the value is in the assembly.
 6. **Truth sets — warn, and never build one (plugin rule).** Where the retrieved guidance
    discusses a truth set, quote it and add this labelled note: *"A synthetic or generated truth
@@ -307,7 +308,8 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    `compatibility_notes`, `sdk_guide(topic="install")`'s gotchas, and `submit_feedback`'s tool
    description (its current terms and the fields a request needs). Quote each that you retrieved,
    attributed to its tool; where they name different paths, limits or contacts, list the
-   discrepancy under §9 `open_decisions` (rule 5). If the user's stated volume exceeds a record
+   discrepancy under §9 `open_decisions` (rule 5) as `license path: <tool> vs <tool>` — no cap, day count or
+   volume on that line; those sit on the quoted lines above. If the user's stated volume exceeds a record
    limit a tool quotes, say so plainly and set it against the retrieved *vertical slice* rule —
    the slice they will actually load is their decision (`per user` or TBD), not yours. State no
    duration or record limit from memory, and do not submit a request from this skill.

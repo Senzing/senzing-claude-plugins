@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **poc-planner: the §9 license-discrepancy line restated the figures.** Enforced CI (head `ff0d2a1`)
+  failed `poc-planner-grounded/judge-nothing-after-tbd` 3-0 on a line like "Discrepancy (bears on
+  license_path…): … the free 10-day/250K-record offer … a 500-record sample …" — a hint after a TBD, by
+  the clause's own rule. SKILL rules 5 and the licensing step now say the §9 line names the differing
+  sources only (`license path: <tool> vs <tool>`), and `validate_plan.py` rejects a §9 license line
+  carrying a figure, so the run repairs it before finishing (probe in `scripts/check.sh` 8b).
+- **recipes-named judge failed the correct hand-off.** The judge sees head+tail of the trace, so
+  `install`'s own message (plan, EULA URL, one question) read as "running the install flow inline"; the
+  same shape had split earlier CI judges 3-0 each way. `criteria.md` now says that message IS the
+  hand-off and fails only cook-step content (a smaller sample, a license-or-sample choice, proposing the
+  recipe's steps, announcing Prep → Cook → Plate → Plus). Replayed with `claude-opus-5`: the failing
+  arm 3/3 PASS, a real "cook with just 500 records" arm still 3/3 FAIL.
 - **Four recurring judge failures were real defects, and the judge was the instrument.** Every one
   was unanimous (`FAIL FAIL FAIL`) on one of two runs, the signature of a real behavioral difference.
   Each was diagnosed from the CI traces:

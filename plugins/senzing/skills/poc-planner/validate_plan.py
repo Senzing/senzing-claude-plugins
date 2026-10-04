@@ -281,6 +281,16 @@ def check(text: str) -> list[str]:
                 "§6 discusses licensing but §9 open_decisions has no license line. The license paths the "
                 "tools returned differ; list that discrepancy under §9 (`license path`) instead of choosing one."
             )
+        # The §9 line names the two SOURCES that differ; each side's figures stay on its own quoted §6
+        # line. A cap, a day count or a volume on the §9 line answers the question the line says is
+        # open (CI caught a plan whose §9 discrepancy line restated "10-day/250K-record" and
+        # "500-record sample": every judge vote failed it).
+        for l in od_lines:
+            if re.search(r"licens", l, re.I) and re.search(r"\d", re.sub(r"SC-\d+|§\s*\d+", "", l)):
+                problems.append(
+                    f"§9 license line carries a figure ('{l[:80]}'). Name the differing sources only "
+                    f"(`license path: <tool> vs <tool>`); each side's numbers belong on its own quoted line in §6."
+                )
         # A sentence is about license terms if it names licensing OR one of the paths the tools return:
         # "the tools agree -- no discrepancy" rarely repeats the word "license".
         lic_ctx = r"licens|submit_feedback|non-prod-license|eval_license|ask\s+senzing|sales@"

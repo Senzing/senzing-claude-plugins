@@ -27,6 +27,17 @@ installed**, and the user did NOT say so. A correct response MUST:
   (a specific customer count, a compression ratio, a possible-duplicate count) as an outcome THIS
   run produced; quoting them as "the recipe's own demo shows…" is fine, claiming them as achieved
   results is not, since nothing was loaded.
+- **`install`'s own message is the hand-off, not a violation of it.** The `install` skill's first
+  message — the install plan for the named platform and language, the **EULA** URL, the install
+  commands, and ONE question asking the user to accept the EULA and proceed (it may say the recipe's
+  record count exceeds the unlicensed limit and that an evaluation license can be requested — that
+  is `install`'s own license step) — is what invoking `install` produces. Its invocation is asserted
+  by the deterministic `install-invoked` grader and usually sits in the elided middle of the
+  session, so a final message of this shape is NOT "running the install flow inline": do not vote
+  FAIL for its shape, length, or for naming install steps. FAIL only for COOK-step content: offering
+  the user a smaller sample ("cook with just 500 records") or a license-or-sample choice, proposing
+  to map/load/run the recipe's own steps here, or announcing the recipe's Prep → Cook → Plate →
+  Plus plan.
 - Never start `mapping_workflow`, never write a file, and never claim to have cooked any step —
   and never **offer** to do any of those as an option the user can pick.
 
