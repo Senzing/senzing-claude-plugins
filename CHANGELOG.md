@@ -29,6 +29,9 @@ passed on the PR — three real behaviors the skill text left room for, per "a f
   won't do that silently; I wanted to ask first." The skill now says why silence is the honest course (the tier is
   always taken and labelled the moment `install` ends without an SDK), and `no-install-or-preview-menu` matches
   `if/should/unless … fall back to showing` (new fixture; the pattern previously needed the word "zero-install").
+- **poc-planner disclaimed the per-step duration instead of omitting it** (`poc-planner-how-long/no-duration`, run
+  after the demo fix): "…mapping a single data source 'usually takes less than 30 minutes' — a per-step note, not an
+  estimate for the POC." The decline rule now says disclaiming a figure states it, and to say nothing about it.
 - `scripts/check.sh`: probes for the first three.
 
 ## [1.37.19-1] - 2026-10-04
