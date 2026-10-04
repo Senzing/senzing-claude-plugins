@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.19-1] - 2026-10-04
+
+Plugin-only patch on server 1.37.19 (skills, graders, validator; no server change).
+
 ### Fixed
 
 - **poc-planner: the §9 license-discrepancy line restated the figures.** Enforced CI (head `ff0d2a1`)
