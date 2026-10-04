@@ -750,6 +750,12 @@ else
   bad "demo/SKILL.md lost the exact production sentence - the model recites 'unless you ask' again"
 fi
 
+if grep -qF "report is a checkpoint, not the answer" plugins/senzing/skills/build/SKILL.md; then
+  ok "build/SKILL.md says doctor's report is a checkpoint and the run continues in the same turn"
+else
+  bad "build/SKILL.md lost the doctor-is-a-checkpoint rule - a run can end on the environment table"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the

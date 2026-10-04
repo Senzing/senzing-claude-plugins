@@ -32,6 +32,9 @@ passed on the PR — three real behaviors the skill text left room for, per "a f
 - **poc-planner disclaimed the per-step duration instead of omitting it** (`poc-planner-how-long/no-duration`, run
   after the demo fix): "…mapping a single data source 'usually takes less than 30 minutes' — a per-step note, not an
   estimate for the POC." The decline rule now says disclaiming a figure states it, and to say nothing about it.
+- **build stopped at doctor's report** (PR #63 eval, case `build`: 6 graders failed — no `generate_scaffold`, no
+  `senzing_search.py`; the run also asked the grounder sub-agent to "run doctor"). The skill now says doctor's
+  report is a checkpoint, invoked with the Skill tool, and the run continues to step 2 in the same turn.
 - `scripts/check.sh`: probes for the first three.
 
 ## [1.37.19-1] - 2026-10-04
