@@ -332,6 +332,14 @@ then
 else
   bad "validate_plan.py path-builder regressed on a shape the fixtures do not exercise"
 fi
+awk '/^  shape: er_quality/ && !d { sub(/er_quality/, "TBD — decided by the data platform lead   # er_quality | other"); d=1 } { print }' "$VP_OK" > "$vp_tmp/tbd-comment.md"
+cmp -s "$VP_OK" "$vp_tmp/tbd-comment.md" && bad "8b tbd-comment mutation did not change the plan - the test below proves nothing"
+VP_OUT_TC="$(python3 "$VP" "$vp_tmp/tbd-comment.md" 2>&1 || true)"
+if [[ "$VP_OUT_TC" == *"template comment rides on a TBD line"* ]]; then
+  ok "a template '# candidate | list' comment after a TBD literal is rejected"
+else
+  bad "validate_plan.py accepts a candidate-list comment riding on a TBD line"
+fi
 rm -rf "$vp_tmp"
 
 echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
@@ -727,6 +735,25 @@ if grep -q "own message is the hand-off" evals/recipes-named/graders/criteria.md
   ok "recipes-named criteria treats install's own message as the hand-off and fails only cook-step content"
 else
   bad "recipes-named criteria lost the install-message clause - the judge will fail the correct hand-off at random"
+fi
+
+# Main-branch CI (run 37196169047) failed three cases the PR run had passed -- each a real behavior the
+# skill text left room for. Text guards keep the fix from being edited away.
+if grep -q "fetch BEFORE you invoke" plugins/senzing/skills/recipes/SKILL.md; then
+  ok "recipes/SKILL.md says to fetch the recipe before invoking install (install ends the turn)"
+else
+  bad "recipes/SKILL.md lost fetch-before-install - a run can hand off without ever opening the recipe"
+fi
+if grep -q 'is never touched." — full stop' plugins/senzing/skills/demo/SKILL.md; then
+  ok "demo/SKILL.md gives the exact production sentence and forbids a conditional after it"
+else
+  bad "demo/SKILL.md lost the exact production sentence - the model recites 'unless you ask' again"
+fi
+
+if grep -qF "report is a checkpoint, not the answer" plugins/senzing/skills/build/SKILL.md; then
+  ok "build/SKILL.md says doctor's report is a checkpoint and the run continues in the same turn"
+else
+  bad "build/SKILL.md lost the doctor-is-a-checkpoint rule - a run can end on the environment table"
 fi
 
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="

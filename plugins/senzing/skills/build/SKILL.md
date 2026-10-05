@@ -58,6 +58,14 @@ answers the run gate; the write gate needs one probe of its own:
   `/senzing:build` in **Claude Code** on that host.
 Never claim to have edited files you could not write, and never claim a run you did not perform.
 
+**`doctor`'s report is a checkpoint, not the answer.** Invoke it with the Skill tool itself — never hand
+"run doctor" to a sub-agent (the grounder agent has no doctor and answers that none exists). Whatever its
+verdict — no Senzing, Python on macOS, nothing installed — carry on **in the same turn** to step 2: the file
+is still the deliverable, written by the file tools whether or not Senzing exists on the host. Only step 4
+(run) waits on the verdict. CI caught a run that printed doctor's table as its final message and never called
+`generate_scaffold` or wrote `senzing_search.py`; a message that is only an environment report has not done
+what was asked.
+
 Always:
 
 1. **Inputs.** `$ARGUMENTS` may name the language and/or workflow (e.g. `python search`). Determine

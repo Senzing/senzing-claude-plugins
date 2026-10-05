@@ -6,6 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.19-2] - 2026-10-04
+
+Plugin-only patch. The post-merge eval on `main` (run 37196169047) failed four assertions on code that had
+passed on the PR — three real behaviors the skill text left room for, per "a flaky assertion is a product defect".
+
+### Fixed
+
+- **poc-planner kept a template comment on a TBD line.** `shape: TBD — decided by <owner>   # er_quality |
+  functional_integration | …` left the template's candidate list after the literal (unanimous judge FAIL on
+  `judge-nothing-after-tbd`). The template's `# …` guidance now sits on its own lines above the keys with
+  "delete these", and `validate_plan.py` rejects any `# …` riding on a TBD line (its owner pattern swallowed
+  the comment, so it never saw one).
+- **recipes handed off to `install` without fetching the named recipe** (`correct-recipe-fetched` and
+  `doctor-before-recipe` failed: no Bash after doctor). `install` ends the turn, so a fetch left for afterwards
+  never happens; the skill now says to fetch BEFORE invoking it.
+- **demo recited the forbidden production offer** ("…never touched, and I won't load into it unless you ask for
+  that explicitly" — `no-production-offer`). The skill gave the rule but not the sentence; it now gives the whole
+  sentence ("Your production repository is never touched.") and names what must not follow it.
+- **demo offered the zero-install fallback in other words** (PR #63's own eval, `demo-no-simulation/criteria`, 3-0
+  FAIL): "If either can't be granted here, say so and I'll fall back to showing you validated … sample data — but I
+  won't do that silently; I wanted to ask first." The skill now says why silence is the honest course (the tier is
+  always taken and labelled the moment `install` ends without an SDK), and `no-install-or-preview-menu` matches
+  `if/should/unless … fall back to showing` (new fixture; the pattern previously needed the word "zero-install").
+- **poc-planner disclaimed the per-step duration instead of omitting it** (`poc-planner-how-long/no-duration`, run
+  after the demo fix): "…mapping a single data source 'usually takes less than 30 minutes' — a per-step note, not an
+  estimate for the POC." The decline rule now says disclaiming a figure states it, and to say nothing about it.
+- **build stopped at doctor's report** (PR #63 eval, case `build`: 6 graders failed — no `generate_scaffold`, no
+  `senzing_search.py`; the run also asked the grounder sub-agent to "run doctor"). The skill now says doctor's
+  report is a checkpoint, invoked with the Skill tool, and the run continues to step 2 in the same turn.
+- `scripts/check.sh`: probes for the first three.
+
 ## [1.37.19-1] - 2026-10-04
 
 Plugin-only patch on server 1.37.19 (skills, graders, validator; no server change).

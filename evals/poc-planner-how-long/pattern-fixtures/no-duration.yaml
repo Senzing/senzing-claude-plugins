@@ -2,6 +2,8 @@
 # First 8 must_match + 3 must_not_match: REAL final messages from CI eval runs (not paraphrases).
 # The rest are HAND-WRITTEN, one per duration unit, so dropping a unit from the pattern is caught.
 must_match:
+- 'The one place it mentions a span at all is that mapping a single data source "usually takes less than 30 minutes" —
+  a per-step note about one activity, not an estimate for the POC.'
 - The article also says data mapping itself "usually takes less than 30 minutes per data source" (per
   source_url above) — but that's one step, not the whole POC.
 - 'One more data point worth having in view before you size anything: mapping a single data source typically

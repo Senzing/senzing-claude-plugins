@@ -120,7 +120,11 @@ second report.
    preview" is an alternative to installing, and it turns the permission question into a fork. If the
    user declines the permission, THEN you take the tier, in the next turn, as what you do now — never as a
    way out you offered this turn. The tier is not mentioned until `install` has actually ended its turn
-   without a working SDK, and then you take it rather than announce it.
+   without a working SDK, and then you take it rather than announce it. **Saying nothing here is the honest
+   course, not a withheld one**: the tier is always taken, and always labelled "not a demo of the engine", the
+   moment `install` ends without an SDK — so "if that can't be granted I'll fall back to showing you sample data
+   — I won't do that silently" (CI caught exactly that sentence) discloses nothing the user needs now and hands
+   them the fork. Ask the EULA and permission questions, end the message there.
 
    **The zero-install tier is what you do AFTER `install` has ended its turn without a working
    SDK** — a fallback you take, not an option you put to the user, and never a branch offered in
@@ -165,7 +169,10 @@ second report.
      needed.** The scratch repo is throwaway and touches nothing of theirs. **Never offer, hint at
      or ask about loading into their existing repository** — not "if you'd rather load it into
      production, say so", not "I'll only do that if you explicitly ask". Saying production is
-     untouched is fine; saying it is *available* is an offer. Only if the USER raises their
+     untouched is fine; saying it is *available* is an offer. The whole sentence is "Your
+     production repository is never touched." — full stop; no "unless", "only if", "until you
+     ask" after it (CI caught "…is never touched, and I won't load into it unless you ask for
+     that explicitly"). Only if the USER raises their
      existing repository themselves, confirm the target and the record count first.
      Verify the load as `analyze` step 4 does (loaded vs submitted, error count) before going on.
    - **Drain the redo queue** as `analyze` step 5 does — get the probe from the MCP, drain to 0,
