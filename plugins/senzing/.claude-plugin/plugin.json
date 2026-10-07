@@ -3,7 +3,7 @@
   "name": "senzing",
   "displayName": "Senzing",
   "icon": "./icon.png",
-  "version": "1.37.22",
+  "version": "1.37.23",
   "description": "Entity resolution: point Claude at your data, it does the work, and you have results today.",
   "author": {
     "name": "Senzing, Inc.",
