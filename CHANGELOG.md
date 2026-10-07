@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.22] - 2026-10-07
+
+### Changed
+
+- Bump to MCP server **v1.37.22** (lockstep sync).
+
+### Fixed
+
+- **recipes: handing off to `install` was skipped when the install steps were already in hand.** After the
+  server's richer `sdk_guide(topic="install")` landed (v1.37.20), the enforced eval's `recipes-named` judge
+  failed 3-0: `doctor` had already fetched the platform's install steps, so the run wrote the install message
+  itself and ended on "attach a license file, or I can request a free evaluation license" plus an offer to
+  fetch the recipe's ingredient files (a Cook-step license choice). The skill now says that holding the steps
+  is exactly when to hand off, and that the next action after fetching the recipe is `Skill(senzing:install)`.
+
 ## [1.37.19-2] - 2026-10-04
 
 Plugin-only patch. The post-merge eval on `main` (run 37196169047) failed four assertions on code that had
