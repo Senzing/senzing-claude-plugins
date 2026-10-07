@@ -132,7 +132,13 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
      needed, `submit_feedback(category='license_request')`'s description states the current
      terms). Don't cook over a Senzing that won't stand up, and don't stop at the diagnosis
-     either. **Hand off; do not
+     either. **You will already hold the platform's install steps** — `doctor` fetched them with
+     `sdk_guide(topic="install")` — **and that is exactly when to hand off, not a reason to skip it.**
+     CI caught a run that, holding those steps, wrote the install message itself and ended it
+     with "attach a license file, or I can request a free evaluation license" plus an offer to
+     fetch the recipe's ingredient files: a Cook-step license choice and an offer to cook. Your next
+     action after fetching the recipe is `Skill(senzing:install)`; its first message is the one
+     the user reads. **Hand off; do not
      run the install flow yourself in the message, and do not announce the cook.** A reply that stops on a menu
      ("Before I can cook, three things need your input: the license agreement, your language, whether you have a
      license file or want the evaluation one") and ends "Once I have those, I'll install Senzing + Java, stand up a

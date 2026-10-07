@@ -756,6 +756,12 @@ else
   bad "build/SKILL.md lost the doctor-is-a-checkpoint rule - a run can end on the environment table"
 fi
 
+if grep -qF "You will already hold the platform's install steps" plugins/senzing/skills/recipes/SKILL.md; then
+  ok "recipes/SKILL.md says holding doctor's install steps is when to hand off to install"
+else
+  bad "recipes/SKILL.md lost the hold-the-steps-still-hand-off rule - a run can write the install message itself"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
