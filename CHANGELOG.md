@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.22] - 2026-10-07
+
+### Changed
+
+- Bump to MCP server **v1.37.22** (lockstep sync); the plugin carries no code change.
+
 ## [1.37.19-2] - 2026-10-04
 
 Plugin-only patch. The post-merge eval on `main` (run 37196169047) failed four assertions on code that had
