@@ -16,6 +16,15 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
 
 # Cook a Senzing Cookbook recipe
 
+> **NO SENZING ON THIS HOST? THE NEXT TOOL CALL IS `Skill(senzing:install)` — NOT A MESSAGE.** After
+> `doctor` reports no SDK and you have fetched the named recipe, call `Skill(senzing:install)`
+> before writing anything to the user. You will already hold install steps (doctor fetched them):
+> that is not a reason to write the install message yourself. A message you write at that point
+> has, in CI, ended with license-file-or-evaluation-license questions and a claim that the
+> 500-record limit was "enough" for a recipe that loads ~1,600 records — Cook-step decisions that
+> are not yours to make here. `install` asks what installing needs, in one message; the recipe
+> resumes when install has completed.
+
 Recipes come from the **Senzing Cookbook**, fetched from `raw.githubusercontent.com` (the raw
 base below): a chef-authored,
 plain-English sequence of prompts that stands up a working Senzing solution for a real mission.

@@ -10,7 +10,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Bump to MCP server **v1.37.24** (lockstep sync); the plugin carries no code change.
+- Bump to MCP server **v1.37.24** (lockstep sync).
+
+### Fixed
+
+- **recipes: the no-SDK hand-off still failed 3-0 in the enforced eval after v1.37.22's fix** (`recipes-named/criteria`).
+  The run fetched the recipe, then wrote the install message itself — "attach a license file, or I can
+  request an evaluation license … the 500-record limit is enough to get CRM + orders loaded" (the recipe loads
+  ~1,600 records) — instead of calling `Skill(senzing:install)`. The rule sat deep in the skill, where the model
+  does not look at the decision point. It is now a block at the TOP of `recipes/SKILL.md` ("the next tool call is
+  `Skill(senzing:install)`, not a message") and is repeated in `doctor`'s hand-back section, where the model is
+  when the verdict lands.
 
 ## [1.37.23] - 2026-10-07
 
