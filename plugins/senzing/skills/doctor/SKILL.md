@@ -371,6 +371,12 @@ A no-SDK verdict is the caller's cue to take its degraded path — **never** a r
 short of it. When you hand back, say so in one line ("preflight done — SDK not installed;
 continuing with the mapping") so the next step is visibly yours to take, then take it.
 
+**Invoked by `recipes` or `demo` with a no-SDK verdict, the next tool call is
+`Skill(senzing:install)` — not a message to the user.** You hold the install steps (Step 0 fetched
+them), and writing them out yourself is the failure: the caller's hand-off rule is to invoke
+`install`, which asks what installing needs in one message. Your hand-back line is "preflight done
+— SDK not installed; invoking install", and the very next thing you do is that call.
+
 ### Probe budget
 
 **ONE attempt per question, then record the answer and move on** — one command per question, not

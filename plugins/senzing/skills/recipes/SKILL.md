@@ -16,11 +16,15 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
 
 # Cook a Senzing Cookbook recipe
 
-Recipes come from the **Senzing Cookbook**, fetched from `raw.githubusercontent.com` (the raw
-base below): a chef-authored,
-plain-English sequence of prompts that stands up a working Senzing solution for a real mission.
-You are the **sous-chef** — you interpret and *run* each prompt, backed by the **Senzing MCP**
-(the kitchen staff). Drive the recipe; don't just hand the user prompts to paste.
+> **NO SENZING ON THIS HOST? FETCH THE RECIPE, CALL `Skill(senzing:install)`, AND LET ITS MESSAGE BE YOUR
+> ENTIRE REPLY.** After `doctor` reports no SDK and you have fetched the named recipe, the next tool call
+> is `Skill(senzing:install)` — you already hold install steps (doctor fetched them), which is not a reason
+> to write the install message yourself. When `install` returns, **add nothing to its message**: no recap of
+> the recipe's Setup section, no "you'll also need your license file", no remark about the 500-record limit
+> or an evaluation license, no offer to fetch the ingredient CSVs. CI caught both: a reply that wrote the
+> install message itself, and one that invoked `install` and then appended "recipe handles up to 500 records
+> without a license" (false — this recipe loads ~1,600) plus an offer to fetch the ingredient files — Cook-step
+> content that is not yours to put to the user here. The recipe resumes when install has completed.
 
 ## Recipe source
 
@@ -120,10 +124,12 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    cannot cook yet, do not put the license decision or a smaller sample ("cook with just 500
    records") to the user as a choice: those are Cook-step decisions, and a reply that ends "attach
    a license, request the evaluation one, or go with the 500-record sample?" has offered the cook.
-   Say what the recipe needs (its record count against the unlicensed limit is a fact you may
-   state) and hand off to `install`.
-   - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so the user
-     learns what it needs, **then** hand off to the **`install`** skill without asking first.
+   Do NOT state the record count, the unlicensed limit, a license, or the ingredient files here —
+   CI caught "this recipe loads ~1,600 records, over the 500-record limit — do you have a license?"
+   appended to a correct hand-off, which is the license decision put to the user as a choice. `install`
+   owns the license conversation; the recipe's Setup resumes after install. Hand off to `install`.
+   - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so you can
+     name it (mission, kitchen, time — not its Setup needs), **then** hand off to the **`install`** skill without asking first.
      **Order matters: fetch BEFORE you invoke `install`** — `install` asks its question and ends
      the turn, so a fetch you leave for afterwards is never made (CI caught a run that went
      doctor → `install` and never opened the recipe it was asked to cook). Run the catalog `curl`,

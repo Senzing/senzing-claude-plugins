@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.24] - 2026-10-08
+
+### Changed
+
+- Bump to MCP server **v1.37.24** (lockstep sync).
+
+### Fixed
+
+- **recipes: the no-SDK reply still failed 3-0 in the enforced eval after v1.37.22's fix** (`recipes-named/criteria`).
+  Reading the full CI trace (not the judge's head+tail evidence, which elides the middle) showed the run DID
+  invoke `Skill(senzing:install)`; the failure was what it wrote afterwards: install's EULA/language question
+  plus "per the recipe's Setup section, have ready your license file (recipe handles up to 500 records without a
+  license) and the ingredient files (I can fetch them)" — a false record-limit claim with no source for a recipe that
+  loads ~1,600 records, and an offer to cook. `recipes/SKILL.md` now opens with a block saying install's message
+  is the entire reply and nothing is appended; `doctor` repeats the hand-off rule where the verdict lands. (My
+  first diagnosis, that install was skipped, came from the judge's elided evidence and was wrong.)
+
 ## [1.37.23] - 2026-10-07
 
 ### Changed

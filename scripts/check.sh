@@ -762,6 +762,13 @@ else
   bad "recipes/SKILL.md lost the hold-the-steps-still-hand-off rule - a run can write the install message itself"
 fi
 
+if grep -qF "LET ITS MESSAGE BE YOUR" plugins/senzing/skills/recipes/SKILL.md \
+   && grep -qF "the next tool call is" plugins/senzing/skills/doctor/SKILL.md; then
+  ok "recipes (top) and doctor both say a no-SDK verdict's next tool call is Skill(senzing:install)"
+else
+  bad "the top-of-skill no-SDK hand-off rule in recipes/doctor was removed - runs write the install message themselves"
+fi
+
 echo; echo "== 9. Eval scoring split (deterministic gate vs judge score) =="
 # The suite's verdict is two independent gates, computed by evals/gate.py:
 # deterministic graders must ALL pass in EVERY run (no averaging, no threshold), while the
