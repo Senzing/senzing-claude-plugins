@@ -762,7 +762,7 @@ else
   bad "recipes/SKILL.md lost the hold-the-steps-still-hand-off rule - a run can write the install message itself"
 fi
 
-if grep -qF "THE NEXT TOOL CALL IS \`Skill(senzing:install)\`" plugins/senzing/skills/recipes/SKILL.md \
+if grep -qF "LET ITS MESSAGE BE YOUR" plugins/senzing/skills/recipes/SKILL.md \
    && grep -qF "the next tool call is" plugins/senzing/skills/doctor/SKILL.md; then
   ok "recipes (top) and doctor both say a no-SDK verdict's next tool call is Skill(senzing:install)"
 else

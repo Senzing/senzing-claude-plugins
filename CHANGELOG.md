@@ -14,13 +14,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- **recipes: the no-SDK hand-off still failed 3-0 in the enforced eval after v1.37.22's fix** (`recipes-named/criteria`).
-  The run fetched the recipe, then wrote the install message itself — "attach a license file, or I can
-  request an evaluation license … the 500-record limit is enough to get CRM + orders loaded" (the recipe loads
-  ~1,600 records) — instead of calling `Skill(senzing:install)`. The rule sat deep in the skill, where the model
-  does not look at the decision point. It is now a block at the TOP of `recipes/SKILL.md` ("the next tool call is
-  `Skill(senzing:install)`, not a message") and is repeated in `doctor`'s hand-back section, where the model is
-  when the verdict lands.
+- **recipes: the no-SDK reply still failed 3-0 in the enforced eval after v1.37.22's fix** (`recipes-named/criteria`).
+  Reading the full CI trace (not the judge's head+tail evidence, which elides the middle) showed the run DID
+  invoke `Skill(senzing:install)`; the failure was what it wrote afterwards: install's EULA/language question
+  plus "per the recipe's Setup section, have ready your license file (recipe handles up to 500 records without a
+  license) and the ingredient files (I can fetch them)" — a false record-limit claim with no source for a recipe that
+  loads ~1,600 records, and an offer to cook. `recipes/SKILL.md` now opens with a block saying install's message
+  is the entire reply and nothing is appended; `doctor` repeats the hand-off rule where the verdict lands. (My
+  first diagnosis, that install was skipped, came from the judge's elided evidence and was wrong.)
 
 ## [1.37.23] - 2026-10-07
 
