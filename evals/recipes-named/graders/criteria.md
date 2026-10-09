@@ -29,9 +29,9 @@ installed**, and the user did NOT say so. A correct response MUST:
   results is not, since nothing was loaded.
 - **`install`'s own message is the hand-off, not a violation of it.** The `install` skill's first
   message — the install plan for the named platform and language, the **EULA** URL, the install
-  commands, and ONE question asking the user to accept the EULA and proceed (it may say the recipe's
-  record count exceeds the unlicensed limit and that an evaluation license can be requested — that
-  is `install`'s own license step) — is what invoking `install` produces. Its invocation is asserted
+  commands, and ONE question asking the user to accept the EULA and proceed — is what invoking `install` produces.
+  It does not mention a license file, an evaluation license, or the recipe's record count: that is `doctor`'s
+  call after a verified install. Its invocation is asserted
   by the deterministic `install-invoked` grader and usually sits in the elided middle of the
   session, so a final message of this shape is NOT "running the install flow inline": do not vote
   FAIL for its shape, length, or for naming install steps. FAIL only for COOK-step content: offering

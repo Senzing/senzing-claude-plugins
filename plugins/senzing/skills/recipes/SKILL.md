@@ -24,7 +24,9 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
 > or an evaluation license, no offer to fetch the ingredient CSVs. CI caught both: a reply that wrote the
 > install message itself, and one that invoked `install` and then appended "recipe handles up to 500 records
 > without a license" (false — this recipe loads ~1,600) plus an offer to fetch the ingredient files — Cook-step
-> content that is not yours to put to the user here. The recipe resumes when install has completed.
+> content that is not yours to put to the user here. Do not tell the user the recipe will resume or is ready to cook once Senzing is installed, and do not
+> name its Prep → Cook → Plate steps anywhere in this reply — CI caught "…and only then resume the recipe's
+> Prep → Cook → Plate steps" appended to install's message, which announces the cook the user has not agreed to.
 
 ## Recipe source
 
@@ -127,7 +129,7 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    Do NOT state the record count, the unlicensed limit, a license, or the ingredient files here —
    CI caught "this recipe loads ~1,600 records, over the 500-record limit — do you have a license?"
    appended to a correct hand-off, which is the license decision put to the user as a choice. `install`
-   owns the license conversation; the recipe's Setup resumes after install. Hand off to `install`.
+   owns the license conversation. Hand off to `install` and say nothing about what happens after it.
    - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so you can
      name it (mission, kitchen, time — not its Setup needs), **then** hand off to the **`install`** skill without asking first.
      **Order matters: fetch BEFORE you invoke `install`** — `install` asks its question and ends
@@ -149,8 +151,8 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      ("Before I can cook, three things need your input: the license agreement, your language, whether you have a
      license file or want the evaluation one") and ends "Once I have those, I'll install Senzing + Java, stand up a
      local instance, then cook the recipe's Prep → Cook → Plate → Plus steps" has asked Cook-step questions and
-     proposed the cook. Invoke `install` (it asks what installing needs, in one message) and stop; the recipe
-     resumes when install has completed.
+     proposed the cook. Invoke `install` (it asks what installing needs, in one message) and stop; do not say the
+     recipe will resume or name its steps.
      **The license agreement URL must appear in the reply the user reads**, not only inside a
      sub-skill's own output: state `https://senzing.com/end-user-license-agreement/` in your
      message before anything installs. Delegating the hand-off does not discharge this — a run

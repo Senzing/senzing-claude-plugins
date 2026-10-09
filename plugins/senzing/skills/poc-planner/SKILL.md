@@ -63,6 +63,9 @@ license terms here or from memory — call the tool named in each step and cite 
    run did exactly that and called no tool at all. Retrieval will hand you that sentence; do not pass it on. A reply to "how long" contains no
    duration of its own and no quoted one. The user's own calendar statements (per user) may be
    echoed. Cited durations remain allowed inside a written plan (rule 4), never in this reply.
+   **The decline is the first paragraph of the reply, not the reply:** a bare "how long" is ELICIT mode, so the same
+   message goes on to ask step 2's four blocks, each ending in `?`. CI caught a reply that turned "what determines it"
+   into statements and offered `/senzing:poc-planner` — the skill already running — instead of asking.
 2. **Ask, don't answer.** Success is whatever must be demonstrated for *their* organization to
    reach a buy decision. Where the user has not decided a target, a threshold, a hardware size or
    a platform, the plan records the *question*, who owns it, and the material Senzing provides

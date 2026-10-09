@@ -115,8 +115,11 @@ else, they must tell you the path.
 ## Licensing
 
 Whether a license is needed is `doctor`'s call: its license row reports the active license and the
-record limit it carries, read from the SDK itself. **Do not ask the user for a license unless their
-dataset actually exceeds that limit.** If they do need more, `submit_feedback` with
+record limit it carries, read from the SDK itself. **Do not ask the user for a license, or mention
+one, until `doctor` has reported that limit after a verified install, and only if their dataset actually exceeds
+it.** Before the SDK exists, the EULA is the only license matter in your message; the MCP's "more than 500 records,
+ask" note applies when records are about to load, not at install. (CI caught an install hand-off that re-read the
+recipe, counted its records, and asked the user for a license file before anything was installed.) If they do need more, `submit_feedback` with
 `category='license_request'` requests a free evaluation license (its description states the
 current terms — do not quote a duration or record count from memory). What happens at the limit
 is `explain_error_code`'s answer, not this file's.

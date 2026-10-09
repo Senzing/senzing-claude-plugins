@@ -1,0 +1,8 @@
+# Fixtures for graders/no-step-names.md. must_match: the sentence from the failing run (CI run 37938113230).
+# must_not_match: install's own message and a plain hand-off.
+must_match:
+- and only then resume the recipe's Prep → Cook → Plate steps.
+- Once that is done I will start on Prep -> Cook -> Plate.
+must_not_match:
+- Senzing is not installed on this host, so I can't cook the recipe; I'm handing off to install.
+- Please accept the license agreement at https://senzing.com/end-user-license-agreement/ and tell me which language you use.
