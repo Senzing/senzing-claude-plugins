@@ -1,0 +1,9 @@
+# Fixtures for graders/no-license-ask.md. must_match: sentences from the failing run (CI run 37994167572).
+# must_not_match: install's own EULA hand-off and a plain no-SDK hand-off.
+must_match:
+- I've already fetched the recipe itself, so it's ready to cook once Senzing is installed.
+- if you have a license file, have it ready to point me to; if not, I can request a free evaluation one once we get there.
+- Separately, this recipe loads enough records that it needs an evaluation license.
+must_not_match:
+- Please accept the Senzing End User License Agreement (EULA) at https://senzing.com/end-user-license-agreement/ and tell me which language you use.
+- Senzing is not installed on this host, so I can't cook the recipe; I'm handing off to install.

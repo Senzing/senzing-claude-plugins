@@ -735,6 +735,13 @@ if grep -qF "Do not tell the user the recipe will resume" plugins/senzing/skills
 else
   bad "recipes/SKILL.md lost 'Do not tell the user the recipe will resume' (or the old 'resumes when install has completed' line is back)"
 fi
+# install owns the EULA only until doctor has verified the SDK; the criterion must not re-allow a license ask.
+if grep -qF 'has reported that limit after a verified install' plugins/senzing/skills/install/SKILL.md \
+  && ! grep -qF "may say the recipe's" evals/recipes-named/graders/criteria.md; then
+  ok "install defers the license question to doctor, and the criterion does not allow it earlier"
+else
+  bad "install/SKILL.md lost 'has reported that limit after a verified install' (or criteria.md allows a license ask at install again)"
+fi
 # Text guard: the hand-off rule and its example must stay in recipes/SKILL.md.
 if grep -q "do not announce the cook" plugins/senzing/skills/recipes/SKILL.md; then
   ok "recipes/SKILL.md says to hand off to install and not to announce the cook"

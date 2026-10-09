@@ -24,7 +24,7 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
 > or an evaluation license, no offer to fetch the ingredient CSVs. CI caught both: a reply that wrote the
 > install message itself, and one that invoked `install` and then appended "recipe handles up to 500 records
 > without a license" (false — this recipe loads ~1,600) plus an offer to fetch the ingredient files — Cook-step
-> content that is not yours to put to the user here. Do not tell the user the recipe will resume, and do not
+> content that is not yours to put to the user here. Do not tell the user the recipe will resume or is ready to cook once Senzing is installed, and do not
 > name its Prep → Cook → Plate steps anywhere in this reply — CI caught "…and only then resume the recipe's
 > Prep → Cook → Plate steps" appended to install's message, which announces the cook the user has not agreed to.
 

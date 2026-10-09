@@ -19,6 +19,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (judge FAIL ×3). The skill said "the recipe resumes when install has completed" in three places and the model repeated it
   to the user; those lines now tell the model not to announce a resume or name the steps. New deterministic grader
   `no-step-names` (with fixtures) backs the judge; `no-cook-promise` missed this phrasing.
+  A second post-fix run failed differently: install's hand-off re-read the recipe, counted its records and asked for a
+  license file before anything was installed (and said it was "ready to cook once Senzing is installed"). `install` now
+  defers the license question to `doctor`'s verified report, the `recipes-named` criterion no longer allows a license ask
+  at install (it contradicted `recipes/SKILL.md`), and `no-license-ask` backs the judge.
 - **poc-planner: a bare "how long" declines and then asks.** The same run caught a reply that declined correctly, asked no
   question, and offered `/senzing:poc-planner` (the skill already running). The decline rule now says it is the first
   paragraph of the reply, followed by step 2's four questions.
