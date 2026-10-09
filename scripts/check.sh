@@ -718,8 +718,23 @@ else
   bad "poc-planner/SKILL.md lost the retrieve-first rule - the decline path can again assert guidance it never opened"
 fi
 
+echo; echo "== 8j2. poc-planner's decline is not the whole reply =="
+# A run declined correctly and then asked nothing: it offered /senzing:poc-planner (the skill already running).
+if grep -qF "The decline is the first paragraph of the reply, not the reply" plugins/senzing/skills/poc-planner/SKILL.md; then
+  ok "poc-planner says the decline is followed by step 2's questions"
+else
+  bad "poc-planner/SKILL.md lost the 'decline is not the whole reply' rule - a bare 'how long' can again end with no question"
+fi
+
 echo; echo "== 8k. recipes hands off to install instead of promising the cook =="
 # A run stopped on a menu of Cook-step questions and promised "I'll install ... then cook the recipe".
+# A later run appended "and only then resume the recipe's Prep → Cook → Plate steps" to install's message.
+if grep -qF "Do not tell the user the recipe will resume" plugins/senzing/skills/recipes/SKILL.md \
+  && ! grep -qF "The recipe resumes when install has completed" plugins/senzing/skills/recipes/SKILL.md; then
+  ok "recipes/SKILL.md tells the model not to announce that the recipe will resume"
+else
+  bad "recipes/SKILL.md lost 'Do not tell the user the recipe will resume' (or the old 'resumes when install has completed' line is back)"
+fi
 # Text guard: the hand-off rule and its example must stay in recipes/SKILL.md.
 if grep -q "do not announce the cook" plugins/senzing/skills/recipes/SKILL.md; then
   ok "recipes/SKILL.md says to hand off to install and not to announce the cook"

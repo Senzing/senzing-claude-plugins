@@ -10,7 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Bump to MCP server **v1.37.26** (lockstep sync); the plugin carries no code change.
+- Bump to MCP server **v1.37.26** (lockstep sync).
+
+### Fixed
+
+- **recipes: install's message is no longer followed by "the recipe will resume".** The post-merge eval (CI run 37938113230)
+  caught `recipes-named` appending "…and only then resume the recipe's Prep → Cook → Plate steps" to install's message
+  (judge FAIL ×3). The skill said "the recipe resumes when install has completed" in three places and the model repeated it
+  to the user; those lines now tell the model not to announce a resume or name the steps. New deterministic grader
+  `no-step-names` (with fixtures) backs the judge; `no-cook-promise` missed this phrasing.
+- **poc-planner: a bare "how long" declines and then asks.** The same run caught a reply that declined correctly, asked no
+  question, and offered `/senzing:poc-planner` (the skill already running). The decline rule now says it is the first
+  paragraph of the reply, followed by step 2's four questions.
 
 ## [1.37.25] - 2026-10-09
 
