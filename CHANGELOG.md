@@ -10,7 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Bump to MCP server **v1.37.28** (lockstep sync); the plugin carries no code change.
+- Bump to MCP server **v1.37.28** (lockstep sync).
+
+### Fixed
+
+- **`install` asked for a language a recipe had already settled.** `install` said to always ask which
+  language; `recipes` said to ask only when neither the recipe nor the user names one, and otherwise
+  to say which language it will use. In the `recipes-named` eval, one of two runs followed `install`,
+  asked "Java or C#?" after calling `sdk_guide` with `language=java`, and failed the judge. `install`
+  now uses the language the user or the calling skill already named, and asks only if none was named.
 
 ## [1.37.27] - 2026-10-11
 
