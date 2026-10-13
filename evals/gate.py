@@ -62,12 +62,33 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 
 # The one fractional grader kind.  Everything else is a boolean obligation.
 JUDGE_TYPES = {"llm"}
 # Only the "with" arm is the plugin under test; an ablation arm is SUPPOSED to do worse.
 SUBJECT_ARM = "with"
+
+
+# The CLI's `tool_used` explanation, e.g. "Skill called 0x (expected 1..∞)".
+_TOOL_COUNT = re.compile(r"^(?P<tool>\S+) called (?P<n>\d+)x\b")
+
+
+def clarify_explanation(definition: dict | None, explanation: str) -> str:
+    """Say what a `tool_used` count means when the grader filters on `input_match`.
+
+    The CLI reports "Skill called 0x" when Skill fired but no call's input matched the
+    grader's `input_match`. Read literally that says the tool never ran, and it has cost
+    two separate wrong diagnoses (issue #45). The count is of MATCHING calls only.
+    """
+    config = (definition or {}).get("config") or {}
+    pattern = config.get("input_match")
+    m = _TOOL_COUNT.match(explanation or "")
+    if (definition or {}).get("type") != "tool_used" or not pattern or not m:
+        return explanation
+    return (f"{explanation} — counts only {m['tool']} calls whose input matched "
+            f"input_match /{pattern}/; {m['tool']} may have fired with other input")
 
 
 def _fmt(score: float | None) -> str:
@@ -91,7 +112,8 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
     had no skill tools.
     """
     blind_runs = blind_runs or set()
-    types = {g.get("name"): g.get("type") for g in case.get("graders") or []}
+    definitions = {g.get("name"): g for g in case.get("graders") or []}
+    types = {name: g.get("type") for name, g in definitions.items()}
     runs = (case.get("arms") or {}).get(SUBJECT_ARM) or []
 
     det_failures: dict[str, dict] = {}   # grader name -> {runs: [i, ...], why: str}
@@ -130,7 +152,8 @@ def evaluate_case(case: dict, blind_runs: set[int] | None = None) -> dict:
             if not g.get("passed"):
                 entry = det_failures.setdefault(name, {"runs": [], "why": ""})
                 entry["runs"].append(i)
-                entry["why"] = g.get("explanation") or entry["why"]
+                why = g.get("explanation")
+                entry["why"] = clarify_explanation(definitions.get(name), why) if why else entry["why"]
         if judged:
             # A run's judge verdict is boolean: EVERY llm grader passed, or the run failed
             # the judge. Not the fraction of llm graders that passed -- see the module

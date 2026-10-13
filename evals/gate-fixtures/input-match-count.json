@@ -1,0 +1,31 @@
+{
+  "_comment": "A tool_used grader with input_match whose tool DID fire, but never with matching input. The CLI explains this as 'Skill called 0x', which reads as 'Skill never ran' and cost two wrong diagnoses (issue #45). gate.py must say the count is of matching calls only.",
+  "costUsd": 1.0,
+  "partial": false,
+  "partialReason": null,
+  "aggregates": { "casesTotal": 1, "casesPassed": 0, "overallScore": 0.5 },
+  "cases": [
+    {
+      "name": "skill-fired-other-input",
+      "aggregates": { "score": 0.5 },
+      "graders": [
+        { "name": "doctor-invoked", "type": "tool_used",
+          "config": { "tool": "Skill", "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?doctor\"" } },
+        { "name": "install-invoked", "type": "tool_used",
+          "config": { "tool": "Skill", "input_match": "\"skill\"\\s*:\\s*\"(?:[\\w-]+:)?install\"" } }
+      ],
+      "arms": {
+        "with": [
+          {
+            "error": null,
+            "tracePath": "traces/connected.jsonl",
+            "graders": [
+              { "name": "doctor-invoked", "passed": true, "explanation": "Skill called 1x (expected 1..∞)" },
+              { "name": "install-invoked", "passed": false, "explanation": "Skill called 0x (expected 1..∞)" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

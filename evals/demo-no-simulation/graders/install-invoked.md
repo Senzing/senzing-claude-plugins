@@ -23,7 +23,7 @@ So assert that instead. The pattern is a verbatim copy of `install-eula/graders/
 which is the same obligation measured the same way elsewhere in the suite.
 
 Provably able to PASS by EITHER route: a run that invokes `install` ends on that skill's
-license-agreement question (`skills/demo/SKILL.md:87-92` guarantees it is the final message), and
+license-agreement question (`skills/demo/SKILL.md:116-117` guarantees it is the final message), and
 a run that hands the steps over directly passes iff it also linked the agreement.
 Provably able to FAIL: any reply that presents install steps without the agreement — which is the
 outcome that actually matters and which nothing deterministic asserted before.

@@ -19,6 +19,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   to say which language it will use. In the `recipes-named` eval, one of two runs followed `install`,
   asked "Java or C#?" after calling `sdk_guide` with `language=java`, and failed the judge. `install`
   now uses the language the user or the calling skill already named, and asks only if none was named.
+- **`demo` could skip the `install` hand-off because it already had the install steps (#45).**
+  `doctor`'s Step 0 calls `sdk_guide(topic="install")`, so the steps are in context before demo
+  reaches the hand-off; the failing run opened "I already have the install facts for this host"
+  and handed the steps over itself. The ban named only a fresh `sdk_guide` call, and the
+  "if you hand over install STEPS yourself" rule read as an approved second path. `demo` now
+  says holding the steps is not a substitute (`install` owns the license agreement, the
+  host-kind verdict and the verification) and that handing steps over is not an alternative.
+  The EULA-URL rule for any message that does show commands stays.
+- **`gate.py` explains `"Skill called 0x"`.** For a `tool_used` grader with `input_match`, the
+  CLI's count is of *matching* calls only, so a Skill that fired with other input reads as never
+  having run. The message comes from `claude plugin eval`; `gate.py` now appends what the count
+  means (fixture `input-match-count.json`).
 
 ## [1.37.27] - 2026-10-11
 
