@@ -3,6 +3,7 @@
 must_match:
 - and only then resume the recipe's Prep → Cook → Plate steps.
 - Once that is done I will start on Prep -> Cook -> Plate.
+- so the recipe's full Prep→Plate flow is reachable here once Senzing is installed.
 must_not_match:
 - Senzing is not installed on this host, so I can't cook the recipe; I'm handing off to install.
 - Please accept the license agreement at https://senzing.com/end-user-license-agreement/ and tell me which language you use.

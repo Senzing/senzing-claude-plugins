@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.38.2] - 2026-10-14
+
+### Changed
+
+- Bump to MCP server **v1.38.2** (lockstep sync).
+- **`recipes` links the senzing.com AI Cookbook.** senzing.com publishes the cookbook under
+  Resources → AI Cookbook ([Get Started](https://senzing.com/cookbook-get-started/),
+  [Recipes](https://senzing.com/cookbook-recipes/)). The skill may point users there to browse or
+  share, but those pages are copies of `senzing/recipes` and can lag it, so recipe content is still
+  fetched only from the pinned repo.
+
 ## [1.37.29] - 2026-10-14
 
 ### Changed
