@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: 'Prep\s*(?:→|->)\s*Cook'
+pattern: 'Prep\s*(?:→|->)\s*(?:Cook|Plate|Plus)'
 match: not_contains
 flags: i
 target: last_message
@@ -15,3 +15,7 @@ matches an "I'll install ... then cook" chain, not a bare mention of the steps. 
 announcement `criteria` forbids, so this is a deterministic backstop for that one phrase, not a new rule.
 
 Fixtures: `pattern-fixtures/no-step-names.yaml`.
+
+PR #72 (v1.38.2) eval: a run put "the recipe's full Prep→Plate flow is reachable here once Senzing is
+installed" ahead of install's message — `criteria` failed it 3 of 3 and this pattern, then `Prep → Cook` only,
+missed it. Any `Prep →` step chain is the same announcement, so the pattern now covers Cook, Plate and Plus.

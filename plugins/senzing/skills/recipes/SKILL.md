@@ -19,14 +19,16 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
 > **NO SENZING ON THIS HOST? FETCH THE RECIPE, CALL `Skill(senzing:install)`, AND LET ITS MESSAGE BE YOUR
 > ENTIRE REPLY.** After `doctor` reports no SDK and you have fetched the named recipe, the next tool call
 > is `Skill(senzing:install)` — you already hold install steps (doctor fetched them), which is not a reason
-> to write the install message yourself. When `install` returns, **add nothing to its message**: no recap of
+> to write the install message yourself. When `install` returns, **add nothing before or after its message** —
+> no doctor recap, no recipe summary ahead of it: no recap of
 > the recipe's Setup section, no "you'll also need your license file", no remark about the 500-record limit
 > or an evaluation license, no offer to fetch the ingredient CSVs. CI caught both: a reply that wrote the
 > install message itself, and one that invoked `install` and then appended "recipe handles up to 500 records
 > without a license" (false — this recipe loads ~1,600) plus an offer to fetch the ingredient files — Cook-step
 > content that is not yours to put to the user here. Do not tell the user the recipe will resume or is ready to cook once Senzing is installed, and do not
 > name its Prep → Cook → Plate steps anywhere in this reply — CI caught "…and only then resume the recipe's
-> Prep → Cook → Plate steps" appended to install's message, which announces the cook the user has not agreed to.
+> Prep → Cook → Plate steps" appended to install's message, and "the recipe's full Prep→Plate flow is reachable
+> here once Senzing is installed" prepended to it; both announce the cook the user has not agreed to.
 
 ## Recipe source
 
