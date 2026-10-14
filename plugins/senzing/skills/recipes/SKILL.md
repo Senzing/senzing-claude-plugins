@@ -47,6 +47,12 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
   reachability matters. `github.com` serves the cookbook to human readers and is not a
   prerequisite for cooking — plenty of corporate networks allow one and block the other — so do
   not probe it, and do not infer anything from it if something else did.
+- **senzing.com publishes the same cookbook for people to read** — the AI Cookbook, under
+  Resources: [Get Started](https://senzing.com/cookbook-get-started/) (the cookbook's own setup
+  walkthrough, not general Senzing onboarding) and [Recipes](https://senzing.com/cookbook-recipes/).
+  Those pages are copies of this repo and can lag it, so **never fetch them or take recipe content
+  from them** — the pinned raw base above is the only source. Link them for the user to browse or
+  share.
 - **Never call the cookbook unreachable without having attempted the catalog fetch.** A
   reachability probe is not a fetch. If the catalog does not pass the fetch validation below, say
   the cookbook is unreachable **and quote the URL and status you got** — do not just tell the
@@ -180,7 +186,9 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    list, so a change upstream degrades to "one fewer field" instead of a wrong label. Then ask
    which to cook, naming only titles and categories that appear in the fetched catalog. Do not
    suggest a use case the catalog does not list (this skill's description uses "fraud" only as an
-   example of how a user might ask; it is not a recipe). If one was named, skip to step 3.
+   example of how a user might ask; it is not a recipe). You may add one line pointing to
+   [the Recipes page on senzing.com](https://senzing.com/cookbook-recipes/) for browsing the same
+   catalog on the web. If one was named, skip to step 3.
 3. **Load the recipe.** Fetch and validate `recipes/<id>.md` per *Fetch verbatim*. Read the
    title and body. Show the user the
    recipe's identity up front: **title, the mission, a one-line take from the Chef's Note,
