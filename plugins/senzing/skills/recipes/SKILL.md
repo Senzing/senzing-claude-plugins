@@ -2,9 +2,9 @@
 name: recipes
 description: >
   Run a recipe from the Senzing Cookbook — a chef-authored, step-by-step solution that Claude
-  drives end to end against the user's own Senzing. Use when the user names a recipe or one of its
-  use cases (fraud, customer-360, compliance / exclusion screening, PPP-loan exploration), or asks
-  e.g. "show me the recipes", "run the customer 360 recipe", "senzing recipes". With no recipe
+  drives end to end against the user's own Senzing. Use when the user names a recipe, asks for one
+  by use case (e.g. "a customer 360 recipe", "is there a fraud recipe?" — the live catalog decides
+  what exists), or asks e.g. "show me the recipes", "run the customer 360 recipe", "senzing recipes". With no recipe
   named it lists the catalog and helps them choose. **Cook the recipe against Senzing — never
   produce its result by other means.** A recipe whose output you assembled yourself is not that
   recipe, however close the answer looks. Runs doctor first — a recipe ends in a served result,
@@ -178,7 +178,9 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    `**What you'll make:**` line. Show the title, that metadata line as-is, and the
    what-you'll-make line — render the fields the catalog actually carries rather than a fixed
    list, so a change upstream degrades to "one fewer field" instead of a wrong label. Then ask
-   which to cook. If one was named, skip to step 3.
+   which to cook, naming only titles and categories that appear in the fetched catalog. Do not
+   suggest a use case the catalog does not list (this skill's description uses "fraud" only as an
+   example of how a user might ask; it is not a recipe). If one was named, skip to step 3.
 3. **Load the recipe.** Fetch and validate `recipes/<id>.md` per *Fetch verbatim*. Read the
    title and body. Show the user the
    recipe's identity up front: **title, the mission, a one-line take from the Chef's Note,

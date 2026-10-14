@@ -88,6 +88,13 @@ second report.
    which path: invoke the **`install`** skill in this same turn, unasked. `install` surfaces the
    license agreement, runs the official steps, and verifies with `doctor`. Do not route around
    it by calling `sdk_guide(topic="install")` directly.
+   **Already holding the install steps is not a substitute for the hand-off.** `doctor`'s own
+   Step 0 called `sdk_guide(topic="install")`, so by now you know this host's platform id and
+   commands — "I already have the install facts for this host" is how this rule gets skipped.
+   `install` owns what those facts do not give you: the license agreement surfaced before
+   anything runs, the host-kind verdict (is this shell even the machine to install on?), and
+   verification that the library actually landed. Invoke it even when you already know every
+   step it would return; the hand-off costs one tool call and is the only path from here.
    **The trigger is the BLOCKER CLASS, not your verdict about it.** No SDK, a denied package
    host, a missing permission, a sandboxed shell, an egress rule you cannot lift — anything
    `install` itself would have to clear routes the same way. "Only the user can change this" is
@@ -98,8 +105,10 @@ second report.
    (If an evaluation license turns out to be needed, `submit_feedback(category='license_request')`
    requests one; its description states the current terms — do not quote a duration from memory.)
    Resume the demo the moment install completes.
-   **If you hand over install STEPS yourself, that same message carries the license-agreement
-   URL** — never "the EULA link is above". A reader acts on the message in front of them, and a
+   **Handing install STEPS over yourself is not an alternative to the hand-off** — it skips the
+   host-kind verdict and the verification. If any message of yours does show install commands
+   anyway, **that same message carries the license-agreement URL** — never "the EULA link is
+   above". A reader acts on the message in front of them, and a
    backward reference makes them scroll for the one thing they must agree to. The URL comes from
    `sdk_guide(topic="install")`; put it in the sentence that asks. Handing off to
    `/senzing:install` instead needs no URL from you — surfacing the agreement is that skill's

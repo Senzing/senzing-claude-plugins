@@ -201,6 +201,16 @@
         "judge below threshold",
         "poc-split-dissent/judge-no-schedule"
       ]
+    },
+    {
+      "name": "a tool_used count filtered by input_match says it counts only matching calls",
+      "fixture": "input-match-count.json",
+      "expected_cases": 1,
+      "rc": 1,
+      "must_contain": [
+        "skill-fired-other-input/install-invoked  failed 1 of 1 run(s) (#0): Skill called 0x (expected 1..∞) — counts only Skill calls whose input matched input_match",
+        "Skill may have fired with other input"
+      ]
     }
   ]
 }

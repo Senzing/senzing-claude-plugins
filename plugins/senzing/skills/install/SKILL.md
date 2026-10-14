@@ -64,9 +64,11 @@ else, they must tell you the path.
    pick the platform id from that tree — do not carry the ids from memory. If the host matches none
    of them cleanly (a distribution the tree doesn't name, an ambiguous package manager, an
    architecture the tree says has no native build), **ask the user or take the tree's Docker option
-   — do not guess an id.** Ask which language they intend to use; it changes what gets installed,
-   and the `compatibility_notes` that come back (only when `language` is passed) settle whether
-   that binding is supported on this platform.
+   — do not guess an id.** Use the language the user — or the skill that sent you here (e.g. a
+   recipe) — already named; only if none was named, ask, and say which one you will use if no
+   answer comes rather than stopping. It changes what gets installed, and the `compatibility_notes`
+   that come back (only when `language` is passed) settle whether that binding is supported on this
+   platform. Do not re-ask after `sdk_guide` has already been called with a `language`.
 
 2. **Get the official steps.** `sdk_guide(topic="install", platform=…, language=…)`. Use what it
    returns verbatim — install commands, environment variables, and the `direct_download` URLs it

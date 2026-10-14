@@ -6,6 +6,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.37.29] - 2026-10-14
+
+### Changed
+
+- Bump to MCP server **v1.37.29** (lockstep sync; 1.37.28 was never tagged for the plugin).
+
+### Fixed
+
+- **`install` asked for a language a recipe had already settled.** `install` said to always ask which
+  language; `recipes` said to ask only when neither the recipe nor the user names one, and otherwise
+  to say which language it will use. In the `recipes-named` eval, one of two runs followed `install`,
+  asked "Java or C#?" after calling `sdk_guide` with `language=java`, and failed the judge. `install`
+  now uses the language the user or the calling skill already named, and asks only if none was named.
+- **`demo` could skip the `install` hand-off because it already had the install steps (#45).**
+  `doctor`'s Step 0 calls `sdk_guide(topic="install")`, so the steps are in context before demo
+  reaches the hand-off; the failing run opened "I already have the install facts for this host"
+  and handed the steps over itself. The ban named only a fresh `sdk_guide` call, and the
+  "if you hand over install STEPS yourself" rule read as an approved second path. `demo` now
+  says holding the steps is not a substitute (`install` owns the license agreement, the
+  host-kind verdict and the verification) and that handing steps over is not an alternative.
+  The EULA-URL rule for any message that does show commands stays.
+- **`recipes` offered a "fraud" recipe the catalog does not have.** Browsing the cookbook, one run
+  closed with "name one (or a use case like 'fraud' or 'customer 360')"; there is no fraud recipe,
+  and the judge failed it. The word came from the skill's own description, which listed "fraud" as
+  one of the recipes' use cases. The description now uses it only as an example of how a user
+  might ask, and step 2 says the follow-up question names only titles and categories from the
+  fetched catalog.
+- **`gate.py` explains `"Skill called 0x"`.** For a `tool_used` grader with `input_match`, the
+  CLI's count is of *matching* calls only, so a Skill that fired with other input reads as never
+  having run. The message comes from `claude plugin eval`; `gate.py` now appends what the count
+  means (fixture `input-match-count.json`).
+
 ## [1.37.27] - 2026-10-11
 
 ### Changed
