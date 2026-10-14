@@ -27,6 +27,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   says holding the steps is not a substitute (`install` owns the license agreement, the
   host-kind verdict and the verification) and that handing steps over is not an alternative.
   The EULA-URL rule for any message that does show commands stays.
+- **`recipes` offered a "fraud" recipe the catalog does not have.** Browsing the cookbook, one run
+  closed with "name one (or a use case like 'fraud' or 'customer 360')"; there is no fraud recipe,
+  and the judge failed it. The word came from the skill's own description, which listed "fraud" as
+  one of the recipes' use cases. The description now uses it only as an example of how a user
+  might ask, and step 2 says the follow-up question names only titles and categories from the
+  fetched catalog.
 - **`gate.py` explains `"Skill called 0x"`.** For a `tool_used` grader with `input_match`, the
   CLI's count is of *matching* calls only, so a Skill that fired with other input reads as never
   having run. The message comes from `claude plugin eval`; `gate.py` now appends what the count
