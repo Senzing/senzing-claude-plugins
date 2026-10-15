@@ -26,6 +26,24 @@ rather than re-asking or choosing for them. **Any value you need whose text begi
 to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the plan somewhere
 else, they must tell you the path.
 
+**Invoked by another skill with arguments** (`<platform id> [language]`, shown below as `ARGUMENTS:` —
+e.g. `recipes` after `doctor` found no SDK): those arguments are **everything the caller decided** — take the platform
+from them, and **do not open, re-read or quote any file the caller fetched** (a recipe, a catalog, a data
+file) looking for more. That file is the caller's: its Setup and Cook content — a license file, the
+ingredient CSVs, the app it serves — is not yours to put in this message. CI caught it twice: an install
+hand-off that re-read the recipe right after this skill loaded, then appended "per the recipe's own Setup
+section, you'll need to attach your Senzing license file and the two ingredient CSVs", and another that
+used the re-read to pitch a binding as "the smoother fit for building the Customer 360 web app this
+recipe asks for".
+- **No language in the arguments means the caller decides it later** (a recipe's language is its own
+  Setup step) — do **not** ask about language, list bindings, or name a default. The platform's SDK
+  install is the same for every binding: install it from the platform-scoped `install` block.
+- **If this session already holds `sdk_guide(topic="install", platform=<that id>, …)`'s `install` block**
+  (`doctor` fetched it in its Step 0 moments ago), use it — do not call `sdk_guide` again or re-probe
+  the host.
+- Your message is then: the platform, the official install commands from that block, the EULA (step 3),
+  and **one** question — accept the EULA and proceed with the install? Nothing about the caller's task.
+
 ## Procedure
 
 0. **Is this shell the user's machine?** Reuse `doctor`'s Step-0 host-kind signals before anything
@@ -64,9 +82,10 @@ else, they must tell you the path.
    pick the platform id from that tree — do not carry the ids from memory. If the host matches none
    of them cleanly (a distribution the tree doesn't name, an ambiguous package manager, an
    architecture the tree says has no native build), **ask the user or take the tree's Docker option
-   — do not guess an id.** Use the language the user — or the skill that sent you here (e.g. a
-   recipe) — already named; only if none was named, ask, and say which one you will use if no
-   answer comes rather than stopping. It changes what gets installed, and the `compatibility_notes`
+   — do not guess an id.** Use the language the user named, or the one in a calling skill's
+   arguments (see *Inputs* — never go looking for one in the caller's files; a caller that passed
+   none decides it later, so do not ask). Only when the user invoked you directly and named none,
+   ask, and say which one you will use if no answer comes rather than stopping. It changes what gets installed, and the `compatibility_notes`
    that come back (only when `language` is passed) settle whether that binding is supported on this
    platform. Do not re-ask after `sdk_guide` has already been called with a `language`.
 

@@ -10,7 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Bump to MCP server **v1.39.0** (lockstep sync); the plugin carries no code change.
+- Bump to MCP server **v1.39.0** (lockstep sync).
+
+### Fixed
+
+- **`recipes` → `install` hand-off no longer re-reads the recipe.** On a host with no Senzing, `install`'s
+  "use the language the calling skill named" sent the model back into the fetched recipe right after
+  `install` loaded; the re-read then leaked Cook-step content into install's message (the recipe's Setup
+  section — license file, ingredient CSVs — and a language menu pitched at the recipe's web app), failing
+  `recipes-named` in both PR #73 eval runs. `recipes` now passes doctor's platform id as `install`'s only
+  argument (language is the recipe's own Setup decision), and `install` treats a calling skill's arguments
+  as complete: it never opens the caller's files, does not ask about language when none was passed, and
+  reuses doctor's platform-scoped `sdk_guide` result — so its message is the plan, the EULA and one question.
 
 ## [1.38.2] - 2026-10-14
 
