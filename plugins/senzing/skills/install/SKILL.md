@@ -26,6 +26,25 @@ rather than re-asking or choosing for them. **Any value you need whose text begi
 to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the plan somewhere
 else, they must tell you the path.
 
+**Invoked by another skill with arguments** (`<platform id> [language]`, shown below as `ARGUMENTS:` —
+e.g. `recipes` after `doctor` found no SDK; arguments that merely echo the user's own words, such as
+`Python` from "I'll be using Python", are the user's request, not a caller's — this block does not apply): those arguments are **everything the caller decided** — take the platform
+from them, and **do not open, re-read or quote any file the caller fetched** (a recipe, a catalog, a data
+file) looking for more. That file is the caller's: its Setup and Cook content — a license file, the
+ingredient CSVs, the app it serves — is not yours to put in this message. CI caught it twice: an install
+hand-off that re-read the recipe right after this skill loaded, then appended "per the recipe's own Setup
+section, you'll need to attach your Senzing license file and the two ingredient CSVs", and another that
+used the re-read to pitch a binding as "the smoother fit for building the Customer 360 web app this
+recipe asks for".
+- **No language in the arguments means the caller decides it later** (a recipe's language is its own
+  Setup step) — do **not** ask about language, list bindings, or name a default. The platform's SDK
+  install is the same for every binding: install it from the platform-scoped `install` block.
+- **If this session already holds `sdk_guide(topic="install", platform=<that id>, …)`'s `install` block**
+  (`doctor` fetched it in its Step 0 moments ago), use it — do not call `sdk_guide` again or re-probe
+  the host.
+- Your message is then: the platform, the official install commands from that block, the EULA (step 3),
+  and **one** question — accept the EULA and proceed with the install? Nothing about the caller's task.
+
 ## Procedure
 
 0. **Is this shell the user's machine?** Reuse `doctor`'s Step-0 host-kind signals before anything
@@ -64,9 +83,10 @@ else, they must tell you the path.
    pick the platform id from that tree — do not carry the ids from memory. If the host matches none
    of them cleanly (a distribution the tree doesn't name, an ambiguous package manager, an
    architecture the tree says has no native build), **ask the user or take the tree's Docker option
-   — do not guess an id.** Use the language the user — or the skill that sent you here (e.g. a
-   recipe) — already named; only if none was named, ask, and say which one you will use if no
-   answer comes rather than stopping. It changes what gets installed, and the `compatibility_notes`
+   — do not guess an id.** Use the language the user named, or the one in a calling skill's
+   arguments (see *Inputs* — never go looking for one in the caller's files; a caller that passed
+   none decides it later, so do not ask). Only when the user invoked you directly and named none,
+   ask, and say which one you will use if no answer comes rather than stopping. It changes what gets installed, and the `compatibility_notes`
    that come back (only when `language` is passed) settle whether that binding is supported on this
    platform. Do not re-ask after `sdk_guide` has already been called with a `language`.
 
@@ -138,3 +158,23 @@ you are recommending, and **the EULA** (step 3). An answer that names a blocker 
 option would you like?" without the steps and the license leaves them with a question and
 nothing to act on — and in any non-interactive context no answer is coming, so that is where the
 run ends.
+
+**The blocker reply has a fixed shape — these five parts, in this order, every time:**
+1. **Host** — one line: the platform id and the host-kind verdict (step 0).
+2. **Blocker** — one line, quoting the `compatibility_notes` or `gotchas` entry that names it.
+3. **Recommended path, with its official commands.** Pick **one** path — for an unsupported
+   platform/language pair, the one the notes offer that keeps the user's language (the Docker
+   platform for a Linux-only binding). Call `sdk_guide(topic="install", platform=<that path>,
+   language=…)` and paste its install commands — the whole sequence it returns for this host's
+   architecture, including the steps it says to run inside a container — **verbatim in a fenced code
+   block**. Never defer them ("I'll pull those exact commands once we're ready"). A missing
+   prerequisite for that path (Docker not installed) is one line above the block, never a reason to
+   drop it: the user installs the prerequisite, then runs these. CI caught a reply that probed for
+   Docker, found none, and ended on "install Docker yourself, or use a different language?" with no
+   commands at all — the judge failed it 3 of 3, and three earlier runs of the same shape had passed
+   only by luck.
+4. **The EULA** (step 3), by its URL.
+5. **One closing question:** accept the EULA and go ahead with the recommended path? Offer no other
+   path or language here — the user's language stands, and part 2 may state the fact that other
+   bindings are native here; if they want one, they will say so. A second option beside the EULA
+   question turns the license answer into a fork (step 3's contract).

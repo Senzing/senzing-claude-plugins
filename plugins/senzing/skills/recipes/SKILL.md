@@ -18,8 +18,13 @@ allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), WebFetch(dom
 
 > **NO SENZING ON THIS HOST? FETCH THE RECIPE, CALL `Skill(senzing:install)`, AND LET ITS MESSAGE BE YOUR
 > ENTIRE REPLY.** After `doctor` reports no SDK and you have fetched the named recipe, the next tool call
-> is `Skill(senzing:install)` — you already hold install steps (doctor fetched them), which is not a reason
-> to write the install message yourself. When `install` returns, **add nothing before or after its message** —
+> is `Skill(senzing:install)` with `args` = **doctor's platform id and nothing else** (e.g. `"macos_arm"`) —
+> no language: the recipe's language is its Setup decision (step 4), made when you cook, not install's
+> question now. You already hold install steps (doctor fetched them), which is not a reason
+> to write the install message yourself. **After `install` loads, do not open the recipe file again** —
+> CI caught two runs that re-read it right after `install` loaded, then mined it for a language menu ("the
+> smoother fit for building the Customer 360 web app this recipe asks for") and for its Setup section
+> ("attach your Senzing license file and the two ingredient CSVs"). When `install` returns, **add nothing before or after its message** —
 > no doctor recap, no recipe summary ahead of it: no recap of
 > the recipe's Setup section, no "you'll also need your license file", no remark about the 500-record limit
 > or an evaluation license, no offer to fetch the ingredient CSVs. CI caught both: a reply that wrote the
@@ -153,8 +158,8 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      CI caught a run that, holding those steps, wrote the install message itself and ended it
      with "attach a license file, or I can request a free evaluation license" plus an offer to
      fetch the recipe's ingredient files: a Cook-step license choice and an offer to cook. Your next
-     action after fetching the recipe is `Skill(senzing:install)`; its first message is the one
-     the user reads. **Hand off; do not
+     action after fetching the recipe is `Skill(senzing:install)` with `args` set to doctor's
+     platform id only (no language — see the banner); its first message is the one the user reads. **Hand off; do not
      run the install flow yourself in the message, and do not announce the cook.** A reply that stops on a menu
      ("Before I can cook, three things need your input: the license agreement, your language, whether you have a
      license file or want the evaluation one") and ends "Once I have those, I'll install Senzing + Java, stand up a

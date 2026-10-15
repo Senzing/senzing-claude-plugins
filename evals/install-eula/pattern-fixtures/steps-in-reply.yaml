@@ -1,0 +1,8 @@
+# Fixtures for graders/steps-in-reply.md.
+# must_match: the shape the skill requires (hand-written from a passing reply's structure).
+# must_not_match: the closing of the failing PR #73 run-0 reply (real), and an inline-backtick mention.
+must_match:
+- "Recommended path (Docker):\n```bash\ndocker pull senzing/senzingsdk-runtime\n```\nInstalling Senzing requires accepting the EULA: https://senzing.com/end-user-license-agreement/"
+must_not_match:
+- "And separately: would you like to: 1. Install Docker Desktop (or Colima/Podman) yourself, then have me continue the Senzing install inside a Linux container, or 2. Use a different language instead that's natively supported on macOS (Java or C#), avoiding containers entirely?"
+- Docker Desktop (`docker`) needs to be installed first.

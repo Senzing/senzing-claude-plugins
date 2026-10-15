@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.39.0] - 2026-10-15
+
+### Changed
+
+- Bump to MCP server **v1.39.0** (lockstep sync).
+
+### Fixed
+
+- **`recipes` → `install` hand-off no longer re-reads the recipe.** On a host with no Senzing, `install`'s
+  "use the language the calling skill named" sent the model back into the fetched recipe right after
+  `install` loaded; the re-read then leaked Cook-step content into install's message (the recipe's Setup
+  section — license file, ingredient CSVs — and a language menu pitched at the recipe's web app), failing
+  `recipes-named` in both PR #73 eval runs. `recipes` now passes doctor's platform id as `install`'s only
+  argument (language is the recipe's own Setup decision), and `install` treats a calling skill's arguments
+  as complete: it never opens the caller's files, does not ask about language when none was passed, and
+  reuses doctor's platform-scoped `sdk_guide` result — so its message is the plan, the EULA and one question.
+- **`install`'s blocker reply has a fixed shape.** On Python-on-macOS with no Docker, a reply ended on "install
+  Docker yourself, or use a different language?" with no install commands (`install-eula` judge 3/3 FAIL; the
+  same no-commands shape had slipped past the judge in three earlier CI runs). The reply is now host, blocker,
+  the recommended path's official commands verbatim in a code block (a missing prerequisite is a line above it,
+  not a reason to drop it), the EULA, and one question; `install-eula` gains a deterministic `steps-in-reply`
+  grader. The caller-arguments rule is scoped to skill callers — args that echo the user's words do not trigger it.
+
 ## [1.38.2] - 2026-10-14
 
 ### Changed
