@@ -27,7 +27,8 @@ to `/senzing:poc-planner` — never fill it in yourself.** If the user wrote the
 else, they must tell you the path.
 
 **Invoked by another skill with arguments** (`<platform id> [language]`, shown below as `ARGUMENTS:` —
-e.g. `recipes` after `doctor` found no SDK): those arguments are **everything the caller decided** — take the platform
+e.g. `recipes` after `doctor` found no SDK; arguments that merely echo the user's own words, such as
+`Python` from "I'll be using Python", are the user's request, not a caller's — this block does not apply): those arguments are **everything the caller decided** — take the platform
 from them, and **do not open, re-read or quote any file the caller fetched** (a recipe, a catalog, a data
 file) looking for more. That file is the caller's: its Setup and Cook content — a license file, the
 ingredient CSVs, the app it serves — is not yours to put in this message. CI caught it twice: an install
@@ -157,3 +158,23 @@ you are recommending, and **the EULA** (step 3). An answer that names a blocker 
 option would you like?" without the steps and the license leaves them with a question and
 nothing to act on — and in any non-interactive context no answer is coming, so that is where the
 run ends.
+
+**The blocker reply has a fixed shape — these five parts, in this order, every time:**
+1. **Host** — one line: the platform id and the host-kind verdict (step 0).
+2. **Blocker** — one line, quoting the `compatibility_notes` or `gotchas` entry that names it.
+3. **Recommended path, with its official commands.** Pick **one** path — for an unsupported
+   platform/language pair, the one the notes offer that keeps the user's language (the Docker
+   platform for a Linux-only binding). Call `sdk_guide(topic="install", platform=<that path>,
+   language=…)` and paste its install commands — the whole sequence it returns for this host's
+   architecture, including the steps it says to run inside a container — **verbatim in a fenced code
+   block**. Never defer them ("I'll pull those exact commands once we're ready"). A missing
+   prerequisite for that path (Docker not installed) is one line above the block, never a reason to
+   drop it: the user installs the prerequisite, then runs these. CI caught a reply that probed for
+   Docker, found none, and ended on "install Docker yourself, or use a different language?" with no
+   commands at all — the judge failed it 3 of 3, and three earlier runs of the same shape had passed
+   only by luck.
+4. **The EULA** (step 3), by its URL.
+5. **One closing question:** accept the EULA and go ahead with the recommended path? Offer no other
+   path or language here — the user's language stands, and part 2 may state the fact that other
+   bindings are native here; if they want one, they will say so. A second option beside the EULA
+   question turns the license answer into a fork (step 3's contract).
