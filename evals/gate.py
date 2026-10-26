@@ -277,6 +277,41 @@ def session_defects(report: dict, base_dir: str | None = None) -> tuple[list[dic
     return defects, counts
 
 
+# Suite-level structural failures. A retry of individual cases cannot repair any of these:
+# missing cases are a layout regression, a partial run hit the cost ceiling, and "no trace
+# readable" means the gate had no evidence for ANY case. They fail the suite outright.
+_SUITE_LEVEL = {"structural: cases missing", "structural: partial run",
+                "structural: no session traces readable"}
+
+
+def retry_candidates(cases: list[dict], tripped: list[tuple[int, str]],
+                     judge_threshold: float, enforce_judge: bool) -> tuple[list[str], list[str]]:
+    """The cases that failed this run and may be re-run ONCE (issue #79).
+
+    A single un-retried agent run used to decide the gate, so a version-only PR went red on
+    whichever case drew a bad sample that time (`build` making no MCP call in 1 of 2 runs,
+    `poc-planner-grounded` dipping under the judge threshold). run.sh re-runs exactly these
+    cases once and the suite fails if any of them fails AGAIN. The retry is graded by this
+    same script with the same thresholds -- every deterministic grader in every run, the
+    judge against its own threshold -- so nothing here is softened; it only stops one sample
+    from being the whole measurement.
+
+    A case is a candidate when it failed for a per-case reason: a deterministic assertion, a
+    run error, a run with no MCP tools, or (only when the judge is enforced) a judge score
+    below threshold. Suite-level structural failures return no candidates at all.
+    """
+    blocked_by = sorted(label for _, label in tripped if label in _SUITE_LEVEL)
+    if blocked_by:
+        return [], blocked_by
+    retry = []
+    for c in cases:
+        judge_low = (enforce_judge and c["judge"] is not None
+                     and c["judge"] < judge_threshold)
+        if c["det_failures"] or c["errors"] or c.get("blind_runs") or judge_low:
+            retry.append(c["name"])
+    return retry, []
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("result_json")
@@ -287,6 +322,10 @@ def main() -> int:
                          "CLI records the judge's VOTES but not its reasoning, so a judge FAIL "
                          "is not diagnosable from the artifact and cannot be a merge gate yet. "
                          "It is still reported, loudly, and nothing averages it away.")
+    ap.add_argument("--retry-list", metavar="PATH",
+                    help="write the names of the cases that failed THIS run, one per line, to "
+                         "PATH (empty when nothing may be retried). run.sh re-runs exactly "
+                         "those cases once; see retry_candidates().")
     ap.add_argument("--quiet", action="store_true", help="omit the per-case table")
     ap.add_argument("--summary-title", default="Behavioral eval",
                     help="heading this verdict is filed under in GITHUB_STEP_SUMMARY. Two "
@@ -475,6 +514,17 @@ def main() -> int:
                           for n in sorted(c["det_failures"])),
               file=sys.stderr)
         tripped.append((1, "deterministic assertion failed"))
+
+    if args.retry_list:
+        retry, blocked_by = retry_candidates(cases, tripped, args.judge_threshold,
+                                             args.enforce_judge)
+        with open(args.retry_list, "w", encoding="utf-8") as fh:
+            fh.write("".join(f"{name}\n" for name in retry))
+        if blocked_by:
+            print(f"RETRY none — a suite-level failure is not a per-case flake: "
+                  f"{'; '.join(blocked_by)}")
+        elif retry:
+            print(f"RETRY candidates  {', '.join(retry)}")
 
     if not tripped:
         return 0

@@ -16,14 +16,18 @@ The fixtures encode the failure modes that actually happened, not hypotheticals:
   * structural-and-deterministic
                           — both at once: the exit code must be the highest of the two, so a
                             run that never completed does not report as an assertion defect
+  * `retry` (issue #79)   — which cases run.sh may re-run once: exactly the cases that failed
+                            for a per-case reason, and none at all after a suite-level failure
 
 Exit 1 on any mismatch.
 """
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,9 +46,19 @@ def main() -> int:
                str(check["expected_cases"])]
         if check.get("enforce_judge"):
             cmd.append("--enforce-judge")
+        retry_path = None
+        if "retry" in check:
+            fd, retry_path = tempfile.mkstemp(prefix="gate-retry-")
+            os.close(fd)
+            cmd += ["--retry-list", retry_path]
         proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
         out = proc.stdout + proc.stderr
         problems = []
+        if retry_path:
+            got = Path(retry_path).read_text(encoding="utf-8").split()
+            os.unlink(retry_path)
+            if got != check["retry"]:
+                problems.append(f"retry list {got}, expected {check['retry']}")
         if proc.returncode != check["rc"]:
             problems.append(f"exit {proc.returncode}, expected {check['rc']}")
         for needle in check.get("must_contain", []):
