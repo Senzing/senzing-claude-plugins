@@ -116,6 +116,17 @@ a single run: the **highest** code is returned and the closing `gate verdict:` l
 gate that tripped, so a run that errored *and* had a red assertion reports `2` (fix the run
 first) rather than sending the reader after an assertion the suite never finished measuring.
 
+**One retry of the failed cases (issue #79).** A single un-retried agent run used to decide the
+gate, so version-only sync PRs went red on whichever case drew a bad sample (`build` with no MCP
+call in 1 of 2 runs; `poc-planner-grounded` under the judge line). `gate.py --retry-list` names
+the cases that failed for a per-case reason (deterministic assertion, run error, a run with no MCP
+tools, or an enforced judge miss); `run.sh` re-runs each of them **once**, through itself, with
+the same models, `--runs` and thresholds, and fails if any fails again. The retry must pass the
+whole gate on its own — nothing is averaged across attempts. Suite-level failures (cases missing,
+partial run, no readable trace) are never retried. A pass on retry is still a `::warning:: FLAKY`
+line, and each retry's verdict is filed in the step summary. `--case` runs and
+`EVAL_RETRY_FAILED=0` do not retry.
+
 A case may carry several `llm` graders; a run's judge verdict is then *every* llm grader passed,
 never the fraction that did, and each failing one is reported by name and run.
 

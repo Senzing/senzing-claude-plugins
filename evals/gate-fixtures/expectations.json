@@ -211,6 +211,74 @@
         "skill-fired-other-input/install-invoked  failed 1 of 1 run(s) (#0): Skill called 0x (expected 1..∞) — counts only Skill calls whose input matched input_match",
         "Skill may have fired with other input"
       ]
+    },
+    {
+      "name": "retry: a failed deterministic case is the one case run.sh may re-run once",
+      "fixture": "masked-deterministic.json",
+      "expected_cases": 1,
+      "rc": 1,
+      "retry": [
+        "masked-by-the-judge"
+      ],
+      "must_contain": [
+        "RETRY candidates  masked-by-the-judge"
+      ]
+    },
+    {
+      "name": "retry: an enforced judge miss is retryable, and is graded at the same threshold on the retry",
+      "fixture": "judge-only.json",
+      "expected_cases": 1,
+      "rc": 3,
+      "enforce_judge": true,
+      "retry": [
+        "judge-dissents"
+      ]
+    },
+    {
+      "name": "retry: a reported-only judge dissent is not a failure, so nothing is retried",
+      "fixture": "judge-only.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "retry": []
+    },
+    {
+      "name": "retry: a run with no MCP tools is retryable (it measured nothing)",
+      "fixture": "mcp-blind.json",
+      "expected_cases": 1,
+      "rc": 2,
+      "retry": [
+        "blind-and-good"
+      ]
+    },
+    {
+      "name": "retry: a partial run is suite-level, never retried case by case",
+      "fixture": "partial-run.json",
+      "expected_cases": 1,
+      "rc": 2,
+      "retry": [],
+      "must_contain": [
+        "RETRY none"
+      ]
+    },
+    {
+      "name": "retry: missing cases are a layout regression, never retried",
+      "fixture": "all-clean.json",
+      "expected_cases": 2,
+      "rc": 2,
+      "retry": [],
+      "must_contain": [
+        "RETRY none"
+      ]
+    },
+    {
+      "name": "retry: a clean run retries nothing",
+      "fixture": "all-clean.json",
+      "expected_cases": 1,
+      "rc": 0,
+      "retry": [],
+      "must_not_contain": [
+        "RETRY"
+      ]
     }
   ]
 }

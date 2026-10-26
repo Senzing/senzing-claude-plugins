@@ -24,6 +24,8 @@
 #        EVAL_JUDGE_ENFORCE=1 makes the judge score a hard gate too (default: reported only)
 #        EVAL_CONCURRENCY (default 3)  EVAL_JSON (default <evals>/results/ci.json)
 #        EVAL_MODEL (default sonnet)   EVAL_JUDGE_MODEL (default claude-opus-5)
+#        EVAL_RETRY_FAILED (default 1): re-run each FAILED case once; 0 disables (issue #79)
+#        EVAL_SUMMARY_TITLE (default "Behavioral eval"): GITHUB_STEP_SUMMARY heading
 # Needs: ANTHROPIC_API_KEY (or a logged-in claude), the sandbox backend for Bash grants
 #        (macOS: built in; Linux: bubblewrap + socat), and network to mcp.senzing.com.
 set -euo pipefail
@@ -273,7 +275,9 @@ if [ "$(_ver_key "$cli_version")" -lt "$(_ver_key "$min_cli")" ]; then
 fi
 echo "== claude CLI $cli_version (floor $min_cli) =="
 
-log="$results_dir/ci.log"
+# Next to the result JSON, so a retry (below) does not overwrite the first attempt's log.
+# The default EVAL_JSON keeps this at results/ci.log, where it always was.
+log="${json_out%.json}.log"
 set +e
 claude plugin eval "${args[@]}" "$@" 2>&1 | tee "$log"
 rc=${PIPESTATUS[0]}
@@ -296,7 +300,13 @@ fi
 # The verdict: two independent gates (deterministic hard, judge scored) plus the discovery
 # and partial-run checks. gate.py is unit-tested offline by scripts/check-eval-gate.py, which
 # check.sh runs on every commit — so the scoring logic itself never needs a paid run to verify.
-gate_args=("$json_out" "$expected" --judge-threshold "$judge_threshold")
+retry_file="${json_out%.json}.retry"
+gate_args=("$json_out" "$expected" --judge-threshold "$judge_threshold"
+           --summary-title "${EVAL_SUMMARY_TITLE:-Behavioral eval}")
+# Ask for the retry list only when this run may act on it (see the retry block below).
+if [ "${EVAL_RETRY_FAILED:-1}" != "0" ] && [ -z "$case_glob" ]; then
+  gate_args+=(--retry-list "$retry_file")
+fi
 if [ -n "${EVAL_JUDGE_ENFORCE:-}" ] && [ "${EVAL_JUDGE_ENFORCE}" != "0" ]; then
   gate_args+=(--enforce-judge)
 fi
@@ -304,6 +314,48 @@ set +e
 python3 "$here/gate.py" "${gate_args[@]}"
 gate_rc=$?
 set -e
+
+# ONE RETRY OF THE FAILED CASES (issue #79). One un-retried agent run used to decide the
+# gate, so version-only sync PRs went red on whichever case drew a bad sample that time
+# (`build` making no MCP call in 1 of 2 runs; `poc-planner-grounded` under the judge line).
+# Each case gate.py listed is re-run ONCE through this same script -- same staging, same
+# models, same --runs, graded by the same gate.py with the same thresholds -- and the suite
+# fails if ANY of them fails again. Nothing is averaged across attempts: the retry must pass
+# the whole gate on its own. gate.py lists nothing after a suite-level failure (cases
+# missing, partial run, no readable trace), so those still fail outright.
+#
+# Not retried when the caller narrowed the run with --case (a targeted run, e.g. the CI
+# canary, wants the raw answer) or when EVAL_RETRY_FAILED=0. The first attempt's failures
+# are always reported as a ::warning:: even when the retry passes, so a flaky case stays
+# visible instead of being absorbed.
+if [ "$gate_rc" -ne 0 ] && [ "${EVAL_RETRY_FAILED:-1}" != "0" ] && [ -z "$case_glob" ] \
+   && [ -s "$retry_file" ]; then
+  retry_rc=0
+  retried=()
+  still_failing=()
+  while IFS= read -r retry_case; do
+    [ -n "$retry_case" ] || continue
+    retried+=("$retry_case")
+    echo "== RETRY (once): $retry_case failed the first attempt; re-running it =="
+    set +e
+    EVAL_RETRY_FAILED=0 EVAL_JSON="$results_dir/retry-$retry_case.json" \
+      EVAL_SUMMARY_TITLE="${EVAL_SUMMARY_TITLE:-Behavioral eval} - retry of $retry_case" \
+      bash "$here/run.sh" --case "$retry_case" "$@"
+    one_rc=$?
+    set -e
+    if [ "$one_rc" -ne 0 ]; then
+      still_failing+=("$retry_case")
+      if [ "$retry_rc" -eq 0 ]; then retry_rc=$one_rc; fi
+    fi
+  done < "$retry_file"
+  if [ "${#still_failing[@]}" -ne 0 ]; then
+    echo "::error::failed on BOTH attempts: ${still_failing[*]} — not a one-off sample" >&2
+    exit "$retry_rc"
+  fi
+  echo "::warning::FLAKY, passed on retry: ${retried[*]} failed the first attempt (gate exit $gate_rc) and passed a full re-run. See the first attempt's verdict above and its traces in the artifact." >&2
+  exit "$rc"
+fi
+
 # A gate failure wins; otherwise propagate whatever the CLI itself said (a crash, a budget
 # abort). The CLI's own --threshold is 0, so its exit code no longer carries a score verdict.
 if [ "$gate_rc" -ne 0 ]; then exit "$gate_rc"; fi

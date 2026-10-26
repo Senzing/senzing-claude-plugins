@@ -488,6 +488,10 @@ jobs:
         # said every `tool_used` MCP grader failed while every `regex`-on-trace one
         # passed, and there was no way to tell "the MCP was never called" from "it was
         # called differently than the grader expected".
+        #
+        # A case that fails is re-run ONCE by run.sh, and the step fails only if it fails
+        # again (issue #79; see "One retry of the failed cases" in evals/README.md). The
+        # retry is graded by the same gate.py at the same thresholds and must pass on its own.
         run: bash evals/run.sh --keep-temp
 
       - name: build case — the generated SDK file must actually be valid Python
