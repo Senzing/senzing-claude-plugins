@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/Claude_Code-2.1.143%2B-F57826?style=flat-square&labelColor=0F0D0C" alt="Requires Claude Code 2.1.143 or newer">
   <img src="https://img.shields.io/badge/MCP_auth-none-F57826?style=flat-square&labelColor=0F0D0C" alt="Senzing MCP authentication: none">
   <img src="https://img.shields.io/badge/License-Proprietary-F57826?style=flat-square&labelColor=0F0D0C" alt="License: Proprietary">
-  <a href="https://github.com/Senzing/senzing-claude-plugins/tags"><img src="https://img.shields.io/github/v/tag/Senzing/senzing-claude-plugins?filter=senzing--v*&label=plugin&style=flat-square&color=F57826&labelColor=0F0D0C" alt="Latest plugin tag"></a>
+  <a href="https://github.com/Senzing/senzing-claude-plugins/tags"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FSenzing%2Fsenzing-claude-plugins%2Fmain%2Fplugins%2Fsenzing%2F.claude-plugin%2Fplugin.json&query=%24.version&label=plugin&prefix=v&style=flat-square&color=F57826&labelColor=0F0D0C" alt="Plugin version"></a>
 </p>
 
 <p align="center">
