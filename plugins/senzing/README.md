@@ -1,6 +1,34 @@
-# Senzing
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../../assets/senzing-logo-dark-theme.png">
+    <img src="../../assets/senzing-logo-light-theme.png" alt="Senzing" width="240">
+  </picture>
+</p>
 
-**Entity resolution: point Claude at your data, it does the work, and you have results today.**
+<h1 align="center">Senzing</h1>
+
+<p align="center">
+  <b>Entity resolution: point Claude at your data, it does the work, and you have results today.</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Claude_Code-2.1.143%2B-F57826?style=flat-square&labelColor=0F0D0C" alt="Requires Claude Code 2.1.143 or newer">
+  <img src="https://img.shields.io/badge/MCP_auth-none-F57826?style=flat-square&labelColor=0F0D0C" alt="Senzing MCP authentication: none">
+  <img src="https://img.shields.io/badge/License-Proprietary-F57826?style=flat-square&labelColor=0F0D0C" alt="License: Proprietary">
+  <a href="https://github.com/Senzing/senzing-claude-plugins/tags"><img src="https://img.shields.io/github/v/tag/Senzing/senzing-claude-plugins?filter=senzing--v*&label=plugin&style=flat-square&color=F57826&labelColor=0F0D0C" alt="Latest plugin tag"></a>
+</p>
+
+<p align="center">
+  <a href="#commands">Commands</a> ·
+  <a href="#where-it-runs">Where it runs</a> ·
+  <a href="#requirements">Requirements</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#data">Data</a> ·
+  <a href="#troubleshooting">Troubleshooting</a> ·
+  <a href="#support">Support</a>
+</p>
+
+<img src="../../assets/ember-rule.svg" alt="" width="100%" height="4">
 
 Senzing entity resolution finds, deduplicates, links, and resolves person and organization records
 within and across data sources — building an identity-resolved graph with no training or
