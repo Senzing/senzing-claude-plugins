@@ -76,7 +76,9 @@ entities"). If none is given, ask what they want to see before running anything.
 2. For entity questions, generate read-only `search` / `why` / `how` scripts via `sdk_guide` /
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,
-   quality, evaluation) for the SQL and schema, and run it against the user's database. If a query
+   quality, evaluation) for the SQL and schema, and run it against the user's database. If the
+   user names their platform (e.g. Snowflake crosswalk reporting), pass `environment` and state
+   the returned `environment_note` rules to them in your reply. If a query
    sweep runs long, **narrate progress as a compact visual, unprompted** — a one-line stat line or
    micro-table of real numbers as each result lands, not silence and not prose (see the `demo`
    skill's progress guidance). Informational, never a gate.

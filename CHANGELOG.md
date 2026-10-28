@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.41.0] - 2026-10-28
+
+### Changed
+
+- Bump to MCP server **v1.41.0**.
+- `analyze`, `build`, `install` and `report` skills pass the server's optional `environment`
+  argument (`snowflake`, `aws_lambda`, `azure_functions`, `kafka`, `spark`) when the user names where
+  they run, and state the returned `environment_note` rules in their reply. `analyze` exports each
+  table sample to CSV locally, named after the table, and runs one `mapping_workflow` over related
+  tables.
+
 ## [1.40.10] - 2026-10-27
 
 ### Changed
