@@ -73,7 +73,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
-- **`recipes` → `install` hand-off no longer re-reads the recipe.** On a host with no Senzing, `install`'s
+- **`recipes` → `install` hand-off no longer re-reads the recipe.** On a host with no SENZING® SDK, `install`'s
   "use the language the calling skill named" sent the model back into the fetched recipe right after
   `install` loaded; the re-read then leaked Cook-step content into install's message (the recipe's Setup
   section — license file, ingredient CSVs — and a language menu pitched at the recipe's web app), failing
@@ -85,7 +85,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Docker yourself, or use a different language?" with no install commands (`install-eula` judge 3/3 FAIL; the
   same no-commands shape had slipped past the judge in three earlier CI runs). The reply is now host, blocker,
   the recommended path's official commands verbatim in a code block (a missing prerequisite is a line above it,
-  not a reason to drop it), the EULA, and one question; `install-eula` gains a deterministic `steps-in-reply`
+  not a reason to drop it), the EULA and one question; `install-eula` gains a deterministic `steps-in-reply`
   grader. The caller-arguments rule is scoped to skill callers — args that echo the user's words do not trigger it.
 
 ## [1.38.2] - 2026-10-14
@@ -500,7 +500,7 @@ Plugin-only patch on server 1.37.19 (skills, graders, validator; no server chang
 - **Retrieved figures may not go in a table.** `poc-planner` rule 4 requires every Senzing
   figure to carry its quotation and source on the same line, and a table cell has no room for
   either — so a sizing table (`| Database IOPS per record | 100-200 IOPS |`) silently strips the
-  attribution and republishes Senzing's number as the plan's own recommendation, which is the
+  attribution and republishes the Senzing number as the plan's own recommendation, which is the
   one thing §6 exists to prevent. A citation above the table does not reach its rows. Those
   figures are now required as prose.
 
@@ -546,7 +546,7 @@ Plugin-only patch on server 1.37.19 (skills, graders, validator; no server chang
   one skill still carrying it, missed when the other seven were done in `1.37.13-3` because it
   was not in that round's finding list. Writing the plan file now prompts, which is the right
   shape for the single deliberate write a planning run makes.
-- **`/senzing:demo` told users that Senzing's synthetic truth set was real data.** The skill
+- **`/senzing:demo` told users that the Senzing synthetic truth set was real data.** The skill
   defaults to `truthset` when no dataset is named — it is the smallest — and then instructed:
   *"Describe the data honestly: it is **real data** for evaluation (tell the user so, as the
   tool requires)."* That was true of the three CORD collections and false of the default. The
@@ -593,7 +593,7 @@ Plugin-only patch on server 1.37.19 (skills, graders, validator; no server chang
 ### Changed
 
 - Tracks Senzing MCP server v1.37.16, whose container install route now carries
-  its commands, the EULA, and the OCI runtimes beyond Docker.
+  its commands, the EULA and the OCI runtimes beyond Docker.
 
 ### Fixed
 
@@ -651,13 +651,13 @@ Claude plugin directory review findings from 1.37.13-3.
   A plain `git mv` would have broken the suite: `claude plugin eval --eval-dir` only accepts a
   directory **below the plugin**, and this repo has a recorded incident where root-level cases
   meant zero cases ever ran *and the gate stayed green*. Both `run.sh` scripts now stage a
-  throwaway plugin tree, point the CLI at it, and pass `--output-dir` back to the real results
+  throwaway plugin tree, point the CLI at it and pass `--output-dir` back to the real results
   directory. `check.sh` counts the cases it checked and fails on zero, so that failure mode
   cannot recur silently.
 - **The hooks are disclosed in the listing.** Anthropic's policy ruleset fails a plugin when
   `description_matches_behavior` is false — "would a user reading only the install description
   be surprised by what you found?" — and one of our hooks reads files Claude writes. The plugin
-  README now names all three, what triggers each, and that none of them makes a network call.
+  README now names all three, what triggers each and that none of them makes a network call.
   `check_provenance.sh` exits before opening anything unless the path is source in one of seven
   languages *and* the contents match Senzing SDK symbols.
 - **No more hardcoded Linux install paths.** `verify_truthset.py` and `preflight.py` read
@@ -758,7 +758,7 @@ Plugin-only patch on MCP server v1.37.13 (no server change).
 
 ### Fixed
 
-- **A Senzing skill that answers without Senzing is broken, at any row count.** Given "dedupe my
+- **A Senzing skill that answers without Senzing software is broken, at any row count.** Given "dedupe my
   customer list", a graded run made three tool calls — `ls`, read, `Write` — fired **no skill at
   all**, and produced the deduped file by inspection. It was careful, and it disclosed what it had
   done. That is not a mitigation: the user installed this to get entity resolution, an answer by
@@ -865,14 +865,14 @@ Plugin-only patch on MCP server v1.37.13 (no server change).
 ## [1.37.7-1] - 2026-09-21
 
 Plugin-only patch on MCP server v1.37.7 (no server change): the eval gate made
-binding, the skill defects it caught, a real-Senzing end-to-end job, and the two
+binding, the skill defects it caught, a real-Senzing end-to-end job and the two
 sandbox faults that job exposed. Everything below was under Unreleased on PR #34.
 
 ### Added
 
 - **Real-Senzing end-to-end eval (`plugins/senzing/evals-real/`, `.github/workflows/real-senzing-e2e.yml`).**
   The behavioral suite has never tested `analyze` past step 3 of 7 and structurally could not — it
-  runs on a macOS host with no Senzing, and its own `analyze` case says so ("The sandbox has no
+  runs on a macOS host with no Senzing SDK, and its own `analyze` case says so ("The sandbox has no
   Senzing, so the run ends by saying so"). No grader anywhere asserted an entity count, a match
   score, a why/how result or a report. The new `resolve-truthset` case goes the full distance on a
   Linux container that really has `senzingsdk-runtime`: one `mapping_workflow` over all three
@@ -881,8 +881,8 @@ sandbox faults that job exposed. Everything below was under Unreleased on PR #34
   The verdict is **not** a grader — `claude plugin eval` has no shell grader, so every grader is a
   statement about text the agent produced, and text is what a fabricating run is good at. A job
   step opens the repository the run left behind with the real V4 SDK and checks it against
-  Senzing's own published ground-truth key (`Senzing/truth-sets`, pinned): 159 records, **85**
-  entities, the exact cluster partition, and an empty redo queue. Both numbers are derived from
+  the published Senzing ground-truth key (`Senzing/truth-sets`, pinned): 159 records, **85**
+  entities, the exact cluster partition and an empty redo queue. Both numbers are derived from
   the key at run time, never frozen literals; `ground-truth/PROVENANCE.md` records the pin, the
   derivation and its limits. No repository found is a FAIL, never a skip. A free offline
   self-test re-derives the expectation (and cross-checks the two literals the graders carry)
@@ -890,7 +890,7 @@ sandbox faults that job exposed. Everything below was under Unreleased on PR #34
   before that. 159 records sits inside the 500-record no-license ceiling, so no license or
   credential is involved.
   Separate workflow and separate eval directory on purpose: the macOS `behavioral-eval` job and
-  its suite are untouched, and it does not gate every PR (`workflow_dispatch`, weekly, or the
+  its suite are untouched, and it does not gate every PR (`workflow_dispatch`, weekly or the
   `real-senzing-e2e` label).
 
 - **Sandbox preflight (`.github/senzing-eval/sandbox-preflight.sh`).** Proves the agent's Bash
@@ -968,7 +968,7 @@ sandbox faults that job exposed. Everything below was under Unreleased on PR #34
   `doctor` is deferred, not waived: it runs on the executing host the moment a command runs.
 - **`recipes` offered the act it forbids.** Both graded runs ended on "which would you like?" over
   a menu whose options included mapping the ingredients with `mapping_workflow` — the `Cook` step,
-  reached without a Senzing to cook on. `no-mapping-started` passed (nothing was called) while the
+  reached without a Senzing SDK to cook on. `no-mapping-started` passed (nothing was called) while the
   judge failed the run three votes to none, correctly. The three verdict bullets are now stated as
   the whole list rather than examples to reason around, offering the forbidden act is called out as
   the same violation as performing it, and the rubric says "proposes or performs".
@@ -1093,7 +1093,7 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
 ### Added
 
 - **`poc-planner` skill** — plan a proof of concept *with* the user; explicitly not a project
-  plan. A facilitator, not a generator: it retrieves Senzing's own PoC guidance, asks the
+  plan. A facilitator, not a generator: it retrieves the official Senzing PoC guidance, asks the
   rightsizing questions (data, systems, people — plus hardware available, performance to
   demonstrate, and platform), assembles the corpus's sizing / database / platform / load material
   against the user's stated constraints with every item attributed, and works through what must
@@ -1116,14 +1116,14 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
   seventeen quotable corpus figures, and the proposed hardware-recommendation pattern missed its
   own example.
 - **`ask`** — the entry point for questions. Routes to the MCP and writes nothing. Added because every other skill is a *doer*: a plain question either matched nothing or matched a skill that would start writing files, and two independent weak-model reviews said they would answer Senzing questions from stale training data instead.
-- **`install`** — install and set up Senzing. Reproduces no install commands; detects the host, takes the official steps from `sdk_guide`, surfaces the EULA, then verifies with `doctor`. Previously buried at the end of `doctor`'s description where the command picker truncated it.
+- **`install`** — install and set up Senzing software. Reproduces no install commands; detects the host, takes the official steps from `sdk_guide`, surfaces the EULA, then verifies with `doctor`. Previously buried at the end of `doctor`'s description where the command picker truncated it.
 - Explicit "Not for X — use Y" boundaries on every skill description. Weak-model routing measured 17/20 → 20/20.
 
 
 - **`ask` skill** — answer any Senzing question grounded solely in the hosted MCP. The only
   skill that works on an information-only host (no shell, no Senzing install), so it now leads
   the session banner.
-- **`install` skill** — install / set up Senzing on the current machine, split out of `doctor`.
+- **`install` skill** — install / set up Senzing software on the current machine, split out of `doctor`.
 - **Hook fixture tests in `scripts/check.sh` (section 6).** A REAL `mapping_workflow`
   PostToolUse payload (content-array shape, `[REMINDER: …]` footer intact) is fed to
   `capture_state.sh` and the state file must appear; a `Write` payload is fed to
@@ -1200,7 +1200,7 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
   `measurement`, `measured_against`, `decided_by`, `target`) in the skill, the grader and its
   prompt — a weak model drops one, most likely `decided_by`.
 - **`poc-planner` promised a consumer contract nobody honored.** Nothing read
-  `senzing-poc-plan.md`; `analyze`, `doctor` and `install` now do, and stop on any
+  `senzing-poc-plan.md`; `analyze`, `doctor` and `install` now do and stop on any
   `TBD — decided by` row they need.
 - **An eval case silently never ran.** `poc-planner-how-long/prompt.md` had invalid YAML
   frontmatter (a double-quoted scalar with text after the closing quote), so `claude plugin
@@ -1234,7 +1234,7 @@ Plugin release on MCP server v1.37.4. Branch `fix-doctor-platform-gate`.
   Bash tool's environment. Proof: `~/sz-workspace` has hosted mapping runs since 2026-08-21
   and contained zero `.sz-state-*` files; the old hook fed the captured payload writes
   nothing, the new one writes the state. Now: parse the content array, strip the footer,
-  take `workspace_dir` **from the state itself**, and write `<workspace_dir>/.sz-state.json`
+  take `workspace_dir` **from the state itself** and write `<workspace_dir>/.sz-state.json`
   (write-then-rename). The `analyze` skill and `field-mapper` agent read that exact path.
 - **`check_provenance.sh` nudged nobody.** It wrote to stderr and exited 0; for a
   PostToolUse hook that reaches neither the model nor the user. It now emits
@@ -1288,7 +1288,7 @@ Version sync to MCP server v1.35.4 (`plugin.json` only). Server headline: full
 
 ## [1.35.3] - 2026-09-01
 
-Version sync to MCP server v1.35.3 (`plugin.json` only). Server headline: Senzing 4.4.0
+Version sync to MCP server v1.35.3 (`plugin.json` only). Server headline: Senzing SDK 4.4.0
 Feature Store & Advisory Locking configuration guide indexed for `search_docs`.
 
 ## [1.35.1] - 2026-08-29
@@ -1366,7 +1366,7 @@ Plugin-only feature on MCP server v1.32.9 (no server change).
   recipe named it fetches the catalog (`recipes.md`) and helps the user choose;
   with one named it loads `recipes/<id>.md`, confirms the kitchen/language/
   ingredients, and **drives each cook → plate → plus step in order** against the
-  user's own Senzing — rather than handing the user prompts to paste. Recipe
+  user's own Senzing SDK — rather than handing the user prompts to paste. Recipe
   content is fetched **verbatim** via `curl` (falling back to `WebFetch`) so each
   step's inline prompt runs word-for-word; the cooking metaphor's own House Rule
   (*"Use the Senzing MCP. Do not rely on general training."*) keeps every step
@@ -1378,7 +1378,7 @@ Plugin-only feature on MCP server v1.32.9 (no server change).
 ### Changed
 
 - **Unprompted, visual progress on the long-running skills (`demo`, `analyze`,
-  `report`, and the new `recipes`).** These runs can take 15+ minutes, and the
+  `report` and the new `recipes`).** These runs can take 15+ minutes, and the
   demo flow in particular is a spectator sport — the user is watching, not
   driving. The skills now require a **progress checkpoint at each milestone**
   (environment ready · mapped · loaded **per file as it lands**, with counts and
@@ -1386,7 +1386,7 @@ Plugin-only feature on MCP server v1.32.9 (no server change).
   initiative** and **never as a gate** — the user never has to answer to keep the
   run moving (answer-required prompts stay reserved for loading into a production
   repo and for merges/splits). Each checkpoint is a **compact visual** — a
-  one-line stat line, a micro-table, or a one-line ASCII bar — explicitly **not a
+  one-line stat line, a micro-table or a one-line ASCII bar — explicitly **not a
   wall of prose and not silence**. Fixes feedback that a ~18-minute demo showed
   little but terse "ran a command / done" lines with nothing to glance at until
   the final dashboard.
@@ -1398,7 +1398,7 @@ Plugin-only feature on MCP server v1.32.9 (no server change).
   `plugins/senzing/skills/recipes/SKILL.md` from `cookbook-import` to `main` when
   it lands, so the command never lists an empty catalog.
 - **Tool surface (MCP) is unchanged** — this adds a plugin skill only; no MCP tool
-  was added, removed, or renamed. The `-1` suffix marks a plugin-only patch on the
+  was added, removed or renamed. The `-1` suffix marks a plugin-only patch on the
   same server pin; `mcp-version-sync.yml` strips it, so daily version sync won't
   revert it.
 
@@ -1410,7 +1410,7 @@ Version pin to Senzing MCP server **v1.32.4**.
 three flag documents the extractor had been silently skipping (closing two
 separately-reported gaps in one fix), corrected error-code guidance for
 SENZ-7426, a data-mapping warning that fired on every correct mapping, per-input
-profiler output paths, CSV sources without a header row, and pruning of indexed
+profiler output paths, CSV sources without a header row and pruning of indexed
 pages that no longer exist upstream.
 
 **Tool surface is unchanged** — the release altered behavior, response fields
@@ -1493,7 +1493,7 @@ plugin feedback from `#mcp-logging` (2026-07-18).
   exports `SZ_WORKSPACE` (keeping the state-capture hook in lockstep) instead of
   assuming `~/sz-workspace` is visible to both the shell and the file tools.
 - **Terminal deliverable is now a gated step, not advisory prose.** `analyze`,
-  `demo`, and `report` mark the final Artifact/dashboard as required — the run is
+  `demo` and `report` mark the final Artifact/dashboard as required — the run is
   not complete until it ships, and it is produced without waiting to be asked.
   Fixes a case where a demo produced correct resolution but no artifact until the
   user explicitly requested one. `demo` is now explicit that the workflow is
