@@ -96,11 +96,11 @@ section — it is not part of the cook.
 ## Ground rules (non-negotiable)
 
 - **Use the Senzing MCP. Do not rely on general training.** This is the recipes' own House Rule,
-  baked into every prompt. All Senzing facts, attributes, SDK signatures, and code come from the
+  baked into every prompt. All Senzing facts, attributes, SDK signatures and code come from the
   MCP tools (`get_capabilities`, `search_docs`, `mapping_workflow`, `sdk_guide`,
   `generate_scaffold`, `reporting_guide`, …) — never from memory.
-- **Never simulate entity resolution.** If Senzing isn't installed/running, say so and hand off to
-  the `install` skill — never fabricate scores, matches, or merges.
+- **Never simulate entity resolution.** If the Senzing SDK isn't installed/running, say so and hand off to
+  the `install` skill — never fabricate scores, matches or merges.
 - **PII stays local.** Repo ingredients are synthetic and safe. If the user swaps in their own
   data, its records are only ever touched by SDK code you run locally via Bash — never pasted into
   a hosted tool call. Bake that into the load prompt.
@@ -113,10 +113,10 @@ section — it is not part of the cook.
 **Inputs.** `$ARGUMENTS` may name a recipe by `id` (e.g. `customer-360-crm-online`) or by title
 words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm which before cooking.
 
-1. **Pre-flight FIRST — run `doctor`.** A recipe ends in a *served* result (a loaded Senzing **and**
+1. **Pre-flight FIRST — run `doctor`.** A recipe ends in a *served* result (a loaded Senzing SDK **and**
    an interactive app/visual), so clear the whole path **before** investing in a cook — don't march
    into a recipe that can't reach its plate. `doctor` checks it all in one pass: sources reachable
-   (`mcp.senzing.com` + `raw.githubusercontent.com` allowlisted), host shell writable, Senzing
+   (`mcp.senzing.com` + `raw.githubusercontent.com` allowlisted), host shell writable, Senzing software
    deployable (SDK / license / DB), and **interactive-outcome capability**. Act on its verdict
    before cooking:
 
@@ -139,20 +139,20 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    cannot cook yet, do not put the license decision or a smaller sample ("cook with just 500
    records") to the user as a choice: those are Cook-step decisions, and a reply that ends "attach
    a license, request the evaluation one, or go with the 500-record sample?" has offered the cook.
-   Do NOT state the record count, the unlicensed limit, a license, or the ingredient files here —
+   Do NOT state the record count, the unlicensed limit, a license or the ingredient files here —
    CI caught "this recipe loads ~1,600 records, over the 500-record limit — do you have a license?"
    appended to a correct hand-off, which is the license decision put to the user as a choice. `install`
    owns the license conversation. Hand off to `install` and say nothing about what happens after it.
-   - **Senzing can't deploy** → still identify and fetch the named recipe (step 2/3) so you can
+   - **the Senzing SDK can't deploy** → still identify and fetch the named recipe (step 2/3) so you can
      name it (mission, kitchen, time — not its Setup needs), **then** hand off to the **`install`** skill without asking first.
      **Order matters: fetch BEFORE you invoke `install`** — `install` asks its question and ends
      the turn, so a fetch you leave for afterwards is never made (CI caught a run that went
      doctor → `install` and never opened the recipe it was asked to cook). Run the catalog `curl`,
      match the id, fetch `recipes/<id>.md`, and only then invoke `install` (it
-     surfaces the license agreement, runs the official steps, and verifies with `doctor`; do not
+     surfaces the license agreement, runs the official steps and verifies with `doctor`; do not
      route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
      needed, `submit_feedback(category='license_request')`'s description states the current
-     terms). Don't cook over a Senzing that won't stand up, and don't stop at the diagnosis
+     terms). Don't cook over a Senzing SDK that won't stand up, and don't stop at the diagnosis
      either. **You will already hold the platform's install steps** — `doctor` fetched them with
      `sdk_guide(topic="install")` — **and that is exactly when to hand off, not a reason to skip it.**
      CI caught a run that, holding those steps, wrote the install message itself and ended it
@@ -175,7 +175,7 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      recipe text you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
      Nothing downstream works without it, which is what makes it different from the bullets
      around it.
-   - **No live-app surface here** (cloud sandbox, chat-only host, or a reduced sub-agent) → say so
+   - **No live-app surface here** (cloud sandbox, chat-only host or a reduced sub-agent) → say so
      plainly: the recipe's *Plate* can't be a live `localhost` server here. Then **make** the
      honest substitution — map → load → resolve **plus a self-contained interactive HTML5
      artifact** you deliver as a download — and mention that **Claude Code** gives the literal
@@ -188,7 +188,7 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    catalog (`cookbook.md`) per *Fetch verbatim* and present it. Each entry is an
    `### [Title](recipes/<id>.md)` heading, an italic metadata line of ` · `-separated fields
    (currently category · difficulty · where it runs · rough duration · author), and a
-   `**What you'll make:**` line. Show the title, that metadata line as-is, and the
+   `**What you'll make:**` line. Show the title, that metadata line as-is and the
    what-you'll-make line — render the fields the catalog actually carries rather than a fixed
    list, so a change upstream degrades to "one fewer field" instead of a wrong label. Then ask
    which to cook, naming only titles and categories that appear in the fetched catalog. Do not
@@ -252,7 +252,7 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
 7. **Wrap up.** Summarize what was built and why it matters, per the recipe's *Wrap Up*, and link
    the demo **video** if the recipe links one (it appears inline, near the top). If the recipe
    loaded records, close with the engine work as counters taken from the code that ran:
-   `add_record` calls made, `process_redo_record` calls made, and the engine's version and build
+   `add_record` calls made, `process_redo_record` calls made and the engine's version and build
    number (`SzProduct.get_version()` returns `VERSION` and `BUILD_NUMBER`). Read them off the
    counters, never off what you expect them to be — a dish nobody cooked cannot produce a build
    number it never asked the engine for.

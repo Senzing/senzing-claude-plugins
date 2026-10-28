@@ -15,7 +15,7 @@ argument-hint: "[question]"
 allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:analyze), mcp__plugin_senzing_senzing__*
 ---
 
-# Report over an already-loaded Senzing
+# Report over an already-loaded Senzing repository
 
 No mapping, no load — the data is already resolved. Grounded by the **Senzing MCP server**.
 
@@ -28,7 +28,7 @@ entities"). If none is given, ask what they want to see before running anything.
    the shell.** Only when the user's own message BOTH supplies `doctor`'s result for their
    Senzing host AND states that this shell is not that host, take the result as given and do not
    re-probe this shell — a probe here reports on the wrong machine, and "one correction to your
-   premise: this host has no Senzing SDK" is a report on the sandbox, not on their Senzing. One of
+   premise: this host has no Senzing SDK" is a report on the sandbox, not on their Senzing SDK. One of
    those two conditions alone does not open it, and **your own inference that the shell looks
    sandboxed does not qualify.** `doctor` is deferred here, not waived: it runs on the Senzing
    host the moment a command runs there, and its verdict decides whether anything is read. With

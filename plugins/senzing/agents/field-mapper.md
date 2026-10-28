@@ -43,4 +43,4 @@ overwrites all of them mid-run. Every `{workspace}` below means *your* dedicated
    verbatim — never reconstruct it from conversation memory.
 
 Do not load anything into a database — mapping only. Return: the data-source code, the output
-JSONL path, the validated record count, and the final verdict (`approve` or the blocking issue).
+JSONL path, the validated record count and the final verdict (`approve` or the blocking issue).

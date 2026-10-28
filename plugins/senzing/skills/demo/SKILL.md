@@ -15,7 +15,7 @@ argument-hint: "[dataset]"
 allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), Skill(senzing:analyze), mcp__plugin_senzing_senzing__*
 ---
 
-# Demo Senzing on sample data
+# Demo the Senzing SDK on sample data
 
 Grounded by the **Senzing MCP server**. Never simulate results.
 
@@ -84,9 +84,9 @@ second report.
    preview — which would you like?" The user asked for a demo and got an environment report and a
    menu. Say what you found in one line, then take the path below **in the same turn**.
 
-   **If anything stands between you and a running Senzing**, do not fake a demo — and do not ask
+   **If anything stands between you and a running Senzing SDK**, do not fake a demo — and do not ask
    which path: invoke the **`install`** skill in this same turn, unasked. `install` surfaces the
-   license agreement, runs the official steps, and verifies with `doctor`. Do not route around
+   license agreement, runs the official steps and verifies with `doctor`. Do not route around
    it by calling `sdk_guide(topic="install")` directly.
    **Already holding the install steps is not a substitute for the hand-off.** `doctor`'s own
    Step 0 called `sdk_guide(topic="install")`, so by now you know this host's platform id and
@@ -145,16 +145,16 @@ second report.
    worse, not permitted, because nothing can check you. If asked to show duplicates exist, point
    at the dataset's own description from `get_sample_data`. Label it plainly: *"This is the data Senzing would consume — actual
    resolution requires an installed Senzing, which I can set up for you."* Never present any
-   match, score, or merge as a result.
+   match, score or merge as a result.
 
-   **Never name a match before Senzing has found one — in EVERY branch, including the
+   **Never name a match before the engine has found one — in EVERY branch, including the
    zero-install tier.** Until the engine has returned results you have no results: printing a
    record id, name, email, DOB or pair as a "these look alike" preview invents them, and a caveat
-   does not make it safe. Pick nothing by resemblance; say which FIELDS Senzing would resolve on.
+   does not make it safe. Pick nothing by resemblance; say which FIELDS the engine would resolve on.
    This governs step 1 as much as step 2 — having no SDK makes a guess worse, not permitted,
    because nothing can check it.
 
-2. With a working Senzing, run the `analyze` flow on sample data — same steps, same gates:
+2. With a working Senzing SDK, run the `analyze` flow on sample data — same steps, same gates:
    - **Get the data — the full file, not the preview — and this is the one flow where *you*
      download it.** `get_sample_data` returns a handful of inline records to show the shape plus
      a `download_url` in its citation. Its own instruction says to present that URL and not
@@ -165,7 +165,7 @@ second report.
      on the inline preview. Describe the data honestly, and take its nature from the tool's own
      response rather than from this file: the citation says what the dataset is and whether it
      is real. The CORD collections (`las-vegas`, `london`, `moscow`) are real historical data
-     and the tool asks you to tell the user so; the `truthset` default is Senzing's **synthetic**
+     and the tool asks you to tell the user so; the `truthset` default is the Senzing **synthetic**
      demo truth set, so do not call it real. Say only what its `list` description and citation
      say about it.
    - **Validate — do not map.** Sample records are already Senzing JSON (`DATA_SOURCE`,
@@ -195,7 +195,7 @@ second report.
    - **Never name a RECORD** (the rule above is about naming the STORAGE; this one is about its
      contents). **Never preempt the engine with your own duplicate-spotting.** Before the load has run you
      have no results, so naming likely matches invents them. Do not print a record id, name,
-     email, or pair as a "these look like a match" preview, *even heavily caveated* — a run did
+     email or pair as a "these look like a match" preview, *even heavily caveated* — a run did
      exactly this, naming two name-variant pairs by DOB and license number before resolving
      anything. The demo's whole claim is that Senzing found it; a guess in the same message
      dilutes the one thing being demonstrated.
