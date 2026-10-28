@@ -10,7 +10,7 @@ argument-hint: "[platform] [language]"
 allowed-tools: Read, Skill(senzing:doctor), mcp__plugin_senzing_senzing__*
 ---
 
-# Install Senzing
+# Install Senzing software
 
 Install steps are **Senzing facts and change with the SDK**, so they live in the MCP, not in this
 file. This skill owns the *workflow*: work out the host, get the official steps, run them, and
@@ -72,7 +72,7 @@ recipe asks for".
    leaves the user with a question and nothing else — and in any non-interactive context (a
    scripted run, an eval, a queued job) no answer is coming, so the install simply never
    happens. When the signals are ambiguous, state the assumption you are proceeding under,
-   deliver the steps, and let them correct you.
+   deliver the steps and let them correct you.
 
 1. **Establish the host — never assume it.**
    ```bash
@@ -91,7 +91,7 @@ recipe asks for".
    platform. Do not re-ask after `sdk_guide` has already been called with a `language`.
 
 2. **Get the official steps.** `sdk_guide(topic="install", platform=…, language=…)`. Use what it
-   returns verbatim — install commands, environment variables, and the `direct_download` URLs it
+   returns verbatim — install commands, environment variables and the `direct_download` URLs it
    provides for firewalled environments. Do not hand-write install commands. If the user names
    the environment this will run in (Snowflake, AWS Lambda, Azure Functions, Kafka,
    Spark/Databricks), pass `environment` too and relay the returned `environment_note` rules.
@@ -128,7 +128,7 @@ recipe asks for".
    report it. Re-running loops: `install` → verify fails → `doctor` → "not installed, offer
    install" → `install` → … Break the loop here and tell the user what to correct.
    Only when verification passes, hand off to the **`doctor`** skill for the real check: it
-   confirms the library actually loads, the config resolves, and the license is valid.
+   confirms the library actually loads, the config resolves and the license is valid.
    Installation is not complete until `doctor` is green — **on the target host** (step 0), not in
    a sandbox.
 

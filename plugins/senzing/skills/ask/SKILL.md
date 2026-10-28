@@ -16,11 +16,11 @@ argument-hint: "[question]"
 allowed-tools: Read, mcp__plugin_senzing_senzing__*
 ---
 
-# Ask Senzing a question
+# Ask a Senzing question
 
 The single entry point for questions that want an **answer**, not an action.
 
-This skill exists because model knowledge of Senzing is outdated and confidently wrong — wrong
+This skill exists because model knowledge of Senzing software is outdated and confidently wrong — wrong
 attribute names, wrong method signatures, V3 patterns presented as V4, invented config options.
 Every other skill in this plugin *does* something; without this one, a plain question either
 matched nothing or matched a skill that would start writing files.
@@ -35,7 +35,7 @@ If the tools genuinely do not cover it, say so plainly rather than filling the g
 "I could not find that in the Senzing documentation" is a correct answer; an invented one is not.
 
 **This skill answers. It never acts.** Run no shell command — not `uname`, not a probe, not a
-"quick check" of whether Senzing is installed, not even a read-only one. A question about what
+"quick check" of whether the Senzing SDK is installed, not even a read-only one. A question about what
 Senzing supports is answered from the MCP, and the state of this machine has no bearing on it.
 Wanting to run something means the request was not a question: hand it to the skill that owns
 the action (`doctor` to inspect this host, `analyze`/`demo` to resolve data, `install` to set

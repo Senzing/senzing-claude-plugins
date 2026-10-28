@@ -18,7 +18,7 @@ argument-hint: "[path/to/data ...]"
 allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), Agent, mcp__plugin_senzing_senzing__*
 ---
 
-# Analyze data with Senzing (map → load → resolve → report)
+# Analyze data with the Senzing SDK (map → load → resolve → report)
 
 You are grounded by the **Senzing MCP server** (the bundled `senzing` MCP). Ground rules:
 
@@ -26,7 +26,7 @@ You are grounded by the **Senzing MCP server** (the bundled `senzing` MCP). Grou
   signatures, and code come from the Senzing MCP tools (`get_capabilities`, `search_docs`,
   `mapping_workflow`, `sdk_guide`, `generate_scaffold`, `reporting_guide`, …). If unsure, call
   the tool — do not guess.
-- **Never simulate entity resolution.** Do not fabricate scores, matches, or merges. No Senzing on
+- **Never simulate entity resolution.** Do not fabricate scores, matches or merges. No Senzing SDK on
   this host does **not** change what happens next: the run still maps (step 3) and stops at the
   *mapping-only exit*, which is the one and only place the **`install`** skill is offered (it
   surfaces the license agreement and verifies with `doctor`; never route around it via
@@ -60,7 +60,7 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
 - If **no** data was given, ask the user which files or database tables to resolve before doing
   anything else. Do not invent or assume a data source.
 - If the user **pasted or attached** data instead of a path, first write it into the workspace as
-  a real file (Senzing runs against files on disk, not chat text), then treat that path as input.
+  a real file (the engine runs against files on disk, not chat text), then treat that path as input.
 - If the source is a live **database table**: `mapping_workflow` profiles *files* (its `start`
   action requires `file_paths`), so export a representative **sample** to a file for it to profile
   and produce the mapping. The mapper you write from it is code, so the **production run can then
@@ -75,7 +75,7 @@ State the resolved input list to the user before proceeding — informational, n
 
 1. **Pre-flight — `doctor` runs before the first `mapping_workflow` call, every time.** This is
    the step that gets skipped, and it gets skipped on exactly the hosts where it looks
-   unnecessary: a real Senzing is obviously installed, the data is obviously there, so the run
+   unnecessary: a real Senzing SDK is obviously installed, the data is obviously there, so the run
    goes straight to mapping. A working SDK is not a reason to skip the preflight — it is the
    answer the preflight exists to establish, and you do not have it until `doctor` hands it to
    you. Treat it as a precondition of the `start` call, not an opening formality: if you are
@@ -89,7 +89,7 @@ State the resolved input list to the user before proceeding — informational, n
    stop** — mapping (step 3) still runs; see the *mapping-only exit* after step 3.
 
    **`doctor`'s verdict is information, not a decision.** `doctor` names the `install` skill when
-   it finds no Senzing — that is addressed to *you*, and your answer is already fixed by this
+   it finds no Senzing SDK — that is addressed to *you*, and your answer is already fixed by this
    procedure: not now; step 3 first, `install` (if at all) at the mapping-only exit. Do not relay
    it to the user as a question, do not recommend installing, and do not spend a probe deciding
    whether an install is feasible — that answer cannot change what you do next.
@@ -103,7 +103,7 @@ State the resolved input list to the user before proceeding — informational, n
    the assumption you are proceeding under and go. Exactly two exceptions: no input data was given
    at all, and a `senzing-poc-plan.md` row you need reads `TBD — decided by`.
 2. **Agree a workspace — and confirm the shell can actually write to it.** **Where the user said to
-   put things wins.** "Inside this workspace", "in this directory", "here", or a path they gave IS
+   put things wins.** "Inside this workspace", "in this directory", "here" or a path they gave IS
    the workspace: probe the current directory (`cd . && pwd`) or that path, and never `~/sz-workspace`.
    Only when the user named no location is the default `~/sz-workspace` (or `$SZ_WORKSPACE` if set)
    used — a run that obeyed the default after being told "keep the scratch repository inside this
@@ -147,12 +147,12 @@ State the resolved input list to the user before proceeding — informational, n
    files in a single `start`.**
    **Call `start` as soon as you know the file paths — it is the first real action of the run,
    and nothing about the environment gates it.** Mapping is an MCP call over paths you have
-   already listed: it needs no SDK, no database, no license, and no writable project directory.
+   already listed: it needs no SDK, no database, no license and no writable project directory.
    Only the later LOAD and DELIVER steps depend on the host, so a host question that is still
    open is not a reason to delay the mapping — start it, and settle the host question while the
    workflow is under way. Turn budget spent probing the environment before `start` is the run's
    most common way to end with no mapping at all, which is a total failure rather than a
-   degraded one. If a probe is ambiguous, take the answer you have, note it, and move on. The tool is a guided state machine, not a code generator: each
+   degraded one. If a probe is ambiguous, take the answer you have, note it and move on. The tool is a guided state machine, not a code generator: each
    response tells you what to do for the current step and what the next `advance` payload must
    contain. **If `start` returns an `environment_note` (its first field), state its rules to the
    user in that same reply and follow its `search_docs` query before writing any SQL or code.**
@@ -185,7 +185,7 @@ State the resolved input list to the user before proceeding — informational, n
      beside it — only the parsed parts (`ADDR_LINE1`/`CITY`/`STATE`/`POSTAL_CODE`) must not share
      an object with `ADDR_FULL`. Emitting `{"NAME_FIRST": "Robert"}` and `{"NAME_LAST": "Smith"}`
      as two objects is two partial names, not one person: on the Senzing demo truth set it turned
-     85 correct entities into 86 wrong ones, with 119 of 159 records differing from Senzing's own
+     85 correct entities into 86 wrong ones, with 119 of 159 records differing from the Senzing
      mapping by exactly that. The analyzer does not catch it today, so check the output yourself:
      no record may have name parts or address parts of the same feature in separate objects.
    - After every `mapping_workflow` response, immediately write the returned `state` to
@@ -218,7 +218,7 @@ State the resolved input list to the user before proceeding — informational, n
    `workspace_dir` = `{workspace}/<file-stem>/`**
    (create it first) so their fixed-name files and `.sz-state.json` cannot collide; the
    state-capture hook follows `state.workspace_dir`, so per-file directories keep its copies
-   apart too. Delegate only as an optimization, never as a requirement, and only after confirming
+   apart too. Delegate only as an optimization, never as a requirement and only after confirming
    a spawned sub-agent actually has a shell that can run the mapper scripts against its
    workspace. Some hosts give sub-agents a reduced tool set (no shell) or a different
    filesystem; mapping is execution-bound, so a shell-less sub-agent will stall. If a sub-agent
@@ -234,7 +234,7 @@ State the resolved input list to the user before proceeding — informational, n
    spotting for it.** Even a heavily-caveated "these two are almost certainly the same person" or
    "you likely have 5 real customers, not 6" is an invented match and an invented entity count: it
    is the exact hallucination this skill exists to prevent, and labelling it "my own read of the
-   raw data" rather than Senzing's does not make it safe — the user cannot audit it, and it is the
+   raw data" rather than the Senzing result does not make it safe — the user cannot audit it, and it is the
    number they will remember. If asked "who is who", answer that resolving it requires the engine,
    and stop there.
    **Name no candidates in your own words.** This governs sentences and tables YOU construct
@@ -242,24 +242,24 @@ State the resolved input list to the user before proceeding — informational, n
    necessarily contains real names and emails — shipping that file is required, not a violation.
    The rule is not "assert no match" — it is "name no candidate", and a candidate is anything a
    reader could use to find the pair: an id, a name, an email, a phone VALUE, a row number, a
-   line index, or a position. "the two Smith rows", "rows 4 and 9", and "they share
+   line index, or a position. "the two Smith rows", "rows 4 and 9" and "they share
    702-555-0142" are equally banned. You may name the FIELD ("this file contains shared phone
    numbers") — never a value, row or index, and **never a count**: "4 of the 6 rows share an
    email" names no row and is still an invented entity count, the same fabrication in arithmetic
    form. This list is not a set of examples to reason around; anything a reader could use to
    identify or size a candidate cluster is banned. Do not
-   print a record id, a person or company name, an email, or a pair, *even as an illustration of
+   print a record id, a person or company name, an email or a pair, *even as an illustration of
    what you are declining to say*: "the two 'Smith' rows share a phone, but that's a guess" is the
    banned thing, not an exemption from it. A caveat does not travel with the sentence; the names
    do. This has already produced a wrong answer — a run named three Robert Smith records as one
    person when the file held a deliberate decoy: a different Robert Smith, different email,
    different city, different date of birth. Say which FIELDS would drive resolution if you must
    say anything; never which ROWS.
-4. **Load into a fresh, isolated scratch repository — NOT their production Senzing.** Resolving a
+4. **Load into a fresh, isolated scratch repository — NOT their production Senzing repository.** Resolving a
    dataset must not pollute the user's real entity repo, so **by default create a dedicated scratch
    Senzing repository**: a fresh SQLite instance in the workspace, initialized empty — the same
    "always fresh SQLite, never reuse an existing database" rule `mapping_workflow`'s own sandbox
-   uses. Generate the scratch-repo config, the data-source registration, and the load code via
+   uses. Generate the scratch-repo config, the data-source registration and the load code via
    `sdk_guide` / `generate_scaffold` — ground the exact V4 method and attribute names through the
    MCP, never hand-write them — then Bash-run them (show the code first). **No confirmation is
    needed — the scratch repo is throwaway and touches no production data.**
@@ -268,14 +268,14 @@ State the resolved input list to the user before proceeding — informational, n
    proceed?"* — and on "no," stop cleanly (the validated JSONL stays in the workspace for later).
 
    **Verify the load — a zero exit code is NOT proof the records landed.** The loader must count
-   records submitted, records loaded, and errors (the `sdk_guide` load pattern does; keep that
+   records submitted, records loaded and errors (the `sdk_guide` load pattern does; keep that
    accounting). Compare loaded against the JSONL line count **per file** and post the per-file
    line. Any error count > 0 or any shortfall: show the errors for the first failing records (run
    `explain_error_code` on each distinct SENZ code) and do not go to step 5 until the user decides —
    fix and reload, or continue with the shortfall named in the final report.
 
    **Report the engine work as counters, taken from your own loader — never estimated.**
-   The final report carries: `add_record` calls made, `process_redo_record` calls made, and the
+   The final report carries: `add_record` calls made, `process_redo_record` calls made and the
    engine's version and build number (`SzProduct.get_version()` returns `VERSION` and
    `BUILD_NUMBER`; `get_license()` returns `recordLimit` and `expireDate`). Increment the call
    counters in the loop that makes the calls and print what the counter holds — do not restate the

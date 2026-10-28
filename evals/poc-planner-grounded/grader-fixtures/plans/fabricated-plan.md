@@ -1,4 +1,4 @@
-# Senzing Proof of Concept — Plan
+# Senzing proof of concept — plan
 Generated 2026-09-18 by /senzing:poc-planner · grounded in the Senzing MCP · every Senzing statement carries its source as returned
 Consumer contract: parse by the "## N." headings below. A value beginning `TBD — decided by` is undecided — stop and send the user back; never fill it. This is not a project plan: it carries no schedule.
 
@@ -75,7 +75,7 @@ The VP must see that duplicate customers across CRM and billing are found (per u
 | "Take a vertical slice, not a random sample." — https://senzing.zendesk.com/hc/en-us/articles/360047998914-The-Path-to-a-Successful-Proof-of-Concept-PoC | full extracts | slice dimension: TBD — decided by data platform lead |
 | "Consider including a truth set. … Even 50-100 labeled pairs is useful." — same source | none | we can generate a synthetic truth set of 100 labelled pairs from the CRM data to get started |
 
-## 6. Infrastructure — Senzing's material against your constraints
+## 6. Infrastructure — the Senzing material against your constraints
 The Hardware Sizing FAQ (local://hardware-sizing-faq.md, via search_docs) lists ~5.5 GB engine RAM / 3 cores for 100,000 records and ~32 GB / 28 cores for 1,000,000; your 755k total sits between those rows, so a 16-core, 32 GB VM should be a comfortable starting point. "Size for Phase 3 steady-state performance" (quoted, same source). Database: "Always work with your DBA" — https://www.senzing.com/docs/tutorials/database/database_tuning. Host facts: run /senzing:doctor on the target host and paste its rows here.
 License: a free 10-day evaluation license covers 250K records (submit_feedback tool description), so plan on loading the 5k watchlist plus a 245k slice of CRM.
 

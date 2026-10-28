@@ -1,4 +1,4 @@
-# Senzing Proof of Concept — Plan
+# Senzing proof of concept — plan
 Generated 2026-09-18 by /senzing:poc-planner · grounded in the Senzing MCP · every Senzing statement carries its source as returned
 Consumer contract: parse by the "## N." headings below. A value beginning `TBD — decided by` is undecided — stop and send the user back; never fill it. This is not a project plan: it carries no schedule.
 
@@ -107,7 +107,7 @@ None of the above is a commitment: what this POC targets, how long it runs, and 
 | "Mock up specific test cases if needed. If your organization has specific data scenarios that are important to evaluate, don't be afraid to create records to demonstrate them in case the selected data doesn't happen to have examples." — same source | the VP's duplicate-customer scenario | a handful of records exercising that scenario is this rule; see the truth-set row for what it is not |
 | "Consider including a truth set. If you have a small set of records where you know which ones represent the same entity, include them. This lets you measure precision and recall objectively. Even 50-100 labeled pairs is useful. See How to create an entity resolution truth set (/hc/en-us/articles/360051016033) for ideas." — same source; the linked how-to is not indexed | none | (plugin rule) A synthetic or generated truth set is dangerous: it is too clean and too regular, it validates the matcher against the generator's assumptions rather than reality, and it yields a POC result that looks excellent and predicts nothing about production. Label real records from your own data instead. Whether to label real pairs (`truth_set_labelling`): TBD — decided by data platform lead |
 
-## 6. Infrastructure — Senzing's material against your constraints
+## 6. Infrastructure — the Senzing material against your constraints
 Volume (per user: about 755k across three sources) — Hardware Sizing FAQ, local://hardware-sizing-faq.md via search_docs. Quoted as returned:
 "These are minimums for POC/evaluation environments (SQLite, local development, testing). They are sufficient to ETL data, load into SQLite, and run snapshots/exports/reports for up to around 1 million records: 16 GB RAM; 4 modern CPU cores; 100 GB SSD or NVMe storage. These are NOT production minimums"
 "These are steady-state estimates that are typically well over actual needs — use them as conservative starting points, not precise requirements"

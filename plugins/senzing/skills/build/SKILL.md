@@ -49,18 +49,18 @@ answers the run gate; the write gate needs one probe of its own:
   distinguish the two, so treating it as "cannot write" is reading a result the check did not
   produce. A missing Senzing install says nothing about whether the file tools work: the write
   gate and the run gate are independent, and code can be written into a project that has no
-  Senzing on it at all.
-- **Step 4 (run)** is gated on the **shell**: is it the user's machine with a working Senzing —
+  Senzing software on it at all.
+- **Step 4 (run)** is gated on the **shell**: is it the user's machine with a working Senzing SDK —
   `doctor` 4, 5, 6 and 6b ✅ (7–9 may legitimately be ➖/⚠️ on a healthy host: 7 is ➖ with no
   `SENZING_ENGINE_CONFIGURATION_JSON`, 8 cascades to ➖, 9 is ⚠️ on the built-in eval license)?
   A run against the user's **own repository** additionally needs 7–8 ✅; a scratch or in-process
-  run does not. A sandboxed or cloud shell proves nothing about their Senzing — say so and offer
+  run does not. A sandboxed or cloud shell proves nothing about their Senzing SDK — say so and offer
   `/senzing:build` in **Claude Code** on that host.
 Never claim to have edited files you could not write, and never claim a run you did not perform.
 
 **`doctor`'s report is a checkpoint, not the answer.** Invoke it with the Skill tool itself — never hand
 "run doctor" to a sub-agent (the grounder agent has no doctor and answers that none exists). Whatever its
-verdict — no Senzing, Python on macOS, nothing installed — carry on **in the same turn** to step 2: the file
+verdict — no Senzing SDK, Python on macOS, nothing installed — carry on **in the same turn** to step 2: the file
 is still the deliverable, written by the file tools whether or not Senzing exists on the host. Only step 4
 (run) waits on the verdict. CI caught a run that printed doctor's table as its final message and never called
 `generate_scaffold` or wrote `senzing_search.py`; a message that is only an environment report has not done
@@ -107,5 +107,5 @@ Say which of the two you delivered:
   the command you ran. With no shell (Claude Desktop / Chat), say "Written — not compiled here"
   and give the compile command for the user to run; never call that Proven.
 - **Proven** (run requested and `doctor` allowed it): additionally it executed against the
-  user's Senzing and you reported the real output. Never report Proven when you delivered
+  user's Senzing SDK and you reported the real output. Never report Proven when you delivered
   Written.

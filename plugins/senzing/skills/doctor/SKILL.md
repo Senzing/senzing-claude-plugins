@@ -23,7 +23,7 @@ front**, before the user hits a cryptic failure or invests in a long run. Ground
 duplicated in each skill.
 
 **Inputs.** Takes no arguments — run the probe directly (any `$ARGUMENTS` are ignored). If invoked
-because the user asked to *install* Senzing, skip straight to the install path below.
+because the user asked to *install* Senzing software, skip straight to the install path below.
 
 **If `./senzing-poc-plan.md` exists, read it before asking the user anything.** It is the handoff
 artifact `/senzing:poc-planner` writes, and its header declares a consumer contract. Parse by the
@@ -36,7 +36,7 @@ else, they must tell you the path.
 ## Division of labor — do not duplicate the MCP
 
 This skill owns **workflow and host mechanics**: what to probe, in what order, on this machine —
-platform detection, package-manager layout, loader paths, SIP behavior, and how to grade the
+platform detection, package-manager layout, loader paths, SIP behavior and how to grade the
 result. The MCP server cannot know those about the host in front of you.
 
 **The MCP owns every Senzing fact** — install commands, config keys and their correct values,
@@ -53,9 +53,9 @@ ignore it.
 | | Meaning |
 |---|---|
 | ✅ | Works. |
-| ⚠️ | Works, but degraded, unsupported-by-policy, or not persisted. |
+| ⚠️ | Works, but degraded, unsupported-by-policy or not persisted. |
 | ❌ | **Present and misbehaving, AND the user can act on it.** |
-| ➖ | **Not applicable, not installed, or not reached.** Not a failure. |
+| ➖ | **Not applicable, not installed or not reached.** Not a failure. |
 
 **Rules that override any instinct to report a failure:**
 
@@ -73,7 +73,7 @@ ignore it.
 - **Broken but NOT user-fixable** (no admin rights, locked-down host) → ⚠️ with the blocker named.
   ❌ promises the user an action; do not promise one that does not exist.
 - **Never report ❌ from an absence you did not verify in the platform-correct location.** That
-  single mistake produced a false "there is no Senzing on this Mac" on a machine with Senzing
+  single mistake produced a false "there is no Senzing on this Mac" on a machine with Senzing SDK
   4.5.0 installed via Homebrew.
 
 ## Step 0 — establish the ground truth before any check
@@ -162,7 +162,7 @@ reports it. Treat it exactly like `cli`: it is a real shell on a real host, not 
    the matching note. A probe under any other name is indistinguishable from a deliverable and
    will fail them. Landed → the file tools write the project. Did not land → they do not. Both
    are answers; neither is a reason to keep looking. Do NOT go hunting through `$TMPDIR`,
-   `/private/tmp`, `~/.claude`, `mktemp -d`, or a `python3` open() as a second opinion — a probe
+   `/private/tmp`, `~/.claude`, `mktemp -d` or a `python3` open() as a second opinion — a probe
    that failed in the project directory has already told you what the other skills need to know.
    **Probe budget: ONE attempt per question** — the rule, and why, is stated once under
    *Probe budget* in **Reporting** below.
@@ -191,7 +191,7 @@ reports it. Treat it exactly like `cli`: it is a real shell on a real host, not 
    (some platforms carry only the `post_install` line) — never by the absence of one directory.
 
    **You may not grade this check without having RUN the row above for this platform.** Not
-   finding Senzing is a finding that requires evidence exactly as much as finding it does: ➖
+   finding Senzing software is a finding that requires evidence exactly as much as finding it does: ➖
    "not installed" asserts that you looked in the platform's own location and it was not there.
    Concluding it from the Step 0 response, from the absence of an environment variable, or from
    a failed import is inference, not a probe — and it is wrong on precisely the hosts that matter
@@ -342,7 +342,7 @@ reports it. Treat it exactly like `cli`: it is a real shell on a real host, not 
 
 One row per check, in order, each with a glyph and a one-line status. For any ❌ or ⚠️, map the
 cause through `explain_error_code` / `sdk_guide` and give a **specific, runnable fix** — never a
-raw stack trace. Checks 1–3 are host-level and resolve independently of whether Senzing is
+raw stack trace. Checks 1–3 are host-level and resolve independently of whether the Senzing SDK is
 installed: **a green host with no SDK is a valid, healthy state** (the caller may only need
 grounding or code generation).
 
@@ -365,7 +365,7 @@ eval suite it showed up as `mapping_workflow called 0x` on `analyze`, `analyze-m
 and `routing-negative-dedupe` — 19 failing assertions across the CI runs on record. The trace is
 always the same: `analyze` fires, invokes `doctor`, `doctor` probes the host, finds no SDK, and
 the run's final message is this skill's status table. The user asked to dedupe a file and got an
-environment report. Nothing errored, every row was correct, and the actual job never started.
+environment report. Nothing errored, every row was correct and the actual job never started.
 
 A no-SDK verdict is the caller's cue to take its degraded path — **never** a reason to stop
 short of it. When you hand back, say so in one line ("preflight done — SDK not installed;

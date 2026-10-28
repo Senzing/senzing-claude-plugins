@@ -32,7 +32,7 @@ allowed-tools: Read, mcp__plugin_senzing_senzing__*
 # Plan a Senzing proof of concept — with the user
 
 You are grounded by the **Senzing MCP server**. This skill owns the *workflow*: asking the user
-what only they know, assembling Senzing's own guidance against their constraints, and writing
+what only they know, assembling the official Senzing guidance against their constraints, and writing
 down what **they** decide in a form a later skill can act on. **The MCP owns every Senzing
 fact.** Do not restate PoC guidance, sizing figures, platform lists, metric definitions or
 license terms here or from memory — call the tool named in each step and cite what it returns.
@@ -40,7 +40,7 @@ license terms here or from memory — call the tool named in each step and cite 
 ## The rules that make this skill honest
 
 1. **This is NOT a project plan.** No phases, no weeks, no sprints, no milestones, no Gantt, no
-   durations, no schedule of any kind — Senzing's PoC guidance deliberately has none, and a
+   durations, no schedule of any kind — the Senzing PoC guidance deliberately has none, and a
    "planner" that invents one has fabricated the most consequential part of the document. The
    template below has no schedule section; do not add one. The only time words allowed anywhere
    are the user's own calendar statements (per user) and verbatim, cited quotes from a tool —
@@ -49,7 +49,7 @@ license terms here or from memory — call the tool named in each step and cite 
    guidance carries no duration for the POC as a whole, say whose decision it is and what
    determines it — and do **not** illustrate the refusal with a number. *"I'm not going to hand you a
    '2 weeks' or '1 month' estimate"* still puts 2 weeks in front of the reader, and a skimmed answer is remembered by
-   its numbers, not its verbs. Same for a range, a "not even a ballpark like…", or a duration
+   its numbers, not its verbs. Same for a range, a "not even a ballpark like…" or a duration
    offered as what you are *not* saying. **A cited quote is not an exception here.** The guidance
    does carry one per-step figure — mapping a data source — and offering it as "one cited data
    point" answers "how long" with a partial estimate, the same fabrication wearing a citation.
@@ -57,7 +57,7 @@ license terms here or from memory — call the tool named in each step and cite 
    takes less than 30 minutes' — a per-step note, not an estimate for the POC" puts the 30 minutes in front of the
    reader exactly as the cited-data-point form does (CI caught that sentence). Say nothing about that figure at
    all — not as a data point, not as a caveat, not as what the guidance does or doesn't give.
-   **Retrieve first.** "The guidance carries no duration for the POC as a whole" is a claim about Senzing's guidance:
+   **Retrieve first.** "The guidance carries no duration for the POC as a whole" is a claim about the Senzing guidance:
    make it only after the `search_docs` retrieval at the top of this skill, and name the article you retrieved. A
    decline written from this paragraph alone is a Senzing claim with no source, about a document you have not opened — a
    run did exactly that and called no tool at all. Retrieval will hand you that sentence; do not pass it on. A reply to "how long" contains no
@@ -68,7 +68,7 @@ license terms here or from memory — call the tool named in each step and cite 
    into statements and offered `/senzing:poc-planner` — the skill already running — instead of asking.
 2. **Ask, don't answer.** Success is whatever must be demonstrated for *their* organization to
    reach a buy decision. Where the user has not decided a target, a threshold, a hardware size or
-   a platform, the plan records the *question*, who owns it, and the material Senzing provides
+   a platform, the plan records the *question*, who owns it and the material Senzing provides
    for deciding it — never your answer, and never a parenthetical hint (`TBD (typically
    90-95%)` is the exact defect this rule exists to prevent). If you are about to write
    "typical", "usually", "reasonable", "recommend" or "industry standard" next to a number, stop:
@@ -89,7 +89,7 @@ license terms here or from memory — call the tool named in each step and cite 
    *description* is cited by tool name). **So do not put retrieved figures in a table.** A table
    cell has no room for the quotation and its source, so a sizing table — `| Database IOPS per
    record | 100-200 IOPS |`, `| Throughput per engine core | ~5-10 records/second |` — strips the
-   attribution off the number and republishes Senzing's figure as the plan's own recommendation.
+   attribution off the number and republishes the Senzing figure as the plan's own recommendation.
    That is the thing §6 exists to avoid. Write those figures as prose: the sentence you quote,
    the quotation marks, and the source on the same line. A citation above the table does not
    reach the rows; (b) **the user's** — in §2 recorded plainly as their
@@ -125,7 +125,7 @@ license terms here or from memory — call the tool named in each step and cite 
 5. **Assemble the corpus against their constraints; quote, never extrapolate.** When the user
    states constraints (volume, database, OS, cloud, language), pull everything the tools have
    that bears on each one and present it side by side, each item attributed with its source, as
-   *Senzing's material for you to consider*. Then ask what they are committing to and record
+   *Senzing material for you to consider*. Then ask what they are committing to and record
    that. Do not turn a quoted figure into a target, a schedule or a sizing recommendation.
    **Positioning their volume against a quoted example is extrapolation even though it produces
    no new number.** "your 755k sits between those rows", "brackets your total", "nearest your
@@ -140,7 +140,7 @@ license terms here or from memory — call the tool named in each step and cite 
    gave you. Adding up the user's OWN stated per-source counts is fine and often necessary —
    `sdk_guide(topic="load")` takes a single integer `record_count`, and the license-limit
    material only appears when you pass their real total. What is banned is inventing a figure
-   from Senzing's numbers, not doing arithmetic on theirs — §2 holds their facts, and a total
+   from the Senzing numbers, not doing arithmetic on theirs — §2 holds their facts, and a total
    they never said is yours, not theirs; if a
    figure sits next to interpretive words in the tool result ("very high", "may indicate"),
    quote the words too or leave the figure out. Quote only what bears on the user's **target
@@ -156,7 +156,7 @@ license terms here or from memory — call the tool named in each step and cite 
    generator's assumptions rather than reality, and it yields a POC result that looks excellent
    and predicts nothing about production. Label real records from your own data instead."* The
    label is literal — carry `(plugin rule)`, or words that say as plainly that this note is the
-   plugin's and not Senzing's, in the same breath as the note. Unlabelled it reads as retrieved
+   plugin's and not part of the Senzing material, in the same breath as the note. Unlabelled it reads as retrieved
    Senzing material, which is the one thing every sentence in this plan must never do. Never
    offer to generate, synthesize, augment or fabricate a truth set — if asked, decline, quote the
    note, and point at what the retrieved guidance says about labeling real records. The
@@ -209,7 +209,7 @@ rows still marked `TBD — decided by`, and rewrite the file with the same headi
   **STOP**. Write nothing. There is nothing to record yet, and a plan whose every row is TBD is
   not worth a file.
 - **DRAFT mode — the user already stated substantive constraints**: record counts or sources,
-  a database, an OS/platform, cloud vs on-prem, who will run it, an SDK language, or what their
+  a database, an OS/platform, cloud vs on-prem, who will run it, an SDK language or what their
   organization wants to see. Then you **MUST carry on to step 8 and write the plan in this same
   exchange.** Ask step 2's and step 3's questions *in the same message as the work* — do not stop
   on them. Everything they did not state becomes the literal `TBD — decided by <owner>`. That
@@ -219,7 +219,7 @@ rows still marked `TBD — decided by`, and rewrite the file with the same headi
 A single message carrying constraints is DRAFT mode. Do not wait for a second turn that may never
 come — the user asked for a plan, and the TBD rows are how the plan stays truthful without one.
 
-1. **Grounding gate.** Call `get_capabilities`. Then retrieve Senzing's PoC guidance with at least
+1. **Grounding gate.** Call `get_capabilities`. Then retrieve the Senzing PoC guidance with at least
    these three `search_docs` calls, keeping every hit whose `title` is the PoC article and its
    `source_url`:
    - `search_docs(query="The Path to a Successful Proof of Concept PoC", max_results=25)`
@@ -245,7 +245,7 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
      and does that match where production would eventually live? What hardware is actually
      available for the POC (not what production would eventually get)? What throughput and
      latency would you have to see to believe the result? Ask; suggest no sizes.
-   - **People and tooling.** Who runs it, their skills, and **which SDK language** (needed for
+   - **People and tooling.** Who runs it, their skills and **which SDK language** (needed for
      step 3 and by `install` later).
    - **The buy decision.** *"At the end of this, what would have to be TRUE for your organization
      to say yes?"* — asked in those open terms first, and it stands on its own. Then offer the
@@ -283,7 +283,7 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    using only the `list` descriptions; point at `demo`. Apply rule 6 to the truth-set row. If a
    chunk links to a how-to whose content `search_docs` does not return, say it is not indexed and
    give the link from the chunk. Fill `data_sources[]` in §2 from the user's answers.
-5. **Infrastructure — assemble Senzing's material against their constraints, then let them
+5. **Infrastructure — assemble the Senzing material against their constraints, then let them
    decide (the shape of the whole skill).** For each §2 constraint the user stated, call the tool
    that owns it and put the result in §6, attributed:
    - volume → `search_docs(query="hardware sizing POC evaluation minimum requirements", max_results=5)`
@@ -325,7 +325,7 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    and the identifying columns they named — the same values as §2 `data_sources[]`. Say that
    mapping is done by the `analyze` skill's `mapping_workflow` when they are ready — **never start
    `mapping_workflow` here.**
-7. **The path — an ordered list of skills, nothing else.** `install` (if no Senzing on the
+7. **The path — an ordered list of skills, nothing else.** `install` (if no Senzing SDK on the
    target) → `analyze` (map → load into a scratch repository → resolve → report) → evaluation
    against §3, naming the skill for each. Rule 1 applies with full force here: no phases, weeks,
    sprints, milestones or durations. Quote the support contact from the retrieved article chunk,
@@ -384,14 +384,14 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
 9. **Hand off — do not continue.** End with §9's `open_decisions` list verbatim and **name
    exactly one next command for the user to run**: `/senzing:doctor` on the target host if the
    POC runs where they have a shell; `/senzing:install` if there is no Senzing there;
-   `/senzing:analyze` when they have the files and a working Senzing; `/senzing:demo` if they
+   `/senzing:analyze` when they have the files and a working Senzing SDK; `/senzing:demo` if they
    have no data yet; `/senzing:ask` for any single question the plan raised. **Never invoke the
    `Skill` tool from this skill** — hand-off means naming the command, not calling it. Stop there.
 
 ## The plan template (headings and keys are the contract — evals and downstream skills parse them)
 
 ````
-# Senzing Proof of Concept — Plan
+# Senzing proof of concept — plan
 Generated <date> by /senzing:poc-planner · grounded in the Senzing MCP · every Senzing statement carries its source as returned
 Consumer contract: parse by the "## N." headings below. A value beginning `TBD — decided by` is undecided — stop and send the user back; never fill it. This is not a project plan: it carries no schedule.
 
@@ -445,7 +445,7 @@ calendar:
 ## 4. What must be true to buy — goal and scope
 ## 5. Data selection checklist
    table: rule (quoted, cited) | our situation (per user) | gap / decision
-## 6. Infrastructure — Senzing's material against your constraints
+## 6. Infrastructure — the Senzing material against your constraints
    per constraint: quoted, cited material · host lines: per user, or "run /senzing:doctor on the target host and paste its rows here" · license terms (quoted from each tool, discrepancies listed in §9) · the one question and their answer
 ## 7. Mapping plan
 ## 8. The path
@@ -494,5 +494,5 @@ constraints and answering with questions alone is NOT one of them. And a plan wh
 This skill writes one document and asks questions. It runs no shell command, invokes no sibling
 skill to do work, starts no `mapping_workflow`, downloads nothing, installs nothing, requests no
 license, and never presents a match, score, entity count or resolution outcome — there is none.
-It proposes no schedule, no targets and no sizing; when Senzing's guidance is silent, the plan
+It proposes no schedule, no targets and no sizing; when the Senzing guidance is silent, the plan
 says whose decision it is.
