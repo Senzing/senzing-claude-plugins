@@ -66,7 +66,11 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
   and produce the mapping. The mapper you write from it is code, so the **production run can then
   read the full table directly from the DB** (connect + `SELECT` → emit Senzing JSONL) — or export
   the whole table; both work. The field-to-attribute mapping is identical either way. (The only
-  hard requirement is a file *sample for profiling*, not full materialization.)
+  hard requirement is a file *sample for profiling*, not full materialization.) Export each table
+  sample to CSV **locally** (never paste rows into chat) and **name each file after its table**
+  (`CRM.PUBLIC.CUSTOMER.csv`) — a dotted `DB.SCHEMA.TABLE` label makes `start` infer
+  `environment=snowflake`; for any other platform the user names ("we run on Lambda"), pass
+  `environment` yourself. Run ONE `mapping_workflow` over the related tables.
 State the resolved input list to the user before proceeding — informational, not a gate.
 
 1. **Pre-flight — `doctor` runs before the first `mapping_workflow` call, every time.** This is
@@ -150,7 +154,9 @@ State the resolved input list to the user before proceeding — informational, n
    most common way to end with no mapping at all, which is a total failure rather than a
    degraded one. If a probe is ambiguous, take the answer you have, note it, and move on. The tool is a guided state machine, not a code generator: each
    response tells you what to do for the current step and what the next `advance` payload must
-   contain. `start` takes a `file_paths` **array** for a reason: step 1 profiles every schema
+   contain. **If `start` returns an `environment_note` (its first field), state its rules to the
+   user in that same reply and follow its `search_docs` query before writing any SQL or code.**
+   `start` takes a `file_paths` **array** for a reason: step 1 profiles every schema
    together and step 2 plans them as one entity structure — which files are masters, which are
    lookups, relationships or children, and the join keys between them. **A workflow per file
    can never see a cross-file join or relationship**, which is the point of resolving several

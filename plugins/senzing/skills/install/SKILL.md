@@ -92,7 +92,9 @@ recipe asks for".
 
 2. **Get the official steps.** `sdk_guide(topic="install", platform=…, language=…)`. Use what it
    returns verbatim — install commands, environment variables, and the `direct_download` URLs it
-   provides for firewalled environments. Do not hand-write install commands.
+   provides for firewalled environments. Do not hand-write install commands. If the user names
+   the environment this will run in (Snowflake, AWS Lambda, Azure Functions, Kafka,
+   Spark/Databricks), pass `environment` too and relay the returned `environment_note` rules.
 
 3. **Surface the license agreement before running anything — unconditionally.** Name it as the
    Senzing **End User License Agreement (EULA)**, in those words, with the URL the tool returned,

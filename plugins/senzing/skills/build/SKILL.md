@@ -77,7 +77,10 @@ Always:
    relevant file(s) so the code matches. If the user wants the code written into their project
    or run, invoke `doctor` now (see the pre-flight above) and keep its verdict for steps 3–4.
 2. Call `generate_scaffold` for the code, then `find_examples` and `get_sdk_reference` to confirm
-   signatures and fill gaps. Use `sdk_guide` for setup/config steps.
+   signatures and fill gaps. Use `sdk_guide` for setup/config steps. **If the user names where
+   this will run (Snowflake, AWS Lambda, Azure Functions, Kafka, Spark/Databricks), pass
+   `environment` to `sdk_guide`; when the response opens with an `environment_note`, state its
+   rules to the user in your reply and run its `search_docs` query before writing the code.**
    **Confirm argument types for the target language before writing any method call:**
    `get_sdk_reference(topic='parameters', filter=<method>, language=<target>)`. The same method
    has a different name AND different argument types in each binding; the response carries the
