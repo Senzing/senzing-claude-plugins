@@ -1,7 +1,7 @@
 ---
 name: demo
 description: >
-  The same end-to-end run as analyze, but on Senzing's own sample data — so the user sees entity
+  The same end-to-end run as analyze, but on the Senzing sample data — so the user sees entity
   resolution working without having to find, prepare, or share any data of their own. Validate,
   load, resolve and show the before/after in one pass against a throwaway scratch repository. Use when
   the user wants to see Senzing in action, evaluate it, or asks "show me entity resolution", "give

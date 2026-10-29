@@ -2,19 +2,16 @@
 name: poc-planner
 description: >
   Plan a Senzing proof of concept WITH the user — NOT a project plan: no phases, timeline, targets
-  or sizing of its own. Helps them work out what must be true for them to buy — which data, what
-  hardware, platform and performance, who runs it, what success means — grounded in Senzing's own
-  PoC guidance via the Senzing MCP, and writes a structured plan of THEIR decisions that later
-  skills can act on. Use when the user wants to plan, scope or structure an evaluation before
-  running anything: "help me plan a Senzing POC", "how should we structure our pilot", "what does
-  a good Senzing POC look like", "how long will a POC take", "what data should we bring", "define
+  or sizing of its own. Helps them work out what must be true for them to buy (data, hardware,
+  platform, performance, who runs it, what success means), grounded in the Senzing PoC guidance
+  via the Senzing MCP, and writes a structured plan of THEIR decisions. Use when the user wants to
+  plan or scope an evaluation before running anything: "help me plan a Senzing POC", "how should
+  we structure our pilot", "how long will a POC take", "what data should we bring", "define
   success criteria for evaluating Senzing", "1M records on MSSQL, Windows and Azure — what do we
-  need for a POC?". **A duration, target, size or platform of your own is a failure of this
-  skill even when it is plausible** — a "typical" week count or a "reasonable" precision bar
-  answers from memory what the guidance deliberately leaves to the user; every such figure in
-  the plan is the user's, a cited quote, or `TBD — decided by <owner>`. Not for a one-off
-  question (use ask), resolving files now (use analyze), sample data (use demo), a cookbook use
-  case (use recipes), results already in Senzing (use report), or installing (use install).
+  need for a POC?". **A duration, target, size or platform of your own is a failure of this skill
+  even when plausible** — every figure in the plan is the user's, a cited quote, or `TBD — decided
+  by the owner`. Not for a one-off question (ask), resolving files (analyze), sample data (demo),
+  recipes, results already in Senzing (report), or installing (install).
 argument-hint: "[use case, constraints, or plan path]"
 allowed-tools: Read, mcp__plugin_senzing_senzing__*
 # Write and Bash are both deliberately ABSENT, even though step 8 writes the plan
@@ -76,7 +73,7 @@ license terms here or from memory — call the tool named in each step and cite 
    final content of a row.
 3. **No plan without grounding.** Step 1 must succeed — `get_capabilities` answers and
    `search_docs` returns the PoC guidance — before anything else. If either fails, retry once,
-   then stop and say so: *"I could not reach the Senzing MCP / retrieve Senzing's PoC guidance,
+   then stop and say so: *"I could not reach the Senzing MCP / retrieve the Senzing PoC guidance,
    so I will not write a plan."* (A working Senzing install is **not** required to plan — only
    to run; see step 9.) **Mid-run:** if any tool in steps 3–7 errors, or returns `needs_input`
    you cannot satisfy from the user's answers, do not fill the gap — record the tool and topic

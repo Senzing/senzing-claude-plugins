@@ -1,14 +1,14 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../../assets/senzing-logo-dark-theme.png">
-    <img src="../../assets/senzing-logo-light-theme.png" alt="Senzing" width="240">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/senzing-logo-dark-theme.png">
+    <img src="assets/senzing-logo-light-theme.png" alt="Senzing" width="240">
   </picture>
 </p>
 
 <h1 align="center">Senzing</h1>
 
 <p align="center">
-  <b>Entity resolution: point Claude at your data, it does the work, and you have results today.</b>
+  <b>Entity resolution: point Claude at your data, it does the work and you have results today.</b>
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
   <a href="#support">Support</a>
 </p>
 
-<img src="../../assets/ember-rule.svg" alt="" width="100%" height="4">
+<img src="assets/ember-rule.svg" alt="" width="100%" height="4">
 
 SENZING® entity resolution finds, deduplicates, links and resolves person and organization records
 within and across data sources — building an identity-resolved graph with no training or
@@ -81,15 +81,15 @@ app") and the right one kicks in.
 | Surface | What you get |
 |---|---|
 | **Claude Code** | Full capability. Every command works. |
-| **Chat / Cowork** | Full capability, with one exception: a report can be a dashboard artifact or a file, but not a **live interactive service** — SDK code that serves a web user interface (UI) has nowhere to serve it. |
+| **Chat / Cowork** | Grounding, mapping, code generation and plans. `/senzing:install` refuses to run in a cloud sandbox, so `/senzing:demo` and `/senzing:analyze` cannot run the engine there; resolving data needs Senzing on a machine you control. |
 | **Claude web** | **Informational only.** Nothing executes, in a container or on your machine. |
 
 On Claude web what still works is the half that needs no machine at all —
 `/senzing:ask`, `/senzing:troubleshoot` and `/senzing:poc-planner`, grounded in the hosted Senzing
 MCP. The commands that map, load, resolve or report have nothing to run on.
 
-Worth knowing before you install: the plugin ships no executables, so **nothing blocks the
-install anywhere**. On Claude web you get a clean install, working answers and then silence from
+Worth knowing before you install: the plugin ships no binaries (three short bash hooks, listed
+below, and one Python plan validator), so **nothing blocks the install anywhere**. On Claude web you get a clean install, working answers and then silence from
 the commands that need a machine — there is no error message explaining why.
 
 ## Requirements
@@ -118,11 +118,11 @@ the Senzing knowledge is served over HTTPS — so for the full experience, allow
 | Domain | Needed for |
 |---|---|
 | `mcp.senzing.com` | everything the server hosts itself — Senzing knowledge, SDK package downloads, sample-data downloads, workflow resources |
-| `raw.githubusercontent.com` | indexed code examples and cookbook recipes, which are returned as raw GitHub URLs |
+| `raw.githubusercontent.com` | cookbook recipes, and the `raw_url` fallback for indexed code examples (examples are served from `mcp.senzing.com/examples/`) |
 
 Without `mcp.senzing.com` the plugin cannot ground anything and will say so rather than answer
-from memory. Without `raw.githubusercontent.com` you still get answers, but example code has to
-come the long way round.
+from memory. Without `raw.githubusercontent.com` you still get answers and example code, but cookbook recipes
+cannot be fetched.
 
 ## Install
 

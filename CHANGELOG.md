@@ -10,7 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Bump to MCP server **v1.41.1** (lockstep sync); the plugin carries no code change.
+- Bump to MCP server **v1.41.1** (lockstep sync).
+- `build` and the `senzing-grounder` agent confirm a method's flags with
+  `get_sdk_reference(topic='flags', filter=<method>)` and follow `sdk_guide`'s `next_action`
+  (both new in server v1.41.0). `ask` passes the optional `environment` argument when the user
+  names a deployment environment, so the `environment_note` rules apply.
+- `poc-planner` and `analyze` skill descriptions trimmed to 1024 characters or fewer with no angle
+  brackets; trigger phrases kept. "Senzing's" possessives removed from the `demo` and `poc-planner`
+  descriptions and the `poc-planner` reply template; Oxford comma removed from the listing text.
+- README: Claude Desktop can add this marketplace directly; the Chat / Cowork row no longer claims
+  full capability (`install` refuses in a cloud sandbox); "ships no executables" corrected (three
+  bash hooks and one Python validator); examples are served from `mcp.senzing.com/examples/`.
+  Logo and divider images now ship inside the plugin folder so they resolve in an installed copy.
 
 ## [1.41.0] - 2026-10-28
 

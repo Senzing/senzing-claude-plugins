@@ -78,6 +78,11 @@ threshold not in a tool result or from the user is `TBD — decided by <owner>`;
    | Install/configure steps for a platform | `sdk_guide` |
    | Requesting a free evaluation license | `submit_feedback` with `category='license_request'` — see below |
 
+   If the user names a deployment environment (Snowflake, AWS Lambda, Azure Functions, Kafka,
+   Spark), pass `environment` (`snowflake`, `aws_lambda`, `azure_functions`, `kafka`, `spark`) on
+   `sdk_guide`, `reporting_guide` or the `mapping_workflow` start so its `environment_note` rules
+   apply, and state those rules first in your answer.
+
    ⚠ **The license request is the one call in this skill with a side effect** — it emails a license.
    Its description names the fields it needs (currently the requester's first name, a work email
    address, and how they heard of Senzing; last name optional) and the current terms — read both

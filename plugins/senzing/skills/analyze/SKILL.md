@@ -1,19 +1,17 @@
 ---
 name: analyze
 description: >
-  Answer "who is who" in the user's own data files, end to end: map to the Entity Spec, load into a
-  throwaway scratch repository, resolve, then deliver a shareable report. Use when the user points
-  at CSV/JSON/Parquet files and wants deduplication, record linkage, a resolved dataset, or entity
-  resolution — e.g. "resolve my customer list", "dedupe these files", "find duplicates", "match
-  these two lists", "load this into Senzing and show me the entities". Also the entry point for
-  mapping alone, when the user wants only Senzing-ready JSON or has no Senzing installed. Runs real
-  SDK code locally via Bash; records never leave the machine and results are never simulated.
-  **A small file is a reason to RUN this skill, never a reason to do the matching yourself.**
-  Producing the answer by inspection, a script, or any means other than Senzing is a failure of
-  this skill even when the answer is right and even when you say so: the user installed this to
-  get entity resolution, not your opinion about their rows. Six records still resolve. Runs
-  doctor first to confirm this host can deliver the result. Not for data already loaded in Senzing
-  (use report), sample data (use demo), or a named cookbook use case (use recipes).
+  Answer "who is who" in the user's own data files, end to end: map to the Entity Spec, load into
+  a throwaway scratch repository, resolve, then deliver a shareable report. Use when the user
+  points at CSV/JSON/Parquet files and wants deduplication, record linkage, a resolved dataset, or
+  entity resolution — e.g. "resolve my customer list", "dedupe these files", "find duplicates",
+  "match these two lists", "load this into Senzing and show me the entities". Also the entry point
+  for mapping alone, when the user wants only Senzing-ready JSON or has no Senzing installed. Runs
+  real SDK code locally via Bash; records never leave the machine and results are never simulated.
+  **A small file is a reason to RUN this skill, never a reason to do the matching yourself** —
+  producing the answer by any means other than Senzing is a failure of this skill even when it is
+  right. Runs doctor first. Not for data already in Senzing (report), sample data (demo), or a
+  cookbook use case (recipes).
 argument-hint: "[path/to/data ...]"
 allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), Agent, mcp__plugin_senzing_senzing__*
 ---
