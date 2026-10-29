@@ -84,8 +84,10 @@ Always:
    **Confirm argument types for the target language before writing any method call:**
    `get_sdk_reference(topic='parameters', filter=<method>, language=<target>)`. The same method
    has a different name AND different argument types in each binding; the response carries the
-   cross-binding divergence warnings, so read them there rather than from memory. **Never carry a
-   call from one binding to another.**
+   cross-binding divergence warnings, so read them there rather than from memory. If the method takes
+   flags, also call `get_sdk_reference(topic='flags', filter=<method>)` (full definitions:
+   `topic='flag_details'`) and follow any `next_action` that `sdk_guide` returns before writing the
+   call. **Never carry a call from one binding to another.**
 3. **Write the code into the user's project with its source-URL provenance comment preserved** —
    do not strip attribution. Match the surrounding code's style. **If the user named a path or
    filename, that exact file is the deliverable** — write it there, then `Read` it back to

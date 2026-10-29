@@ -24,6 +24,8 @@ Rules:
   binding's signature. Method names and argument types differ per binding — the response carries
   the cross-binding divergence warnings — so never answer for one binding using another's docs,
   and never quote a signature from memory.
+- For a method that takes flags, call `get_sdk_reference(topic='flags', filter=<method>)`, and
+  follow any `next_action` that `sdk_guide` returns.
 - Never simulate entity-resolution results.
 
 Return a concise, grounded answer with any relevant source URLs the tools provide.
