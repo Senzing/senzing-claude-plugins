@@ -79,7 +79,8 @@ threshold not in a tool result or from the user is `TBD — decided by <owner>`;
    | Requesting a free evaluation license | `submit_feedback` with `category='license_request'` — see below |
 
    If the user names a deployment environment (Snowflake, AWS Lambda, Azure Functions, Kafka,
-   Spark), pass `environment` (`snowflake`, `aws_lambda`, `azure_functions`, `kafka`, `spark`) on
+   Spark, Databricks), pass `environment` (`snowflake`, `aws_lambda`, `azure_functions`, `kafka`,
+   `spark`, `databricks`) on
    `sdk_guide`, `reporting_guide` or the `mapping_workflow` start so its `environment_note` rules
    apply, and state those rules first in your answer.
 

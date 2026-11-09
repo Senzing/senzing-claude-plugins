@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.0] - 2026-11-08
+
+### Changed
+
+- Bump to MCP server **v1.46.0** (lockstep sync; supersedes the v1.43.1-v1.45.2 sync PRs).
+- MCP v1.46.0 adds the `databricks` environment (sz-databricks, the pre-built Databricks App).
+  The `ask`, `build` and `install` skills list it, `report` names the sz-databricks entity
+  mart, and `analyze` says an all-lower-case `catalog.schema.table` label no longer infers
+  Snowflake: the server's note names Snowflake and Databricks, so ask the user which platform
+  holds the tables.
+
 ## [1.43.0] - 2026-11-02
 
 ### Changed

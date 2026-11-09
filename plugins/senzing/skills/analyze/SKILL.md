@@ -66,9 +66,11 @@ with — `$ARGUMENTS` — typically file paths like `~/data/crm.csv ~/data/billi
   the whole table; both work. The field-to-attribute mapping is identical either way. (The only
   hard requirement is a file *sample for profiling*, not full materialization.) Export each table
   sample to CSV **locally** (never paste rows into chat) and **name each file after its table**
-  (`CRM.PUBLIC.CUSTOMER.csv`) — a dotted `DB.SCHEMA.TABLE` label makes `start` infer
-  `environment=snowflake`; for any other platform the user names ("we run on Lambda"), pass
-  `environment` yourself. Run ONE `mapping_workflow` over the related tables.
+  (`CRM.PUBLIC.CUSTOMER.csv`) — a dotted `DB.SCHEMA.TABLE` label with an upper-case letter makes
+  `start` infer `environment=snowflake`; an all-lower-case one (`main.crm.customer.csv`) gets a note
+  naming Snowflake and Databricks, so ask the user which platform holds the tables. For any other
+  platform the user names ("we run on Lambda", "our tables are in Databricks"), pass `environment`
+  yourself. Run ONE `mapping_workflow` over the related tables.
 State the resolved input list to the user before proceeding — informational, not a gate.
 
 1. **Pre-flight — `doctor` runs before the first `mapping_workflow` call, every time.** This is

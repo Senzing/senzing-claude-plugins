@@ -77,7 +77,8 @@ entities"). If none is given, ask what they want to see before running anything.
    `generate_scaffold` and Bash-run them; parse the JSON.
 3. For analytics/quality, use `reporting_guide` (topics: reports, entity_views, data_mart,
    quality, evaluation) for the SQL and schema, and run it against the user's database. If the
-   user names their platform (e.g. Snowflake crosswalk reporting), pass `environment` and state
+   user names their platform (e.g. Snowflake crosswalk reporting, or the sz-databricks entity mart
+   on Databricks), pass `environment` and state
    the returned `environment_note` rules to them in your reply. If a query
    sweep runs long, **narrate progress as a compact visual, unprompted** — a one-line stat line or
    micro-table of real numbers as each result lands, not silence and not prose (see the `demo`
