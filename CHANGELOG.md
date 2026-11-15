@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Bump to MCP server **v1.46.1** (lockstep sync); the plugin carries no code change.
+  The server refreshes its content to Senzing SDK 4.4.4 (error codes, SDK snippets, docs
+  and `/downloads/` packages) and marks `submit_feedback` as non-destructive. No tool was
+  added, removed or renamed, so the skills' `allowed-tools` and hook matchers are unchanged.
 
 ## [1.46.0] - 2026-11-08
 
