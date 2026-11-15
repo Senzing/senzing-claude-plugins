@@ -13,7 +13,7 @@ description: >
   error code (troubleshoot), checking this machine (doctor), or planning, scoping or sizing a proof
   of concept / pilot / evaluation (use poc-planner).
 argument-hint: "[question]"
-allowed-tools: Read, mcp__plugin_senzing_senzing__*
+allowed-tools: Read
 ---
 
 # Ask a Senzing question

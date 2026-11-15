@@ -13,17 +13,12 @@ description: >
   by the owner`. Not for a one-off question (ask), resolving files (analyze), sample data (demo),
   recipes, results already in Senzing (report), or installing (install).
 argument-hint: "[use case, constraints, or plan path]"
-allowed-tools: Read, mcp__plugin_senzing_senzing__*
-# Write and Bash are both deliberately ABSENT, even though step 8 writes the plan
-# file and runs validate_plan.py. allowed-tools PRE-APPROVES rather than restricts —
-# a tool stays callable either way — so listing them would only suppress the user's
-# permission prompt. That is exactly the ALLOWED_TOOLS_BROAD finding that held this
-# plugin at directory review: unscoped Write (cleared here) and, had we added it to
-# 'fix' the validator's prompt, Bash. (That was tried once on a branch and reverted;
-# no SHA is cited because a squash-merge orphans it.) The plan still gets written and the
-# validator still runs; the user is asked first, which is correct for the single
-# deliberate write a planning run makes and for a script we ship and execute on
-# their machine. Do not add either here to silence a prompt.
+allowed-tools: Read
+# Write is deliberately ABSENT even though step 8 writes the plan file: allowed-tools
+# PRE-APPROVES rather than restricts, so listing it would only suppress the user's
+# permission prompt for the single deliberate write a planning run makes. The Claude
+# directory also accepts nothing beyond Read/Grep/Glob/LS here from an organization that
+# isn't Verified. Do not add tools here to silence a prompt.
 ---
 
 # Plan a Senzing proof of concept — with the user
@@ -165,14 +160,12 @@ license terms here or from memory — call the tool named in each step and cite 
    and counts go into tool calls and into the plan. If the user points at files, `Read` the
    header row only — never a data row. Record people as roles or teams ("the CRM team"), not
    names, unless the user asks for names in the plan. Nothing record-shaped goes to a hosted tool.
-8. **One shell command exists, and it is `validate_plan.py`.** This skill plans; it runs
-   nothing of the user's and installs nothing. Your tools are Read, Write and the Senzing MCP,
-   plus that one command in step 8 — which you run as many times as the repair loop needs.
-   Write and that command are yours to use and are deliberately NOT pre-approved, so each
-   one asks the user first; a prompt is the design, not an obstacle to route around. A
-   session may grant Bash for other skills; that is not an invitation to use it here. Nothing
-   else: no probing, no
-   profiling, no counting records, no `ls`. Wanting a command for any other reason — to profile
+8. **No shell command, ever.** This skill plans; it runs nothing of the user's and installs
+   nothing. Your tools are Read, Write and the Senzing MCP. Write is yours to use and is
+   deliberately NOT pre-approved, so it asks the user first; a prompt is the design, not an
+   obstacle to route around. A session may grant Bash for other skills; that is not an
+   invitation to use it here: no probing, no profiling, no counting records, no `ls`.
+   Wanting a command for any other reason — to profile
    a file, probe the host, count records — means you are in `analyze`'s or `doctor`'s job: write
    the hand-off into the plan and stop.
    Host facts about the POC target come from the user or from `doctor` run **on that host**,
@@ -186,11 +179,8 @@ license terms here or from memory — call the tool named in each step and cite 
    Checking your own work by hand is not an exception; it is where the temptation is
    strongest, because the command looks harmless and the output is your own. Nothing about
    this skill — checking a path, reading a header row, confirming a write landed — needs a
-   shell. The ONE sanctioned command is `validate_plan.py`, and it exists precisely so that
-   checking your own work does not become a license to run `ls` and `grep`: run the
-   validator, read its output, fix what it names, run it again. **Re-running the validator is
-   never the defect — running anything else is.** Any `Bash` call other than
-   `validate_plan.py` is a defect even when its output is harmless.
+   shell: step 8's structure check is done on the text `Read` returns. Any `Bash` call is a
+   defect even when its output is harmless.
 
 ## Procedure
 
@@ -337,25 +327,33 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    others; the two `yaml` blocks with exactly the keys shown, values the user's or the TBD
    literal.
 
-   **Then VALIDATE it, and fix what it names.** Run exactly:
+   **Then `Read` the file back and check its structure, and fix what fails.** Downstream
+   skills parse the plan by its structure, so check each item on the text `Read` returned,
+   name the line of each failure, fix it, and `Read` again until every item holds. Do not hand
+   the user a plan that fails one:
 
-   ```
-   python3 "${CLAUDE_PLUGIN_ROOT}/skills/poc-planner/validate_plan.py" ./senzing-poc-plan.md
-   ```
+   1. All nine headings `## 1.` to `## 9.` are present, and no others.
+   2. Both `yaml` blocks would parse: every key has a value or nested keys, quoting is balanced,
+      and indentation is consistent.
+   3. §3 success criteria use only the seven keys `id`, `shape`, `statement`, `measurement`,
+      `measured_against`, `decided_by` and `target`. Each `target` is
+      `TBD — decided by <owner>` or the user's own words marked `per user`.
+   4. Every TBD in the document, in a yaml value, prose or a table cell, has its own §9
+      `open_decisions` line naming the item AND the key (each SC-n separately: "SC-1 target"
+      does not cover SC-2). A TBD in prose or a table cell names its key in backticks on that
+      same line. Count the TBDs and the §9 lines; the numbers match.
+   5. Nothing follows `TBD — decided by <owner>` on any line: no figure, no candidate list, no
+      `# …` template comment. A §9 pointer names WHAT is open, never a candidate answer.
+   6. If §6 discusses licensing, §9 has a license line that names the differing sources only
+      (`license path: <tool> vs <tool>`), with no figures; §6 quotes each source and never says
+      the terms agree.
 
-   (substitute the path you actually wrote). It checks the structure every downstream skill
-   relies on: the nine headings, every TBD listed in §9 `open_decisions` including nested keys,
-   nothing but a pointer after the TBD literal, the seven §3 keys, and that both yaml blocks
-   parse. Each problem it prints names a line and what is wrong. **Fix them and run it again
-   until it prints `plan is well formed`.** Do not hand the user a plan that has not passed.
+   These rules were once checked by a script that the Claude directory doesn't accept from an
+   organization that isn't Verified; prose-only checking let 8 of 10 plans through malformed,
+   so go through every item, every time. This checks STRUCTURE only: whether a quote is genuine
+   and whether a role was invented are still yours, under rules 4 and 6.
 
-   This exists because these rules were previously enforced only by prose, and plans failed them
-   silently — measured, 8 of 10 plans were malformed, and the half that were caught were caught
-   by an LLM reviewer reading 20,000 characters three times. A script answers in milliseconds
-   and tells you exactly which line. It checks STRUCTURE only: whether a quote is genuine and
-   whether a role was invented are still yours, under rules 4 and 6.
-
-   **Then `Read` the file back and check every occurrence of the token `TBD`** — scan the
+   **Then, on that same text, check every occurrence of the token `TBD`** — scan the
    text that `Read` returned; never `grep` it, which is a shell call and a defect under rule 8
    even though its output is harmless.
 
@@ -462,8 +460,8 @@ open_decisions:        # one line per open decision, verbatim, with the section 
   # A TBD written in PROSE or a TABLE CELL is an open decision too, and the commonest way plans
   # leave one out. Name it where it is written -- the key in backticks on that same line, e.g.
   # "subset (`data_subset_scope`): TBD — decided by <owner>" -- and give that key a line here.
-  # validate_plan.py checks this exactly: a prose TBD naming no key, or a key with no line here,
-  # is reported by line number. Each SC-n is listed separately; "SC-1 target" does not cover SC-2.
+  # Step 8's check 4 covers this: a prose TBD naming no key, or a key with no line here, fails.
+  # Each SC-n is listed separately; "SC-1 target" does not cover SC-2.
   - "TBD — decided by <owner>: <field or SC-n>"   # names WHAT is open; no number, version or hint after it
 not_indexed: []
 ```

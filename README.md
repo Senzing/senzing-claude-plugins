@@ -70,7 +70,7 @@ mapping, code generation and plans. `install` refuses to run in a cloud sandbox,
 `analyze` cannot run the engine there; resolving data needs Senzing on a machine you control. **Claude web**: informational only,
 because nothing executes there in a container or on your machine; `ask`, `troubleshoot` and
 `poc-planner` still work, and the commands that map, load, resolve or report have nothing to run
-on. The plugin ships no binaries (only three short bash hooks and one Python plan validator), so
+on. The plugin ships no binaries and no scripts, so
 nothing blocks the install anywhere — on Claude web you get a clean install and no error, just
 commands with no machine to work on.
 
@@ -79,6 +79,26 @@ commands with no machine to work on.
 
 Uploading a newer `.zip` with the same name **updates** the plugin in place. (In Claude Code you can
 also load a release artifact without installing: `claude --plugin-url <url-to-the-zip>`.)
+
+## Held back until Senzing is a Verified organization
+
+Since about 2026-11-05 the Claude directory accepts command hooks, script files and
+`allowed-tools` entries beyond Read/Grep/Glob/LS only from Verified organizations. Senzing is not
+one yet (requested from directory@anthropic.com), so the plugin currently ships without its three
+hooks, its pre-approved tools and `poc-planner`'s plan validator; `poc-planner` checks its plan's
+structure itself instead, which is less reliable than the script (prose-only checking let 8 of
+10 plans through malformed before it existed). All of it was removed in ONE commit so it comes
+back with one revert.
+
+**To restore once Senzing is Verified:**
+
+```bash
+git revert "$(git log --format=%H -1 --grep='^fix: meet the Claude directory policy')"
+```
+
+Then bump `plugin.json`'s version (a plugin-only release takes the next `-N` suffix on the server
+version, e.g. `1.46.1-2`), release as usual, and push to `main`; the directory submission tracks
+`main`.
 
 ## Commands
 

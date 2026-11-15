@@ -6,7 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.46.1] - 2026-11-15
+## [1.46.1-1] - 2026-11-14
+
+### Changed
+
+- **Meets the Claude directory policy until Senzing is a Verified organization.** Since about
+  2026-11-05 the directory refuses command hooks, script files and `allowed-tools` entries beyond
+  Read/Grep/Glob/LS from organizations that aren't Verified, so v1.43.0 and v1.46.0 were refused.
+  This release removes the three hooks (`session_start.sh`, `check_provenance.sh`,
+  `capture_state.sh`) and their fixtures, cuts every skill's `allowed-tools` to `Read`, removes
+  `poc-planner`'s `validate_plan.py` and `assets/ember-rule.svg`. `poc-planner` keeps its role:
+  step 8 now checks the plan's structure on the text `Read` returns, against the six rules the
+  validator enforced, and rule 8 now allows no shell command at all. `analyze` writes
+  `.sz-state.json` itself as before; only the hook's backup copy is gone. The `check.sh` hook and
+  validator sections and the `poc-planner-grounded` validator graders go with them, replaced by a
+  `no-shell-ran` grader.
+- **Known risk:** the plan-structure check is now the model's own reading, and prose-only
+  checking let 8 of 10 plans through malformed before the validator existed. The
+  `poc-planner-grounded` eval's structure graders and judges still catch a malformed plan in CI.
+- **Restore** with one revert once Senzing is Verified; the root README gives the command.
+
+## [1.46.1] - 2026-11-14
 
 ### Changed
 
