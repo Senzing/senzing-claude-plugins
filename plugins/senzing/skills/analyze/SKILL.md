@@ -215,7 +215,8 @@ State the resolved input list to the user before proceeding — informational, n
    its own, MAY you abandon the joint workflow and run several, one per file, via
    `field-mapper` sub-agents to parallelize. Then **each `field-mapper` gets its own
    `workspace_dir` = `{workspace}/<file-stem>/`**
-   (create it first) so their fixed-name files and `.sz-state.json` cannot collide. Delegate only as an optimization, never as a requirement and only after confirming
+   (create it first) so their fixed-name files and `.sz-state.json` cannot collide.
+   Delegate only as an optimization, never as a requirement and only after confirming
    a spawned sub-agent actually has a shell that can run the mapper scripts against its
    workspace. Some hosts give sub-agents a reduced tool set (no shell) or a different
    filesystem; mapping is execution-bound, so a shell-less sub-agent will stall. If a sub-agent

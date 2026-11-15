@@ -7,7 +7,7 @@
 #   senzing-claude-plugin-<version>.zip
 #   └── senzing/
 #       ├── .claude-plugin/plugin.json
-#       ├── skills/ agents/ hooks/ .mcp.json ...
+#       ├── skills/ agents/ .mcp.json ...
 #
 # That .zip installs three ways: Claude Desktop (Settings -> Plugins -> Add ->
 # Upload a file), `claude --plugin-url <url>` (CI build artifact), and

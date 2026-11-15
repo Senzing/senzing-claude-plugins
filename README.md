@@ -86,16 +86,19 @@ Since about 2026-11-05 the Claude directory accepts command hooks, script files 
 `allowed-tools` entries beyond Read/Grep/Glob/LS only from Verified organizations. Senzing is not
 one yet (requested from directory@anthropic.com), so the plugin currently ships without its three
 hooks, its pre-approved tools and `poc-planner`'s plan validator; `poc-planner` checks its plan's
-structure itself instead. All of it was removed in ONE commit so it comes back with one revert.
+structure itself instead, which is less reliable than the script (prose-only checking let 8 of
+10 plans through malformed before it existed). All of it was removed in ONE commit so it comes
+back with one revert.
 
 **To restore once Senzing is Verified:**
 
 ```bash
-git revert "$(git log --format=%H -1 --grep='meet the Claude directory policy')"
+git revert "$(git log --format=%H -1 --grep='^fix: meet the Claude directory policy')"
 ```
 
-Then bump the plugin version, release as usual, and push to `main`; the directory submission
-tracks `main`.
+Then bump `plugin.json`'s version (a plugin-only release takes the next `-N` suffix on the server
+version, e.g. `1.46.1-2`), release as usual, and push to `main`; the directory submission tracks
+`main`.
 
 ## Commands
 

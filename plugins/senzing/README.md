@@ -87,7 +87,8 @@ On Claude web what still works is the half that needs no machine at all —
 MCP. The commands that map, load, resolve or report have nothing to run on.
 
 Worth knowing before you install: the plugin ships no binaries and no scripts, only Markdown,
-JSON and images, so **nothing blocks the install anywhere**. On Claude web you get a clean install, working answers and then silence from
+JSON and images, so **nothing blocks the install anywhere**.
+On Claude web you get a clean install, working answers and then silence from
 the commands that need a machine — there is no error message explaining why.
 
 ## Requirements

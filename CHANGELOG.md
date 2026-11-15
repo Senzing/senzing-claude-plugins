@@ -21,9 +21,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `.sz-state.json` itself as before; only the hook's backup copy is gone. The `check.sh` hook and
   validator sections and the `poc-planner-grounded` validator graders go with them, replaced by a
   `no-shell-ran` grader.
+- **Known risk:** the plan-structure check is now the model's own reading, and prose-only
+  checking let 8 of 10 plans through malformed before the validator existed. The
+  `poc-planner-grounded` eval's structure graders and judges still catch a malformed plan in CI.
 - **Restore** with one revert once Senzing is Verified; the root README gives the command.
 
-## [1.46.1] - 2026-11-15
+## [1.46.1] - 2026-11-14
 
 ### Changed
 

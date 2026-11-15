@@ -164,7 +164,8 @@ license terms here or from memory — call the tool named in each step and cite 
    nothing. Your tools are Read, Write and the Senzing MCP. Write is yours to use and is
    deliberately NOT pre-approved, so it asks the user first; a prompt is the design, not an
    obstacle to route around. A session may grant Bash for other skills; that is not an
-   invitation to use it here: no probing, no profiling, no counting records, no `ls`. Wanting a command for any other reason — to profile
+   invitation to use it here: no probing, no profiling, no counting records, no `ls`.
+   Wanting a command for any other reason — to profile
    a file, probe the host, count records — means you are in `analyze`'s or `doctor`'s job: write
    the hand-off into the plan and stop.
    Host facts about the POC target come from the user or from `doctor` run **on that host**,
