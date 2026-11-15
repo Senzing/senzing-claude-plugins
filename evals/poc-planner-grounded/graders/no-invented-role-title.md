@@ -36,6 +36,6 @@ precision on purpose: a role smuggled inside a double-quoted YAML scalar escapes
 hit on the fabricated one ("a kick-off meeting with the VP and the project sponsor").
 
 **Known trade-offs.** A bare `sponsor` on an unquoted line would also fail "no sponsor was named"; none of 36 real plans
-says that, and the validator loop surfaces it. A role placed inside a double-quoted YAML scalar escapes this grader by
+says that, and the step 8 structure check surfaces it. A role placed inside a double-quoted YAML scalar escapes this grader by
 design and is covered by `judge-constraints-are-the-users`, whose fabricated-plan evidence is exactly that shape
 (`people: "per user: two engineers; project sponsor: the VP"`, `expectations.json`).

@@ -13,7 +13,7 @@ description: >
   right. Runs doctor first. Not for data already in Senzing (report), sample data (demo), or a
   cookbook use case (recipes).
 argument-hint: "[path/to/data ...]"
-allowed-tools: Read, Skill(senzing:doctor), Skill(senzing:install), Agent, mcp__plugin_senzing_senzing__*
+allowed-tools: Read
 ---
 
 # Analyze data with the Senzing SDK (map → load → resolve → report)
@@ -138,10 +138,9 @@ State the resolved input list to the user before proceeding — informational, n
    nothing the user can act on.
 
    Whichever path you settle on, pass it as `workspace_dir` on `mapping_workflow`'s `start` — the returned `state`
-   carries `workspace_dir` from then on, and the state-capture hook resolves the same directory from
-   that field (nothing needs to be exported or passed per command). Always write the returned
-   `state` to `{workspace}/.sz-state.json` yourself (step 3) — that self-written file is the
-   authoritative state; the hook's copy at the same path is a best-effort backup. Mapper scripts
+   carries `workspace_dir` from then on (nothing needs to be exported or passed per command).
+   Always write the returned `state` to `{workspace}/.sz-state.json` yourself (step 3) — that
+   file is the state. Mapper scripts
    write validated JSONL there. Required for sandboxed clients.
 3. **Map the sources by driving ONE `mapping_workflow` through its 8-step state machine — all
    files in a single `start`.**
@@ -164,7 +163,7 @@ State the resolved input list to the user before proceeding — informational, n
    `workspace_dir` — `schema_hints.md`, `JOURNAL.md`, `mapping_spec.json`,
    `<datasource>_sample.jsonl`, and `profile_report.md` for a single-file workflow (multi-file
    runs write `profile_report_<file-stem>.md` per file) — plus this skill's own `.sz-state.json`
-   (written by you and the state-capture hook, not by the tool). Two workflows sharing a
+   (written by you, not by the tool). Two workflows sharing a
    workspace overwrite each other mid-run.
    - `start` **once**, with **all** `file_paths` and `workspace_dir`. Follow the per-step
      instructions the responses return — profile the sources, plan the entity structure across
@@ -216,9 +215,7 @@ State the resolved input list to the user before proceeding — informational, n
    its own, MAY you abandon the joint workflow and run several, one per file, via
    `field-mapper` sub-agents to parallelize. Then **each `field-mapper` gets its own
    `workspace_dir` = `{workspace}/<file-stem>/`**
-   (create it first) so their fixed-name files and `.sz-state.json` cannot collide; the
-   state-capture hook follows `state.workspace_dir`, so per-file directories keep its copies
-   apart too. Delegate only as an optimization, never as a requirement and only after confirming
+   (create it first) so their fixed-name files and `.sz-state.json` cannot collide. Delegate only as an optimization, never as a requirement and only after confirming
    a spawned sub-agent actually has a shell that can run the mapper scripts against its
    workspace. Some hosts give sub-agents a reduced tool set (no shell) or a different
    filesystem; mapping is execution-bound, so a shell-less sub-agent will stall. If a sub-agent

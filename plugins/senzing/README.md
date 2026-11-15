@@ -28,8 +28,6 @@
   <a href="#support">Support</a>
 </p>
 
-<img src="assets/ember-rule.svg" alt="" width="100%" height="4">
-
 SENZING® entity resolution finds, deduplicates, links and resolves person and organization records
 within and across data sources — building an identity-resolved graph with no training or
 tuning. The Senzing SDK is used for master data management (MDM), customer 360, fraud detection,
@@ -88,8 +86,8 @@ On Claude web what still works is the half that needs no machine at all —
 `/senzing:ask`, `/senzing:troubleshoot` and `/senzing:poc-planner`, grounded in the hosted Senzing
 MCP. The commands that map, load, resolve or report have nothing to run on.
 
-Worth knowing before you install: the plugin ships no binaries (three short bash hooks, listed
-below, and one Python plan validator), so **nothing blocks the install anywhere**. On Claude web you get a clean install, working answers and then silence from
+Worth knowing before you install: the plugin ships no binaries and no scripts, only Markdown,
+JSON and images, so **nothing blocks the install anywhere**. On Claude web you get a clean install, working answers and then silence from
 the commands that need a machine — there is no error message explaining why.
 
 ## Requirements
@@ -136,19 +134,17 @@ Senzing MCP.
 
 ## What the plugin runs on its own
 
-Three hooks run automatically — Claude Code triggers them on events rather than you invoking
-them — so they are listed here in full. **None of them sends anything anywhere**; there is no
-network call in any of the three.
+Nothing. The plugin ships no hooks and no scripts, and its commands pre-approve only `Read`, so
+your permission settings decide what Claude asks before it runs a command, calls a Senzing tool
+or writes a file.
 
-| Hook | Runs when | What it does |
-|---|---|---|
-| `session_start.sh` | once, at session start | Prints a one-line "Senzing coworker ready" banner with the commands. Writes an empty marker file (`~/.senzing-er/.greeted`, or `$CLAUDE_PLUGIN_DATA`) so it only greets you once. |
-| `check_provenance.sh` | after Claude writes or edits a file | **Reads the file it just wrote**, and only that file. It exits immediately unless the path ends in `.py`, `.java`, `.cs`, `.rs`, `.ts`, `.js` or `.go`, and again unless the contents match Senzing SDK symbols. If the file looks like Senzing SDK code with no source URL in it, it reminds Claude to keep the attribution the MCP returned with the snippet. It reads; it never modifies, uploads or stores. |
-| `capture_state.sh` | after a `mapping_workflow` MCP call | Extracts the workflow's own state from the response and saves it as `.sz-state.json` inside the workspace directory that workflow already declared, so a mapping survives an interrupted session. |
-
-The second one is the one worth reading twice, because "runs after every write" sounds broader than
-it is: two filters run before it looks at anything, and a file that is not Senzing SDK source is
-never opened.
+This is deliberate for now. The Claude directory accepts command hooks, scripts and
+pre-approved tools beyond Read, Grep, Glob and LS only from Verified organizations, and Senzing
+is not one yet. Until it is, the plugin leaves out three read-only hooks (a session greeting, a
+reminder to keep source attribution in generated SDK code, and a backup of the mapping
+workflow's state), the pre-approved Senzing tools, and the script `/senzing:poc-planner` used to
+check a plan's structure; `poc-planner` now runs that check itself. They return as soon as
+Senzing is Verified.
 
 ## Data
 

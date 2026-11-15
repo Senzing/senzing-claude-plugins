@@ -2,9 +2,6 @@
 # Local + CI lockstep checks for the Senzing Claude Code plugins.
 # Run before every commit; CI runs the exact same script.
 # Tiers implemented here are the "static" tier — no API/auth, fast, deterministic.
-# Section 6 also RUNS every hook against a real captured payload: a hook whose jq path
-# matches nothing exits 0 and looks healthy, which is how capture_state.sh shipped
-# without ever writing a state file.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 
@@ -18,7 +15,7 @@ while IFS= read -r f; do
   if python3 -m json.tool "$f" >/dev/null 2>&1; then ok "$f"; else bad "$f (invalid JSON)"; python3 -m json.tool "$f" 2>&1 | head -3; fi
 done < <(find . -name '*.json' -not -path './.git/*' -not -path './evals/results/*' -not -path './evals-real/results/*' | sort)
 
-echo; echo "== 2. Hook scripts (bash -n + shellcheck) =="
+echo; echo "== 2. Shell scripts (bash -n + shellcheck) =="
 while IFS= read -r s; do
   if ! bash -n "$s"; then bad "$s (bash syntax)"; continue; fi
   if command -v shellcheck >/dev/null 2>&1; then
@@ -98,70 +95,6 @@ for d in plugins/*/skills/*/; do
   if [ "$fm_name" = "$dir" ]; then ok "$d (name: $fm_name)"; else bad "$d (frontmatter name '$fm_name' != directory '$dir')"; fi
 done
 
-echo; echo "== 6. Hooks run against real payloads (fixtures) =="
-HOOKS=plugins/senzing/hooks
-FIX="$HOOKS/fixtures"
-if ! command -v jq >/dev/null 2>&1; then
-  bad "jq not installed — hook fixture tests cannot run (brew install jq / apt-get install jq)"
-else
-  tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
-
-  # 6a. capture_state: REAL mapping_workflow start response (content-array shape, REMINDER footer)
-  #     must land at <state.workspace_dir>/.sz-state.json — the path the analyze skill reads.
-  ws="$tmp/ws-from-state"
-  sed "s|__WORKSPACE__|$ws|g" "$FIX/mapping_workflow_start.payload.json" \
-    | env -u SZ_WORKSPACE HOME="$tmp/home-a" bash "$HOOKS/capture_state.sh"
-  if [ -s "$ws/.sz-state.json" ] && jq -e --arg ws "$ws" '.step == 1 and .workspace_dir == $ws and (.file_paths | length) == 1' "$ws/.sz-state.json" >/dev/null 2>&1; then
-    ok "capture_state.sh wrote <state.workspace_dir>/.sz-state.json from the real payload"
-  else
-    bad "capture_state.sh did not write $ws/.sz-state.json from the real mapping_workflow payload"
-  fi
-  [ -e "$tmp/home-a/sz-workspace/.sz-state.json" ] && bad "capture_state.sh wrote to \$HOME instead of state.workspace_dir"
-
-  # 6b. capture_state: state without workspace_dir falls back to $HOME/sz-workspace (SZ_WORKSPACE unset).
-  jq -cn '{tool_response:{content:[{type:"text",text:("{\"state\":{\"step\":2,\"step_name\":\"plan_entity_structure\"}}\n\n[REMINDER: fixture]")}]}}' \
-    | env -u SZ_WORKSPACE HOME="$tmp/home-b" bash "$HOOKS/capture_state.sh"
-  if jq -e '.step == 2' "$tmp/home-b/sz-workspace/.sz-state.json" >/dev/null 2>&1; then
-    ok "capture_state.sh falls back to \$HOME/sz-workspace when state has no workspace_dir"
-  else
-    bad "capture_state.sh fallback to \$HOME/sz-workspace failed"
-  fi
-
-  # 6c. capture_state: a non-workflow payload must write nothing.
-  printf 'x = 1\n' > "$tmp/plain.py"
-  sed "s|__FILE__|$tmp/plain.py|g; s|__DIR__|$tmp|g" "$FIX/write_tool.payload.json" \
-    | env -u SZ_WORKSPACE HOME="$tmp/home-c" bash "$HOOKS/capture_state.sh"
-  if [ -e "$tmp/home-c/sz-workspace/.sz-state.json" ]; then bad "capture_state.sh wrote a state file for a Write payload"; else ok "capture_state.sh ignores non-workflow payloads"; fi
-
-  # 6d. check_provenance: SDK code without a URL -> hook JSON (additionalContext) on STDOUT, nothing on stderr.
-  printf 'from senzing_core import SzAbstractFactoryCore\n' > "$tmp/sdk.py"
-  out="$(sed "s|__FILE__|$tmp/sdk.py|g; s|__DIR__|$tmp|g" "$FIX/write_tool.payload.json" | bash "$HOOKS/check_provenance.sh" 2>"$tmp/prov.err")"
-  if printf '%s' "$out" | jq -e '.hookSpecificOutput.hookEventName == "PostToolUse" and (.hookSpecificOutput.additionalContext | length) > 0' >/dev/null 2>&1 && [ ! -s "$tmp/prov.err" ]; then
-    ok "check_provenance.sh emits hook JSON on stdout for un-attributed SDK code"
-  else
-    bad "check_provenance.sh did not emit hook JSON on stdout (stdout: '$out'; stderr: '$(cat "$tmp/prov.err")')"
-  fi
-
-  # 6e. check_provenance: a bare comment mentioning senzing, or SDK code that HAS a URL, must stay silent.
-  printf '# no senzing here\n' > "$tmp/comment.py"
-  printf '# source: https://github.com/senzing-garage/code-snippets-v4\nfrom senzing_core import SzAbstractFactoryCore\n' > "$tmp/attributed.py"
-  quiet=1
-  for f in comment.py attributed.py; do
-    out="$(sed "s|__FILE__|$tmp/$f|g; s|__DIR__|$tmp|g" "$FIX/write_tool.payload.json" | bash "$HOOKS/check_provenance.sh" 2>&1)"
-    [ -z "$out" ] || { quiet=0; bad "check_provenance.sh fired on $f: $out"; }
-  done
-  [ "$quiet" -eq 1 ] && ok "check_provenance.sh stays silent on a bare comment and on attributed code"
-
-  # 6f. session_start: must survive an environment with HOME unset (set -u).
-  if env -i PATH="$PATH" CLAUDE_PLUGIN_DATA="$tmp/plugin-data" bash "$HOOKS/session_start.sh" >"$tmp/ss.out" 2>"$tmp/ss.err" \
-     && grep -q '/senzing:ask' "$tmp/ss.out" && grep -q '/senzing:install' "$tmp/ss.out"; then
-    ok "session_start.sh runs with HOME unset and advertises ask + install"
-  else
-    bad "session_start.sh failed with HOME unset (stderr: $(cat "$tmp/ss.err"))"
-  fi
-fi
-
 echo; echo "== 7. CHANGELOG has an entry for the current plugin version =="
 for plugin_dir in plugins/*/; do
   [ -f "$plugin_dir/.claude-plugin/plugin.json" ] || continue
@@ -203,144 +136,6 @@ if python3 scripts/check-grader-parity.py; then ok "grader/skill parity (survivi
 # an invalid template, a substitution ban the router never sees, a fetch host
 # named wrong, and a prompt premise the sandbox contradicts.
 if python3 scripts/check-skill-hazards.py; then ok "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; else bad "skill hazards (templates parse, bans in descriptions, fetch hosts, prompt premises)"; fi
-
-echo; echo "== 8b. validate_plan.py accepts the correct plan and rejects the fabricated one =="
-# The validator gates what poc-planner hands the user, and until now nothing exercised it.
-# The two plan fixtures already exist, so this is the cheap end of the coverage a reviewer
-# asked for: it would have caught a validator that accepts everything (or nothing).
-VP=plugins/senzing/skills/poc-planner/validate_plan.py
-VP_OK=evals/poc-planner-grounded/grader-fixtures/plans/correct-plan.md
-VP_BAD=evals/poc-planner-grounded/grader-fixtures/plans/fabricated-plan.md
-if python3 "$VP" "$VP_OK" >/dev/null 2>&1; then
-  ok "validate_plan.py accepts correct-plan.md (exit 0)"
-else
-  bad "validate_plan.py REJECTS correct-plan.md — a validator that fails correct input is worse than none"
-fi
-if python3 "$VP" "$VP_BAD" >/dev/null 2>&1; then
-  bad "validate_plan.py ACCEPTS fabricated-plan.md — the check cannot fail, so it asserts nothing"
-else
-  ok "validate_plan.py rejects fabricated-plan.md (exit 1)"
-fi
-# It must also name the nested-TBD omission by path, not just fail for some other reason:
-# that omission was 5 of 10 failures in the run that motivated the validator.
-# Capture first: this script runs under `set -o pipefail`, so piping a command that
-# exits 1 (which this one must) into grep fails the pipeline even when grep matches.
-VP_OUT="$(python3 "$VP" "$VP_BAD" 2>&1 || true)"
-if printf '%s' "$VP_OUT" | grep -q "open_decisions does not list"; then
-  ok "validate_plan.py names the missing §9 entry (the omission it exists to catch)"
-else
-  bad "validate_plan.py rejects fabricated-plan.md but not for the §9 omission — check the reason, not just the exit code"
-fi
-
-# The two mutations the old leaf-substring check could not see. Each starts from the CORRECT plan
-# and removes exactly one thing, so the reason it is rejected is the only thing that changed.
-vp_tmp="$(mktemp -d)"
-# ONE combined EXIT trap: bash keeps a single trap per signal, so a second `trap ... EXIT` would silently replace the
-# section-6 cleanup of $tmp. Both directories are removed on any exit, not just the happy path.
-trap 'rm -rf "${tmp:-}" "${vp_tmp:-}"' EXIT
-sed 's/SC-2 target, measured_against, decided_by/SC-2 measured_against, decided_by/' "$VP_OK" > "$vp_tmp/no-sc2-target.md"
-# shellcheck disable=SC2016  # the backticks are literal characters in the plan, not a command substitution
-sed 's/ (`data_subset_scope`)//' "$VP_OK" > "$vp_tmp/prose-no-key.md"
-cmp -s "$VP_OK" "$vp_tmp/no-sc2-target.md" && bad "8b mutation 1 did not change the plan - the test below proves nothing"
-cmp -s "$VP_OK" "$vp_tmp/prose-no-key.md" && bad "8b mutation 2 did not change the plan - the test below proves nothing"
-VP_OUT1="$(python3 "$VP" "$vp_tmp/no-sc2-target.md" 2>&1 || true)"
-if printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-2.target'" \
-   && ! printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-1.target'" \
-   && ! printf '%s' "$VP_OUT1" | grep -q "does not list 'SC-3.target'"; then
-  ok "a plan missing ONLY SC-2.target is rejected for exactly that (not SC-1 or SC-3)"
-else
-  bad "validate_plan.py does not isolate SC-2.target - the leaf-substring weakness is back"
-fi
-VP_OUT2="$(python3 "$VP" "$vp_tmp/prose-no-key.md" 2>&1 || true)"
-if printf '%s' "$VP_OUT2" | grep -q "names no §9 key"; then
-  ok "a prose TBD with no §9 key is rejected, naming the line"
-else
-  bad "validate_plan.py accepts a prose TBD that is never listed as open"
-fi
-# License terms (same shape): remove only the §9 license line; and make only §6 claim the tools agree.
-grep -v 'license path' "$VP_OK" > "$vp_tmp/no-license-line.md"
-sed 's/The discrepancy between the paths/There is no discrepancy between the paths/' "$VP_OK" > "$vp_tmp/says-agree.md"
-cmp -s "$VP_OK" "$vp_tmp/no-license-line.md" && bad "8b mutation 3 did not change the plan - the test below proves nothing"
-cmp -s "$VP_OK" "$vp_tmp/says-agree.md" && bad "8b mutation 4 did not change the plan - the test below proves nothing"
-VP_OUT3="$(python3 "$VP" "$vp_tmp/no-license-line.md" 2>&1 || true)"
-if printf '%s' "$VP_OUT3" | grep -q "no license line"; then
-  ok "a plan whose §6 discusses licensing but whose §9 has no license line is rejected"
-else
-  bad "validate_plan.py accepts a plan that never lists the license discrepancy as open"
-fi
-VP_OUT4="$(python3 "$VP" "$vp_tmp/says-agree.md" 2>&1 || true)"
-if printf '%s' "$VP_OUT4" | grep -q "license terms agree"; then
-  ok "a plan that calls the license terms consistent is rejected"
-else
-  bad "validate_plan.py accepts 'no discrepancy' about license terms the tools returned differently"
-fi
-# §9 license line: it names the differing SOURCES; a cap/day count/volume on it is a hint after a TBD
-# (CI: every judge vote failed a §9 line restating "10-day/250K-record" and "500-record sample").
-awk '/^ *- "TBD.*license path/ && !d { sub(/license path/, "license path (10-day, 250K-record offer vs 500-record sample)"); d=1 } { print }' "$VP_OK" > "$vp_tmp/license-figure.md"
-cmp -s "$VP_OK" "$vp_tmp/license-figure.md" && bad "8b license-figure mutation did not change the plan - the test below proves nothing"
-VP_OUT_LF="$(python3 "$VP" "$vp_tmp/license-figure.md" 2>&1 || true)"
-if printf '%s' "$VP_OUT_LF" | grep -q "§9 license line carries a figure"; then
-  ok "a §9 license line carrying a cap, day count or volume is rejected"
-else
-  bad "validate_plan.py accepts a §9 license line that restates the figures"
-fi
-# §3 target: the plan must not set one. Change only SC-1's target to a figure.
-# awk, not sed: `0,/re/s//x/` is GNU-only and silently changes nothing on BSD sed (the cmp below catches that).
-awk '!d && /target: TBD — decided by data platform lead/ { sub(/target: TBD — decided by data platform lead/, "target: F1 above 0.95"); d=1 } { print }' "$VP_OK" > "$vp_tmp/invented-target.md"
-cmp -s "$VP_OK" "$vp_tmp/invented-target.md" && bad "8b mutation 5 did not change the plan - the test below proves nothing"
-VP_OUT5="$(python3 "$VP" "$vp_tmp/invented-target.md" 2>&1 || true)"
-if printf '%s' "$VP_OUT5" | grep -q "target is 'F1 above 0.95'"; then
-  ok "a plan that sets an SC target of its own is rejected, naming the figure"
-else
-  bad "validate_plan.py accepts an SC target the plan invented"
-fi
-# Path-builder unit probes: the four shapes a real plan can take that the fixtures do not exercise.
-if python3 - <<'PYEOF'
-import re, sys
-sys.path.insert(0, "plugins/senzing/skills/poc-planner")
-import validate_plan as vp
-fail = []
-def paths(block): return [vp.fmt_path(x) for x in vp.block_tbd_paths(block)]
-# an `id` that is not the first key still labels its item
-if paths("- shape: x\n  id: SC-9\n  target: TBD — decided by a\n") != ["SC-9.target"]:
-    fail.append("id-not-first item is not labelled by its id")
-# a list at the SAME indent as its parent key belongs to that parent (valid YAML)
-if paths("open_decisions:\n- k: TBD — decided by a\n") != ["open_decisions[0].k"]:
-    fail.append("same-indent list lost its parent")
-# a TBD that appears BEFORE its item's id is still reported under that id
-if paths("- target: TBD — decided by a\n  id: SC-2\n") != ["SC-2.target"]:
-    fail.append("a TBD before its item's id is reported under the positional label")
-# a '#' inside an id is not a comment (a comment needs whitespace before it)
-if paths("- id: SC-#2\n  target: TBD — decided by a\n") != ["SC-#2.target"]:
-    fail.append("an id containing '#' is truncated")
-# an owner may contain a digit
-if not re.match(r"TBD — decided by [^:\n%]+?$", "TBD — decided by platform lead 2"):
-    fail.append("an owner containing a digit is rejected")
-# positional (unlabeled) items: only parent[N]/[]/[*] cover them, never a stray digit
-items = vp.block_tbd_paths("data_sources:\n  - owner: TBD — decided by a\n  - owner: TBD — decided by a\n")
-if [vp.covered(x, ["data_sources owner and 1 more"]) for x in items] != [False, False]:
-    fail.append("a stray digit covers an unlabeled item")
-if [vp.covered(x, ["data_sources[1] owner"]) for x in items] != [False, True]:
-    fail.append("parent[N] does not cover exactly item N")
-if [vp.covered(x, ["data_sources[] owner"]) for x in items] != [True, True]:
-    fail.append("parent[] does not cover every item")
-for f in fail: print("     " + f)
-sys.exit(1 if fail else 0)
-PYEOF
-then
-  ok "path-builder unit probes: id-not-first, same-indent list, digit in owner, positional coverage"
-else
-  bad "validate_plan.py path-builder regressed on a shape the fixtures do not exercise"
-fi
-awk '/^  shape: er_quality/ && !d { sub(/er_quality/, "TBD — decided by the data platform lead   # er_quality | other"); d=1 } { print }' "$VP_OK" > "$vp_tmp/tbd-comment.md"
-cmp -s "$VP_OK" "$vp_tmp/tbd-comment.md" && bad "8b tbd-comment mutation did not change the plan - the test below proves nothing"
-VP_OUT_TC="$(python3 "$VP" "$vp_tmp/tbd-comment.md" 2>&1 || true)"
-if [[ "$VP_OUT_TC" == *"template comment rides on a TBD line"* ]]; then
-  ok "a template '# candidate | list' comment after a TBD literal is rejected"
-else
-  bad "validate_plan.py accepts a candidate-list comment riding on a TBD line"
-fi
-rm -rf "$vp_tmp"
 
 echo; echo "== 8c. no tool_used grader declares max without min (impossible range) =="
 # A tool_used grader that sets `max: 0` and omits `min` gets min defaulted to 1, so the
