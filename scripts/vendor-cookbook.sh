@@ -56,8 +56,9 @@ echo "Vendoring $REPO @ $SHA"
 # binaries, .github/, .vscode/, contributor/housekeeping files.
 PATHS="$(api "https://api.github.com/repos/$REPO/git/trees/$SHA?recursive=1" | jq -r '
   .tree[] | select(.type=="blob") | .path
-  | select(startswith(".github/") or startswith(".vscode/") or startswith("ingredients/") | not)
-  | select(. == "LICENSE" or endswith(".md"))
+  | select(startswith(".github/") or startswith(".vscode/") | not)
+  | select(test("\\.(png|jpg|jpeg|gif|svg|pdf|zip)$") | not)
+  | select(. == "LICENSE" or startswith("ingredients/") or endswith(".md"))
   | select(. != "CODE_OF_CONDUCT.md" and . != "CONTRIBUTING.md" and . != "CHANGELOG.md" and . != "README.md")
 ')"
 [ -n "$PATHS" ] || { echo "upstream tree yielded no files -- refusing to empty the bundle" >&2; exit 1; }
@@ -73,24 +74,57 @@ while IFS= read -r f; do
   count=$((count + 1))
 done <<< "$PATHS"
 
-# Enforce the directory's own rules so a refused bundle can never be produced here.
-# Allowed types and the per-file inspectable limit come from the directory policy text;
-# see the header for the version that was refused for breaking exactly these.
-MAX_FILE_BYTES=262144   # 256 KB: the directory cannot inspect a larger text file.
-violations=0
+# INGREDIENT DATA -> ALLOWED TEXT. The directory accepts Markdown, text, JSON, YAML and
+# images, and cannot inspect a text file over 256 KB. The ingredients are plain UTF-8 text
+# whose EXTENSION (.csv/.jsonl) is not on that list, so each is stored with a `.txt` suffix
+# appended to its real name -- `crm.csv` becomes `crm.csv.txt` -- and a file over the limit
+# is split on LINE boundaries into `<name>.partNN.txt`. The skill reverses both when it
+# copies them into the workspace, so the recipes still see the filenames they document.
+# Nothing is renamed to hide anything: every byte stays readable text, which is exactly what
+# the limit is for.
 while IFS= read -r f; do
   [ -n "$f" ] || continue
-  case "$f" in
+  base="$(basename "$f")"; dir="$(dirname "$f")"
+  if [ "$(LC_ALL=C tr -dc '\000' < "$f" | wc -c | tr -d ' ')" -ne 0 ]; then
+    echo "NUL byte in $base -- not text, refusing" >&2; exit 1
+  fi
+  sz=$(wc -c < "$f" | tr -d ' ')
+  if [ "$sz" -le 262144 ]; then
+    mv "$f" "$dir/$base.txt"
+  else
+    # split on line boundaries so each part stays valid JSONL/CSV rows
+    lines=$(wc -l < "$f" | tr -d ' ')
+    parts=$(( (sz + 262143) / 262144 ))
+    per=$(( (lines + parts - 1) / parts ))
+    split -l "$per" -a 2 -d "$f" "$dir/$base.part"
+    rm -f "$f"
+    for pf in "$dir/$base.part"[0-9][0-9]; do mv "$pf" "$pf.txt"; done
+    echo "  split $base ($sz bytes) into $parts line-aligned parts"
+  fi
+done <<< "$(find "$DEST/ingredients" -type f ! -name '*.md' 2>/dev/null)"
+
+# Enforce the directory's own rules against WHAT IS ACTUALLY ON DISK, after any
+# conversion above -- not against the upstream path list, which still carries the
+# original extensions. Allowed types and the per-file inspectable limit come from the
+# directory policy text; see the header for the version that was refused for breaking
+# exactly these.
+MAX_FILE_BYTES=262144   # 256 KB: the directory cannot inspect a larger text file.
+violations=0
+while IFS= read -r abs; do
+  [ -n "$abs" ] || continue
+  rel="${abs#"$DEST"/}"
+  case "$rel" in
     *.md|*.txt|*.json|*.yaml|*.yml|*.png|*.jpg|*.jpeg|*.gif|*.webp|*.ico|LICENSE) ;;
-    *) echo "REFUSED TYPE: $f -- the directory accepts only Markdown, text, JSON, YAML and PNG/JPEG/GIF/WebP/ICO from a non-Verified org" >&2; violations=$((violations + 1)); continue ;;
+    *) echo "REFUSED TYPE: $rel -- the directory accepts only Markdown, text, JSON, YAML and PNG/JPEG/GIF/WebP/ICO from a non-Verified org" >&2; violations=$((violations + 1)); continue ;;
   esac
-  fb=$(wc -c < "$DEST/$f" | tr -d ' ')
+  fb=$(wc -c < "$abs" | tr -d ' ')
   if [ "$fb" -gt "$MAX_FILE_BYTES" ]; then
-    echo "TOO LARGE: $f is $fb bytes, over the directory's $MAX_FILE_BYTES-byte inspectable limit" >&2
+    echo "TOO LARGE: $rel is $fb bytes, over the directory's $MAX_FILE_BYTES-byte inspectable limit" >&2
     violations=$((violations + 1))
   fi
-  head -c 2 "$DEST/$f" | grep -q '^#!' && { echo "SHEBANG: $f starts with #!, which the directory refuses" >&2; violations=$((violations + 1)); }
-done <<< "$PATHS"
+  head -c 2 "$abs" | grep -q '^#!' && { echo "SHEBANG: $rel starts with #!, which the directory refuses" >&2; violations=$((violations + 1)); }
+  [ "$(LC_ALL=C tr -dc '\000' < "$abs" | wc -c | tr -d ' ')" -eq 0 ] || { echo "NUL BYTE: $rel is not clean UTF-8 text" >&2; violations=$((violations + 1)); }
+done <<< "$(find "$DEST" -type f)"
 [ "$violations" -eq 0 ] || { echo "$violations file(s) would be REFUSED by the Claude directory -- refusing to vendor" >&2; exit 1; }
 
 total=$(find "$DEST" -type f -exec cat {} + | wc -c | tr -d ' ')
@@ -112,12 +146,21 @@ total=$(find "$DEST" -type f -exec cat {} + | wc -c | tr -d ' ')
   echo "Ingredients, images and repo furniture are excluded on purpose: the directory accepts only"
   echo "Markdown/text/JSON/YAML/images from a non-Verified org, and the skill never renders an image."
   echo
+  echo "Ingredient data is stored with a \`.txt\` suffix on its real name (\`crm.csv\` ->"
+  echo "\`crm.csv.txt\`), and a file over 256 KB is split on line boundaries into"
+  echo "\`<name>.partNN.txt\`. The directory accepts Markdown, text, JSON, YAML and images and"
+  echo "must be able to read each file in full; the data is plain UTF-8 text either way, so this"
+  echo "keeps it inspectable rather than hiding it. The skill restores the documented filenames"
+  echo "when it copies them into the workspace."
+  echo
   echo "| sha256 | file |"
   echo "| --- | --- |"
-  while IFS= read -r f; do
-    [ -n "$f" ] || continue
-    echo "| \`$(sha_of "$DEST/$f")\` | \`$f\` |"
-  done <<< "$PATHS"
+  while IFS= read -r abs; do
+    [ -n "$abs" ] || continue
+    rel="${abs#"$DEST"/}"
+    [ "$rel" = "PROVENANCE.md" ] && continue
+    echo "| \`$(sha_of "$abs")\` | \`$rel\` |"
+  done <<< "$(find "$DEST" -type f | sort)"
 } > "$DEST/PROVENANCE.md"
 
 echo "Vendored $count files ($total bytes) into ${DEST#"$ROOT"/}"
