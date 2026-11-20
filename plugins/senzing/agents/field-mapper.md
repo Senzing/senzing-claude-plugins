@@ -9,7 +9,6 @@ description: >
   sub-agent shell that can run the mapper scripts against the workspace, plus the Senzing MCP
   tools; if either is missing, say so immediately so the caller can map in its own context
   instead of stalling.
-tools: Read, Bash, Write, mcp__plugin_senzing_senzing__*
 ---
 
 You map ONE source file to Senzing-mappable JSONL using the Senzing MCP's `mapping_workflow`.

@@ -6,46 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.46.3-3] - 2026-11-20
-
-### Changed
-
-- **The recipes' ingredient data ships with the plugin again, in a form the directory accepts.**
-  1.46.3-2 removed it and left the user to download and attach the files; the recipes need that
-  data to cook. The ingredients were always plain UTF-8 text — only the `.csv`/`.jsonl`
-  extensions and one file's size were refused. Each now ships under its real name with a `.txt`
-  suffix (`crm.csv` → `crm.csv.txt`), and a file over the directory's 256 KB inspectable limit is
-  split on **line** boundaries into `<name>.partNN.txt`. `recipes` restores the documented
-  filename when it copies them into the workspace — drop the suffix, concatenate `partNN` in
-  order — so the recipes still see the files they name, and nothing is downloaded.
-  Verified lossless: the two `gp_registrations` parts reassemble to 511 JSON records, 0
-  malformed, matching upstream exactly.
-- **The vendor script's policy guard now validates what is on disk**, after conversion, rather
-  than the upstream path list — which is what let the six refused files through. It checks type,
-  the 256 KB limit, a `#!` first line and NUL bytes, and fails rather than produce a bundle the
-  directory would refuse. Armed against both failure modes.
-
 ## [1.46.3-2] - 2026-11-20
 
 ### Fixed
 
-- **The directory REFUSED 1.46.3-1 over the bundled ingredient data; the ingredients are gone.**
-  Bundling the cookbook fixed the download-and-run finding, but it also brought the recipes'
-  sample `.csv`/`.jsonl` files into the plugin. For an organization that is not Verified the
-  directory accepts only Markdown, text, JSON, YAML and PNG/JPEG/GIF/WebP/ICO, and cannot inspect
-  a text file over 256 KB — so six files were refused (one, `gp_registrations.jsonl`, on both
-  counts at 302 KB). That took the listing from *held for review* to *refused outright*, a
-  regression on 1.46.3. The bundle is now 9 Markdown/text files, 82 KB: the catalog, five
-  recipes, two guides and the Apache-2.0 LICENSE.
-- **`scripts/vendor-cookbook.sh` now enforces the directory's own rules and fails rather than
-  produce a bundle that would be refused** — the allowed file types, the 256 KB per-file
-  inspectable limit, and no `#!` first line. Armed against the exact six files that were refused.
-- **Ingredients are the user's to supply, and this skill downloads nothing.** That is how the
-  recipes are already written ("download both, then attach them to the chat"), so `recipes` now
-  relays that instruction and links the cookbook's ingredients folder on github.com, rather than
-  fetching the files or claiming they ship with the plugin. A bundled recipe's own
-  `../ingredients/…` link cannot resolve from inside the plugin, so the skill is told to give the
-  user the GitHub link instead.
+- **Everything the Claude directory flagged that is ours to fix.** 1.46.3-1 was REFUSED (a
+  regression from 1.46.3, which was only held): bundling the cookbook cleared the
+  download-and-run finding, but it also brought the recipes' `.csv`/`.jsonl` sample data into
+  the plugin, and a non-Verified organization may ship only Markdown, text, JSON, YAML and
+  PNG/JPEG/GIF/WebP/ICO, with no text file over 256 KB.
+- **Ingredient data ships in a form the directory accepts.** The files were always plain UTF-8
+  text; only the extension and one file's size were refused. Each now ships under its real name
+  with a `.txt` suffix (`crm.csv` → `crm.csv.txt`), and a file over the limit is split on **line**
+  boundaries into `<name>.partNN.txt`. `recipes` restores the documented filename when it copies
+  them into the workspace — drop the suffix, concatenate `partNN` in order — so the recipes see
+  the files they name and nothing is downloaded. Verified lossless: the two `gp_registrations`
+  parts reassemble to 511 JSON records, 0 malformed, matching upstream exactly.
+- **The vendor script enforces the directory's rules against what is on disk**, after conversion,
+  rather than the upstream path list — which is what let the six refused files through. Type, the
+  256 KB limit, a `#!` first line and NUL bytes; it fails rather than produce a bundle that would
+  be refused. Armed against both failure modes.
+- **The two agent MCP tool-name warnings are gone.** `agents/field-mapper.md` and
+  `agents/senzing-grounder.md` no longer carry a `tools:` line, so the Claude Code-only
+  `mcp__plugin_senzing_senzing__*` name is not in the manifest; the agents inherit instead and
+  keep working.
+- **Two of the three image warnings are gone.** The plugin README's logo `<picture>` block and
+  `assets/senzing-logo-{dark,light}-theme.png` are removed; only the required `icon.png` remains.
+
+### Known, and not fixable from this side
+
+`icon` and `privacyPolicyUrl` are still reported, by the same portal that demanded them
+(findings `ICON_MISSING` and `PRIVACY_URL_MISSING` — see `scripts/check.sh`); removing either
+trips the opposite finding. One image note remains for `icon.png`, which is required. And
+"Policy review didn't complete" is Anthropic-side and routes to a human regardless.
 
 ## [1.46.3-1] - 2026-11-20
 

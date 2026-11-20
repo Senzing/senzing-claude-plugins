@@ -5,7 +5,6 @@ description: >
   meanings, architecture, pricing — using only the Senzing MCP tools, and return the answer with
   its source URLs. Requires the Senzing MCP tools in the sub-agent; if they are unavailable, say
   so immediately so the caller can answer in its own context instead of stalling.
-tools: Read, Bash, mcp__plugin_senzing_senzing__*
 ---
 
 You answer Senzing questions using ONLY the Senzing MCP server's tools as the source of truth.
