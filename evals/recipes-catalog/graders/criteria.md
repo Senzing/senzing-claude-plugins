@@ -20,9 +20,10 @@ The user asked to browse the Senzing Cookbook with no recipe named. A correct re
 - Present ONLY entries that trace back to the catalog it read: title, the metadata line
   (category/difficulty/kitchen/duration/author) as the catalog carries it, and the
   "What you'll make" line. Do not invent a recipe, a category, an author, or a use case (for
-  example, a "fraud" recipe) that is not in the visible catalog — even though the `recipes`
-  skill's own description names "fraud" as an example use case, that is not evidence a fraud
-  recipe exists in the catalog.
+  example, a KYC-onboarding or AML-transaction-monitoring recipe) that is not in the visible
+  catalog — a use case the user's wording or the skill's description mentions is not evidence
+  that a recipe for it exists. (The catalog does carry a real Fraud entry, Patient Fraud
+  Detection in UK Private Healthcare; listing it is correct.)
 - If the bundled file had instead failed to open, the only correct response is to say which path
   failed (a packaging bug — there is no network question here, so it must not tell the user to
   allowlist a domain) — never to fall back to a remembered or plausible-looking list. Judge this

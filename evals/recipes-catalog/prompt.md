@@ -5,7 +5,8 @@ expected_outcome: >
   recipes fires; the bundled cookbook/cookbook.md catalog is Read — not recalled from training
   data and not downloaded (no curl, no WebFetch: the Claude directory refuses a plugin that
   downloads what it executes); the reply lists the real catalog entries (the PPP-loan ingestion
-  recipe, both Customer 360 recipes, and the Healthcare Exclusion Screening recipe) and authors
+  recipe, both Customer 360 recipes, Patient Fraud Detection, and the Healthcare Exclusion
+  Screening recipe) and authors
   no file — the `Write` tool is never used except for doctor's pinned probe. `WebFetch` and
   `Bash` stay allowed so the no-download graders measure restraint rather than impossibility.
 max_turns: 15
