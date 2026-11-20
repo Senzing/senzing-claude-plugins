@@ -17,6 +17,17 @@
 # skill never renders an image, and 1.4 MB of screenshots would be dead weight in
 # every install.
 #
+# WHAT MAY BE VENDORED IS SET BY THE CLAUDE DIRECTORY, NOT BY TASTE. For an
+# organization that is not Verified the directory accepts only Markdown, text, JSON,
+# YAML and PNG/JPEG/GIF/WebP/ICO images, and cannot inspect a text file over 256 KB.
+# A version carrying anything else is REFUSED outright -- worse than held. That is not
+# hypothetical: v1.46.3-1 (26a8eae) bundled the recipes' ingredient `.csv`/`.jsonl`
+# sample data and was refused on exactly those six files, one of which was also 302 KB.
+# So this script enforces both rules below and fails rather than produce a bundle that
+# would be refused. INGREDIENTS ARE deliberately NOT VENDORED: they are data, the
+# directory will not take them, and a recipe fetches them at cook time as data (never
+# executed), which the download-and-run policy does not reach.
+#
 # Usage: scripts/vendor-cookbook.sh [REF]      (REF default: main)
 set -euo pipefail
 
@@ -40,13 +51,13 @@ SHA="$(api "https://api.github.com/repos/$REPO/commits/$REF" | jq -r '.sha')"
 [ -n "$SHA" ] && [ "$SHA" != "null" ] || { echo "could not resolve $REPO@$REF" >&2; exit 1; }
 echo "Vendoring $REPO @ $SHA"
 
-# Keep: markdown anywhere outside repo furniture, everything under ingredients/, LICENSE.
-# Drop: images and other binaries, .github/, .vscode/, contributor/housekeeping files.
+# Keep: markdown anywhere outside repo furniture, plus LICENSE (plain text).
+# Drop: ingredients (data the directory refuses -- see the header), images, other
+# binaries, .github/, .vscode/, contributor/housekeeping files.
 PATHS="$(api "https://api.github.com/repos/$REPO/git/trees/$SHA?recursive=1" | jq -r '
   .tree[] | select(.type=="blob") | .path
-  | select(startswith(".github/") or startswith(".vscode/") | not)
-  | select(test("\\.(png|jpg|jpeg|gif|svg|pdf|zip)$") | not)
-  | select(. == "LICENSE" or startswith("ingredients/") or endswith(".md"))
+  | select(startswith(".github/") or startswith(".vscode/") or startswith("ingredients/") | not)
+  | select(. == "LICENSE" or endswith(".md"))
   | select(. != "CODE_OF_CONDUCT.md" and . != "CONTRIBUTING.md" and . != "CHANGELOG.md" and . != "README.md")
 ')"
 [ -n "$PATHS" ] || { echo "upstream tree yielded no files -- refusing to empty the bundle" >&2; exit 1; }
@@ -61,6 +72,26 @@ while IFS= read -r f; do
   [ -s "$DEST/$f" ] || { echo "empty file from upstream: $f" >&2; exit 1; }
   count=$((count + 1))
 done <<< "$PATHS"
+
+# Enforce the directory's own rules so a refused bundle can never be produced here.
+# Allowed types and the per-file inspectable limit come from the directory policy text;
+# see the header for the version that was refused for breaking exactly these.
+MAX_FILE_BYTES=262144   # 256 KB: the directory cannot inspect a larger text file.
+violations=0
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  case "$f" in
+    *.md|*.txt|*.json|*.yaml|*.yml|*.png|*.jpg|*.jpeg|*.gif|*.webp|*.ico|LICENSE) ;;
+    *) echo "REFUSED TYPE: $f -- the directory accepts only Markdown, text, JSON, YAML and PNG/JPEG/GIF/WebP/ICO from a non-Verified org" >&2; violations=$((violations + 1)); continue ;;
+  esac
+  fb=$(wc -c < "$DEST/$f" | tr -d ' ')
+  if [ "$fb" -gt "$MAX_FILE_BYTES" ]; then
+    echo "TOO LARGE: $f is $fb bytes, over the directory's $MAX_FILE_BYTES-byte inspectable limit" >&2
+    violations=$((violations + 1))
+  fi
+  head -c 2 "$DEST/$f" | grep -q '^#!' && { echo "SHEBANG: $f starts with #!, which the directory refuses" >&2; violations=$((violations + 1)); }
+done <<< "$PATHS"
+[ "$violations" -eq 0 ] || { echo "$violations file(s) would be REFUSED by the Claude directory -- refusing to vendor" >&2; exit 1; }
 
 total=$(find "$DEST" -type f -exec cat {} + | wc -c | tr -d ' ')
 [ "$total" -le "$MAX_BYTES" ] || { echo "bundle $total bytes exceeds $MAX_BYTES" >&2; exit 1; }
@@ -78,7 +109,8 @@ total=$(find "$DEST" -type f -exec cat {} + | wc -c | tr -d ' ')
   echo "- Files: $count · bytes: $total"
   echo "- Upstream license: Apache-2.0 (\`LICENSE\`, included)"
   echo
-  echo "Images and repo furniture are excluded on purpose: the skill never renders an image."
+  echo "Ingredients, images and repo furniture are excluded on purpose: the directory accepts only"
+  echo "Markdown/text/JSON/YAML/images from a non-Verified org, and the skill never renders an image."
   echo
   echo "| sha256 | file |"
   echo "| --- | --- |"

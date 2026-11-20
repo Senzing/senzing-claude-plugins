@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-2] - 2026-11-20
+
+### Fixed
+
+- **The directory REFUSED 1.46.3-1 over the bundled ingredient data; the ingredients are gone.**
+  Bundling the cookbook fixed the download-and-run finding, but it also brought the recipes'
+  sample `.csv`/`.jsonl` files into the plugin. For an organization that is not Verified the
+  directory accepts only Markdown, text, JSON, YAML and PNG/JPEG/GIF/WebP/ICO, and cannot inspect
+  a text file over 256 KB — so six files were refused (one, `gp_registrations.jsonl`, on both
+  counts at 302 KB). That took the listing from *held for review* to *refused outright*, a
+  regression on 1.46.3. The bundle is now 9 Markdown/text files, 82 KB: the catalog, five
+  recipes, two guides and the Apache-2.0 LICENSE.
+- **`scripts/vendor-cookbook.sh` now enforces the directory's own rules and fails rather than
+  produce a bundle that would be refused** — the allowed file types, the 256 KB per-file
+  inspectable limit, and no `#!` first line. Armed against the exact six files that were refused.
+- **Ingredients are the user's to supply, and this skill downloads nothing.** That is how the
+  recipes are already written ("download both, then attach them to the chat"), so `recipes` now
+  relays that instruction and links the cookbook's ingredients folder on github.com, rather than
+  fetching the files or claiming they ship with the plugin. A bundled recipe's own
+  `../ingredients/…` link cannot resolve from inside the plugin, so the skill is told to give the
+  user the GitHub link instead.
+
 ## [1.46.3-1] - 2026-11-20
 
 ### Changed

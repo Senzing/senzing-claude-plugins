@@ -55,8 +55,8 @@ allowed-tools: Read
      bundle. -->
 - Bundled root: `cookbook/`, inside this skill's own directory and shipped with the plugin.
 - Catalog: `cookbook/cookbook.md` · a recipe: `cookbook/recipes/<id>.md` · repo-provided
-  ingredients: `cookbook/ingredients/<...>`
-- **Read them with `Read`. Nothing is downloaded, ever** — no shell download, no `WebFetch`, no network
+  ingredients: **not bundled** — see *Ingredients* below
+- **Read them with `Read`. This skill downloads nothing, ever** — no shell download, no `WebFetch`, no network
   of any kind for recipe content. There is no reachability question to answer and no domain
   to ask the user to allow.
 - Upstream of record is `senzing/recipes`; the exact commit this build carries is recorded in
@@ -208,10 +208,19 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      confirmation that matters here, and it is a check against a tool, not a question to the user.
      Do not carry the support matrix from memory. Only if neither the recipe nor the user names a
      language, ask — and say which one you will use if no answer comes, rather than stopping.
-   - **Ingredients:** if the recipe uses repo-provided ingredients, copy them from
-     `cookbook/ingredients/<...>` into the workspace before the Cook step — they ship with the
-     plugin, so there is nothing to download. If the user brings their own data, take the paths,
-     keep PII local, and note where the mapping will differ.
+   - **Ingredients:** the recipes' sample files are **not** in the bundle and **you do not fetch
+     them**. The Claude directory accepts only Markdown, text, JSON, YAML and images from a
+     non-Verified organization, so the `.csv`/`.jsonl` ingredients cannot ship inside the plugin
+     (a version that carried them was refused outright), and this skill downloads nothing. That
+     matches how the recipes are written: they tell the reader to get the files and **attach them
+     to the chat or drop them in the working folder**. So relay that instruction — name the files
+     the recipe names and point the user at
+     [the cookbook's ingredients folder](https://github.com/senzing/recipes/tree/main/ingredients)
+     to download them. A bundled recipe's own ingredient link is relative (`../ingredients/…`) and
+     will not resolve from inside the plugin, so give the user that GitHub link instead of the
+     relative one. Then wait for the files: ask for the path rather than guessing one, exactly as
+     the recipes say. They are synthetic sample data — say so. If the user brings their own data
+     instead, take the paths, keep PII local, and note where the mapping will differ.
    - **Workspace:** use the location the user named ("this directory", a path) if they gave one,
      otherwise a default (`~/sz-workspace` or `$SZ_WORKSPACE`), and thread it through
      every step (the writability probe already ran in pre-flight).
