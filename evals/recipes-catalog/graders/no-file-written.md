@@ -17,8 +17,9 @@ filename and this exclusion point at each other on purpose. See
 `evals/recipes-named/graders/no-file-written.md` for the full derivation.
 -->
 
-Why `tool: Write` and not Bash: the skill REQUIRES `curl -fsSL "<url>" -o "<workspace>/<name>.md"`
-for the catalog / recipe, so a Bash-level file-write check would forbid the fetch the case also
-asserts (`correct-recipe-fetched` / the catalog grader). What this grader forbids is an
-AUTHORED file — a plan, a mapping, a report — which the model can only produce with `Write`.
+Why `tool: Write` and not Bash: the skill copies the recipe's bundled ingredient files into the
+workspace with a plain `cp`, and `doctor` probes writability, so a Bash-level file-write check
+would forbid steps the skill requires. (Before the cookbook was bundled the skill instead
+REQUIRED `curl -o` for the catalog and recipe; the reasoning is the same.) What this grader
+forbids is an AUTHORED file — a plan, a mapping, a report — which the model can only produce with `Write`.
 The case's `expected_outcome` says the same (review on 7785bfb).

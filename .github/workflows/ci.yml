@@ -124,8 +124,8 @@ jobs:
     # simultaneously with nothing wrong in this repo, and the failure surfaces as an
     # expensive eval flake rather than as what it is.
     #
-    # This job is the cheap half. It reads the live cookbook and fails loudly, by name,
-    # the moment the whitelist stops matching — same shape as `eula-link` above, which
+    # This job is the cheap half. It checks the whitelist against the BUNDLED cookbook and fails
+    # loudly, by name, the moment the whitelist stops matching — same shape as `eula-link` above, which
     # exists because a grader can only assert what a reply SAYS, never whether the thing
     # it names still exists upstream.
     steps:
@@ -142,7 +142,7 @@ jobs:
           # inside the plugin, the bundle is the only thing a run can cook, so a grader
           # naming a recipe absent from it is a real defect that WILL fail an eval.
           # Keep in lockstep with evals/recipes-catalog/graders/no-invented-recipe.md and
-          # evals/recipes-named/graders/correct-recipe-fetched.md.
+          # evals/recipes-named/graders/correct-recipe-read.md.
           expected="clair-data-ingestion-starter customer-360-crm-online customer-360-stewardship nigel-healthcare-aws-entity-browser patient-fraud-uk"
           missing=0
           for r in $expected; do

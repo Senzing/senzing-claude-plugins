@@ -16,8 +16,8 @@ allowed-tools: Read
 
 # Cook a Senzing Cookbook recipe
 
-> **NO SENZING ON THIS HOST? FETCH THE RECIPE, CALL `Skill(senzing:install)`, AND LET ITS MESSAGE BE YOUR
-> ENTIRE REPLY.** After `doctor` reports no SDK and you have fetched the named recipe, the next tool call
+> **NO SENZING ON THIS HOST? READ THE RECIPE, CALL `Skill(senzing:install)`, AND LET ITS MESSAGE BE YOUR
+> ENTIRE REPLY.** After `doctor` reports no SDK and you have read the named recipe, the next tool call
 > is `Skill(senzing:install)` with `args` = **doctor's platform id and nothing else** (e.g. `"macos_arm"`) —
 > no language: the recipe's language is its Setup decision (step 4), made when you cook, not install's
 > question now. You already hold install steps (doctor fetched them), which is not a reason
@@ -27,9 +27,9 @@ allowed-tools: Read
 > ("attach your Senzing license file and the two ingredient CSVs"). When `install` returns, **add nothing before or after its message** —
 > no doctor recap, no recipe summary ahead of it: no recap of
 > the recipe's Setup section, no "you'll also need your license file", no remark about the 500-record limit
-> or an evaluation license, no offer to fetch the ingredient CSVs. CI caught both: a reply that wrote the
+> or an evaluation license, no offer to copy the ingredient CSVs. CI caught both: a reply that wrote the
 > install message itself, and one that invoked `install` and then appended "recipe handles up to 500 records
-> without a license" (false — this recipe loads ~1,600) plus an offer to fetch the ingredient files — Cook-step
+> without a license" (false — this recipe loads ~1,600) plus an offer to copy the ingredient files — Cook-step
 > content that is not yours to put to the user here. Do not tell the user the recipe will resume or is ready to cook once Senzing is installed, and do not
 > name its Prep → Cook → Plate steps anywhere in this reply — CI caught "…and only then resume the recipe's
 > Prep → Cook → Plate steps" appended to install's message, and "the recipe's full Prep→Plate flow is reachable
@@ -103,14 +103,14 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
 1. **Pre-flight FIRST — run `doctor`.** A recipe ends in a *served* result (a loaded Senzing SDK **and**
    an interactive app/visual), so clear the whole path **before** investing in a cook — don't march
    into a recipe that can't reach its plate. `doctor` checks it all in one pass: sources reachable
-   (`mcp.senzing.com` + `raw.githubusercontent.com` allowlisted), host shell writable, Senzing software
+   (`mcp.senzing.com` allowlisted; the recipes are bundled and need no domain), host shell writable, Senzing software
    deployable (SDK / license / DB), and **interactive-outcome capability**. Act on its verdict
    before cooking:
 
    **A red verdict is a cue to take the degraded path, not permission to stop and ask.** This is
    the way this step fails, it does not look like a failure, and CI has caught it: `doctor` probed
    the host beautifully, reported no SDK, and the run's final message was the status table plus
-   "which would you like?" — so the recipe was never fetched and `install` was never reached. The
+   "which would you like?" — so the recipe was never opened and `install` was never reached. The
    user asked to cook and got an environment report and a menu. `doctor` says the same thing about
    itself: "A no-SDK verdict is the caller's cue to take its degraded path — **never** a reason to
    stop short of it." Say what you found in one line, then **take the path below in the same
@@ -145,8 +145,8 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      `sdk_guide(topic="install")` — **and that is exactly when to hand off, not a reason to skip it.**
      CI caught a run that, holding those steps, wrote the install message itself and ended it
      with "attach a license file, or I can request a free evaluation license" plus an offer to
-     fetch the recipe's ingredient files: a Cook-step license choice and an offer to cook. Your next
-     action after fetching the recipe is `Skill(senzing:install)` with `args` set to doctor's
+     copy the recipe's ingredient files: a Cook-step license choice and an offer to cook. Your next
+     action after reading the recipe is `Skill(senzing:install)` with `args` set to doctor's
      platform id only (no language — see the banner); its first message is the one the user reads. **Hand off; do not
      run the install flow yourself in the message, and do not announce the cook.** A reply that stops on a menu
      ("Before I can cook, three things need your input: the license agreement, your language, whether you have a
@@ -159,10 +159,10 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      message before anything installs. Delegating the hand-off does not discharge this — a run
      that routes correctly but leaves the user never seeing the agreement has skipped a
      compliance step, which is why it is asserted rather than assumed.
-   - **A source is blocked** → this one IS a stop: ask the user to allowlist that domain now (for
-     recipe text you may fall back to `WebFetch`, but `mcp.senzing.com` is non-negotiable).
-     Nothing downstream works without it, which is what makes it different from the bullets
-     around it.
+   - **`mcp.senzing.com` is blocked** → this one IS a stop: ask the user to allowlist that domain
+     now. Nothing downstream works without it, which is what makes it different from the bullets
+     around it. Recipe text is never a reason to ask for a domain: it is bundled, so there is
+     nothing to fall back to and nothing to allowlist for it.
    - **No live-app surface here** (cloud sandbox, chat-only host or a reduced sub-agent) → say so
      plainly: the recipe's *Plate* can't be a live `localhost` server here. Then **make** the
      honest substitution — map → load → resolve **plus a self-contained interactive HTML5
@@ -170,21 +170,21 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      live-server plate. Substitute the plate; do not put the substitution to the user as a choice
      and wait. Don't pretend the plate will render where it can't.
 
-   (Browsing the catalog, and fetching the recipe the user named, are fine to attempt either way;
+   (Browsing the catalog, and reading the recipe the user named, are fine to attempt either way;
    committing to cook is not.)
-2. **Pick a recipe.** If no recipe was named (or the match is unclear), fetch and validate the
-   catalog (`cookbook.md`) per *Fetch verbatim* and present it. Each entry is an
+2. **Pick a recipe.** If no recipe was named (or the match is unclear), `Read` the bundled
+   catalog (`cookbook/cookbook.md`) per *Read verbatim* and present it. Each entry is an
    `### [Title](recipes/<id>.md)` heading, an italic metadata line of ` · `-separated fields
    (currently category · difficulty · where it runs · rough duration · author), and a
    `**What you'll make:**` line. Show the title, that metadata line as-is and the
    what-you'll-make line — render the fields the catalog actually carries rather than a fixed
    list, so a change upstream degrades to "one fewer field" instead of a wrong label. Then ask
-   which to cook, naming only titles and categories that appear in the fetched catalog. Do not
+   which to cook, naming only titles and categories that appear in the bundled catalog. Do not
    suggest a use case the catalog does not list (this skill's description uses "fraud" only as an
    example of how a user might ask; it is not a recipe). You may add one line pointing to
    [the Recipes page on senzing.com](https://senzing.com/cookbook-recipes/) for browsing the same
    catalog on the web. If one was named, skip to step 3.
-3. **Load the recipe.** Fetch and validate `recipes/<id>.md` per *Fetch verbatim*. Read the
+3. **Load the recipe.** `Read` the bundled `cookbook/recipes/<id>.md` per *Read verbatim*. Read the
    title and body. Show the user the
    recipe's identity up front: **title, the mission, a one-line take from the Chef's Note,
    difficulty, kitchen, estimated time**, and surface the recipe's own "before you cook" reminders

@@ -17,10 +17,10 @@ installed**, and the user did NOT say so. A correct response MUST:
 
 - Activate the **`recipes`** skill and run **`doctor`** first — a real `Bash` host probe, not an
   assumption — before committing to cook.
-- Identify the recipe from an actual fetch of `customer-360-crm-online.md` (never
+- Identify the recipe from an actual `Read` of the bundled `customer-360-crm-online.md` (never
   `customer-360-stewardship.md`, a different add-on recipe, and never an improvised summary of
   what a Customer 360 recipe "would probably" do). Any mission, ingredient, or setup detail stated
-  about the recipe must be consistent with what a real fetch of that file would show — CRM +
+  about the recipe must be consistent with what a real read of that file would show — CRM +
   online-orders CSVs mapped via `mapping_workflow`, served as an Entity Browser-based app.
 - Because doctor finds no Senzing SDK, **hand off to install** (`sdk_guide(topic="install")`)
   instead of cooking — never simulate the cook. It must not present the recipe's own demo numbers
@@ -41,8 +41,8 @@ installed**, and the user did NOT say so. A correct response MUST:
 - Never start `mapping_workflow`, never write a file, and never claim to have cooked any step —
   and never **offer** to do any of those as an option the user can pick.
 
-FAIL if the response: fabricates recipe content not traceable to a real fetch of the correct
-recipe id; skips or delays the doctor probe past the point of committing to cook; presents any
+FAIL if the response: fabricates recipe content not traceable to a real read of the correct
+recipe id; downloads recipe content with `curl`/`wget`/`WebFetch` instead of reading the bundle; skips or delays the doctor probe past the point of committing to cook; presents any
 match/compression/duplicate number as this run's own result; or **proposes or performs** any part
 of the map/load/cook despite no Senzing being available — offering it in the final message as
 something it could do here (e.g. "I could map the two CSV schemas with `mapping_workflow` — which

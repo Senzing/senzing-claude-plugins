@@ -50,7 +50,7 @@ is "upstream shipped something" is measuring the upstream, not the plugin.
 
 The filename whitelist stays — naming a recipe file that does not exist IS fabrication, and that
 is the plugin's own defect. But it inherits the same coupling, so the drift is now detected where
-it belongs: a CI job curls the live cookbook and fails loudly when the whitelist no longer matches,
-on the model of the `eula-link` job. A silent eval flake becomes a cheap, named alarm.
+it belongs: a CI job checks the whitelist against the BUNDLED cookbook (a hard failure, since that is
+what a run can cook) and reports upstream drift as a notice, on the model of the `eula-link` job. A silent eval flake becomes a cheap, named alarm.
 
 Over-claiming a count remains covered by `criteria.md`.

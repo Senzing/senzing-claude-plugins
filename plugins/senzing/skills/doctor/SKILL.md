@@ -146,7 +146,8 @@ reports it. Treat it exactly like `cli`: it is a real shell on a real host, not 
 
    `mcp.senzing.com` unreachable → ❌ "allowlist mcp.senzing.com" and **stop** — SDK downloads,
    sample data and resources all need it. `raw.githubusercontent.com` unreachable → ⚠️ only;
-   examples and recipes fall back to each response's `access_steps` / `download_resource`. **Do
+   examples fall back to each response's `access_steps` / `download_resource` (recipes are
+   bundled and never depend on it). **Do
    not stop for it.**
 
 2. **Host shell + writable workspace.** Two questions, one probe each. *Shell:* Step 0's
@@ -382,7 +383,7 @@ them), and writing them out yourself is the failure: the caller's hand-off rule 
 
 **ONE attempt per question, then record the answer and move on** — one command per question, not
 one per doubt. The whole preflight is a handful of shell calls: Step 0's `uname`, the
-reachability curl, one write probe (check 2's rule — in the project directory, once), the
+reachability probe, one write probe (check 2's rule — in the project directory, once), the
 platform's own install-location command (check 4), and the SDK/engine/license probes once an
 install is found. A question that resists its one probe is reported ⚠️
 with what you saw, and you hand back.

@@ -110,6 +110,7 @@
     "vcpus",
     "venv",
     "watchlist",
+    "webfetch",
     "writability"
   ],
   "ignorePaths": [
