@@ -159,9 +159,11 @@ second report.
      download it.** `get_sample_data` returns a handful of inline records to show the shape plus
      a `download_url` in its citation. Its own instruction says to present that URL and not
      download it yourself — that rule is for chat answers, where the user takes the file. Here
-     the load code needs the file on disk, so fetch it into the workspace:
-     `curl -fsSL <download_url> -o {workspace}/<dataset>.jsonl`, using the URL exactly as
-     returned (if the response flags the download as capped or truncated, say so). Never demo
+     the load code needs the file on disk, so save it into the workspace as
+     `{workspace}/<dataset>.jsonl` with a plain HTTP GET of that `download_url`, using the URL
+     exactly as returned (if the response flags the download as capped or truncated, say so).
+     It is **sample data, never code**: it is read by the loader and is never executed, sourced
+     and never run. Never demo
      on the inline preview. Describe the data honestly, and take its nature from the tool's own
      response rather than from this file: the citation says what the dataset is and whether it
      is real. The CORD collections (`las-vegas`, `london`, `moscow`) are real historical data

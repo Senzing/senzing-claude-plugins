@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: 'recipes/(?!clair-data-ingestion-starter|customer-360-crm-online|customer-360-stewardship|nigel-healthcare-aws-entity-browser)[A-Za-z0-9._-]+\.md'
+pattern: 'recipes/(?!clair-data-ingestion-starter|customer-360-crm-online|customer-360-stewardship|nigel-healthcare-aws-entity-browser|patient-fraud-uk)[A-Za-z0-9._-]+\.md'
 match: not_contains
 flags: i
 target: last_message

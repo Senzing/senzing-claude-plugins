@@ -117,7 +117,7 @@ different responses:
    `install`, `compatibility_notes`, or a `needs_input` decision tree — retry once; if it still
    fails, report it as its **own** row, **Step 0 ⚠️** "grounding tool `sdk_guide` failed —
    <error or the top-level keys you got>" (not user-fixable, so ⚠️ per the rule above — and not
-   check 1's verdict: check 1 grades reachability by its own `curl` + `get_capabilities`
+   check 1's verdict: check 1 grades reachability by its own HEAD probe + `get_capabilities`
    probes, which can be healthy while one tool misbehaves). Grade checks 1–3 normally (they
    need no Senzing facts) and mark 4–9 ➖ "not reached — no grounding". Do **not** continue on
    remembered paths or filenames; a preflight that guesses is worse than one that stops.
@@ -138,7 +138,8 @@ reports it. Treat it exactly like `cli`: it is a real shell on a real host, not 
      answering does prove the server is up, but it is not this probe: check 1 is graded on the
      one call, it is the cheapest of them, and a run that infers connectivity from whatever it
      happened to need next leaves the row resting on an accident of what it wanted anyway.
-   - *Bash egress*: `curl -fsSI https://mcp.senzing.com/` and `https://raw.githubusercontent.com/`.
+   - *Bash egress*: a **headers-only** HTTP request (HEAD — no response body, nothing written
+     to disk, nothing executed) to `https://mcp.senzing.com/` and `https://raw.githubusercontent.com/`.
      Treat **any HTTP response as reachable** — only DNS failure, connection refused, or timeout
      is unreachable. (A bare root returning 3xx/4xx is fine; `-f` fails only on ≥400, and
      `raw.githubusercontent.com` currently answers 301.)

@@ -37,56 +37,43 @@ allowed-tools: Read
 
 ## Recipe source
 
-<!-- PINNED TO A COMMIT, deliberately. This skill fetches instructions and then runs them,
-     so what executes must not be able to change after review — that is Anthropic's
-     RUNTIME_FETCH_EXEC finding, and an unpinned `main` is exactly what it objects to.
-     A commit SHA also fixes the two ways this has already broken: it shipped pointing at a
-     `cookbook-import` BRANCH (since deleted) and at `recipes.md` (never existed on main), so
-     every run died at the catalog fetch with a misleading "cookbook unreachable". A branch can
-     be deleted and a file can be renamed out from under us; a commit tree can do neither.
-     The `Cookbook whitelist still matches upstream` job in ci.yml keeps watching `main`, so
-     upstream movement still surfaces as a failing check — it just no longer reaches users
-     before we have looked at it. To advance the pin, update the SHA here and in that job. -->
-- Raw base: `https://raw.githubusercontent.com/senzing/recipes/6e3ef538d1a99566701d7aaeace0432d21cce918/`
-- Catalog: `<raw base>/cookbook.md` · a recipe: `<raw base>/recipes/<id>.md` · repo-provided
-  ingredients: `<raw base>/ingredients/<...>`
-- **`raw.githubusercontent.com` is the only host you fetch from**, and the only one whose
-  reachability matters. `github.com` serves the cookbook to human readers and is not a
-  prerequisite for cooking — plenty of corporate networks allow one and block the other — so do
-  not probe it, and do not infer anything from it if something else did.
+<!-- BUNDLED, deliberately. This skill reads instructions and then runs them, so what
+     executes must not be able to arrive — or change — after review. Earlier versions
+     fetched the catalog and each recipe from raw.githubusercontent.com at a pinned
+     commit; the pin answered Anthropic's RUNTIME_FETCH_EXEC finding, but the directory
+     then held the listing again on "contains a download-and-run command", which a pin
+     cannot satisfy because the fetch itself is the objection. The cookbook now ships
+     INSIDE the plugin under `cookbook/`, vendored verbatim from senzing/recipes. Nothing is
+     fetched at cook time, so the skill needs no network and no egress allowance for its source.
+     NO COMMIT SHA IS WRITTEN HERE ON PURPOSE: `mcp-version-sync.yml` re-vendors on every
+     version bump, so a SHA in this file would be stale by the next release. The commit that
+     was vendored, the file list and their hashes live in `cookbook/PROVENANCE.md`, which the
+     vendor script rewrites each time. Refresh by hand with `scripts/vendor-cookbook.sh [ref]`;
+     between releases the `Cookbook whitelist still matches upstream` job in ci.yml surfaces
+     upstream movement as a failing check instead of letting it reach users without review. -->
+- Bundled root: `cookbook/`, inside this skill's own directory and shipped with the plugin.
+- Catalog: `cookbook/cookbook.md` · a recipe: `cookbook/recipes/<id>.md` · repo-provided
+  ingredients: `cookbook/ingredients/<...>`
+- **Read them with `Read`. Nothing is downloaded, ever** — no shell download, no `WebFetch`, no network
+  of any kind for recipe content. There is no reachability question to answer and no domain
+  to ask the user to allow.
+- Upstream of record is `senzing/recipes`; the exact commit this build carries is recorded in
+  `cookbook/PROVENANCE.md`. That is **provenance, not a runtime source**: never fetch it while
+  cooking, and never treat a newer upstream recipe as authoritative over the bundled copy. The
+  bundle is what was reviewed, so the bundle is what you cook. `PROVENANCE.md` is generated —
+  it is not a recipe, so never offer it or cook from it.
 - **senzing.com publishes the same cookbook for people to read** — the AI Cookbook, under
   Resources: [Get Started](https://senzing.com/cookbook-get-started/) (the cookbook's own setup
   walkthrough, not general Senzing onboarding) and [Recipes](https://senzing.com/cookbook-recipes/).
-  Those pages are copies of this repo and can lag it, so **never fetch them or take recipe content
-  from them** — the pinned raw base above is the only source. Link them for the user to browse or
-  share.
-- **Never call the cookbook unreachable without having attempted the catalog fetch.** A
-  reachability probe is not a fetch. If the catalog does not pass the fetch validation below, say
-  the cookbook is unreachable **and quote the URL and status you got** — do not just tell the
-  user to allow a domain, because a `404` is a wrong path, not a blocked network. Never
-  reconstruct recipes from memory.
+  Those pages are copies and can lag the bundle, so **never take recipe content from them**.
+  Link them for the user to browse or share.
+- **A bundled file that will not open is a packaging bug, not an unreachable cookbook.** Say
+  which path failed and stop; do not reconstruct a recipe from memory, and do not go looking
+  for the content anywhere else.
 
-**Fetch verbatim — to a file, and validate it before trusting it.** Use Bash
-`curl -fsSL "<url>" -o "<workspace>/<name>.md"` to pull the exact markdown. `-f` rejects only HTTP
-≥ 400: it happily passes an **empty body**, and a `200` that is really an HTML error page. So
-before parsing anything, assert all three:
-- the file is non-empty (`test -s`);
-- its first non-blank line is a `# ` heading — **not** `<!DOCTYPE` or `<html`. (Both the catalog
-  and the recipes open with an H1; neither has YAML frontmatter.);
-- it contains at least one `## ` section heading.
-
-A file that fails any check is a **failed fetch**, not a recipe: retry once via `WebFetch` (same
-checks); if that fails too, quote the URL and the status you got. Never parse it as recipe steps.
-Then read the validated file into context — the recipe's inline prompt blocks must be run
-**word-for-word** (their hard rules matter). If
-`curl` is unavailable or blocked you get **one** fallback attempt via `WebFetch`, and only as a
-**diagnostic**: `WebFetch` returns a *summary*, not the verbatim markdown, so it can tell you
-whether the URL is reachable but it can never be the source of recipe steps. After that one
-attempt, **stop and report** — quote the URL and the status you got, and ask the user to allow
-`raw.githubusercontent.com` if that is what the status says. Do **not** go looking for a writable
-directory (`$TMPDIR`, `mktemp`, a `python3` open, …): one attempt answers the question, and a
-failed write is a finding to report, not a puzzle to solve — that is `doctor`'s probe budget of
-one attempt per question. And do **not** reconstruct a recipe from memory.
+**Read verbatim.** `Read` `cookbook/cookbook.md` for the catalog and `cookbook/recipes/<id>.md`
+for a recipe. The recipe's inline prompt blocks must be run **word-for-word** — their hard rules
+matter. Never paraphrase a prompt block, and never reconstruct one from memory.
 
 **Parse it as Markdown, not by line-grep.** A recipe is an `# ` title followed by `## ` (H2)
 sections — there is **no YAML frontmatter**, so do not look for any. A `#` inside a fenced code
@@ -143,12 +130,13 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
    CI caught "this recipe loads ~1,600 records, over the 500-record limit — do you have a license?"
    appended to a correct hand-off, which is the license decision put to the user as a choice. `install`
    owns the license conversation. Hand off to `install` and say nothing about what happens after it.
-   - **the Senzing SDK can't deploy** → still identify and fetch the named recipe (step 2/3) so you can
+   - **the Senzing SDK can't deploy** → still identify and read the named recipe (step 2/3) so you can
      name it (mission, kitchen, time — not its Setup needs), **then** hand off to the **`install`** skill without asking first.
-     **Order matters: fetch BEFORE you invoke `install`** — `install` asks its question and ends
-     the turn, so a fetch you leave for afterwards is never made (CI caught a run that went
-     doctor → `install` and never opened the recipe it was asked to cook). Run the catalog `curl`,
-     match the id, fetch `recipes/<id>.md`, and only then invoke `install` (it
+     **Order matters: read the recipe BEFORE you invoke `install`** — `install` asks its question
+     and ends the turn, so a read you leave for afterwards is never made (CI caught a run that went
+     doctor → `install` and never opened the recipe it was asked to cook). `Read`
+     `cookbook/cookbook.md`, match the id, `Read` `cookbook/recipes/<id>.md`, and only then invoke
+     `install` (it
      surfaces the license agreement, runs the official steps and verifies with `doctor`; do not
      route around it via `sdk_guide(topic="install")` directly — if an evaluation license is
      needed, `submit_feedback(category='license_request')`'s description states the current
@@ -216,9 +204,10 @@ words. Match it against the catalog `id`s; on a fuzzy/multiple match, confirm wh
      confirmation that matters here, and it is a check against a tool, not a question to the user.
      Do not carry the support matrix from memory. Only if neither the recipe nor the user names a
      language, ask — and say which one you will use if no answer comes, rather than stopping.
-   - **Ingredients:** if the recipe uses repo-provided ingredients, `curl` them from
-     `<raw base>/ingredients/<...>` into the workspace before the Cook step. If the user brings
-     their own data, take the paths, keep PII local, and note where the mapping will differ.
+   - **Ingredients:** if the recipe uses repo-provided ingredients, copy them from
+     `cookbook/ingredients/<...>` into the workspace before the Cook step — they ship with the
+     plugin, so there is nothing to download. If the user brings their own data, take the paths,
+     keep PII local, and note where the mapping will differ.
    - **Workspace:** use the location the user named ("this directory", a path) if they gave one,
      otherwise a default (`~/sz-workspace` or `$SZ_WORKSPACE`), and thread it through
      every step (the writability probe already ran in pre-flight).

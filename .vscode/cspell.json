@@ -36,6 +36,7 @@
     "DYLD",
     "EEXIST",
     "elif",
+    "endswith",
     "esac",
     "evals",
     "fabricable",
@@ -119,7 +120,8 @@
     "**/evals/results/**",
     "evals-real/resolve-truthset/fixtures/**",
     "evals-real/ground-truth/*.csv",
-    "**/evals-real/results/**"
+    "**/evals-real/results/**",
+    "plugins/senzing/skills/recipes/cookbook/**"
   ],
   "ignoreRegExpList": [
     "/^\\s*(?:pattern|[a-z_]*match)\\s*:\\s*['\"].*['\"]\\s*$/gm",

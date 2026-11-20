@@ -72,6 +72,26 @@ jobs:
           bash scripts/changelog-stub.sh "$NEW"
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
+      - name: Re-vendor the Senzing Cookbook
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # The `recipes` skill READS the cookbook from inside the plugin -- the directory
+          # refuses a plugin that downloads what it executes. Re-vendoring here is what keeps
+          # the bundled copy from rotting: every published version carries the cookbook as it
+          # stood when that version was cut. Between releases the `Cookbook whitelist still
+          # matches upstream` job surfaces drift.
+          bash scripts/vendor-cookbook.sh main
+          git add -A plugins/senzing/skills/recipes/cookbook
+          if git diff --cached --quiet; then
+            echo "cookbook unchanged since the last vendor"
+          else
+            echo "cookbook refreshed:"
+            git diff --cached --stat | tail -5
+          fi
+
       - name: Open sync PR
         if: steps.bump.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
@@ -89,6 +109,12 @@ jobs:
             **This is a version-only sync.** If this MCP release changed the *tool surface*
             (a tool added / removed / renamed, or args changed), the skills' `allowed-tools`,
             hook matchers, and tool references need manual updates too — review before merging.
+
+            The bundled Senzing Cookbook (`plugins/senzing/skills/recipes/cookbook/`) was
+            re-vendored from upstream `main` in this same PR, so this version ships the cookbook
+            as it stands now. **Review the cookbook diff** — a new or changed recipe is
+            instructions this plugin will run. Provenance (commit, files, hashes):
+            `cookbook/PROVENANCE.md`.
 
             After merge: re-tag the release — `claude plugin tag ./plugins/senzing` then
             `git push origin senzing--v${{ steps.live.outputs.version }}`.
