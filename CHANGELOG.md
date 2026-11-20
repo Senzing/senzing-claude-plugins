@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-3] - 2026-11-20
+
+### Changed
+
+- **The recipes' ingredient data ships with the plugin again, in a form the directory accepts.**
+  1.46.3-2 removed it and left the user to download and attach the files; the recipes need that
+  data to cook. The ingredients were always plain UTF-8 text — only the `.csv`/`.jsonl`
+  extensions and one file's size were refused. Each now ships under its real name with a `.txt`
+  suffix (`crm.csv` → `crm.csv.txt`), and a file over the directory's 256 KB inspectable limit is
+  split on **line** boundaries into `<name>.partNN.txt`. `recipes` restores the documented
+  filename when it copies them into the workspace — drop the suffix, concatenate `partNN` in
+  order — so the recipes still see the files they name, and nothing is downloaded.
+  Verified lossless: the two `gp_registrations` parts reassemble to 511 JSON records, 0
+  malformed, matching upstream exactly.
+- **The vendor script's policy guard now validates what is on disk**, after conversion, rather
+  than the upstream path list — which is what let the six refused files through. It checks type,
+  the 256 KB limit, a `#!` first line and NUL bytes, and fails rather than produce a bundle the
+  directory would refuse. Armed against both failure modes.
+
 ## [1.46.3-2] - 2026-11-20
 
 ### Fixed
