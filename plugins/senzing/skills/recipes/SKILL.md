@@ -49,8 +49,10 @@ allowed-tools: Read
      version bump, so a SHA in this file would be stale by the next release. The commit that
      was vendored, the file list and their hashes live in `cookbook/PROVENANCE.md`, which the
      vendor script rewrites each time. Refresh by hand with `scripts/vendor-cookbook.sh [ref]`;
-     between releases the `Cookbook whitelist still matches upstream` job in ci.yml surfaces
-     upstream movement as a failing check instead of letting it reach users without review. -->
+     between releases the `Cookbook whitelist still matches upstream` job in ci.yml reports
+     bundle-vs-upstream drift as a NOTICE (never a red check, since the next version bump
+     re-vendors it) and fails only when a recipe the eval graders whitelist is missing from the
+     bundle. -->
 - Bundled root: `cookbook/`, inside this skill's own directory and shipped with the plugin.
 - Catalog: `cookbook/cookbook.md` · a recipe: `cookbook/recipes/<id>.md` · repo-provided
   ingredients: `cookbook/ingredients/<...>`
