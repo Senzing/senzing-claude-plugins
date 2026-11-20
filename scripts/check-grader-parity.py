@@ -63,10 +63,10 @@ NO_SKILL = {"canary"}
 # "the skill ought to and we did not get round to it".
 LITERAL_EXEMPT = {
     # case/grader: why
-    "recipes-catalog/title-customer360": "titles come from the live cookbook, not the skill",
-    "recipes-catalog/title-healthcare": "titles come from the live cookbook, not the skill",
-    "recipes-catalog/title-ppp": "titles come from the live cookbook, not the skill",
-    "recipes-catalog/title-stewardship": "titles come from the live cookbook, not the skill",
+    "recipes-catalog/title-customer360": "titles come from the bundled cookbook, not the skill",
+    "recipes-catalog/title-healthcare": "titles come from the bundled cookbook, not the skill",
+    "recipes-catalog/title-ppp": "titles come from the bundled cookbook, not the skill",
+    "recipes-catalog/title-stewardship": "titles come from the bundled cookbook, not the skill",
     "ask-routing/source-url-cited": "the URL is whatever the MCP tool returned",
     "ask-license-request/payload-shown": "the name and address are the prompt's test persona, echoed back",
     "install-eula/eula-surfaced": "the EULA URL comes from sdk_guide's result, not the skill's prose",

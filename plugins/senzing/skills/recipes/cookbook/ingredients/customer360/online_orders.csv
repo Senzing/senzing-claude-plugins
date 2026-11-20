@@ -1,0 +1,588 @@
+account_id,customer_name,ship_address,ship_city,ship_state,ship_zip,email,contact_phone,order_count,last_order,item_category,order_amount
+500001,David Webb,2135 Maryland Dr,Henderson,NV,89011,david.webb21@hotmail.com,(702) 555-3105,1,2025-03-04,Laptop,1973.61
+500002,Hannah Jimenez,7252 Sandhill Blvd,Las Vegas,NV,89101,,(725) 555-4724,1,2025-06-19,Monitor,543.36
+500003,Bob Rivera,5349 Torrey Ln,Paradise,NV,89109,robert.rivera34@gmail.com,(702) 555-4713,1,2024-07-27,Printer,684.84
+500004,Jerry Rodriguez,9020 Blue Ln,Henderson,NV,89052,jerry.gomez26@hotmail.com,(702) 555-2266,1,2025-01-25,Tablet,535.82
+500005,Alex Castillo,7440 Sandhill Ln,Henderson,NV,89052,alexander.castillo82@yahoo.com,(702) 555-7133,1,2024-12-01,Tablet,1016.35
+500006,Laura Foster,744 Cactus Ave,Las Vegas,NV,89117,laura.foster16@icloud.com,(725) 555-6613,1,2024-12-19,Laptop,2219.55
+500007,Laura Medina,5882 Canyon St,Las Vegas,NV,89119,laura.medina93@yahoo.com,(725) 555-2631,1,2025-12-16,Accessory,23.69
+500008,Nathan Ortiz,7768 Eastern St Ste 102,Las Vegas,NV,89101,nathan.ortiz84@icloud.com,(725) 555-6086,4,2025-04-14,Warranty,90.98
+500009,Patricia Carter,3666 Canyon Street,Summerlin,NV,89135,patricia.carter74@hotmail.com,(725) 555-9004,1,2025-08-18,Desktop,1208.59
+500010,Harold Romero,6737 Silverado Way,Henderson,NV,89052,harold.romero86@icloud.com,(702) 555-7944,1,2024-12-08,Monitor,181.94
+500011,Samuel Brooks,5339 Sandhill Ln,Paradise,NV,89109,samuel.brooks60@icloud.com,(725) 555-4497,1,2025-06-18,Printer,749.85
+500012,Janet Collins,470 Eastern Way,Henderson,NV,89052,janet.collins61@outlook.com,(702) 555-7681,1,2024-02-12,Warranty,139.02
+500013,Debra Butler,1786 Ann Way Apt 35,North Las Vegas,NV,89031,debra.butler35@gmail.com,(702) 555-2286,1,2025-04-08,Printer,507.93
+500014,Omar Jackson,2094 Buffalo Ave Apt 3,Las Vegas,NV,89119,omar.jackson2@outlook.com,(702) 555-9254,1,2025-04-22,Software,470.25
+500015,Tyler Ross,5693 Warm Ct,Las Vegas,NV,89101,tyler.ross44@gmail.com,(702) 555-1884,1,2024-06-13,Printer,202.14
+500016,John Rogers,5316 Pecos Ln,Summerlin,NV,89135,john.rogers24@icloud.com,(702) 555-2583,1,2025-08-31,Monitor,383.67
+500017,Mary Wilson,929 Grand Pkwy,Paradise,NV,89109,mary.wilson96@outlook.com,(702) 555-3867,1,2024-05-04,Laptop,2095.94
+500018,Melissa Ortiz,9098 Cheyenne Way,Henderson,NV,89011,melissa.ortiz19@gmail.com,(702) 555-7433,1,2025-11-08,Warranty,253.75
+500019,Geoffrey Medina,9043 Charleston Way,North Las Vegas,NV,89031,jeffrey.medina38@gmail.com,(725) 555-4712,1,2025-02-08,Laptop,1227.6
+500020,Jerry Ellis,2466 Blue Way,Las Vegas,NV,89119,jerry.ellis10@yahoo.com,(702) 555-1804,1,2025-03-20,Accessory,103.69
+500021,Nathan Vasquez,3587 Blue Ave,Las Vegas,NV,89101,nathan.vasquez25@outlook.com,(725) 555-8690,1,2025-10-26,Software,205.92
+500022,Douglas Coleman,7461 Windmill Ln Apt 31,North Las Vegas,NV,89031,douglas.coleman89@yahoo.com,(725) 555-8158,1,2025-04-09,Warranty,184.75
+500023,Mary Smyth,2081 Fort Ave,Las Vegas,NV,89117,mary.smith31@hotmail.com,(725) 555-5071,1,2025-04-06,Warranty,106.08
+500024,Jessica Young,2489 Hualapai Ave,Henderson,NV,89011,jessica.young72@hotmail.com,(702) 555-2829,1,2025-11-28,Desktop,1267.42
+500025,Carol Hall,6838 Russell St,Summerlin,NV,89135,carol.hall18@gmail.com,(702) 555-6313,1,2025-09-28,Monitor,368.73
+500026,Michelle Edwards,1106 Cheyenne Ln,Las Vegas,NV,89101,michelle.edwards30@gmail.com,(725) 555-7434,1,2025-08-03,Accessory,32.02
+500027,Brandon Morales,9025 Canyon Rd,Las Vegas,NV,89117,brandon.morales38@yahoo.com,(725) 555-7472,1,2025-05-27,Printer,515.97
+500028,Henry Kim,1588 Mojave Ave,Henderson,NV,89011,henry.kim52@outlook.com,(702) 555-5392,1,2025-06-06,Monitor,409.42
+500029,Peter Kennedy,894 Jones Ln,Henderson,NV,89011,peter.kennedy25@outlook.com,(725) 555-8078,1,2024-03-02,Warranty,131.03
+500030,Kyle Cruz,7904 Centennial St,Henderson,NV,89011,kyle.cruz28@yahoo.com,(725) 555-9241,1,2024-02-27,Printer,579.44
+500031,Jacob Robinson,2197 Bonanza Ct,Henderson,NV,89052,jacob.robinson97@yahoo.com,(725) 555-9199,1,2024-07-08,Laptop,1249.65
+500032,Chris Freeman,4396 Windmill Rd Apt 27,Las Vegas,NV,89119,christopher.freeman33@gmail.com,(702) 555-7390,1,2024-01-19,Printer,517.66
+500033,Elizabeth Howard,8759 Jones Pkwy,Las Vegas,NV,89119,ehoward24@yahoo.com,(725) 555-9965,1,2025-11-17,Warranty,77.11
+500034,Maria Crawford,9553 Cactus Ln,Henderson,NV,89011,maria.crawford8@outlook.com,(702) 555-5022,1,2025-05-25,Laptop,2553.01
+500035,Brenda Nguyen,7646 Diamond Ln,Henderson,NV,89052,brenda.nguyen14@icloud.com,(702) 555-8042,1,2025-09-24,Desktop,1586.7
+500036,Maria Robinson,3743 Ann St,North Las Vegas,NV,89031,maria.robinson82@hotmail.com,(702) 555-3284,1,2025-06-19,Tablet,1108.47
+500037,Heather Ramos,3351 Alta Ln,Henderson,NV,89052,heather.ramos42@outlook.com,(725) 555-5150,1,2024-12-21,Desktop,2069.68
+500038,Stephen Alvarez,2401 Jones Ln,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2025-06-13,Accessory,104.8
+500039,Angela Wallace,3650 Stephanie Blvd,Henderson,NV,89052,angela.wallace83@gmail.com,(702) 555-6120,1,2024-12-10,Monitor,162.67
+500040,Eric Cole,5479 Owens Ct,Las Vegas,NV,89101,eric.cole89@yahoo.com,(702) 555-3280,5,2024-07-17,Accessory,57.06
+500041,Rachel Roberts,4933 Maryland Dr,Paradise,NV,89109,rachel.roberts70@yahoo.com,(702) 555-4292,1,2025-02-08,Laptop,1742.91
+500042,Katherine Ward,4105 Grand Ct,Las Vegas,NV,89117,katherine.ward79@outlook.com,(702) 555-3984,1,2025-07-20,Accessory,57.43
+500043,Kimberley Henderson,2623 Cheyenne Ct,Paradise,NV,89109,kimberly.henderson2@hotmail.com,(702) 555-4987,1,2025-07-19,Printer,492.12
+500044,Stephanie Murray,2611 Charleston Way,Las Vegas,NV,89119,stephanie.murray57@gmail.com,(725) 555-4211,1,2025-06-04,Desktop,2048.14
+500045,Aisha Jenkins,1136 Horizon Way Apt 39,Las Vegas,NV,89117,aisha.jenkins85@gmail.com,(702) 555-3065,1,2025-09-24,Laptop,1222.76
+500046,Sara Thompson,242 Durango Pkwy,Paradise,NV,89109,sarah.thompson28@outlook.com,(725) 555-3241,1,2025-09-23,Tablet,592.54
+500047,Heather Guzman,1511 Boulder Blvd,Henderson,NV,89052,heather.guzman30@gmail.com,(702) 555-1641,1,2024-03-29,Warranty,282.66
+500048,Pamela Roberts,7271 Losee Blvd,Las Vegas,NV,89119,pamela.roberts32@yahoo.com,(725) 555-9687,1,2025-06-22,Software,22.63
+500049,Jeremy Webb,7378 Nellis Dr,North Las Vegas,NV,89031,jeremy.webb31@hotmail.com,(725) 555-9782,1,2024-12-02,Software,117.07
+500050,Amanda Ramirez,6433 Fort Dr,Las Vegas,NV,89117,amanda.ramirez50@icloud.com,(725) 555-9724,1,2024-07-27,Warranty,264.8
+500051,Kathleen Cook,3572 Rampart Ln,Paradise,NV,89109,kathleen.cook62@yahoo.com,(725) 555-8387,1,2025-08-15,Software,345.5
+500052,Dennis Jimenez,5853 Alta Way Apt 17,Summerlin,NV,89135,dennis.jimenez89@yahoo.com,(702) 555-6903,1,2024-04-11,Laptop,1963.7
+500053,Jordan Mitchell,6653 Nellis Pkwy,Henderson,NV,89052,jordan.mitchell20@yahoo.com,(725) 555-1235,1,2025-03-19,Desktop,2028.28
+500054,Betty Jimenez,3013 Owens Blvd,Henderson,NV,89011,betty.edwards79@hotmail.com,(702) 555-2898,1,2025-10-11,Warranty,216.14
+500055,Luis Coleman,3808 Nellis Ln Apt 3,Summerlin,NV,89135,luis.coleman77@outlook.com,(702) 555-3543,1,2024-12-27,Monitor,404.79
+500056,Brenda Reynolds,5722 Sahara Dr,North Las Vegas,NV,89031,brenda.reynolds40@icloud.com,(725) 555-3254,1,2024-03-13,Printer,797.85
+500057,Kimberly Hayes,5998 Warm Blvd,Summerlin,NV,89135,kimberly.hayes66@yahoo.com,(725) 555-7237,1,2024-09-04,Desktop,2163.75
+500058,Nathan Ortiz,8568 Rampart Rd,Las Vegas,NV,89101,nathan.ortiz84@icloud.com,(725) 555-6086,4,2025-01-15,Desktop,1891.34
+500059,Luis Moore,2196 Cheyenne Blvd,Las Vegas,NV,89101,luis.moore59@yahoo.com,(725) 555-2004,1,2024-07-23,Warranty,427.22
+500060,Grace Gray,6193 Gibson Boulevard,Henderson,NV,89052,grace.gray19@icloud.com,(702) 555-3234,1,2024-05-10,Monitor,352.69
+500061,Lisa Morales,281 Craig Dr,Henderson,NV,89011,lmorales31@yahoo.com,(702) 555-5940,1,2024-04-02,Accessory,30.48
+500062,John Morgan,7078 Gibson Way Apt 10,Summerlin,NV,89135,john.morgan6@icloud.com,(725) 555-1018,1,2025-01-23,Tablet,1071.09
+500063,Christine Philips,383 Gibson Ct,Henderson,NV,89052,christine.phillips85@gmail.com,(702) 555-2561,1,2025-07-17,Printer,625.96
+500064,Joseph Ramos,5120 Durango Pkwy Apt 34,Las Vegas,NV,89117,joseph.ramos78@outlook.com,(725) 555-6502,1,2025-03-19,Software,364.57
+500065,Bob Tucker,1357 Grand Ln,North Las Vegas,NV,89031,robert.tucker74@outlook.com,(702) 555-5641,1,2025-11-29,Laptop,1184.7
+500066,Joshua Lopez,4359 Charleston Dr,Las Vegas,NV,89117,joshua.lopez33@gmail.com,(702) 555-7362,1,2025-08-23,Tablet,624.52
+500067,Richard Russell,5602 Sahara Ct,Henderson,NV,89052,richard.kelly53@gmail.com,(702) 555-6270,1,2024-10-18,Tablet,589.67
+500068,Richard Ford,5969 Grand Ct,Henderson,NV,89011,richard.ford86@outlook.com,(725) 555-4757,1,2025-07-05,Software,20.05
+500069,Juan Greene,6657 Blue Pkwy,North Las Vegas,NV,89031,juan.green36@hotmail.com,(702) 555-6829,1,2025-09-19,Desktop,1930.36
+500070,Bryan Sanders,9625 Washington Pkwy,Las Vegas,NV,89101,brian.sanders46@outlook.com,(725) 555-3743,1,2024-01-01,Desktop,749.51
+500071,Heather Lee,715 Nellis Pkwy,Las Vegas,NV,89101,heather.lee57@hotmail.com,(725) 555-7065,1,2024-12-03,Warranty,299.71
+500072,Stephen Alvarez,6999 Cactus Ct,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2024-11-08,Monitor,557.39
+500073,Patricia Murray,5438 Tropicana Ln,Henderson,NV,89011,patricia.murray30@outlook.com,(702) 555-4046,1,2024-12-21,Warranty,114.13
+500074,Aisha Perry,3389 Durango Rd,Summerlin,NV,89135,aisha.perry38@icloud.com,(702) 555-6227,1,2024-08-28,Laptop,1217.27
+500075,Isabela Thomas,1333 Buffalo Pkwy,Paradise,NV,89109,isabella.thomas97@yahoo.com,(725) 555-9839,1,2024-07-07,Monitor,506.76
+500076,Katherine Kim,2263 Mojave Rd,Las Vegas,NV,89119,katherine.kim60@hotmail.com,(725) 555-9618,1,2024-10-30,Printer,799.73
+500077,Anthony Bennett,2438 Mojave Rd,Henderson,NV,89052,anthony.bennett32@icloud.com,(702) 555-2524,1,2025-12-21,Laptop,1414.76
+500078,Andrew Walker,8558 Rampart Rd Apt 31,Las Vegas,NV,89101,andrew.walker93@outlook.com,(725) 555-6267,1,2025-04-12,Desktop,1513.63
+500079,Lisa Mitchell,5233 Silverado Ln,Paradise,NV,89109,lisa.mitchell70@outlook.com,(725) 555-6960,1,2025-03-06,Laptop,2408.37
+500080,Dorothy Thomson,7625 Sahara Dr,Las Vegas,NV,89119,dorothy.thompson74@icloud.com,(702) 555-4820,1,2025-11-12,Laptop,2317.27
+500081,Debra Stuart,350 Decatur Blvd,North Las Vegas,NV,89031,debra.stewart53@hotmail.com,(725) 555-3744,1,2025-07-10,Warranty,101.48
+500082,Melissa Richardson,5333 Warm Pkwy,Las Vegas,NV,89117,melissa.richardson43@outlook.com,(725) 555-4742,1,2025-03-15,Printer,700.8
+500083,Kenneth Hughes,8070 Lamb Pkwy,Las Vegas,NV,89101,kenneth.hughes21@gmail.com,(702) 555-4811,1,2024-03-17,Tablet,917.06
+500084,Karen Vasquez,426 Canyon Way Apt 28,Summerlin,NV,89135,karen.vasquez90@hotmail.com,(725) 555-5096,1,2024-10-14,Desktop,2045.41
+500085,Christine Ward,6737 Stephanie Ct Apt 9,North Las Vegas,NV,89031,christine.ward58@gmail.com,(702) 555-8469,1,2025-12-22,Tablet,328.58
+500086,Sharon Moore,6289 Horizon Ave,Las Vegas,NV,89117,sharon.moore96@gmail.com,(725) 555-5356,1,2025-07-09,Laptop,1460.3
+500087,Walter Smith,2632 Flamingo Ct,Las Vegas,NV,89101,walter.smith50@gmail.com,(725) 555-5825,1,2025-07-13,Software,399.52
+500088,Nancy Walker,9010 Rainbow St,Las Vegas,NV,89119,nancy.walker21@outlook.com,(725) 555-6093,1,2024-07-18,Desktop,1450.78
+500089,Heather Castillo,8776 Pecos Pkwy,Las Vegas,NV,89117,heather.castillo16@icloud.com,(702) 555-1055,1,2024-09-13,Warranty,223.76
+500090,Linda Smyth,7839 Cheyenne Ave,Henderson,NV,89052,linda.smith40@hotmail.com,(702) 555-5413,1,2025-11-10,Tablet,1165.42
+500091,Emma Vasquez,5177 Washington Ln,Summerlin,NV,89135,emma.vasquez24@yahoo.com,(725) 555-4254,1,2025-05-31,Desktop,1543.73
+500092,Erik Nguyen,8419 Centennial Ave,Las Vegas,NV,89101,eric.nguyen87@hotmail.com,(725) 555-7757,1,2024-12-09,Monitor,344.49
+500093,Robert Allen,9736 Owens Dr,Las Vegas,NV,89119,robert.allen17@yahoo.com,(702) 555-9128,1,2024-06-18,Warranty,162.33
+500094,John Johnson,8829 Craig St,Las Vegas,NV,89119,john.scott47@icloud.com,(725) 555-2986,1,2024-06-20,Desktop,1754.22
+500095,Sharon Carter,4086 Bonanza Ave,Paradise,NV,89109,sharon.carter78@gmail.com,(725) 555-3849,1,2024-07-21,Software,333.88
+500096,Walter Morales,4944 Torrey Ln Apt 8,Henderson,NV,89011,walter.morales49@gmail.com,(702) 555-7582,1,2024-12-09,Warranty,157.14
+500097,Sofia Marshall,175 Owens St Apt 24,Henderson,NV,89052,sofia.marshall44@icloud.com,(702) 555-4175,1,2024-09-24,Tablet,682.1
+500098,Joshua Campbell,7775 Maryland Dr,Henderson,NV,89011,joshua.campbell9@icloud.com,(725) 555-9959,1,2025-08-11,Accessory,54.86
+500099,Roger Edwards,8535 Silverado Rd,Paradise,NV,89109,roger.edwards80@hotmail.com,(725) 555-2768,1,2024-12-14,Monitor,481.03
+500100,Joshua Guzman,5688 Boulder Ct,Las Vegas,NV,89119,joshua.guzman13@icloud.com,(725) 555-4876,1,2024-04-21,Desktop,1832.86
+500101,Ashley Reyes,4245 Sahara St Apt 28,Henderson,NV,89052,ashley.reyes62@gmail.com,(702) 555-9007,1,2025-06-13,Software,151.89
+500102,Matthew White,8723 Owens Ln,Las Vegas,NV,89101,matthew.ramos86@gmail.com,(702) 555-3572,1,2024-03-29,Software,88.17
+500103,Andrew Herrera,7887 Warm Dr Apt 29,North Las Vegas,NV,89031,andrew.herrera58@outlook.com,(702) 555-9858,1,2025-04-09,Software,221.57
+500104,Andrew Cooke,2152 Alta Ct,Las Vegas,NV,89101,andrew.cook71@yahoo.com,(725) 555-5842,1,2024-03-17,Monitor,212.07
+500105,George Moore,1382 Silverado Ct,Paradise,NV,89109,george.moore65@outlook.com,(702) 555-7786,1,2024-08-13,Software,128.28
+500106,Sofia Brooks,5414 Centennial Pkwy,Henderson,NV,89011,sofia.brooks12@hotmail.com,(725) 555-1294,1,2024-12-13,Accessory,210.37
+500107,Donna Adams,9806 Silverado Ave,North Las Vegas,NV,89031,donna.adams36@gmail.com,(725) 555-6220,1,2024-09-15,Laptop,2419.13
+500108,Ashley King,9790 Grand Ct,Las Vegas,NV,89117,ashley.king61@hotmail.com,(702) 555-2688,1,2025-07-04,Tablet,350.97
+500109,Pamela Robinson,4170 Diamond Way,Las Vegas,NV,89119,pamela.robinson99@icloud.com,(702) 555-4843,1,2024-09-30,Accessory,41.36
+500110,Hanna Kim,5595 Springs Ave Apt 36,Las Vegas,NV,89119,hannah.kim36@icloud.com,(725) 555-3831,1,2024-10-24,Laptop,2589.92
+500111,Dorothy Reynolds,7737 Sahara Ave,Las Vegas,NV,89119,dorothy.reynolds54@gmail.com,(725) 555-6628,1,2024-06-23,Desktop,1831.13
+500112,Diane Mendoza,8978 Centennial Way,Las Vegas,NV,89101,diane.mendoza61@hotmail.com,(725) 555-6495,1,2024-05-27,Desktop,864.32
+500113,Tyler Morris,8081 Tropicana Ln,Las Vegas,NV,89119,tyler.morris39@yahoo.com,(702) 555-3226,1,2025-09-14,Desktop,1521.63
+500114,Lisa Stevens,6157 Jones Dr,Las Vegas,NV,89101,lisa.stevens36@gmail.com,(725) 555-6139,1,2025-06-08,Laptop,1186.07
+500115,Kimberley Turner,4524 Tropicana Blvd,Paradise,NV,89109,kimberly.turner40@hotmail.com,(725) 555-6153,1,2025-06-27,Monitor,155.46
+500116,Heather Davis,4482 Mojave Way,Las Vegas,NV,89119,heather.davis47@yahoo.com,(725) 555-1127,1,2024-04-30,Monitor,620.66
+500117,Fatima Chavez,6125 Eastern Ave,Las Vegas,NV,89117,fatima.chavez24@outlook.com,(702) 555-9459,1,2025-11-27,Tablet,918.4
+500118,Justin Burns,6093 Lamb Ave,Henderson,NV,89052,justin.torres91@hotmail.com,(725) 555-1179,1,2024-03-22,Software,40.98
+500119,Nancy Sanchez,5021 Maryland St,Las Vegas,NV,89117,nancy.sanchez37@gmail.com,(702) 555-7059,1,2024-04-22,Laptop,1315.42
+500120,Melissa Bryant,914 Sunset St Apt 19,Henderson,NV,89011,melissa.bryant28@outlook.com,(702) 555-3017,1,2024-05-22,Printer,255.66
+500121,Melissa Chavez,2653 Diamond Ave,Paradise,NV,89109,melissa.chavez31@gmail.com,(725) 555-1131,1,2024-05-07,Desktop,1003.14
+500122,Kyle Ramos,583 Flamingo Ln Apt 16,Las Vegas,NV,89119,kyle.ramos72@outlook.com,(725) 555-8746,1,2024-02-19,Accessory,42.53
+500123,John Baker,5485 Silverado Ave,Las Vegas,NV,89119,john.baker30@outlook.com,(702) 555-2107,1,2024-04-23,Warranty,278.79
+500124,Raymond Owens,1945 Mojave Rd,Las Vegas,NV,89101,raymond.owens43@yahoo.com,(725) 555-3553,1,2025-04-28,Printer,549.06
+500125,Sara Nguyen,3548 Rampart St,North Las Vegas,NV,89031,sarah.nguyen39@gmail.com,(702) 555-3734,1,2025-02-22,Warranty,207.75
+500126,Heather Bell,4023 Stephanie Way,Paradise,NV,89109,heather.bell36@yahoo.com,(725) 555-9638,1,2024-04-19,Software,377.58
+500127,Ashley Cole,959 Sandhill St,Summerlin,NV,89135,ashley.sullivan65@icloud.com,(725) 555-5023,1,2024-05-10,Accessory,214.98
+500128,Jacob Hughes,6989 Lamb Ln,Henderson,NV,89052,jacob.hughes83@yahoo.com,(725) 555-2239,1,2024-11-19,Desktop,1051.17
+500129,Nathalie Hughes,3433 Stephanie Ln,Las Vegas,NV,89119,natalie.hughes54@gmail.com,(725) 555-1903,1,2025-04-16,Printer,535.21
+500130,Ethan Gray,8449 Alta Avenue,North Las Vegas,NV,89031,ethan.gray3@yahoo.com,(725) 555-6033,1,2025-12-10,Desktop,2110.83
+500131,Steven Hayes,704 Apache Blvd,Las Vegas,NV,89101,steven.hayes57@icloud.com,(725) 555-6215,1,2024-01-12,Printer,422.74
+500132,Thomas Myers,8756 Losee Rd,North Las Vegas,NV,89031,thomas.myers96@yahoo.com,(725) 555-9537,1,2024-04-16,Tablet,435.63
+500133,Aisha Aguilar,8773 Carey Dr,North Las Vegas,NV,89031,aisha.aguilar66@hotmail.com,(702) 555-6525,1,2024-03-26,Monitor,382.07
+500134,Luis Kim,4313 Centennial Way,Las Vegas,NV,89119,luis.kim35@icloud.com,(725) 555-8582,1,2024-06-23,Tablet,441.86
+500135,Carl Ward,5863 Windmill Ave Ste 100,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2024-10-26,Accessory,21.19
+500136,Anna Murphy,7313 Losee Ave,Henderson,NV,89052,anna.murphy41@icloud.com,(725) 555-2193,1,2025-10-16,Tablet,505.22
+500137,John Foster,9895 Blue St,Henderson,NV,89052,john.foster84@outlook.com,(725) 555-4654,1,2025-03-09,Warranty,421.16
+500138,Kyle Herrera,657 Nellis Ave,Henderson,NV,89052,kyle.herrera35@gmail.com,(725) 555-5692,1,2025-04-21,Monitor,320.04
+500139,Karen Wilson,9484 Rainbow St,Las Vegas,NV,89101,karen.wilson30@icloud.com,(725) 555-8775,1,2025-08-15,Printer,543.76
+500140,George Kennedy,534 Charleston Ln Apt 12,North Las Vegas,NV,89031,george.kennedy24@hotmail.com,(702) 555-3705,1,2024-04-29,Warranty,175.32
+500141,Peter Nelson,6704 Nellis St,North Las Vegas,NV,89031,peter.nelson24@yahoo.com,(725) 555-9171,1,2025-10-10,Desktop,1822.06
+500142,Samantha Green,6313 Durango Ct,Summerlin,NV,89135,samantha.foster4@outlook.com,(702) 555-1605,1,2025-11-29,Desktop,1098.86
+500143,Gary Castillo,1196 Rampart Ave,Las Vegas,NV,89119,gary.castillo19@yahoo.com,(702) 555-8317,1,2024-07-30,Desktop,889.64
+500144,Nichole Cooper,9111 Diamond St,Las Vegas,NV,89119,nicole.cooper47@icloud.com,(702) 555-8585,1,2024-08-06,Laptop,1542.82
+500145,Hannah Aguilar,9712 Silverado St,Las Vegas,NV,89117,hannah.aguilar51@icloud.com,(725) 555-1875,1,2024-02-09,Monitor,672.03
+500146,Eric Coleman,8647 Buffalo Dr,Henderson,NV,89011,eric.coleman37@outlook.com,(725) 555-4805,1,2025-02-23,Warranty,254.14
+500147,Angela Philips,964 Russell Dr,Las Vegas,NV,89117,angela.phillips86@hotmail.com,(725) 555-6480,1,2025-05-15,Monitor,285.25
+500148,Jeffrey Tucker,5090 Fort Dr,Las Vegas,NV,89119,jeffrey.tucker47@outlook.com,(725) 555-9887,1,2024-07-20,Tablet,586.79
+500149,Patricia Russell,8528 Charleston Ave,Henderson,NV,89052,patricia.russell73@hotmail.com,(725) 555-3072,1,2025-06-22,Printer,183.8
+500150,Diane Guzman,8175 Stephanie Way,Henderson,NV,89052,diane.hayes68@gmail.com,(725) 555-3746,1,2025-05-06,Accessory,153.54
+500151,Anthony Sanchez,5066 Tropicana Ct,Paradise,NV,89109,anthony.sanchez69@outlook.com,(725) 555-8976,1,2024-02-06,Tablet,994.78
+500152,Sofia West,8242 Horizon Rd,Las Vegas,NV,89119,sofia.west47@yahoo.com,(702) 555-8708,1,2025-06-16,Printer,571.44
+500153,Mei Wright,4858 Fort Ct Apt 10,Paradise,NV,89109,mei.wright74@icloud.com,(725) 555-9960,1,2025-12-15,Warranty,240.92
+500154,Emma Carter,9395 Eastern Dr,Las Vegas,NV,89119,,(725) 555-9260,1,2025-11-04,Tablet,1143.71
+500155,Melissa Price,6263 Jones Rd,Las Vegas,NV,89117,melissa.price59@hotmail.com,(702) 555-6910,1,2024-04-01,Accessory,18.39
+500156,Samuel Griffin,1708 Craig Pkwy,Las Vegas,NV,89119,samuel.griffin92@gmail.com,(702) 555-2827,1,2024-10-18,Monitor,434.56
+500157,Keith Evans,9873 Hualapai Blvd Apt 9,Henderson,NV,89052,keith.evans87@outlook.com,(725) 555-1757,1,2025-05-27,Software,426.03
+500158,Wei Simmons,2667 Pecos Ct Apt 31,Summerlin,NV,89135,wei.simmons49@icloud.com,(725) 555-9276,1,2025-10-09,Warranty,101.51
+500159,William Mendoza,5418 Maryland Dr,Las Vegas,NV,89101,william.mendoza35@hotmail.com,(702) 555-8916,1,2025-01-31,Printer,745.94
+500160,Charlie Young,321 Maryland Way,North Las Vegas,NV,89031,charles.young34@yahoo.com,(725) 555-2220,1,2025-03-03,Desktop,2143.16
+500161,Emma Russell,5280 Centennial St Apt 10,Summerlin,NV,89135,emma.russell44@outlook.com,(702) 555-3898,1,2024-02-27,Warranty,67.04
+500162,Luis Butler,2978 Centennial Blvd,Henderson,NV,89052,luis.butler4@hotmail.com,(725) 555-6403,1,2024-08-25,Monitor,363.91
+500163,Gregory Aguilar,8965 Cheyenne Ln,Paradise,NV,89109,gregory.aguilar40@icloud.com,(725) 555-6182,1,2024-06-16,Printer,380.28
+500164,Roger Wells,3558 Cactus St,Summerlin,NV,89135,roger.wells30@icloud.com,(725) 555-4691,1,2025-05-11,Software,89.85
+500165,Douglas Edwards,8690 Hualapai Ct,Las Vegas,NV,89117,douglas.edwards46@hotmail.com,(702) 555-1534,1,2024-12-13,Printer,724.11
+500166,Scott Ford,3687 Centennial Pkwy,Las Vegas,NV,89119,scott.ford91@gmail.com,(725) 555-2008,1,2024-12-31,Software,127.09
+500167,Amy Alexander,5816 Canyon Way Apt 22,Henderson,NV,89052,amy.alexander71@hotmail.com,(702) 555-9186,1,2024-05-22,Warranty,329.6
+500168,Sandra Flores,308 Charleston Dr,Las Vegas,NV,89101,sandra.flores71@hotmail.com,(725) 555-9015,1,2024-03-15,Printer,697.36
+500169,Michele Webb,3356 Canyon Way,North Las Vegas,NV,89031,michelle.webb11@yahoo.com,(702) 555-9435,1,2025-10-24,Warranty,382.06
+500170,Bill Cruz,277 Jones Way Apt 22,Henderson,NV,89011,william.cruz33@hotmail.com,(702) 555-1399,1,2024-02-10,Software,205.47
+500171,Angela Fernandez,8816 Hualapai St Apt 40,Las Vegas,NV,89117,angela.fernandez72@yahoo.com,(702) 555-9751,1,2024-02-21,Monitor,686.46
+500172,Barbara Evans,9635 Canyon Ave,Henderson,NV,89052,barbara.evans22@gmail.com,(725) 555-1414,1,2025-01-11,Software,302.09
+500173,Linda Reynolds,1905 Horizon Road,Las Vegas,NV,89119,linda.reynolds37@yahoo.com,(702) 555-3546,1,2025-02-20,Desktop,1815.77
+500174,Adam Martin,6257 Owens Ct Apt 26,Summerlin,NV,89135,adam.martin76@icloud.com,(725) 555-9632,1,2025-09-03,Accessory,188.24
+500175,Walter Harris,671 Canyon Rd,North Las Vegas,NV,89031,walter.foster89@outlook.com,(725) 555-9461,1,2025-11-27,Printer,712.55
+500176,Deborah Brown,1436 Torrey Ln,Henderson,NV,89052,deborah.brown59@icloud.com,(725) 555-4228,1,2025-07-27,Warranty,82.51
+500177,Aaron Murray,8762 Grand Rd,Summerlin,NV,89135,aaron.adams55@gmail.com,(702) 555-5254,1,2024-08-23,Printer,673.81
+500178,Carlos Edwards,2876 Ann Dr,Las Vegas,NV,89101,cedwards35@yahoo.com,(725) 555-6184,1,2024-05-23,Laptop,2196.18
+500179,Jeremy Cruz,8753 Maryland Dr,Henderson,NV,89011,jeremy.cruz78@outlook.com,(725) 555-3341,1,2024-06-19,Tablet,366.02
+500180,Dan Allen,3372 Decatur Ct,Henderson,NV,89011,daniel.allen40@yahoo.com,(725) 555-4613,1,2025-12-05,Tablet,1231.15
+500181,Ronald Lee,4045 Flamingo St,Henderson,NV,89011,ronald.lee41@yahoo.com,(702) 555-4599,1,2025-11-16,Laptop,1328.31
+500182,Cynthia Cole,959 Sandhill St,Summerlin,NV,89135,cynthia.cole89@gmail.com,(725) 555-5023,1,2025-09-22,Tablet,1179.14
+500183,Sandra Wood,2801 Decatur Street,Summerlin,NV,89135,sandra.wood58@yahoo.com,(725) 555-1186,1,2024-03-24,Accessory,32.08
+500184,Scott Barnes,6086 Apache Lane,Summerlin,NV,89135,scott.barnes49@gmail.com,(702) 555-6220,1,2024-01-18,Accessory,20.24
+500185,Stephen Johnson,3319 Eastern Dr,Henderson,NV,89011,stephen.nelson87@icloud.com,(702) 555-4392,1,2025-10-09,Tablet,1112.39
+500186,Joshua Young,228 Hualapai St,Summerlin,NV,89135,joshua.young79@yahoo.com,(702) 555-6524,1,2024-06-12,Software,389.98
+500187,Diego Morgan,4123 Maryland Ln,Las Vegas,NV,89117,diego.morgan90@hotmail.com,(725) 555-7403,1,2024-04-28,Laptop,2320.43
+500188,Larry Aguilar,4025 Durango St,Henderson,NV,89011,larry.aguilar51@yahoo.com,(725) 555-3397,1,2024-06-28,Desktop,1170.47
+500189,Susan Sanchez,849 Decatur Avenue,Paradise,NV,89109,susan.sanchez93@gmail.com,(725) 555-6984,1,2024-08-17,Desktop,2178.21
+500190,Henry Hall,5133 Russell Way,Henderson,NV,89011,henry.hall73@gmail.com,(702) 555-9649,1,2025-10-16,Desktop,929.93
+500191,Maria Patterson,2779 Silverado Ct,Las Vegas,NV,89119,maria.fisher49@outlook.com,(702) 555-3952,1,2024-03-08,Laptop,1995.7
+500192,Douglas Martinez,3469 Tropicana Lane,North Las Vegas,NV,89031,douglas.martinez97@outlook.com,(702) 555-4634,1,2024-08-04,Software,483.52
+500193,Jason Marshall,9274 Canyon Pkwy Ste 101,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2025-09-22,Tablet,625.5
+500194,Harold Smith,7065 Horizon Way Apt 2,Las Vegas,NV,89117,harold.smith82@hotmail.com,(702) 555-3740,1,2025-06-12,Desktop,1276.6
+500195,Nathalie Coleman,3334 Owens Way,Henderson,NV,89011,natalie.coleman98@hotmail.com,(702) 555-5086,1,2025-08-11,Laptop,2206.11
+500196,Eric Cole,2725 Charleston St,Las Vegas,NV,89101,eric.cole89@yahoo.com,(702) 555-3280,5,2024-02-12,Laptop,961.09
+500197,Paul Lewis,129 Losee Blvd,Summerlin,NV,89135,paul.lewis23@outlook.com,(702) 555-2775,1,2024-01-08,Printer,492.73
+500198,Charles Evans,6610 Diamond Ct,Henderson,NV,89011,charles.evans95@hotmail.com,(725) 555-2283,1,2024-10-17,Software,425.97
+500199,Jim Vasquez,2384 Durango Ct,Las Vegas,NV,89119,james.vasquez34@icloud.com,(725) 555-7365,1,2025-07-06,Laptop,1077.14
+500200,Carlos Hayes,3485 Stephanie Way,North Las Vegas,NV,89031,carlos.hayes14@yahoo.com,(725) 555-6619,1,2024-02-14,Accessory,208.06
+500201,Mark Kim,9387 Silverado Ct,Summerlin,NV,89135,mark.kim81@icloud.com,(702) 555-7792,1,2024-10-09,Printer,792.43
+500202,Ethan Barnes,813 Charleston Rd Apt 21,Summerlin,NV,89135,ethan.barnes39@gmail.com,(702) 555-7096,1,2024-09-17,Laptop,1360.13
+500203,Jerry Hall,8923 Craig Ct,Henderson,NV,89052,jerry.hall35@icloud.com,(725) 555-9322,1,2025-09-19,Monitor,426.29
+500204,Linda Wood,302 Losee Ln,Paradise,NV,89109,linda.wood98@hotmail.com,(702) 555-8611,1,2024-03-23,Desktop,902.07
+500205,Gray West,4834 Cactus Ct,Las Vegas,NV,89101,gary.west73@yahoo.com,(725) 555-8062,1,2024-02-29,Tablet,791.13
+500206,Ben Adams,7815 Windmill Blvd,Henderson,NV,89052,benjamin.adams94@icloud.com,(702) 555-2051,1,2024-10-30,Warranty,256.38
+500207,Jordan Harris,4626 Owens Pkwy Apt 7,Las Vegas,NV,89119,jordan.harris3@gmail.com,(702) 555-5693,1,2024-05-14,Monitor,297.58
+500208,Donna Gray,1183 Hualapai Dr,Paradise,NV,89109,donna.gray61@icloud.com,(702) 555-1814,1,2024-11-12,Software,105.59
+500209,Paul Fisher,9638 Carey St Apt 9,North Las Vegas,NV,89031,paul.fisher46@gmail.com,(725) 555-8255,1,2024-01-19,Tablet,659.85
+500210,Juan Stuart,3244 Torrey St,Paradise,NV,89109,juan.stewart39@outlook.com,(702) 555-6759,1,2025-07-12,Software,340.24
+500211,Ronald Jones,4331 Sandhill Ave,Las Vegas,NV,89119,ronald.jones17@outlook.com,(702) 555-4386,1,2024-12-26,Tablet,654.29
+500212,Kenneth Garcia,9310 Craig Rd,Henderson,NV,89052,kenneth.garcia38@yahoo.com,(725) 555-1979,1,2024-09-08,Laptop,1267.4
+500213,Carlos Reynolds,8788 Washington Dr,Henderson,NV,89052,carlos.reynolds2@outlook.com,(702) 555-4784,1,2024-05-29,Desktop,956.09
+500214,Roger Wright,5622 Centennial Dr,Henderson,NV,89052,roger.wright20@hotmail.com,(725) 555-1461,1,2024-01-10,Printer,299.95
+500215,Timothy Guzman,9244 Stephanie Way Apt 36,Henderson,NV,89011,timothy.guzman35@icloud.com,(725) 555-6581,1,2024-04-21,Accessory,194.1
+500216,Jacob Guzman,8104 Washington Rd Apt 22,Paradise,NV,89109,jacob.guzman83@hotmail.com,(702) 555-1308,1,2025-09-02,Tablet,775.98
+500217,Melissa Fernandez,6275 Rampart Ct,Las Vegas,NV,89101,melissa.fernandez6@yahoo.com,(702) 555-6682,1,2025-11-02,Laptop,1218.16
+500218,Geoffrey Murray,2652 Decatur St,North Las Vegas,NV,89031,jeffrey.murray76@gmail.com,(725) 555-2825,1,2024-03-21,Desktop,844.26
+500219,Diego Robinson,9300 Windmill Way,Las Vegas,NV,89117,diego.robinson64@hotmail.com,(702) 555-8417,1,2024-10-19,Accessory,95.71
+500220,Kimberly Fernandez,6600 Grand Ct,North Las Vegas,NV,89031,kfernandez14@hotmail.com,(702) 555-5538,1,2025-11-19,Warranty,148.42
+500221,Diane Garcia,7640 Sandhill Ln,Henderson,NV,89052,,,1,2024-12-10,Accessory,219.32
+500222,Edward Chavez,6366 Flamingo Way,Paradise,NV,89109,edward.chavez65@yahoo.com,(725) 555-5400,1,2024-10-13,Accessory,194.27
+500223,Jordan Graham,3706 Centennial Blvd,Las Vegas,NV,89117,jgraham86@yahoo.com,(725) 555-2363,1,2024-12-25,Printer,447.84
+500224,John Miller,8475 Alta Dr Apt 8,Las Vegas,NV,89119,john.miller84@gmail.com,(702) 555-9737,1,2024-11-12,Tablet,343.1
+500225,Taylor Walker,7477 Torrey Dr,Las Vegas,NV,89101,taylor.walker61@yahoo.com,(702) 555-2778,1,2025-09-22,Monitor,672.59
+500226,Jack Browne,2006 Maryland Way,Las Vegas,NV,89117,jack.brown87@hotmail.com,(702) 555-7803,1,2025-07-06,Monitor,578.7
+500227,Brenda Romero,1828 Springs Ln,Las Vegas,NV,89119,brenda.romero8@gmail.com,(702) 555-5554,1,2025-10-22,Warranty,448.95
+500228,Amanda Griffin,7339 Rainbow St,Las Vegas,NV,89117,amanda.griffin58@yahoo.com,(702) 555-5255,1,2025-03-12,Tablet,710.7
+500229,Frank Gomez,3498 Buffalo Avenue,Las Vegas,NV,89119,frank.gomez37@gmail.com,(725) 555-6769,1,2024-01-20,Monitor,184.04
+500230,Nicholas Morris,345 Horizon Way,North Las Vegas,NV,89031,nicholas.morris90@hotmail.com,(702) 555-3159,1,2024-08-02,Tablet,606.13
+500231,Carol Walker,9639 Centennial Ave,Henderson,NV,89011,carol.walker1@hotmail.com,(702) 555-7317,1,2025-06-13,Laptop,1288.83
+500232,Deborah Reid,7926 Washington Pkwy,Summerlin,NV,89135,deborah.reed92@yahoo.com,(702) 555-4411,1,2025-12-09,Laptop,1247.31
+500233,Gray Patterson,3820 Springs Blvd,North Las Vegas,NV,89031,gary.patterson91@gmail.com,(702) 555-4850,1,2024-11-18,Desktop,1248.54
+500234,Emily Moreno,2211 Sunset Ave,Summerlin,NV,89135,emily.moreno89@gmail.com,(725) 555-2754,1,2024-04-05,Desktop,2036.93
+500235,Douglas Butler,2974 Hualapai St Apt 11,Henderson,NV,89052,douglas.butler60@outlook.com,(702) 555-5466,1,2024-10-15,Warranty,411.5
+500236,Carlos Torres,2598 Rampart Dr,Henderson,NV,89052,carlos.torres48@icloud.com,(725) 555-6240,1,2025-12-22,Printer,513.18
+500237,Gregory Cooke,8915 Cactus Pkwy,North Las Vegas,NV,89031,gregory.cook22@outlook.com,(702) 555-7481,1,2024-05-26,Monitor,240.03
+500238,Matt Williams,5741 Fort Ln,Henderson,NV,89011,matthew.williams40@icloud.com,(702) 555-1662,1,2024-10-13,Accessory,177.98
+500239,Ronald Kennedy,528 Apache Ln Apt 33,Las Vegas,NV,89117,ronald.kennedy2@hotmail.com,(725) 555-2764,1,2025-10-20,Accessory,115.22
+500240,Deborah Bennet,4831 Torrey Rd,Henderson,NV,89011,deborah.bennett86@outlook.com,(725) 555-4100,1,2025-06-14,Warranty,61.41
+500241,David Miller,6154 Rainbow St,Henderson,NV,89052,david.miller14@yahoo.com,(725) 555-3883,1,2025-09-12,Tablet,615.56
+500242,Mei Morgan,5995 Owens Ct,Henderson,NV,89052,mei.morgan2@hotmail.com,(725) 555-5853,1,2025-12-18,Accessory,200.53
+500243,Aisha Webb,8277 Windmill St,North Las Vegas,NV,89031,aisha.johnson22@gmail.com,(725) 555-7323,1,2024-10-19,Software,475.46
+500244,Geoffrey Campbell,7503 Nellis St,Henderson,NV,89052,jeffrey.campbell97@hotmail.com,(702) 555-5308,1,2024-01-10,Tablet,500.05
+500245,Margaret Perry,3513 Mojave Ct,Las Vegas,NV,89101,margaret.perry86@hotmail.com,(702) 555-7450,1,2025-10-17,Printer,477.15
+500246,Ryan Patterson,8835 Ann Boulevard,Henderson,NV,89011,ryan.patterson19@yahoo.com,(725) 555-1704,1,2025-06-06,Laptop,2323.73
+500247,Ben Barnes,4178 Rampart Way Apt 33,Paradise,NV,89109,benjamin.barnes34@gmail.com,(725) 555-2722,1,2025-11-26,Tablet,878.67
+500248,Kenneth Sanchez,3825 Boulder Rd Apt 27,Henderson,NV,89052,kenneth.sanchez66@yahoo.com,(725) 555-7715,1,2025-09-05,Warranty,277.93
+500249,Nancy Fisher,769 Canyon St Apt 40,Paradise,NV,89109,nancy.fisher87@outlook.com,(702) 555-5048,1,2025-01-05,Printer,337.96
+500250,Ben Guzman,8175 Stephanie Way Apt 35,Henderson,NV,89052,benjamin.guzman51@hotmail.com,(725) 555-3746,1,2025-07-07,Warranty,165.02
+500251,Raymond Patterson,6715 Stephanie Blvd,North Las Vegas,NV,89031,raymond.patterson30@yahoo.com,(725) 555-6281,1,2025-10-29,Accessory,112.54
+500252,Juan Patel,1080 Nellis St Apt 6,Henderson,NV,89011,juan.patel2@outlook.com,(702) 555-6141,1,2025-07-25,Printer,775.98
+500253,Amy Howard,4821 Centennial Ct Apt 13,Henderson,NV,89011,amy.howard5@hotmail.com,(725) 555-8235,1,2024-11-22,Laptop,1721.73
+500254,Janet Allen,2585 Apache Ln,Paradise,NV,89109,janet.allen25@hotmail.com,(725) 555-6462,1,2025-01-28,Software,198.22
+500255,Adam Tran,6543 Russell Ln,Las Vegas,NV,89117,adam.tran88@hotmail.com,(725) 555-7298,1,2024-09-14,Accessory,24.61
+500256,Amy Chavez,3736 Durango St,Las Vegas,NV,89117,amy.chavez3@gmail.com,(702) 555-8118,1,2025-05-06,Warranty,276.71
+500257,Margaret Stevens,3041 Blue St,Las Vegas,NV,89101,,(725) 555-6317,1,2024-11-18,Tablet,1169.76
+500258,Donald Ramos,6884 Ann Pkwy Apt 26,Las Vegas,NV,89119,donald.ramos58@hotmail.com,(702) 555-8349,1,2025-12-10,Software,91.62
+500259,Jessica Baker,6134 Windmill Ln,Summerlin,NV,89135,jessica.baker57@yahoo.com,(702) 555-9879,1,2025-03-13,Software,263.94
+500260,Rick West,160 Russell Ln,Las Vegas,NV,89101,richard.west21@outlook.com,(702) 555-2053,1,2024-06-22,Desktop,1631.94
+500261,John Reid,530 Cheyenne Blvd,Henderson,NV,89011,john.reed58@hotmail.com,(725) 555-7582,1,2025-09-09,Laptop,1002.98
+500262,George Romero,7318 Hualapai Ct,North Las Vegas,NV,89031,george.romero92@outlook.com,(702) 555-4332,1,2025-03-17,Warranty,225.45
+500263,Jerry Alvarez,5052 Losee Blvd,Paradise,NV,89109,jerry.alvarez81@outlook.com,(702) 555-4866,1,2025-10-22,Software,96.98
+500264,Cathleen Johnson,540 Russell St,North Las Vegas,NV,89031,kathleen.johnson87@icloud.com,(725) 555-1328,1,2024-11-05,Tablet,744.27
+500265,Angela Green,455 Grand Pkwy,Henderson,NV,89052,angela.carter8@gmail.com,(702) 555-5345,1,2024-06-06,Laptop,2374.46
+500266,Stephen Alvarez,6069 Sahara St,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2024-12-31,Software,268.38
+500267,Roger Morris,1033 Losee Dr,Las Vegas,NV,89117,roger.morris65@gmail.com,(725) 555-6304,1,2024-04-24,Software,126.8
+500268,Aisha Bailey,6430 Durango Dr Apt 27,Las Vegas,NV,89119,aisha.bailey29@icloud.com,(702) 555-8190,1,2024-10-10,Desktop,1831.57
+500269,Helen Chavez,5008 Jones Pkwy,Paradise,NV,89109,helen.chavez38@icloud.com,(725) 555-4937,1,2024-07-11,Tablet,928.51
+500270,Adam Stuart,6119 Diamond Dr,Henderson,NV,89052,adam.stewart65@outlook.com,(725) 555-7703,1,2025-03-24,Software,165.52
+500271,Ryan Gonzalez,5981 Grand Blvd,Summerlin,NV,89135,ryan.gonzalez58@outlook.com,(725) 555-8005,1,2025-07-21,Desktop,1699.28
+500272,Mike Martin,5495 Flamingo Ave,Las Vegas,NV,89119,michael.martin57@hotmail.com,(702) 555-3053,1,2025-06-18,Printer,787.43
+500273,Erik Clark,2936 Jones Rd Apt 8,Las Vegas,NV,89117,eric.clark13@hotmail.com,(725) 555-6642,1,2025-02-16,Printer,190.7
+500274,Alex Perez,7259 Carey Street,Summerlin,NV,89135,alexander.perez12@icloud.com,(725) 555-1605,1,2024-12-14,Warranty,361.09
+500275,Walter Campbell,1142 Centennial Blvd,North Las Vegas,NV,89031,walter.campbell48@gmail.com,(702) 555-8949,1,2025-07-05,Desktop,1562.6
+500276,Barbara Long,2145 Canyon Way,Las Vegas,NV,89101,barbara.long40@outlook.com,(702) 555-1485,1,2024-11-07,Software,286.35
+500277,Steven Jones,579 Losee St,Las Vegas,NV,89119,steven.jones53@outlook.com,(725) 555-5147,1,2025-10-29,Accessory,30.66
+500278,Becky Diaz,6489 Warm Lane,Paradise,NV,89109,rebecca.diaz86@yahoo.com,(702) 555-1200,1,2025-02-14,Tablet,576.13
+500279,Barbara Barnes,9480 Silverado Pkwy,Paradise,NV,89109,barbara.barnes19@icloud.com,(725) 555-8212,1,2025-03-15,Laptop,2565.9
+500280,Ashley Philips,9614 Hualapai Pkwy Apt 19,Las Vegas,NV,89119,ashley.phillips54@outlook.com,(725) 555-5784,1,2024-11-23,Monitor,295.66
+500281,Carl Ward,1015 Blue Blvd,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2025-01-04,Laptop,1801.72
+500282,Jason Marshall,9274 Canyon Pkwy Ste 103,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2025-05-28,Desktop,2142.12
+500283,Edward Roberts,5177 Ann Pkwy,North Las Vegas,NV,89031,edward.roberts13@gmail.com,(725) 555-8950,1,2024-01-27,Tablet,817.57
+500284,Erik Cook,1120 Flamingo Ave Apt 33,Henderson,NV,89052,eric.cook51@yahoo.com,(725) 555-3825,1,2024-03-14,Accessory,133.5
+500285,Amanda Clark,8939 Centennial Dr,North Las Vegas,NV,89031,amanda.murphy44@yahoo.com,(702) 555-2340,1,2024-12-19,Warranty,220.23
+500286,Christine Nguyen,5161 Craig Pkwy,North Las Vegas,NV,89031,christine.nguyen95@gmail.com,(725) 555-6547,1,2024-08-24,Laptop,1803.43
+500287,Sandra Bennett,253 Nellis Ln,Las Vegas,NV,89119,sandra.bennett17@hotmail.com,(702) 555-1634,1,2024-09-12,Software,219.61
+500288,Diego Reyes,808 Fort Dr,Paradise,NV,89109,diego.reyes62@hotmail.com,(725) 555-6999,1,2024-03-08,Monitor,461.19
+500289,George Simmons,7543 Diamond Rd,Paradise,NV,89109,george.simmons53@hotmail.com,(702) 555-1397,1,2024-07-06,Monitor,350.96
+500290,Nicole Powell,530 Rainbow Ln,Summerlin,NV,89135,nicole.powell64@hotmail.com,(725) 555-8228,1,2025-06-16,Desktop,2098.05
+500291,Janet Woods,6091 Lamb St,Henderson,NV,89011,janet.woods55@gmail.com,(725) 555-3467,1,2024-05-22,Desktop,1720.09
+500292,Nathan Sanchez,4358 Torrey Dr,Paradise,NV,89109,nathan.sanchez53@yahoo.com,(725) 555-8027,1,2024-06-22,Accessory,179.01
+500293,Sarah Ramos,272 Washington Pkwy,Henderson,NV,89052,sarah.ramos98@yahoo.com,(725) 555-7204,1,2024-08-01,Accessory,70.22
+500294,Zachary Wilson,3695 Apache Ave,Henderson,NV,89052,zachary.wilson58@gmail.com,(725) 555-8751,1,2025-01-16,Printer,638.65
+500295,Samantha Jenkins,2214 Windmill Ln,Henderson,NV,89011,samantha.jenkins75@hotmail.com,(702) 555-1244,1,2024-08-06,Desktop,1286.09
+500296,Kathleen Carter,5694 Sahara Blvd,Henderson,NV,89052,kathleen.carter80@hotmail.com,(725) 555-2137,1,2025-11-19,Desktop,1941.97
+500297,Heather Flores,6134 Owens Way,North Las Vegas,NV,89031,heather.flores65@outlook.com,(702) 555-8435,1,2025-07-30,Tablet,570.54
+500298,Dennis Long,6705 Flamingo Way,North Las Vegas,NV,89031,dennis.tran26@yahoo.com,(725) 555-6154,1,2025-10-17,Laptop,2413.54
+500299,Fatima Butler,1347 Russell Rd,North Las Vegas,NV,89031,fatima.butler69@yahoo.com,(702) 555-2331,1,2025-01-31,Warranty,410.26
+500300,Patrick White,4945 Stephanie Ct,Las Vegas,NV,89101,pwhite6@gmail.com,(725) 555-5654,1,2025-07-13,Tablet,710.87
+500301,Melissa Harrison,1703 Buffalo Blvd,Paradise,NV,89109,melissa.harrison89@gmail.com,(725) 555-6814,1,2024-01-06,Accessory,153.49
+500302,Emily Reid,4609 Buffalo Way,Las Vegas,NV,89117,emily.reed12@yahoo.com,(702) 555-4248,1,2024-08-23,Printer,482.23
+500303,Zachary Bailey,4445 Diamond Rd Apt 29,North Las Vegas,NV,89031,zachary.bailey99@yahoo.com,(702) 555-9084,1,2024-08-06,Accessory,144.75
+500304,Emily Mitchell,2212 Sandhill Ave,Las Vegas,NV,89119,emily.mitchell71@gmail.com,(725) 555-6466,1,2025-06-17,Tablet,397.78
+500305,Andrew Patel,6332 Horizon Rd,Summerlin,NV,89135,andrew.patel78@outlook.com,(702) 555-4195,1,2024-05-13,Warranty,89.44
+500306,Samuel Burns,8841 Silverado Pkwy,Las Vegas,NV,89117,samuel.burns56@hotmail.com,(725) 555-4198,1,2024-03-25,Printer,466.85
+500307,Carlos Wright,1189 Cactus Way,Henderson,NV,89011,carlos.wright94@outlook.com,(702) 555-3721,1,2025-08-05,Desktop,1295.24
+500308,Kenneth West,1774 Cactus Ln,Henderson,NV,89052,kenneth.west63@hotmail.com,(725) 555-3023,1,2024-04-13,Desktop,1568.98
+500309,Tony Mendoza,3335 Pecos Ln Apt 20,North Las Vegas,NV,89031,anthony.mendoza74@outlook.com,(725) 555-8936,1,2025-11-20,Printer,586.33
+500310,Anna Fisher,1505 Eastern Pkwy,North Las Vegas,NV,89031,anna.fisher4@outlook.com,(702) 555-9765,1,2024-12-20,Printer,772.94
+500311,Nathan Ortiz,2730 Rampart Pkwy,Las Vegas,NV,89101,nathan.ortiz84@icloud.com,(725) 555-6086,4,2024-08-12,Warranty,170.28
+500312,Priya Castillo,1526 Gibson Way Apt 26,Las Vegas,NV,89119,priya.castillo82@outlook.com,(725) 555-5455,1,2024-08-29,Tablet,487.63
+500313,Justin Hamilton,7672 Ann Pkwy,Henderson,NV,89011,justin.hamilton56@hotmail.com,(702) 555-8574,1,2025-10-10,Printer,680.27
+500314,Emma Long,706 Canyon Ct,Henderson,NV,89052,emma.long73@icloud.com,(725) 555-2442,1,2024-06-05,Software,94.37
+500315,Stephen Alvarez,8829 Maryland St,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2024-03-06,Tablet,1103.12
+500316,Tony Butler,6629 Charleston Ave,Las Vegas,NV,89101,anthony.butler50@icloud.com,(702) 555-4998,1,2024-08-30,Monitor,516.07
+500317,Helen Ellis,2509 Pecos Blvd,Las Vegas,NV,89119,helen.ellis73@outlook.com,(702) 555-5530,1,2025-01-07,Desktop,717.33
+500318,Melissa Herrera,8296 Cheyenne Way,Las Vegas,NV,89117,melissa.herrera5@hotmail.com,(725) 555-3881,1,2024-09-15,Laptop,2104.57
+500319,Edward Wood,1862 Fort Ct Apt 3,Henderson,NV,89011,edward.wood66@outlook.com,(702) 555-4135,1,2024-07-26,Software,210.28
+500320,Heather Jordan,4624 Lamb Way,Summerlin,NV,89135,heather.jordan64@yahoo.com,(725) 555-6227,1,2024-01-14,Tablet,403.24
+500321,Jeffrey Marshall,6189 Eastern Ln,Henderson,NV,89052,jeffrey.marshall22@yahoo.com,(702) 555-3951,1,2025-01-11,Monitor,449.6
+500322,George Mitchell,5523 Torrey Pkwy,Las Vegas,NV,89119,george.wells32@yahoo.com,(725) 555-1629,1,2025-08-05,Tablet,699.55
+500323,Jordan Graham,3658 Charleston St,Las Vegas,NV,89101,jordan.graham14@gmail.com,(702) 555-3938,1,2024-03-05,Monitor,410.63
+500324,Christopher Flores,8760 Canyon St,Summerlin,NV,89135,christopher.flores25@yahoo.com,(725) 555-2199,1,2024-10-27,Software,317.91
+500325,Jack Wilson,1197 Decatur Way Apt 24,Summerlin,NV,89135,jack.wilson25@yahoo.com,(702) 555-6511,1,2025-07-23,Printer,388.45
+500326,Deborah Moreno,8715 Windmill Ct Apt 38,Las Vegas,NV,89117,deborah.moreno93@outlook.com,(725) 555-9645,1,2025-05-12,Monitor,331.07
+500327,Daniel Walker,1744 Sahara Way,Henderson,NV,89052,daniel.walker25@hotmail.com,(725) 555-4448,1,2025-01-26,Laptop,901.21
+500328,Raymond Mendoza,9646 Boulder Ct,Las Vegas,NV,89117,raymond.mendoza19@gmail.com,(702) 555-8643,1,2025-08-31,Tablet,1192.38
+500329,Diego Nielsen,726 Maryland Avenue,Henderson,NV,89052,diego.nelson69@hotmail.com,(725) 555-8180,1,2024-05-01,Desktop,1162.61
+500330,Gregory Wood,1326 Stephanie St,Las Vegas,NV,89119,gregory.burns8@icloud.com,(725) 555-5594,1,2025-05-05,Laptop,1048.96
+500331,Barbara Hill,5522 Torrey St,Summerlin,NV,89135,barbara.hill83@gmail.com,(725) 555-3729,1,2025-06-18,Warranty,431.03
+500332,Jack Bryant,8777 Ann Ln,North Las Vegas,NV,89031,jack.bryant2@hotmail.com,(725) 555-3029,1,2024-08-16,Software,155.47
+500333,Kate Sanders,1734 Pecos Road,Henderson,NV,89011,katherine.sanders56@yahoo.com,(725) 555-1603,1,2024-10-23,Printer,334.5
+500334,Alex Roberts,5319 Cheyenne Blvd Apt 31,Paradise,NV,89109,alexander.roberts75@icloud.com,(725) 555-9186,1,2025-06-02,Warranty,83.01
+500335,Joe Bailey,4605 Sunset Pkwy,Las Vegas,NV,89119,joseph.bailey61@gmail.com,(725) 555-4204,1,2024-11-09,Warranty,403.1
+500336,Betty Cox,1262 Gibson Blvd,Las Vegas,NV,89117,betty.cox82@hotmail.com,(725) 555-2556,1,2025-10-19,Printer,486.66
+500337,Ben Ruiz,6753 Sunset Ct,Las Vegas,NV,89101,benjamin.ruiz70@icloud.com,(702) 555-8471,1,2024-08-28,Tablet,1123.74
+500338,Angela Simmons,916 Canyon Ave Apt 28,Las Vegas,NV,89101,angela.simmons42@gmail.com,(702) 555-6566,1,2024-06-05,Warranty,210.62
+500339,Nicholas Kim,1647 Canyon Blvd,Henderson,NV,89052,nicholas.romero84@hotmail.com,(702) 555-4334,1,2024-04-09,Software,246.54
+500340,Helen Murphy,884 Torrey Dr,Summerlin,NV,89135,helen.murphy27@yahoo.com,(725) 555-6417,1,2024-06-08,Tablet,425.49
+500341,Eric Cole,6395 Sunset Ave,Las Vegas,NV,89101,eric.cole89@yahoo.com,(702) 555-3280,5,2024-01-25,Laptop,1859.14
+500342,Jack Scott,5124 Blue Dr,Las Vegas,NV,89117,jack.torres85@icloud.com,(702) 555-5326,1,2024-06-15,Warranty,161.51
+500343,Tyler Hughes,5493 Blue Ln,Las Vegas,NV,89119,tyler.hughes37@gmail.com,(725) 555-3946,1,2025-02-09,Desktop,2144.02
+500344,Tom Hill,771 Rainbow Dr,Summerlin,NV,89135,thomas.hill51@gmail.com,(725) 555-9573,1,2024-03-08,Desktop,875.83
+500345,Amy Castillo,2236 Hualapai St Apt 2,Henderson,NV,89011,amy.castillo35@icloud.com,(702) 555-8128,1,2025-06-09,Printer,294.16
+500346,Jen Fernandez,3927 Cactus Rd Apt 1,Henderson,NV,89011,jennifer.fernandez86@yahoo.com,(725) 555-5128,1,2025-01-11,Tablet,1071.59
+500347,Dennis Nguyen,4796 Sahara Ave,Summerlin,NV,89135,dennis.nguyen76@icloud.com,(725) 555-2339,1,2024-04-23,Tablet,732.08
+500348,Samuel Lee,7370 Canyon Ave,Henderson,NV,89011,samuel.lee18@gmail.com,(725) 555-6791,1,2025-05-08,Printer,188.74
+500349,Omar Parker,4867 Buffalo St,Las Vegas,NV,89117,omar.parker23@icloud.com,(725) 555-6344,1,2025-03-09,Printer,384.89
+500350,Patricia Alexander,6978 Gibson Ln,Las Vegas,NV,89117,patricia.alexander82@outlook.com,(702) 555-7195,1,2024-12-06,Tablet,393.55
+500351,Donald Reynolds,9241 Flamingo Ln,Henderson,NV,89011,donald.reyes76@hotmail.com,(725) 555-5535,1,2024-03-15,Warranty,207.75
+500352,Robert Meyers,2420 Fort Way,Las Vegas,NV,89119,robert.myers37@gmail.com,(725) 555-8115,1,2024-05-21,Tablet,542.29
+500353,Hannah Howard,159 Tropicana Dr,Paradise,NV,89109,hhoward4@hotmail.com,(725) 555-6020,1,2024-11-23,Laptop,2037.23
+500354,Becky Medina,3677 Alta St,Las Vegas,NV,89101,rebecca.medina26@icloud.com,(725) 555-2773,1,2024-05-15,Monitor,182.42
+500355,Jason Marshall,9274 Canyon Pkwy Ste 100,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2024-10-12,Warranty,337.49
+500356,Anthony Hill,9469 Windmill Ln,Henderson,NV,89011,anthony.hill77@outlook.com,(725) 555-7349,1,2024-01-08,Tablet,723.79
+500357,Christine Rogers,8984 Sahara Pkwy,Summerlin,NV,89135,christine.rogers16@icloud.com,(725) 555-3918,1,2024-11-26,Monitor,596.01
+500358,Stephen Alvarez,7756 Cactus Ct Ste 106,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2024-05-09,Monitor,204.01
+500359,Nathalie Hill,8286 Silverado Ln,Las Vegas,NV,89119,natalie.hill48@gmail.com,(702) 555-6208,1,2025-02-07,Software,228.86
+500360,Christine Woods,6091 Lamb St,Henderson,NV,89011,christine.mendoza56@outlook.com,(725) 555-3467,1,2025-05-18,Software,33.83
+500361,Michael Cole,8918 Decatur Rd Apt 29,Las Vegas,NV,89101,michael.cole61@icloud.com,(702) 555-1190,1,2024-06-15,Desktop,705.77
+500362,Barbara Harris,8715 Stephanie Ct Apt 2,Summerlin,NV,89135,barbara.harris96@gmail.com,(702) 555-8392,1,2025-09-16,Printer,308.39
+500363,Matthew Guzman,8726 Cactus Dr,Las Vegas,NV,89117,matthew.guzman66@outlook.com,(725) 555-7414,1,2025-04-02,Tablet,715.73
+500364,Stephanie Ruiz,3919 Mojave Dr,Las Vegas,NV,89101,stephanie.ruiz45@gmail.com,(725) 555-3712,1,2024-11-18,Monitor,507.11
+500365,Rachel Bryant,8372 Springs Ln Apt 34,Henderson,NV,89011,rachel.bryant62@hotmail.com,(702) 555-9574,1,2024-10-15,Tablet,1061.14
+500366,Carol Patel,9564 Blue Pkwy,Las Vegas,NV,89117,carol.patel89@outlook.com,(725) 555-4142,1,2025-10-23,Tablet,387.34
+500367,Matthew Woood,,Paradise,NV,89109,,,1,2025-02-19,Printer,275.0
+500368,Sam Wood,9270 Blue Ct,Las Vegas,NV,89119,samantha.wood44@gmail.com,(725) 555-3232,1,2024-08-06,Printer,543.21
+500369,Eric Cole,1004 Gibson St Ste 103,Las Vegas,NV,89101,eric.cole89@yahoo.com,(702) 555-3280,5,2024-07-01,Warranty,410.55
+500370,Laura Robinson,2029 Fort Pkwy,Paradise,NV,89109,laura.cruz69@icloud.com,(725) 555-7961,1,2025-01-07,Monitor,537.77
+500371,Keith Gray,438 Cheyenne St,Paradise,NV,89109,keith.gray21@yahoo.com,(702) 555-4304,1,2024-02-11,Desktop,1992.07
+500372,Sharon Aguilar,7837 Craig Ave,Henderson,NV,89011,sharon.aguilar20@yahoo.com,(702) 555-6667,1,2025-07-30,Warranty,114.61
+500373,Gregory Morgan,7688 Silverado Dr,Henderson,NV,89011,gregory.parker71@yahoo.com,(725) 555-3492,1,2025-02-03,Software,187.28
+500374,Paul Cook,8337 Boulder Dr,Summerlin,NV,89135,paul.cook76@icloud.com,(702) 555-9402,1,2025-06-18,Tablet,635.25
+500375,Natalie Adams,5693 Warm Ct,Las Vegas,NV,89101,natalie.lee52@yahoo.com,(702) 555-1884,1,2024-07-07,Monitor,549.34
+500376,Wei Turner,796 Apache Rd,Henderson,NV,89011,wei.reyes36@yahoo.com,(725) 555-5775,1,2024-12-07,Monitor,380.76
+500377,Hannah Edwards,8690 Hualapai Ct,Las Vegas,NV,89117,hannah.kennedy31@gmail.com,(702) 555-1534,1,2024-09-09,Warranty,191.16
+500378,Sharon Kelly,129 Losee Blvd,Summerlin,NV,89135,sharon.gomez5@outlook.com,(702) 555-2775,1,2025-11-02,Accessory,129.5
+500379,Rachel Peterson,9553 Diamond Blvd,Las Vegas,NV,89117,rachel.peterson71@gmail.com,(702) 555-4918,1,2024-02-03,Software,451.56
+500380,Douglas Marshall,7341 Rampart Ln,North Las Vegas,NV,89031,douglas.marshall6@gmail.com,(725) 555-9791,1,2024-05-27,Warranty,246.13
+500381,Jason Parker,729 Eastern Rd,Paradise,NV,89109,jason.parker8@icloud.com,(702) 555-5555,1,2024-03-07,Desktop,1661.24
+500382,Douglas Gomez,8274 Rainbow Way,Henderson,NV,89052,douglas.gomez30@yahoo.com,(702) 555-8384,1,2024-11-07,Tablet,564.43
+500383,Stephen Alvarez,7756 Cactus Ct Ste 104,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2025-02-17,Accessory,178.33
+500384,Donald Grahame,2381 Charleston Rd Apt 15,Paradise,NV,89109,donald.graham51@gmail.com,(725) 555-1796,1,2024-04-05,Accessory,142.79
+500385,Nathan Ortiz,7768 Eastern St Ste 100,Las Vegas,NV,89101,nathan.ortiz84@icloud.com,(725) 555-6086,4,2025-02-07,Accessory,70.1
+500386,Sarah Hall,7584 Blue Lane,Las Vegas,NV,89101,sarah.hall70@icloud.com,(702) 555-6154,1,2025-12-23,Software,230.22
+500387,Brian Cox,1521 Washington Ln,Las Vegas,NV,89117,brian.cox50@icloud.com,(725) 555-5072,1,2024-10-26,Warranty,426.86
+500388,Nancy Harrison,5742 Horizon Way,Las Vegas,NV,89119,nancy.harrison55@outlook.com,(725) 555-3078,1,2025-05-05,Laptop,2363.77
+500389,Nathan Lopez,8219 Mojave Way,Henderson,NV,89011,nathan.lopez49@outlook.com,(702) 555-3318,1,2024-01-08,Monitor,393.93
+500390,Luis Patel,7897 Jones Rd,Henderson,NV,89052,luis.patel5@icloud.com,(702) 555-9381,1,2024-12-20,Monitor,600.65
+500391,Emma Butler,9037 Silverado Ave,Las Vegas,NV,89101,emma.butler90@hotmail.com,(725) 555-1776,1,2025-10-27,Software,70.47
+500392,Timothy Aguilar,7707 Silverado Way,Henderson,NV,89052,timothy.aguilar65@hotmail.com,(702) 555-7575,1,2024-02-15,Tablet,728.09
+500393,Cynthia Jones,315 Torrey Dr,Henderson,NV,89052,cynthia.jones77@hotmail.com,(702) 555-6656,1,2024-07-23,Warranty,73.17
+500394,Jason Marshall,9274 Canyon Pkwy Ste 104,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2024-08-22,Warranty,234.0
+500395,Sharon Coleman,1147 Rainbow Street,Paradise,NV,89109,sharon.coleman92@gmail.com,(702) 555-1272,1,2025-11-23,Software,376.63
+500396,Melissa Brown,1392 Buffalo Avenue,Las Vegas,NV,89101,melissa.brown65@hotmail.com,(725) 555-7558,1,2025-01-04,Desktop,1725.41
+500397,Deborah Hayes,3772 Canyon Way,Henderson,NV,89052,deborah.hayes88@hotmail.com,(702) 555-2495,1,2024-12-07,Monitor,303.06
+500398,Donna Russell,9387 Nellis St,Summerlin,NV,89135,donna.russell16@icloud.com,(702) 555-3074,1,2024-04-29,Accessory,62.23
+500399,Jordan Mitchell,313 Stephanie St,Las Vegas,NV,89117,jmitchell74@yahoo.com,(702) 555-1618,1,2025-07-27,Warranty,410.89
+500400,Frank Simmons,3556 Rainbow Ct,Summerlin,NV,89135,frank.simmons17@hotmail.com,(725) 555-6000,1,2024-01-16,Accessory,58.72
+500401,Karen Taylor,4931 Cactus Ct,Henderson,NV,89052,karen.taylor96@icloud.com,(725) 555-2629,1,2024-02-18,Laptop,1398.32
+500402,Nicole Brown,6090 Durango Ln,Henderson,NV,89011,nicole.brown17@gmail.com,(702) 555-5485,1,2024-03-18,Printer,581.16
+500403,Maria Herrera,5927 Alta Way,Las Vegas,NV,89117,maria.herrera84@hotmail.com,(725) 555-2917,1,2024-10-31,Software,109.35
+500404,Heather Wells,5907 Carey Lane,Henderson,NV,89011,heather.wells11@outlook.com,(702) 555-8780,1,2024-11-02,Printer,521.21
+500405,Heather Saunders,9418 Ann St,Paradise,NV,89109,heather.sanders39@outlook.com,(702) 555-4846,1,2024-05-09,Desktop,1140.78
+500406,Robert Harris,1073 Jones Dr,Henderson,NV,89052,robert.harris59@icloud.com,(702) 555-3722,1,2025-11-11,Printer,453.87
+500407,Dorothy Coleman,6736 Ann Blvd,Henderson,NV,89052,dorothy.coleman67@yahoo.com,(702) 555-3275,1,2025-02-23,Laptop,1796.19
+500408,Jacob Wood,2340 Torrey Way Apt 37,Paradise,NV,89109,jacob.wood84@icloud.com,(725) 555-5497,1,2025-12-27,Monitor,530.17
+500409,Maria Andersen,9223 Jones Ave,Henderson,NV,89052,maria.anderson70@gmail.com,(725) 555-9838,1,2024-12-21,Desktop,1833.13
+500410,Liz Murray,6731 Russell Dr,North Las Vegas,NV,89031,elizabeth.murray33@gmail.com,(702) 555-1730,1,2024-05-24,Desktop,1861.18
+500411,Brenda Anderson,7339 Ann Blvd,North Las Vegas,NV,89031,brenda.anderson80@gmail.com,(725) 555-5469,1,2024-11-09,Laptop,1483.47
+500412,Linda Stewart,6814 Windmill Rd,Summerlin,NV,89135,linda.stewart4@gmail.com,(702) 555-1843,1,2024-01-21,Software,232.83
+500413,Ryan Johnson,5672 Boulder Pkwy Apt 4,Paradise,NV,89109,ryan.johnson13@gmail.com,(702) 555-1817,1,2024-01-05,Accessory,73.21
+500414,Emilie Wood,6136 Sahara Ct,Henderson,NV,89011,emily.wood34@gmail.com,(725) 555-1351,1,2024-01-08,Printer,216.66
+500415,Michael Wallace,2283 Jones Way,Henderson,NV,89052,michael.wallace13@hotmail.com,(702) 555-5928,1,2024-04-28,Tablet,886.28
+500416,Mei Gray,9688 Decatur Blvd,Summerlin,NV,89135,mei.robinson12@outlook.com,(702) 555-4437,1,2025-07-16,Warranty,230.05
+500417,Jason Marshall,9274 Canyon Pkwy Ste 106,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2025-09-27,Printer,321.63
+500418,Carl Ward,5863 Windmill Ave Ste 106,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2025-06-11,Tablet,966.46
+500419,Richard Waallace,,Las Vegas,NV,89119,,,1,2025-10-14,Warranty,265.45
+500420,Edward Lewis,4768 Charleston Rd,Las Vegas,NV,89119,edward.lewis32@yahoo.com,(725) 555-9571,1,2025-03-28,Accessory,137.61
+500421,Steven Bennet,1083 Nellis St,North Las Vegas,NV,89031,steven.bennett26@hotmail.com,(725) 555-8440,1,2025-05-01,Laptop,1136.23
+500422,Luis Meyers,6398 Cactus Rd,Paradise,NV,89109,luis.myers99@gmail.com,(702) 555-3641,1,2025-12-07,Tablet,1277.83
+500423,Paul Cole,3655 Canyon St,North Las Vegas,NV,89031,paul.cole15@hotmail.com,(702) 555-8582,1,2024-10-03,Tablet,1217.84
+500424,Jason Davis,8060 Cactus Ln,Henderson,NV,89052,jason.fernandez19@yahoo.com,(702) 555-7513,1,2024-11-08,Tablet,462.86
+500425,Emma Cooke,1115 Eastern Avenue,Henderson,NV,89052,emma.cook64@gmail.com,(702) 555-6849,1,2025-10-22,Tablet,578.25
+500426,Margaret Jordan,9687 Sunset Way,Las Vegas,NV,89119,margaret.jordan98@yahoo.com,(702) 555-2841,1,2025-04-08,Software,137.1
+500427,Stephanie Meyers,9307 Craig Road,Summerlin,NV,89135,stephanie.myers78@yahoo.com,(702) 555-5556,1,2024-10-03,Monitor,160.43
+500428,Sharon Stevens,2823 Pecos Blvd,Las Vegas,NV,89101,sharon.stevens54@hotmail.com,(702) 555-2761,1,2024-12-11,Desktop,1749.35
+500429,Becky Nelson,9276 Rainbow Rd Apt 12,North Las Vegas,NV,89031,rebecca.nelson76@outlook.com,(725) 555-3969,1,2024-06-30,Tablet,439.89
+500430,Charles Mitchell,3182 Gibson Way,Henderson,NV,89052,charles.mitchell30@yahoo.com,(725) 555-4404,1,2025-05-15,Printer,310.51
+500431,Cynthia Evans,4544 Alta St,Las Vegas,NV,89119,cynthia.evans17@gmail.com,(725) 555-7960,1,2024-01-12,Software,337.7
+500432,Linda Bennett,1008 Apache Ln,Las Vegas,NV,89119,linda.bennett32@yahoo.com,(725) 555-6155,1,2025-02-23,Monitor,177.81
+500433,Sharon Miller,2823 Pecos Blvd,Las Vegas,NV,89101,,,1,2025-03-15,Tablet,1255.33
+500434,Ashley Alexander,4449 Pecos Way Apt 34,Summerlin,NV,89135,ashley.alexander64@icloud.com,(702) 555-2710,1,2025-10-21,Desktop,1495.93
+500435,Karen Robinson,9272 Nellis Ct,Henderson,NV,89011,karen.robinson74@icloud.com,(725) 555-2168,1,2024-01-26,Software,146.76
+500436,Karl Thompson,7473 Diamond Dr,Henderson,NV,89011,carl.thompson85@gmail.com,(725) 555-1293,1,2025-08-28,Tablet,1006.89
+500437,Paul Murphy,8142 Apache Ave,Henderson,NV,89011,paul.murphy49@icloud.com,(702) 555-5651,1,2024-09-23,Accessory,29.73
+500438,Jerry Saunders,5416 Ann Blvd Apt 40,Las Vegas,NV,89119,jerry.sanders62@hotmail.com,(725) 555-4954,1,2024-01-20,Warranty,348.7
+500439,Sara Howard,5351 Carey Ct,Las Vegas,NV,89101,sarah.howard18@gmail.com,(725) 555-4545,1,2024-09-23,Accessory,162.06
+500440,Janet Robinson,2029 Fort Pkwy,Paradise,NV,89109,janet.richardson71@hotmail.com,(725) 555-7961,1,2024-08-24,Tablet,713.08
+500441,Jessica Sanders,7839 Cheyenne Ave,Henderson,NV,89052,jessica.rivera51@hotmail.com,(702) 555-5413,1,2025-06-28,Accessory,212.95
+500442,Deborah Rivera,7864 Ann Dr,Paradise,NV,89109,deborah.rivera84@hotmail.com,(702) 555-6532,1,2024-12-11,Warranty,116.46
+500443,Walter Reynolds,6607 Gibson Road,Summerlin,NV,89135,walter.reynolds75@hotmail.com,(702) 555-7246,1,2025-02-24,Software,498.85
+500444,Fatima Powell,9261 Ann Rd,Las Vegas,NV,89119,fatima.powell4@hotmail.com,(702) 555-6216,1,2024-12-11,Software,498.79
+500445,Eric Evans,5947 Craig Ct,Summerlin,NV,89135,eric.evans72@gmail.com,(702) 555-5845,1,2024-07-18,Tablet,536.69
+500446,Luis Watson,3705 Springs Blvd Apt 31,Paradise,NV,89109,luis.watson6@outlook.com,(702) 555-3265,1,2025-08-17,Software,406.86
+500447,Rebecca Ortiz,7006 Fort Ave,North Las Vegas,NV,89031,rebecca.ortiz38@gmail.com,(725) 555-3277,1,2025-05-11,Printer,599.84
+500448,Stephen Alvarez,7756 Cactus Ct Ste 102,North Las Vegas,NV,89031,stephen.alvarez54@outlook.com,(702) 555-1503,7,2025-04-19,Accessory,76.26
+500449,Zachary Medina,3711 Owens Blvd Apt 4,Henderson,NV,89011,zachary.medina88@gmail.com,(725) 555-5459,1,2024-09-11,Tablet,810.28
+500450,Kyle Andersen,550 Alta St,Henderson,NV,89052,kyle.anderson89@icloud.com,(702) 555-3131,1,2025-02-11,Printer,193.46
+500451,Carol Robinson,1140 Flamingo Ave Apt 15,Summerlin,NV,89135,carol.robinson26@hotmail.com,(725) 555-9066,1,2025-01-13,Desktop,909.74
+500452,Nathan Hill,1793 Washington Ln,Paradise,NV,89109,nhill18@gmail.com,(702) 555-3417,1,2024-12-28,Software,294.46
+500453,Stephen Gonzales,8545 Ann Ct,Summerlin,NV,89135,steven.gonzales70@outlook.com,(725) 555-5197,1,2024-09-09,Warranty,322.06
+500454,Barbara Castillo,3270 Washington Blvd,North Las Vegas,NV,89031,barbara.castillo29@yahoo.com,(725) 555-5658,1,2025-02-25,Printer,245.32
+500455,Lisa Wallace,2916 Charleston Pkwy Apt 16,Las Vegas,NV,89119,lisa.wallace52@outlook.com,(702) 555-1604,1,2025-08-10,Warranty,321.9
+500456,Barbara Mitchell,4690 Stephanie Way,Henderson,NV,89011,barbara.bennett62@gmail.com,(725) 555-5930,1,2024-06-18,Warranty,249.99
+500457,Peter Morris,9234 Horizon Avenue,Las Vegas,NV,89101,peter.morris82@gmail.com,(725) 555-1665,1,2024-05-30,Tablet,1011.34
+500458,Patrick Henderson,7676 Grand Way,North Las Vegas,NV,89031,patrick.henderson29@outlook.com,(702) 555-9811,1,2025-11-22,Software,266.76
+500459,Harold Allen,7497 Windmill Ln,Henderson,NV,89052,harold.richardson42@gmail.com,(725) 555-7103,1,2025-04-02,Printer,622.96
+500460,Jerry Garcia,8477 Warm Ln,Summerlin,NV,89135,jerry.garcia30@icloud.com,(725) 555-9258,1,2025-03-25,Desktop,1822.36
+500461,Ethan Hill,307 Craig Ave,Las Vegas,NV,89119,ethan.lee17@hotmail.com,(725) 555-6003,1,2025-02-09,Tablet,475.28
+500462,David Butler,2529 Eastern Ct Apt 15,Paradise,NV,89109,david.butler71@hotmail.com,(702) 555-8967,1,2025-08-16,Laptop,1149.56
+500463,Stephen Brown,5331 Horizon Way,Paradise,NV,89109,stephen.cole91@yahoo.com,(725) 555-8018,1,2025-10-11,Printer,160.81
+500464,Sharon Anderson,5793 Eastern Pkwy,Las Vegas,NV,89119,sharon.anderson40@icloud.com,(725) 555-3471,1,2024-05-14,Accessory,134.11
+500465,David Stevens,4002 Rampart Ct,Summerlin,NV,89135,david.stevens40@hotmail.com,(725) 555-6951,1,2024-11-04,Tablet,958.11
+500466,Dana Kim,8582 Eastern Ave Apt 31,Henderson,NV,89011,dana.kim49@gmail.com,(702) 555-1895,1,2024-04-05,Monitor,497.94
+500467,Peter Wood,5306 Sunset Pkwy,Paradise,NV,89109,peter.wood80@yahoo.com,(725) 555-7772,1,2024-03-30,Printer,475.56
+500468,Sandra Myers,5194 Russell St,Las Vegas,NV,89117,sandra.myers71@yahoo.com,(702) 555-3022,1,2024-10-20,Desktop,1505.97
+500469,Diego Reeyes,,Paradise,NV,89109,,,1,2024-07-18,Laptop,948.17
+500470,Justin Kennedy,3193 Craig Ln,Henderson,NV,89052,justin.kennedy18@hotmail.com,(702) 555-3710,1,2025-10-14,Accessory,219.21
+500471,Erik Hall,8920 Russell St Apt 36,North Las Vegas,NV,89031,eric.hall31@yahoo.com,(702) 555-2939,1,2025-06-16,Warranty,112.56
+500472,Nancy Hayes,7816 Horizon Ln,Las Vegas,NV,89117,nancy.hayes99@gmail.com,(725) 555-4383,1,2025-12-04,Monitor,227.12
+500473,Carolyn Morgan,3602 Grand Street,North Las Vegas,NV,89031,carolyn.morgan6@gmail.com,(702) 555-2056,1,2025-01-08,Warranty,172.49
+500474,Luis Gibson,2960 Springs Way,North Las Vegas,NV,89031,luis.gibson87@gmail.com,(725) 555-7855,1,2024-07-06,Warranty,220.97
+500475,Donald Allen,3967 Blue Dr Apt 8,Henderson,NV,89052,donald.allen31@outlook.com,(725) 555-8148,1,2024-10-01,Tablet,556.26
+500476,Gray Jones,3819 Sunset Dr,Henderson,NV,89052,gary.jones24@yahoo.com,(725) 555-6115,1,2025-10-03,Monitor,479.59
+500477,Pat Simmons,900 Diamond Dr,Henderson,NV,89011,patricia.simmons12@outlook.com,(725) 555-2523,1,2025-12-24,Laptop,2119.44
+500478,Jason Marshall,9274 Canyon Pkwy Ste 102,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2025-10-01,Monitor,527.56
+500479,Eric Owens,5946 Sahara Dr,Las Vegas,NV,89117,eric.owens76@yahoo.com,(725) 555-2388,1,2025-09-07,Warranty,442.74
+500480,Michele Mendoza,913 Warm Avenue,Paradise,NV,89109,michelle.mendoza14@outlook.com,(725) 555-9366,1,2025-02-01,Software,233.11
+500481,Carolyn Castillo,8099 Bonanza Way,Las Vegas,NV,89119,carolyn.castillo18@hotmail.com,(702) 555-1822,1,2025-04-17,Tablet,687.48
+500482,Donald Walker,2119 Canyon Rd,Henderson,NV,89011,donald.walker64@icloud.com,(702) 555-7104,1,2025-01-13,Printer,603.86
+500483,Erik Harrison,4024 Durango Pkwy,Las Vegas,NV,89117,eric.harrison61@outlook.com,(725) 555-7249,1,2025-04-28,Tablet,474.71
+500484,Michael Hill,5557 Sahara Ct,Henderson,NV,89011,michael.hill36@icloud.com,(702) 555-2920,1,2024-10-04,Desktop,1704.3
+500485,Donald Bennet,9109 Alta Way Apt 19,Las Vegas,NV,89117,donald.bennett7@hotmail.com,(702) 555-9417,1,2024-05-25,Laptop,1206.62
+500486,Priya Moreno,8548 Silverado St Apt 18,Las Vegas,NV,89101,priya.moreno11@outlook.com,(725) 555-3263,1,2025-07-08,Desktop,1274.38
+500487,Joshua Phillips,4732 Fort Ct,Las Vegas,NV,89117,joshua.phillips67@gmail.com,(702) 555-8202,1,2025-08-13,Printer,246.49
+500488,Lisa Morales,261 Carey Ln,Henderson,NV,89052,lisa.morales79@outlook.com,(702) 555-4160,1,2024-09-19,Monitor,583.75
+500489,Aaron Patel,2061 Stephanie Blvd,Summerlin,NV,89135,aaron.patel82@hotmail.com,(702) 555-9055,1,2025-04-17,Software,300.14
+500490,Diego Greene,3872 Rainbow Ave,Henderson,NV,89052,diego.green11@yahoo.com,(702) 555-2754,1,2024-11-29,Laptop,1102.6
+500491,Helen Hall,1176 Apache Way,Henderson,NV,89011,helen.hall23@gmail.com,(702) 555-2963,1,2024-02-20,Printer,498.09
+500492,Deborah Henderson,3711 Canyon Pkwy,North Las Vegas,NV,89031,deborah.henderson73@hotmail.com,(725) 555-8938,1,2024-12-03,Tablet,1174.26
+500493,Jason Martinez,5819 Mojave Pkwy,Las Vegas,NV,89101,jason.martinez99@hotmail.com,(702) 555-4505,1,2024-04-14,Warranty,279.82
+500494,Jen Nguyen,3379 Jones Ave,Henderson,NV,89052,jennifer.nguyen17@icloud.com,(725) 555-6603,1,2025-02-21,Monitor,395.15
+500495,Justin Lopez,7054 Torrey Ct,Henderson,NV,89011,justin.long59@outlook.com,(702) 555-7097,1,2024-08-10,Warranty,77.0
+500496,Dorothy Powell,1394 Centennial Pkwy,Paradise,NV,89109,dorothy.powell16@yahoo.com,(702) 555-3531,1,2024-08-12,Accessory,44.99
+500497,Jason Marshall,9274 Canyon Pkwy Ste 105,Henderson,NV,89052,jason.marshall45@hotmail.com,(702) 555-7105,7,2024-09-26,Software,374.86
+500498,Diane Phillips,143 Lamb Dr,North Las Vegas,NV,89031,diane.jackson75@icloud.com,(725) 555-6046,1,2024-06-24,Tablet,1220.09
+500499,Fatima Hernandez,8823 Torrey Way Apt 9,Summerlin,NV,89135,fatima.hernandez80@hotmail.com,(702) 555-7535,1,2024-05-22,Accessory,134.05
+500500,Jim Gomez,3887 Craig Road,Summerlin,NV,89135,james.gomez93@hotmail.com,(725) 555-6202,1,2025-12-10,Monitor,376.64
+500501,Rebecca Ruiz,8021 Charleston Blvd,Henderson,NV,89011,rebecca.ruiz57@hotmail.com,(702) 555-6941,1,2024-12-21,Tablet,1126.41
+500502,Gary Crawford,8328 Carey Pkwy,Henderson,NV,89052,gary.crawford55@icloud.com,(702) 555-1369,1,2024-09-05,Tablet,533.1
+500503,Joshua Baker,9831 Cheyenne Ln,Henderson,NV,89052,joshua.baker47@yahoo.com,(702) 555-1706,1,2024-12-22,Warranty,287.81
+500504,Donald Howard,696 Springs Ln,Summerlin,NV,89135,donald.howard65@hotmail.com,(702) 555-1014,1,2025-10-20,Laptop,1690.47
+500505,Juan Rodriguez,5296 Jones Ln,Henderson,NV,89011,juan.rodriguez86@hotmail.com,(702) 555-3389,1,2024-07-15,Software,50.9
+500506,Geoffrey Clark,8939 Centennial Dr,North Las Vegas,NV,89031,jeffrey.clark78@outlook.com,(702) 555-2340,1,2024-03-21,Monitor,634.83
+500507,Kenneth Thomson,6114 Fort St,North Las Vegas,NV,89031,kenneth.thompson96@outlook.com,(725) 555-8802,1,2025-12-05,Software,225.58
+500508,Kenneth Cooke,9756 Rampart Ct,Henderson,NV,89011,kenneth.cook94@gmail.com,(725) 555-9906,1,2024-06-25,Printer,452.43
+500509,Sarah Phillips,2677 Charleston Ct,Las Vegas,NV,89117,sarah.tran24@icloud.com,(725) 555-8557,1,2025-09-10,Software,455.29
+500510,Carl Ward,5863 Windmill Ave Ste 101,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2025-11-18,Warranty,250.86
+500511,Maria Young,1884 Springs St,Las Vegas,NV,89101,maria.young83@gmail.com,(702) 555-8077,1,2024-06-05,Software,170.51
+500512,Laura Castro,7571 Durango Pkwy,Las Vegas,NV,89101,laura.castro24@gmail.com,(702) 555-5677,1,2025-04-01,Warranty,226.64
+500513,Morgan Mendoza,3235 Bonanza Ct,Henderson,NV,89052,morgan.mendoza78@hotmail.com,(702) 555-8002,1,2024-07-22,Tablet,599.62
+500514,Rebecca Murray,5993 Canyon Way,Las Vegas,NV,89101,rebecca.murray63@hotmail.com,(702) 555-5063,1,2025-01-10,Warranty,299.5
+500515,Matt Morris,2413 Alta Ln,Las Vegas,NV,89117,matthew.morris92@yahoo.com,(725) 555-7647,1,2025-02-27,Warranty,69.21
+500516,Linda Robinson,8833 Boulder Rd,Las Vegas,NV,89119,,(725) 555-6155,1,2025-11-01,Accessory,38.96
+500517,Amanda Saunders,9751 Pecos Rd,Henderson,NV,89011,amanda.sanders50@yahoo.com,(725) 555-8476,1,2024-02-13,Laptop,2512.89
+500518,Zachary Coleman,6753 Centennial Blvd,Henderson,NV,89052,zachary.coleman67@gmail.com,(702) 555-9651,1,2025-11-28,Tablet,585.76
+500519,Katherine Rodgers,826 Durango Ave Apt 7,Summerlin,NV,89135,katherine.rogers39@hotmail.com,(725) 555-7819,1,2025-04-01,Monitor,648.91
+500520,Ryan Gutierrez,2938 Gibson Dr,Henderson,NV,89011,ryan.gutierrez43@yahoo.com,(702) 555-1169,1,2024-06-07,Software,449.22
+500521,Thomas Freeman,2136 Russell Dr,Summerlin,NV,89135,thomas.freeman6@outlook.com,(702) 555-4114,1,2024-02-05,Desktop,968.3
+500522,Michelle Saunders,3515 Lamb Dr Apt 30,Henderson,NV,89011,michelle.sanders27@outlook.com,(702) 555-4315,1,2024-04-23,Printer,611.13
+500523,Joseph Harrison,1236 Canyon Pkwy,Las Vegas,NV,89119,joseph.alvarez48@hotmail.com,(725) 555-4079,1,2024-03-16,Printer,188.19
+500524,Ethan Diaz,8038 Grand Ct Apt 38,Las Vegas,NV,89101,ethan.diaz54@gmail.com,(725) 555-5556,1,2025-03-17,Laptop,1583.09
+500525,Andrew Campbell,4973 Alta Ave,Las Vegas,NV,89117,andrew.campbell19@icloud.com,(725) 555-5284,1,2024-02-21,Desktop,1086.12
+500526,Aaron Murray,217 Sandhill St,Henderson,NV,89011,aaron.brooks53@icloud.com,(725) 555-6080,1,2025-08-20,Monitor,339.05
+500527,Kenneth Miller,6778 Durango Rd,Las Vegas,NV,89119,kenneth.miller37@hotmail.com,(725) 555-4308,1,2025-12-21,Tablet,574.1
+500528,Anna Ramirez,834 Buffalo Ln,Las Vegas,NV,89117,anna.ramirez18@hotmail.com,(725) 555-6695,1,2024-10-29,Tablet,1289.94
+500529,Janet Allen,7497 Windmill Ln,Henderson,NV,89052,janet.robinson61@icloud.com,(725) 555-7103,1,2025-05-28,Monitor,391.2
+500530,Ronald Tran,1240 Sandhill Way,Paradise,NV,89109,ronald.tran39@gmail.com,(702) 555-5408,1,2024-08-17,Printer,294.83
+500531,Pat Morales,1078 Craig Blvd Apt 22,Henderson,NV,89052,patricia.morales97@hotmail.com,(702) 555-6484,1,2024-09-01,Software,485.49
+500532,Roger Garcia,9614 Tropicana Way,North Las Vegas,NV,89031,roger.garcia86@outlook.com,(725) 555-2187,1,2025-07-15,Desktop,822.9
+500533,Carl Ward,5863 Windmill Ave Ste 105,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2024-05-14,Monitor,248.29
+500534,Hanna Howard,5825 Warm St,Las Vegas,NV,89101,hannah.howard82@icloud.com,(725) 555-4724,1,2024-10-05,Desktop,877.95
+500535,Priya Martinez,2169 Fort St Apt 18,Las Vegas,NV,89119,priya.martinez77@outlook.com,(725) 555-5533,1,2025-08-22,Software,97.54
+500536,Donna Hall,7948 Alta Ln,North Las Vegas,NV,89031,donna.hall20@gmail.com,(725) 555-7980,1,2024-01-22,Monitor,407.42
+500537,Dennis Morgan,3716 Rampart Dr,Henderson,NV,89052,dennis.morgan65@outlook.com,(725) 555-9021,1,2024-07-06,Warranty,127.16
+500538,John Castro,9327 Gibson Road,Las Vegas,NV,89117,john.castro94@icloud.com,(702) 555-5985,1,2024-10-13,Software,164.55
+500539,Elizabeth Gibson,9052 Carey Ave,Summerlin,NV,89135,elizabeth.castillo85@gmail.com,(725) 555-1431,1,2024-04-01,Tablet,384.1
+500540,Kimberly Green,6896 Cheyenne Pkwy,Las Vegas,NV,89101,kimberly.green50@outlook.com,(702) 555-7547,1,2025-01-04,Printer,736.53
+500541,Sharon Campbell,1940 Ann Pkwy,Las Vegas,NV,89119,sharon.campbell76@hotmail.com,(702) 555-3375,1,2024-12-13,Software,378.57
+500542,Kathleen Griffin,7688 Silverado Dr,Henderson,NV,89011,kathleen.griffin98@icloud.com,(725) 555-3492,1,2024-04-12,Desktop,1132.57
+500543,Angela Aguilar,3170 Gibson Blvd,Las Vegas,NV,89101,angela.aguilar90@yahoo.com,(702) 555-7448,1,2024-03-28,Tablet,617.53
+500544,Gregory Scott,1999 Ann Blvd,Henderson,NV,89052,gregory.scott20@gmail.com,(725) 555-4307,1,2024-09-18,Desktop,1599.5
+500545,Grace Sanchez,9646 Maryland Pkwy,Las Vegas,NV,89101,grace.sanchez1@yahoo.com,(725) 555-9752,1,2025-05-24,Laptop,956.66
+500546,Amanda Price,8784 Blue Blvd,Las Vegas,NV,89119,amanda.gomez38@outlook.com,(725) 555-2116,1,2024-09-09,Laptop,2544.84
+500547,Adam Murphy,4864 Alta Way,Henderson,NV,89011,adam.murphy4@yahoo.com,(725) 555-1657,1,2025-04-23,Warranty,385.47
+500548,Deborah Andersen,3364 Ann Way,Paradise,NV,89109,deborah.anderson35@icloud.com,(725) 555-6638,1,2024-12-31,Monitor,577.0
+500549,Nick Webb,9886 Hualapai Lane,Las Vegas,NV,89101,nicholas.webb31@hotmail.com,(725) 555-1738,1,2024-03-12,Laptop,2379.22
+500550,Sandra Tran,2142 Lamb Pkwy Apt 15,Henderson,NV,89011,sandra.tran15@icloud.com,(702) 555-1787,1,2024-01-14,Accessory,176.69
+500551,Benjamin Richardson,3801 Cheyenne Ct,Henderson,NV,89052,benjamin.richardson22@outlook.com,(725) 555-3626,1,2025-03-26,Software,302.47
+500552,Diego Herrera,8303 Cheyenne Rd,Henderson,NV,89011,diego.herrera3@yahoo.com,(725) 555-2051,1,2024-11-04,Warranty,368.84
+500553,Heather Lopez,5646 Sunset Ln,Las Vegas,NV,89119,heather.lopez36@yahoo.com,(725) 555-9476,1,2025-08-27,Monitor,575.78
+500554,Frank Davies,1081 Buffalo Rd,Las Vegas,NV,89117,frank.davis79@gmail.com,(725) 555-4265,1,2024-11-13,Monitor,152.39
+500555,Jack Tran,7406 Warm Way,Las Vegas,NV,89101,jack.tran47@gmail.com,(725) 555-4002,1,2024-05-16,Desktop,1431.43
+500556,Carl Ward,2320 Carey St,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2025-12-23,Desktop,1587.74
+500557,Anthony Hayes,4245 Silverado St,Las Vegas,NV,89101,anthony.wright36@outlook.com,(702) 555-7041,1,2024-02-14,Warranty,95.92
+500558,Dorothy Cole,1696 Eastern Way,North Las Vegas,NV,89031,dorothy.cole97@gmail.com,(702) 555-6546,1,2024-12-27,Laptop,2045.95
+500559,Patricia Edwards,8767 Silverado St,Paradise,NV,89109,patricia.edwards4@outlook.com,(702) 555-4816,1,2025-09-21,Tablet,871.18
+500560,Bryan Wells,5588 Tropicana St,Paradise,NV,89109,brian.wells53@hotmail.com,(725) 555-5368,1,2025-03-22,Tablet,642.96
+500561,Carolyn Graham,9091 Washington Rd,Las Vegas,NV,89117,,(702) 555-7504,1,2024-12-15,Printer,142.77
+500562,Jacob Cole,3532 Charleston Pkwy,North Las Vegas,NV,89031,jacob.cole73@gmail.com,(725) 555-7957,1,2025-04-12,Printer,345.95
+500563,Kevin Hamilton,8139 Owens Way Apt 38,Summerlin,NV,89135,kevin.hamilton23@outlook.com,(725) 555-4953,1,2025-01-13,Printer,759.6
+500564,Henry Miller,7246 Nellis Road,Paradise,NV,89109,henry.miller3@gmail.com,(725) 555-7813,1,2024-12-12,Desktop,1694.86
+500565,Liz Young,765 Losee St,Henderson,NV,89011,elizabeth.young67@icloud.com,(702) 555-7161,1,2025-04-01,Desktop,1142.05
+500566,Mark Sullivan,3815 Boulder Blvd,Paradise,NV,89109,mark.sullivan63@icloud.com,(725) 555-9507,1,2025-10-27,Printer,249.08
+500567,Nathan Thompson,2149 Windmill Blvd,North Las Vegas,NV,89031,nathan.thompson9@outlook.com,(725) 555-5001,1,2024-12-30,Warranty,444.63
+500568,Joe Martin,9658 Eastern Dr,Summerlin,NV,89135,joseph.martin26@icloud.com,(702) 555-4729,1,2025-02-04,Desktop,1241.95
+500569,Dana Lewis,3066 Bonanza Way Apt 11,Henderson,NV,89052,dana.lewis39@outlook.com,(702) 555-2078,1,2025-07-11,Accessory,207.36
+500570,Thomas Vargas,858 Rampart Ln,Henderson,NV,89052,thomas.vargas54@gmail.com,(725) 555-3625,1,2025-01-08,Accessory,207.55
+500571,Ethan Johnson,7258 Centennial Dr Apt 10,Summerlin,NV,89135,ethan.johnson50@hotmail.com,(702) 555-5073,1,2025-06-11,Laptop,1750.35
+500572,Samuel Reyes,5104 Charleston Pkwy,Summerlin,NV,89135,samuel.reyes82@icloud.com,(725) 555-9997,1,2024-12-25,Software,489.96
+500573,Debra Brown,5900 Diamond Ct Apt 35,North Las Vegas,NV,89031,debra.brown15@yahoo.com,(725) 555-1012,1,2025-08-09,Warranty,412.69
+500574,Patricia Bryant,6158 Sunset Ave,Summerlin,NV,89135,patricia.bryant79@outlook.com,(725) 555-4919,1,2024-09-04,Accessory,202.17
+500575,Kimberley Chavez,3241 Alta Rd Apt 14,Summerlin,NV,89135,kimberly.chavez23@gmail.com,(702) 555-5426,1,2025-08-03,Desktop,1384.41
+500576,Kevin Watson,2452 Gibson Pkwy Apt 9,Las Vegas,NV,89119,kevin.watson16@gmail.com,(702) 555-7265,1,2024-03-24,Laptop,1488.86
+500577,Carl Ward,7798 Flamingo Ln,Henderson,NV,89011,carl.ward86@gmail.com,(702) 555-9267,7,2025-09-20,Monitor,559.36
+500578,Eric Cole,1004 Gibson St Ste 102,Las Vegas,NV,89101,eric.cole89@yahoo.com,(702) 555-3280,5,2024-07-24,Warranty,165.49
+500579,Samuel Castillo,7207 Owens Way,North Las Vegas,NV,89031,samuel.castillo56@hotmail.com,(702) 555-6049,1,2024-12-16,Monitor,421.19
+500580,Morgan Powell,8021 Carey Way,Paradise,NV,89109,morgan.powell54@yahoo.com,(725) 555-7687,1,2025-05-16,Printer,386.11
+500581,Bob Patel,8664 Russell Ln,Henderson,NV,89052,robert.patel87@gmail.com,(702) 555-2580,1,2025-05-28,Laptop,1168.67
+500582,Dianne Tran,4773 Horizon Blvd Apt 2,Henderson,NV,89052,diane.tran26@hotmail.com,(725) 555-4199,1,2025-03-06,Software,210.27
+500583,Daniel Fernandez,642 Losee Rd,Las Vegas,NV,89119,daniel.fernandez31@yahoo.com,(725) 555-8286,1,2025-05-29,Laptop,1474.66
+500584,Hannah Andersen,4247 Blue Dr,North Las Vegas,NV,89031,hannah.anderson72@hotmail.com,(725) 555-1750,1,2024-01-22,Printer,733.14
+500585,Betty Owens,8346 Lamb St Apt 1,Las Vegas,NV,89101,betty.owens65@yahoo.com,(702) 555-4552,1,2025-04-03,Warranty,71.43
+500586,Joshua Cox,5298 Jones Ln,Las Vegas,NV,89119,jcox91@yahoo.com,(702) 555-3618,1,2025-03-27,Desktop,1266.2
+500587,John Davies,611 Pecos Rd,Summerlin,NV,89135,john.davis59@hotmail.com,(702) 555-8533,1,2024-06-05,Monitor,511.8

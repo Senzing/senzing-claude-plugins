@@ -556,10 +556,14 @@ fi
 
 # Main-branch CI (run 37196169047) failed three cases the PR run had passed -- each a real behavior the
 # skill text left room for. Text guards keep the fix from being edited away.
-if grep -q "fetch BEFORE you invoke" plugins/senzing/skills/recipes/SKILL.md; then
-  ok "recipes/SKILL.md says to fetch the recipe before invoking install (install ends the turn)"
+# The verb changed from "fetch" to "read" when the cookbook was bundled into the plugin
+# (nothing is downloaded any more), but the INVARIANT is the ordering, not the verb: the
+# recipe must be opened before `install` is invoked, because `install` ends the turn. Guard
+# the ordering so a rename cannot quietly delete the rule.
+if grep -q "BEFORE you invoke" plugins/senzing/skills/recipes/SKILL.md; then
+  ok "recipes/SKILL.md says to open the recipe before invoking install (install ends the turn)"
 else
-  bad "recipes/SKILL.md lost fetch-before-install - a run can hand off without ever opening the recipe"
+  bad "recipes/SKILL.md lost read-before-install - a run can hand off without ever opening the recipe"
 fi
 if grep -q 'is never touched." — full stop' plugins/senzing/skills/demo/SKILL.md; then
   ok "demo/SKILL.md gives the exact production sentence and forbids a conditional after it"

@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-1] - 2026-11-20
+
+### Changed
+
+- **The Senzing Cookbook now ships inside the plugin; nothing is downloaded at cook time.**
+  The Claude directory held the listing on *"contains a download-and-run command"* in
+  `recipes`, `demo` and `doctor`. For `recipes` the objection is structural: the skill reads
+  recipe instructions and then runs them, and a commit pin (added earlier for the
+  `RUNTIME_FETCH_EXEC` finding) cannot satisfy it, because the fetch itself is what is
+  refused. The cookbook is now vendored under
+  `plugins/senzing/skills/recipes/cookbook/` and read with `Read` — no `curl`, no `WebFetch`,
+  no network for recipe content, and no egress allowance needed. `doctor`'s reachability
+  probe (a headers-only HEAD request that downloads nothing) and `demo`'s sample-data save
+  are now described rather than written as literal shell commands.
+- **The bundle refreshes itself on every published version.** `scripts/vendor-cookbook.sh`
+  re-vendors from `senzing/recipes`, deriving the file list from the upstream tree — so a
+  recipe added upstream is picked up automatically — and writes `cookbook/PROVENANCE.md` with
+  the exact commit, file list and SHA-256s. `mcp-version-sync.yml` runs it on every version
+  bump and puts the cookbook diff in the same PR, so each published version carries the
+  cookbook as it stood when that version was cut. Images and repo furniture are excluded (the
+  skill never renders an image); the bundle is capped at 2 MiB.
+- **The upstream-drift CI job now anchors on the bundle.** `Cookbook whitelist still matches
+  upstream` hard-fails when a recipe the eval graders whitelist is missing from the *bundle*
+  (what a run can actually cook) and reports bundle-vs-upstream drift as a non-fatal notice,
+  since the next version bump re-vendors it. Upstream's new `patient-fraud-uk` recipe is in
+  the bundle and added to the grader whitelist, so a run that names it is not scored as a
+  fabrication.
+
 ## [1.46.3] - 2026-11-20
 
 ### Changed

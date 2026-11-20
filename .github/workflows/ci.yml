@@ -124,8 +124,8 @@ jobs:
     # simultaneously with nothing wrong in this repo, and the failure surfaces as an
     # expensive eval flake rather than as what it is.
     #
-    # This job is the cheap half. It reads the live cookbook and fails loudly, by name,
-    # the moment the whitelist stops matching — same shape as `eula-link` above, which
+    # This job is the cheap half. It checks the whitelist against the BUNDLED cookbook and fails
+    # loudly, by name, the moment the whitelist stops matching — same shape as `eula-link` above, which
     # exists because a grader can only assert what a reply SAYS, never whether the thing
     # it names still exists upstream.
     steps:
@@ -133,36 +133,46 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: The recipe filenames the evals whitelist must still exist upstream
+      - name: Whitelisted recipes exist in the bundle, and the bundle tracks upstream
         run: |
           set -uo pipefail
-          url="https://raw.githubusercontent.com/Senzing/recipes/main/cookbook.md"
-          body=$(curl -fsSL --retry 3 --retry-delay 5 --max-time 30 "$url") || {
-            echo "::warning::could not fetch $url — skipping drift check rather than failing on a network blip"
-            exit 0
-          }
-          # The exact set the graders encode. Keep in lockstep with
-          # evals/recipes-catalog/graders/no-invented-recipe.md and
-          # evals/recipes-named/graders/correct-recipe-fetched.md.
-          expected="clair-data-ingestion-starter customer-360-crm-online customer-360-stewardship nigel-healthcare-aws-entity-browser"
+          BUNDLE="plugins/senzing/skills/recipes/cookbook"
+
+          # (1) HARD CHECK -- against the BUNDLE, not upstream. Since the cookbook ships
+          # inside the plugin, the bundle is the only thing a run can cook, so a grader
+          # naming a recipe absent from it is a real defect that WILL fail an eval.
+          # Keep in lockstep with evals/recipes-catalog/graders/no-invented-recipe.md and
+          # evals/recipes-named/graders/correct-recipe-read.md.
+          expected="clair-data-ingestion-starter customer-360-crm-online customer-360-stewardship nigel-healthcare-aws-entity-browser patient-fraud-uk"
           missing=0
           for r in $expected; do
-            if ! printf '%s' "$body" | grep -q "$r"; then
-              echo "::error::whitelisted recipe '$r' is NO LONGER in the upstream cookbook — the eval graders that name it will fail with no plugin defect. Update the whitelist in both grader files and this job together."
+            if [ ! -f "$BUNDLE/recipes/$r.md" ]; then
+              echo "::error::whitelisted recipe '$r' is NOT in the bundled cookbook — the eval graders that name it will fail with no plugin defect. Update the whitelist in both grader files and this job together."
               missing=$((missing + 1))
             fi
           done
-          # Upstream GAINING a recipe is not a failure, but the graders should learn about
-          # it deliberately rather than via a red eval, so say so.
-          found=$(printf '%s' "$body" | grep -oE 'recipes/[A-Za-z0-9._-]+\.md' | sed 's|recipes/||; s|\.md$||' | sort -u)
-          for r in $found; do
-            case " $expected " in
-              *" $r "*) ;;
-              *) echo "::notice::upstream cookbook now lists '$r', which the eval whitelist does not know about. Not a failure — but add it before a run reports it and a grader calls it a fabrication." ;;
-            esac
+
+          # (2) SOFT CHECK -- bundle vs upstream. Never fatal: `mcp-version-sync.yml`
+          # re-vendors on the next version bump, so drift here is expected and simply
+          # means the next release will carry it. This exists so the movement is visible
+          # BEFORE it arrives, not so it blocks anything.
+          url="https://raw.githubusercontent.com/Senzing/recipes/main/cookbook.md"
+          body=$(curl -fsSL --retry 3 --retry-delay 5 --max-time 30 "$url") || {
+            echo "::warning::could not fetch $url — skipping the drift half rather than failing on a network blip"
+            [ "$missing" -eq 0 ] || exit 1
+            exit 0
+          }
+          upstream=$(printf '%s' "$body" | grep -oE 'recipes/[A-Za-z0-9._-]+\.md' | sed 's|recipes/||; s|\.md$||' | sort -u)
+          bundled=$(find "$BUNDLE/recipes" -name '*.md' -exec basename {} .md \; | sort -u)
+          for r in $upstream; do
+            printf '%s\n' "$bundled" | grep -qx "$r" || echo "::notice::upstream has recipe '$r', the bundle does not yet — it ships at the next version bump (mcp-version-sync re-vendors). Add it to the eval whitelist then."
           done
+          for r in $bundled; do
+            printf '%s\n' "$upstream" | grep -qx "$r" || echo "::notice::bundled recipe '$r' is no longer listed upstream — it still cooks, but check whether upstream retired it."
+          done
+
           [ "$missing" -eq 0 ] || exit 1
-          echo "OK: all $(printf '%s' "$expected" | wc -w | tr -d ' ') whitelisted recipes still present upstream"
+          echo "OK: all $(printf '%s' "$expected" | wc -w | tr -d ' ') whitelisted recipes present in the bundle"
 
   eula-link:
     name: EULA link live (the install skill's license gate)

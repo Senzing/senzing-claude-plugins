@@ -13,7 +13,8 @@ command fails it — proven offline against a synthetic `{"command": "echo check
 call, which does not match.
 
 Review on 7785bfb: the previous pattern ended in a bare `senzing`, which the case's own
-mandatory recipe fetch (`curl … raw.githubusercontent.com/senzing/recipes/…`) satisfied, so
+recipe fetch (then `curl … raw.githubusercontent.com/senzing/recipes/…`; since the cookbook was
+bundled it is a `Read`, which never touches Bash) satisfied, so
 a run could skip every host probe and still pass. The bare alternative is gone; the install
 and SDK tokens are the specific ones (`senzingsdk`, `senzing_core`, `/opt/senzing`). Checked
 against the real doctor traces of the last eval: every run still matches on `uname` /
