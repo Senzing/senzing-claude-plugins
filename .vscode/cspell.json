@@ -50,6 +50,7 @@
     "grounder",
     "HEALTHCHECK",
     "ICLA",
+    "inspectable",
     "iops",
     "isinstance",
     "jnilib",
@@ -111,6 +112,7 @@
     "venv",
     "watchlist",
     "webfetch",
+    "webp",
     "writability"
   ],
   "ignorePaths": [

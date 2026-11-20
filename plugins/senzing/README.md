@@ -1,10 +1,3 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/senzing-logo-dark-theme.png">
-    <img src="assets/senzing-logo-light-theme.png" alt="Senzing" width="240">
-  </picture>
-</p>
-
 <h1 align="center">Senzing</h1>
 
 <p align="center">

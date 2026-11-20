@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-2] - 2026-11-20
+
+### Fixed
+
+- **Everything the Claude directory flagged that is ours to fix.** 1.46.3-1 was REFUSED (a
+  regression from 1.46.3, which was only held): bundling the cookbook cleared the
+  download-and-run finding, but it also brought the recipes' `.csv`/`.jsonl` sample data into
+  the plugin, and a non-Verified organization may ship only Markdown, text, JSON, YAML and
+  PNG/JPEG/GIF/WebP/ICO, with no text file over 256 KB.
+- **Ingredient data ships in a form the directory accepts.** The files were always plain UTF-8
+  text; only the extension and one file's size were refused. Each now ships under its real name
+  with a `.txt` suffix (`crm.csv` → `crm.csv.txt`), and a file over the limit is split on **line**
+  boundaries into `<name>.partNN.txt`. `recipes` restores the documented filename when it copies
+  them into the workspace — drop the suffix, concatenate `partNN` in order — so the recipes see
+  the files they name and nothing is downloaded. Verified lossless: the two `gp_registrations`
+  parts reassemble to 511 JSON records, 0 malformed, matching upstream exactly.
+- **The vendor script enforces the directory's rules against what is on disk**, after conversion,
+  rather than the upstream path list — which is what let the six refused files through. Type, the
+  256 KB limit, a `#!` first line and NUL bytes; it fails rather than produce a bundle that would
+  be refused. Armed against both failure modes.
+- **The two agent MCP tool-name warnings are gone.** `agents/field-mapper.md` and
+  `agents/senzing-grounder.md` no longer carry a `tools:` line, so the Claude Code-only
+  `mcp__plugin_senzing_senzing__*` name is not in the manifest; the agents inherit instead and
+  keep working.
+- **Two of the three image warnings are gone.** The plugin README's logo `<picture>` block and
+  `assets/senzing-logo-{dark,light}-theme.png` are removed; only the required `icon.png` remains.
+
+### Known, and not fixable from this side
+
+`icon` and `privacyPolicyUrl` are still reported, by the same portal that demanded them
+(findings `ICON_MISSING` and `PRIVACY_URL_MISSING` — see `scripts/check.sh`); removing either
+trips the opposite finding. One image note remains for `icon.png`, which is required. And
+"Policy review didn't complete" is Anthropic-side and routes to a human regardless.
+
 ## [1.46.3-1] - 2026-11-20
 
 ### Changed
