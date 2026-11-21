@@ -21,6 +21,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   guards the wording, because the failure mode is silent: a run can drain the queue correctly
   from memory and look perfect while being ungrounded, which is a pass by luck.
 
+## [1.46.3-5] - 2026-11-21
+
+### Changed
+
+- **`privacyPolicyUrl` dropped from the manifest, relying on the README route the portal
+  documents.** 1.46.3-4 proved the no-field approach works: moving `icon.png` to the default
+  location `.claude-plugin/icon.png` and dropping the `icon` key cleared **both** sides of that
+  contradiction — no "Field from another tool's manifest" and no "No icon". Privacy has the same
+  shape of alternative: *"a link on a README line that contains the word 'privacy' also
+  counts."*
+  1.46.3-3 removed the field and still got "No privacy policy URL", but at that point the only
+  mention was an indented, bolded, mid-sentence fragment. The plugin README now carries a
+  standalone line in the documented form — "Read our [Privacy Policy](...) for details on how
+  data is handled." — added in 1.46.3-4, so this is the first version where the README route is
+  actually testable without the field competing with it.
+
+If the finding returns, the field goes back: it is the portal's own documented key, and
+"Unrecognized field" is its manifest schema lagging the directory that reads it.
+
 ## [1.46.3-4] - 2026-11-21
 
 ### Changed
