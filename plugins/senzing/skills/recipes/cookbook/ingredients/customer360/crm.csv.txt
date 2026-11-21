@@ -1,0 +1,993 @@
+customer_id,first_name,last_name,street,city,state,zip,phone,email,customer_since,segment,lifetime_value
+100001,Kyle,Ward,1496 Jones Ln,Henderson,NV,89011,702-555-2288,kyle.ward32@gmail.com,2019-10-21,Consumer,2655
+100002,Jacob,Wood,2340 Torrey Way,Paradise,NV,89109,725-555-5497,jacob.wood84@icloud.com,2019-06-30,Consumer,58724
+100003,Linda,Patel,3361 Silverado Pkwy,Henderson,NV,89052,702-555-4297,linda.patel56@outlook.com,2023-11-19,Consumer,8395
+100004,Nancy,Walker,9010 Rainbow St,Las Vegas,NV,89119,725-555-6093,nancy.walker21@outlook.com,2021-12-10,Consumer,7676
+100005,Edward,Jones,9452 Pecos Rd,Summerlin,NV,89135,702-555-7129,edward.jones9@yahoo.com,2017-10-28,Enterprise,18038
+100006,Jerry,Walker,2926 Decatur Pkwy,Summerlin,NV,89135,702-555-9012,jerry.walker15@yahoo.com,2023-02-28,Consumer,15345
+100007,Robert,Webb,4633 Rampart Ave,Paradise,NV,89109,702-555-2076,robert.webb19@gmail.com,2017-02-28,Enterprise,32709
+100008,Helen,Tucker,5067 Rainbow Ct,Las Vegas,NV,89117,725-555-1246,helen.tucker73@icloud.com,2024-03-20,Consumer,12812
+100009,Jordan,Harris,4626 Owens Pkwy,Las Vegas,NV,89119,702-555-5693,jordan.harris3@gmail.com,2017-08-08,Consumer,53974
+100010,Ashley,Phillips,9614 Hualapai Pkwy,Las Vegas,NV,89119,725-555-5784,ashley.phillips54@outlook.com,2020-09-26,Consumer,26256
+100011,Joseph,Martin,9658 Eastern Dr,Summerlin,NV,89135,702-555-4729,joseph.martin26@icloud.com,2023-04-29,Enterprise,33435
+100012,Jeffrey,Medina,9043 Charleston Way,North Las Vegas,NV,89031,725-555-4712,jeffrey.medina38@gmail.com,2019-10-28,Consumer,29115
+100013,Amanda,Richardson,9217 Carey Rd,Paradise,NV,89109,725-555-9357,amanda.richardson11@yahoo.com,2019-06-23,Enterprise,42476
+100014,Benjamin,Adams,7815 Windmill Blvd,Henderson,NV,89052,702-555-2051,benjamin.adams94@icloud.com,2023-11-21,Consumer,54165
+100015,Christopher,Butler,2167 Stephanie St,Henderson,NV,89011,702-555-7352,christopher.butler12@outlook.com,2020-04-23,Consumer,8721
+100016,Eric,Cook,1120 Flamingo Ave,Henderson,NV,89052,725-555-3825,eric.cook51@yahoo.com,2017-03-08,Consumer,48123
+100017,Omar,Russell,7997 Flamingo Ct,Henderson,NV,89052,725-555-5121,omar.russell69@gmail.com,2021-03-28,Consumer,32458
+100018,Kenneth,Patel,2278 Bonanza Pkwy,Paradise,NV,89109,702-555-5678,kenneth.patel77@icloud.com,2020-07-25,Consumer,52204
+100019,Samantha,Ford,1490 Rampart Way,Las Vegas,NV,89117,702-555-8069,samantha.ford7@gmail.com,2021-07-02,Consumer,14591
+100020,Larry,Simmons,9108 Russell Ln,Las Vegas,NV,89119,725-555-1661,larry.simmons92@icloud.com,2022-07-28,Consumer,4150
+100021,Harold,Moore,5771 Hualapai Dr,Las Vegas,NV,89117,702-555-1367,harold.moore86@yahoo.com,2024-01-23,Consumer,15516
+100022,Luis,Butler,2978 Centennial Blvd,Henderson,NV,89052,725-555-6403,luis.butler4@hotmail.com,2016-11-01,Consumer,5905
+100023,Pamela,Cooper,3177 Charleston Blvd,Summerlin,NV,89135,702-555-7296,pamela.cooper52@hotmail.com,2017-08-25,Consumer,31137
+100024,Janet,Turner,3343 Windmill Dr,North Las Vegas,NV,89031,725-555-2684,janet.turner96@hotmail.com,2023-04-25,Consumer,46854
+100025,Ethan,Alvarez,8574 Canyon Dr,Henderson,NV,89052,725-555-7406,ethan.alvarez76@outlook.com,2021-02-17,Consumer,30657
+100026,Wei,Ramos,4628 Rampart Dr,Summerlin,NV,89135,702-555-3404,wei.ramos73@yahoo.com,2019-09-23,Consumer,28567
+100027,Aisha,Bailey,6430 Durango Dr,Las Vegas,NV,89119,702-555-8190,aisha.bailey29@icloud.com,2015-05-16,Enterprise,10355
+100028,Priya,Martinez,2169 Fort St,Las Vegas,NV,89119,725-555-5533,priya.martinez77@outlook.com,2024-09-20,Enterprise,17400
+100029,Amanda,Graham,1151 Sahara Way,Las Vegas,NV,89117,725-555-9788,amanda.graham34@gmail.com,2022-10-15,Enterprise,49927
+100030,Anthony,Sanchez,5066 Tropicana Ct,Paradise,NV,89109,725-555-8976,anthony.sanchez69@outlook.com,2020-09-17,Enterprise,2035
+100031,Anthony,Kim,479 Carey St,Summerlin,NV,89135,725-555-2700,anthony.kim95@outlook.com,2023-08-21,Enterprise,44003
+100032,Emma,Flores,7632 Owens Rd,Las Vegas,NV,89101,725-555-5977,emma.flores23@outlook.com,2018-07-22,SMB,25318
+100033,Gregory,Aguilar,8965 Cheyenne Ln,Paradise,NV,89109,725-555-6182,gregory.aguilar40@icloud.com,2024-05-08,SMB,42376
+100034,Nicholas,Webb,9886 Hualapai Ln,Las Vegas,NV,89101,725-555-1738,nicholas.webb31@hotmail.com,2021-05-28,Enterprise,48799
+100035,Cynthia,Jones,315 Torrey Dr,Henderson,NV,89052,702-555-6656,cynthia.jones77@hotmail.com,2022-04-24,Consumer,59571
+100036,Isabella,Jenkins,9403 Alta Pkwy,Las Vegas,NV,89117,702-555-5060,isabella.jenkins52@icloud.com,2019-04-04,Consumer,53080
+100037,Diego,Reyes,808 Fort Dr,Paradise,NV,89109,725-555-6999,diego.reyes62@hotmail.com,2019-12-21,Consumer,13981
+100038,Hannah,Anderson,4964 Blue Rd,North Las Vegas,NV,89031,725-555-1750,hannah.anderson72@hotmail.com,2024-11-16,Consumer,48514
+100039,Edward,Campbell,6145 Maryland Ave,Paradise,NV,89109,702-555-1060,edward.campbell10@gmail.com,2016-05-14,SMB,8395
+100040,Steven,Gonzales,8545 Ann Ct,Summerlin,NV,89135,725-555-5197,steven.gonzales70@outlook.com,2024-01-03,SMB,43929
+100041,Luis,Moore,2196 Cheyenne Blvd,Las Vegas,NV,89101,725-555-2004,luis.moore59@yahoo.com,2021-11-01,SMB,10956
+100042,Christopher,Reynolds,7232 Washington Ave,Las Vegas,NV,89117,725-555-6390,christopher.reynolds93@outlook.com,2021-10-14,Consumer,44708
+100043,Amanda,Cruz,4432 Cactus Ln,Henderson,NV,89011,725-555-6382,amanda.cruz75@outlook.com,2020-12-22,SMB,30767
+100044,Donald,Bennett,9109 Alta Way,Las Vegas,NV,89117,702-555-9417,donald.bennett7@hotmail.com,2016-10-31,Consumer,25546
+100045,Elizabeth,Burns,2955 Horizon Pkwy,North Las Vegas,NV,89031,725-555-2313,elizabeth.burns62@outlook.com,2020-03-20,Consumer,20754
+100046,Brenda,Patel,7568 Grand Blvd,Summerlin,NV,89135,702-555-8356,brenda.patel22@yahoo.com,2019-04-02,Consumer,41947
+100047,Michelle,Sanders,3515 Lamb Dr,Henderson,NV,89011,702-555-4315,michelle.sanders27@outlook.com,2017-10-18,SMB,27143
+100048,Anthony,Medina,4341 Ann Dr,Henderson,NV,89011,725-555-5059,anthony.medina39@yahoo.com,2015-09-03,Enterprise,16900
+100049,Omar,Jackson,2094 Buffalo Ave,Las Vegas,NV,89119,702-555-9254,omar.jackson2@outlook.com,2016-02-04,Consumer,45751
+100050,Deborah,Long,9291 Canyon Dr,Las Vegas,NV,89101,725-555-9383,deborah.long39@gmail.com,2024-03-28,Consumer,3327
+100051,Ryan,Jordan,9872 Jones Ave,North Las Vegas,NV,89031,702-555-7635,ryan.jordan28@icloud.com,2018-10-07,Consumer,41980
+100052,Emma,Young,6146 Warm Blvd,Las Vegas,NV,89101,702-555-4374,emma.young58@gmail.com,2024-10-04,Consumer,6533
+100053,Deborah,Romero,6110 Owens St,Las Vegas,NV,89117,702-555-6186,deborah.romero47@gmail.com,2021-06-04,Consumer,35827
+100054,Michelle,Ramos,9107 Horizon Ln,Henderson,NV,89052,725-555-1835,michelle.ramos12@outlook.com,2019-03-24,Consumer,53220
+100055,Shirley,Baker,6526 Apache Pkwy,Henderson,NV,89011,702-555-1811,shirley.baker80@yahoo.com,2021-03-27,Consumer,27073
+100056,Adam,Stewart,6119 Diamond Dr,Henderson,NV,89052,725-555-7703,adam.stewart65@outlook.com,2019-10-11,Consumer,3930
+100057,Heather,Gibson,2704 Warm Pkwy,Las Vegas,NV,89119,725-555-8696,heather.gibson68@yahoo.com,2024-10-11,SMB,27577
+100058,Isabella,Moreno,8388 Gibson Ave,Las Vegas,NV,89117,725-555-5668,isabella.moreno5@yahoo.com,2018-04-13,Consumer,36651
+100059,Gregory,Cook,8915 Cactus Pkwy,North Las Vegas,NV,89031,702-555-7481,gregory.cook22@outlook.com,2023-09-08,Consumer,55305
+100060,Joshua,Guzman,5688 Boulder Ct,Las Vegas,NV,89119,725-555-4876,joshua.guzman13@icloud.com,2015-12-02,SMB,40928
+100061,Jeffrey,Perry,8967 Canyon Ct,North Las Vegas,NV,89031,702-555-7469,jeffrey.perry16@icloud.com,2015-02-03,Consumer,33772
+100062,Gary,Patterson,3820 Springs Blvd,North Las Vegas,NV,89031,702-555-4850,gary.patterson91@gmail.com,2018-06-22,Consumer,49119
+100063,Ashley,Walker,1527 Lamb Blvd,Paradise,NV,89109,725-555-8862,ashley.walker62@gmail.com,2016-02-01,Enterprise,45829
+100064,Adam,Martin,6257 Owens Ct,Summerlin,NV,89135,725-555-9632,adam.martin76@icloud.com,2024-12-21,SMB,56376
+100065,Jeremy,Reynolds,2297 Warm Ave,Henderson,NV,89052,725-555-9300,jeremy.reynolds85@outlook.com,2022-06-08,Consumer,29433
+100066,Douglas,Turner,1902 Bonanza Dr,Henderson,NV,89052,702-555-5137,douglas.turner32@outlook.com,2021-07-08,SMB,32156
+100067,Aaron,Reyes,7387 Ann Way,Las Vegas,NV,89101,725-555-3828,aaron.reyes8@outlook.com,2024-09-02,Consumer,25173
+100068,Anthony,Alvarez,2493 Sunset Way,Paradise,NV,89109,725-555-3676,anthony.alvarez46@icloud.com,2018-08-23,SMB,7749
+100069,Dana,Lewis,3066 Bonanza Way,Henderson,NV,89052,702-555-2078,dana.lewis39@outlook.com,2020-09-18,SMB,42786
+100070,Helen,Vasquez,5553 Boulder Blvd,Las Vegas,NV,89119,725-555-6302,helen.vasquez57@hotmail.com,2017-01-24,Consumer,49315
+100071,David,Stevens,4002 Rampart Ct,Summerlin,NV,89135,725-555-6951,david.stevens40@hotmail.com,2016-03-25,Consumer,58768
+100072,Henry,Owens,2884 Windmill Blvd,Las Vegas,NV,89117,725-555-6533,henry.owens17@gmail.com,2020-08-21,Consumer,45005
+100073,Helen,Rogers,718 Stephanie Pkwy,Las Vegas,NV,89117,725-555-8499,helen.rogers83@outlook.com,2023-05-31,Consumer,9439
+100074,Roger,Perry,7569 Torrey Ln,Paradise,NV,89109,702-555-6088,roger.perry95@outlook.com,2020-08-25,Consumer,57250
+100075,Heather,Castillo,8776 Pecos Pkwy,Las Vegas,NV,89117,702-555-1055,heather.castillo16@icloud.com,2018-12-18,Enterprise,19799
+100076,Ronald,Torres,6213 Jones St,Summerlin,NV,89135,725-555-3574,ronald.torres57@yahoo.com,2024-11-21,Consumer,50565
+100077,Matthew,Long,2855 Nellis St,North Las Vegas,NV,89031,702-555-8664,matthew.long3@gmail.com,2018-07-26,SMB,59795
+100078,Jessica,Rogers,838 Centennial Dr,Henderson,NV,89052,702-555-1980,jessica.rogers76@hotmail.com,2022-07-14,SMB,14176
+100079,Jeremy,Alvarez,7087 Durango Ln,Paradise,NV,89109,702-555-6564,jeremy.alvarez8@yahoo.com,2019-02-05,Consumer,35184
+100080,Brenda,Romero,1828 Springs Ln,Las Vegas,NV,89119,702-555-5554,brenda.romero8@gmail.com,2017-08-24,Consumer,45720
+100081,Patrick,Howard,1920 Sahara Dr,Henderson,NV,89052,702-555-3035,patrick.howard59@yahoo.com,2022-07-13,Consumer,22903
+100082,Timothy,Nelson,6056 Canyon Blvd,Las Vegas,NV,89119,702-555-2261,timothy.nelson9@icloud.com,2024-02-10,Enterprise,49226
+100083,Stephanie,Cox,4539 Blue Rd,Las Vegas,NV,89119,725-555-8022,stephanie.cox51@hotmail.com,2016-06-08,Consumer,7444
+100084,Anna,Edwards,4705 Gibson Ln,Henderson,NV,89011,725-555-1752,anna.edwards6@outlook.com,2017-10-07,Enterprise,54040
+100085,Raymond,Patterson,6776 Jones Blvd,North Las Vegas,NV,89031,725-555-6281,raymond.patterson30@yahoo.com,2023-06-19,Enterprise,46724
+100086,Taylor,Hall,2330 Durango Ave,Las Vegas,NV,89117,725-555-4179,taylor.hall32@gmail.com,2023-11-05,Consumer,38945
+100087,Debra,Hughes,7402 Durango Dr,Paradise,NV,89109,702-555-9262,debra.hughes22@gmail.com,2022-04-03,Enterprise,38378
+100088,Sofia,Marshall,175 Owens St,Henderson,NV,89052,702-555-4175,sofia.marshall44@icloud.com,2024-06-04,Consumer,32975
+100089,Amy,Chavez,3736 Durango St,Las Vegas,NV,89117,702-555-8118,amy.chavez3@gmail.com,2020-10-24,Consumer,50300
+100090,Katherine,Hughes,8321 Cactus Ln,Summerlin,NV,89135,702-555-6842,katherine.hughes60@outlook.com,2017-06-29,Consumer,26467
+100091,Natalie,Coleman,3334 Owens Way,Henderson,NV,89011,702-555-5086,natalie.coleman98@hotmail.com,2017-01-27,Consumer,48585
+100092,Carol,Jones,2442 Torrey St,Las Vegas,NV,89101,725-555-1527,carol.jones24@icloud.com,2019-01-19,Consumer,40123
+100093,Kenneth,Morgan,5455 Alta Ln,Paradise,NV,89109,725-555-2704,kenneth.morgan76@icloud.com,2015-09-30,SMB,11383
+100094,James,Gomez,3887 Craig Rd,Summerlin,NV,89135,725-555-6202,james.gomez93@hotmail.com,2017-05-20,Consumer,46889
+100095,Robert,Myers,2420 Fort Way,Las Vegas,NV,89119,725-555-8115,robert.myers37@gmail.com,2021-07-14,Consumer,7721
+100096,Emily,Stevens,9550 Flamingo Way,Summerlin,NV,89135,725-555-7016,emily.stevens45@gmail.com,2021-11-24,Consumer,56803
+100097,Brenda,Collins,484 Warm Dr,Henderson,NV,89011,702-555-2704,brenda.collins2@hotmail.com,2016-04-26,Enterprise,37273
+100098,Kyle,Castro,8804 Losee Dr,Las Vegas,NV,89117,702-555-1277,kyle.castro95@icloud.com,2024-03-03,Consumer,25363
+100099,Joseph,Garcia,2372 Sunset Pkwy,Summerlin,NV,89135,702-555-7641,joseph.garcia42@icloud.com,2022-10-22,Consumer,35918
+100100,Mei,Williams,6948 Durango Way,Henderson,NV,89011,725-555-9184,mei.williams85@yahoo.com,2019-04-14,Enterprise,53897
+100101,Richard,Adams,4702 Fort Ct,Las Vegas,NV,89119,725-555-3950,richard.adams25@outlook.com,2024-12-20,SMB,23231
+100102,Scott,Rogers,8900 Windmill Blvd,Henderson,NV,89011,725-555-4976,scott.rogers4@outlook.com,2015-11-11,Enterprise,20721
+100103,Benjamin,Richardson,3801 Cheyenne Ct,Henderson,NV,89052,725-555-3626,benjamin.richardson22@outlook.com,2016-04-18,Consumer,43189
+100104,Luis,Gibson,2960 Springs Way,North Las Vegas,NV,89031,725-555-7855,luis.gibson87@gmail.com,2022-07-07,Consumer,5072
+100105,Aisha,Garcia,7127 Russell Blvd,Summerlin,NV,89135,702-555-3344,aisha.garcia4@gmail.com,2016-05-30,SMB,6157
+100106,Matthew,Moore,7642 Mojave St,Henderson,NV,89052,702-555-5567,matthew.moore33@icloud.com,2023-10-17,Consumer,9748
+100107,Sofia,Carter,4057 Diamond Ln,Summerlin,NV,89135,725-555-8293,sofia.carter19@gmail.com,2023-02-04,Consumer,472
+100108,Matthew,Jones,1604 Apache Ave,Las Vegas,NV,89101,702-555-9447,matthew.jones78@gmail.com,2023-02-09,Consumer,38023
+100109,Steven,Bennett,1083 Nellis St,North Las Vegas,NV,89031,725-555-8440,steven.bennett26@hotmail.com,2022-06-29,Consumer,8316
+100110,Laura,Castro,1257 Stephanie Dr,Las Vegas,NV,89101,702-555-5677,laura.castro24@gmail.com,2016-10-17,Consumer,50604
+100111,Joshua,Young,6388 Torrey Dr,Summerlin,NV,89135,702-555-6524,joshua.young79@yahoo.com,2019-03-23,Consumer,18010
+100112,Edward,Evans,300 Owens Ct,Las Vegas,NV,89117,725-555-1510,edward.evans55@gmail.com,2023-06-22,Consumer,54504
+100113,Jacob,Turner,7391 Ann Ln,Henderson,NV,89052,702-555-6768,jacob.turner27@outlook.com,2017-10-13,Enterprise,56378
+100114,Ethan,Peterson,9273 Craig Ct,Paradise,NV,89109,725-555-1026,ethan.peterson25@icloud.com,2024-07-15,Enterprise,48668
+100115,Eric,Hall,8920 Russell St,North Las Vegas,NV,89031,702-555-2939,eric.hall31@yahoo.com,2016-10-12,SMB,2699
+100116,Linda,Russell,6530 Gibson Dr,North Las Vegas,NV,89031,702-555-6236,linda.russell84@gmail.com,2023-01-22,Consumer,27725
+100117,Mei,Adams,2800 Sandhill Blvd,North Las Vegas,NV,89031,725-555-4175,mei.adams76@hotmail.com,2022-09-27,Enterprise,44627
+100118,Isabella,Richardson,6433 Losee Way,Paradise,NV,89109,725-555-9025,isabella.richardson60@icloud.com,2016-06-16,SMB,8691
+100119,Samuel,Fernandez,8577 Gibson St,Las Vegas,NV,89117,702-555-6432,samuel.fernandez99@outlook.com,2017-02-20,Enterprise,25093
+100120,Carl,Fisher,5352 Torrey Pkwy,Las Vegas,NV,89101,702-555-2924,carl.fisher86@hotmail.com,2020-04-12,Consumer,17340
+100121,Emily,Freeman,3813 Gibson Ave,Paradise,NV,89109,725-555-8752,emily.freeman79@yahoo.com,2017-11-14,SMB,48390
+100122,Heather,Sanders,9418 Ann St,Paradise,NV,89109,702-555-4846,heather.sanders39@outlook.com,2023-04-18,Enterprise,41634
+100123,Emily,Reed,6866 Maryland Rd,Las Vegas,NV,89117,702-555-4248,emily.reed12@yahoo.com,2019-01-25,Enterprise,18211
+100124,Nathan,Hill,6743 Durango Way,Paradise,NV,89109,702-555-3036,nathan.hill30@icloud.com,2016-07-03,SMB,54821
+100125,Luis,Patel,1322 Nellis Ln,Henderson,NV,89052,702-555-9381,luis.patel5@icloud.com,2015-05-21,SMB,51555
+100126,Roger,Wells,3558 Cactus St,Summerlin,NV,89135,725-555-4691,roger.wells30@icloud.com,2024-04-12,SMB,29575
+100127,George,Kennedy,534 Charleston Ln,North Las Vegas,NV,89031,702-555-3705,george.kennedy24@hotmail.com,2019-04-22,Enterprise,54055
+100128,Edward,Morgan,4438 Rainbow Pkwy,Henderson,NV,89011,702-555-2575,edward.morgan85@hotmail.com,2017-04-20,SMB,6764
+100129,Jerry,Alexander,2741 Sahara Pkwy,Las Vegas,NV,89101,725-555-9844,jerry.alexander42@icloud.com,2020-11-25,SMB,22345
+100130,Emma,Butler,9037 Silverado Ave,Las Vegas,NV,89101,725-555-1776,emma.butler90@hotmail.com,2021-06-26,Consumer,35016
+100131,George,Burns,7105 Fort Ct,Paradise,NV,89109,702-555-8654,george.burns24@icloud.com,2019-01-30,Enterprise,40682
+100132,Pamela,Simmons,6075 Eastern Dr,Paradise,NV,89109,702-555-6822,pamela.simmons2@outlook.com,2016-09-19,SMB,18957
+100133,Keith,Mitchell,3018 Charleston Dr,Las Vegas,NV,89119,702-555-6786,keith.mitchell85@outlook.com,2022-11-12,Consumer,1258
+100134,Mary,Perry,3042 Warm Dr,Las Vegas,NV,89117,702-555-3271,mary.perry34@yahoo.com,2019-07-27,Consumer,6332
+100135,Deborah,Tran,3233 Craig St,Henderson,NV,89011,702-555-7873,deborah.tran62@gmail.com,2023-12-29,Consumer,50964
+100136,Hannah,Owens,520 Cheyenne Ct,North Las Vegas,NV,89031,725-555-9020,hannah.owens47@hotmail.com,2019-10-07,Consumer,31910
+100137,Karen,Taylor,4931 Cactus Ct,Henderson,NV,89052,725-555-2629,karen.taylor96@icloud.com,2022-07-12,Consumer,54950
+100138,Alexander,Roberts,5319 Cheyenne Blvd,Paradise,NV,89109,725-555-9186,alexander.roberts75@icloud.com,2018-07-21,Consumer,50490
+100139,Donald,Cox,5473 Stephanie Ave,Paradise,NV,89109,702-555-9248,donald.cox69@outlook.com,2020-03-06,Consumer,26788
+100140,James,White,3580 Alta Ln,Henderson,NV,89052,725-555-3401,james.white9@gmail.com,2020-09-26,Consumer,24346
+100141,Betty,Martinez,3843 Decatur Rd,Paradise,NV,89109,725-555-2457,betty.martinez45@yahoo.com,2015-09-19,Consumer,42224
+100142,Shirley,Ruiz,6781 Sunset Rd,Henderson,NV,89052,702-555-6408,shirley.ruiz38@hotmail.com,2015-09-17,Consumer,2982
+100143,Donald,Garcia,8232 Washington Ave,Las Vegas,NV,89101,702-555-3133,donald.garcia92@yahoo.com,2017-04-30,Enterprise,49051
+100144,Adam,Russell,4601 Blue Dr,Summerlin,NV,89135,725-555-7209,adam.russell69@outlook.com,2021-07-07,Consumer,36008
+100145,Patricia,Morales,1078 Craig Blvd,Henderson,NV,89052,702-555-6484,patricia.morales97@hotmail.com,2019-06-05,Consumer,35502
+100146,Cynthia,Evans,4544 Alta St,Las Vegas,NV,89119,725-555-7960,cynthia.evans17@gmail.com,2018-11-01,Consumer,6558
+100147,Kevin,Wright,9894 Torrey Blvd,Las Vegas,NV,89117,725-555-4235,kevin.wright62@icloud.com,2017-11-02,Consumer,716
+100148,Adam,Henderson,3306 Tropicana Ln,North Las Vegas,NV,89031,702-555-1079,adam.henderson94@icloud.com,2024-08-23,Consumer,8659
+100149,Gary,West,4834 Cactus Ct,Las Vegas,NV,89101,725-555-8062,gary.west73@yahoo.com,2019-04-10,Consumer,47359
+100150,James,Hughes,4997 Buffalo Pkwy,Las Vegas,NV,89119,702-555-5091,james.hughes88@outlook.com,2018-07-22,SMB,32891
+100151,Dorothy,Powell,1394 Centennial Pkwy,Paradise,NV,89109,702-555-3531,dorothy.powell16@yahoo.com,2022-03-30,Enterprise,28778
+100152,Luis,Watson,3705 Springs Blvd,Paradise,NV,89109,702-555-3265,luis.watson6@outlook.com,2021-10-03,Enterprise,27621
+100153,Grace,Ruiz,7638 Flamingo Way,Henderson,NV,89011,725-555-1766,grace.ruiz8@outlook.com,2022-02-25,Consumer,23786
+100154,Ethan,Gray,8449 Alta Ave,North Las Vegas,NV,89031,725-555-6033,ethan.gray3@yahoo.com,2018-12-03,Enterprise,58365
+100155,Kyle,Anderson,6104 Boulder Ave,Henderson,NV,89052,702-555-3131,kyle.anderson89@icloud.com,2022-03-08,Enterprise,26123
+100156,Gary,Jones,3819 Sunset Dr,Henderson,NV,89052,725-555-6115,gary.jones24@yahoo.com,2019-08-08,SMB,36714
+100157,Richard,Freeman,9470 Fort Dr,Summerlin,NV,89135,702-555-9319,richard.freeman4@hotmail.com,2023-07-02,Enterprise,46945
+100158,James,Lewis,5692 Sunset Blvd,Henderson,NV,89011,702-555-6237,james.lewis75@outlook.com,2019-08-02,Consumer,20073
+100159,Deborah,Reed,7926 Washington Pkwy,Summerlin,NV,89135,702-555-4411,deborah.reed92@yahoo.com,2017-03-25,Enterprise,53832
+100160,George,Jordan,5986 Cactus Ln,Las Vegas,NV,89101,702-555-6108,george.jordan22@gmail.com,2020-11-19,Consumer,30056
+100161,Heather,Griffin,3965 Windmill Rd,Henderson,NV,89011,725-555-7068,heather.griffin11@outlook.com,2020-01-08,Enterprise,19995
+100162,Donald,Murphy,4068 Charleston Blvd,Summerlin,NV,89135,702-555-5836,donald.murphy81@yahoo.com,2019-01-10,Enterprise,8856
+100163,Justin,Butler,297 Russell Rd,Henderson,NV,89052,725-555-5433,justin.butler35@yahoo.com,2016-04-24,Consumer,44233
+100164,John,Reed,530 Cheyenne Blvd,Henderson,NV,89011,725-555-7582,john.reed58@hotmail.com,2016-05-03,SMB,25624
+100165,Benjamin,Kennedy,4699 Torrey Pkwy,Paradise,NV,89109,702-555-6558,benjamin.kennedy41@gmail.com,2024-01-17,SMB,51931
+100166,Christine,Ward,6737 Stephanie Ct,North Las Vegas,NV,89031,702-555-8469,christine.ward58@gmail.com,2017-05-17,Enterprise,52275
+100167,Dennis,Brooks,7255 Stephanie Pkwy,North Las Vegas,NV,89031,702-555-6044,dennis.brooks31@hotmail.com,2024-07-03,Enterprise,17761
+100168,Charles,Young,321 Maryland Way,North Las Vegas,NV,89031,725-555-2220,charles.young34@yahoo.com,2021-03-24,Consumer,39886
+100169,Kimberly,Turner,4524 Tropicana Blvd,Paradise,NV,89109,725-555-6153,kimberly.turner40@hotmail.com,2020-01-28,Consumer,23426
+100170,Linda,Reynolds,1905 Horizon Rd,Las Vegas,NV,89119,702-555-3546,linda.reynolds37@yahoo.com,2017-12-13,SMB,43159
+100171,Jessica,Baker,6134 Windmill Ln,Summerlin,NV,89135,702-555-9879,jessica.baker57@yahoo.com,2020-04-06,Consumer,39297
+100172,Kenneth,Henderson,3652 Nellis Ln,Las Vegas,NV,89101,725-555-2836,kenneth.henderson80@yahoo.com,2015-05-11,Consumer,1224
+100173,Diane,Medina,2334 Torrey Dr,Henderson,NV,89052,725-555-8332,diane.medina55@hotmail.com,2020-12-02,Consumer,41186
+100174,Donald,Walker,2119 Canyon Rd,Henderson,NV,89011,702-555-7104,donald.walker64@icloud.com,2019-03-21,Consumer,54422
+100175,Elizabeth,Robinson,1583 Russell Pkwy,Summerlin,NV,89135,725-555-8364,elizabeth.robinson24@gmail.com,2016-11-23,Enterprise,21551
+100176,Nancy,Wells,4928 Jones Rd,North Las Vegas,NV,89031,725-555-7729,nancy.wells62@yahoo.com,2022-06-12,Consumer,20983
+100177,Sharon,Chavez,9221 Ann Ave,Las Vegas,NV,89101,702-555-3623,sharon.chavez48@icloud.com,2024-02-08,Consumer,54729
+100178,Eric,Harrison,4024 Durango Pkwy,Las Vegas,NV,89117,725-555-7249,eric.harrison61@outlook.com,2020-11-15,Consumer,32000
+100179,Dorothy,Murphy,835 Warm Ln,Paradise,NV,89109,702-555-7292,dorothy.murphy46@icloud.com,2023-02-15,Consumer,52295
+100180,James,Barnes,2103 Charleston St,Paradise,NV,89109,725-555-1067,james.barnes59@hotmail.com,2022-06-16,SMB,40784
+100181,Patricia,Simmons,900 Diamond Dr,Henderson,NV,89011,725-555-2523,patricia.simmons12@outlook.com,2021-04-19,Consumer,32281
+100182,Michael,Rivera,922 Torrey Ln,Las Vegas,NV,89117,702-555-7579,michael.rivera70@outlook.com,2023-07-21,Consumer,29165
+100183,Frank,Herrera,8545 Hualapai Ct,North Las Vegas,NV,89031,702-555-4735,frank.herrera71@outlook.com,2019-11-04,SMB,47387
+100184,Jennifer,Cox,1236 Sandhill Dr,Las Vegas,NV,89101,702-555-7424,jennifer.cox45@outlook.com,2016-09-01,Consumer,55018
+100185,Mary,Cook,4478 Boulder Way,Paradise,NV,89109,725-555-2731,mary.cook11@outlook.com,2023-05-18,Consumer,58325
+100186,Joseph,Scott,3609 Centennial Ln,North Las Vegas,NV,89031,725-555-7740,joseph.scott28@hotmail.com,2023-02-06,Enterprise,57415
+100187,Daniel,Allen,3372 Decatur Ct,Henderson,NV,89011,725-555-4613,daniel.allen40@yahoo.com,2019-11-08,Consumer,34344
+100188,Anthony,Nguyen,9174 Charleston Ave,Las Vegas,NV,89119,702-555-3124,anthony.nguyen8@hotmail.com,2018-02-06,Consumer,54141
+100189,Keith,Henderson,8194 Durango Ln,Henderson,NV,89011,725-555-8647,keith.henderson58@outlook.com,2016-10-29,Consumer,33448
+100190,Donna,Ellis,7310 Diamond Way,Las Vegas,NV,89119,725-555-6133,donna.ellis9@gmail.com,2020-10-09,Consumer,29776
+100191,Jeremy,Jenkins,5809 Russell St,Las Vegas,NV,89101,702-555-1731,jeremy.jenkins3@hotmail.com,2021-06-30,Consumer,4785
+100192,Nathan,Lopez,7376 Pecos Dr,Henderson,NV,89011,702-555-3318,nathan.lopez49@outlook.com,2018-12-27,Consumer,58139
+100193,Joshua,Campbell,7775 Maryland Dr,Henderson,NV,89011,725-555-9959,joshua.campbell9@icloud.com,2022-02-10,Consumer,1650
+100194,Edward,Gutierrez,5253 Springs Dr,Summerlin,NV,89135,702-555-3095,edward.gutierrez47@icloud.com,2016-03-05,Enterprise,39983
+100195,James,Ramirez,7589 Maryland Way,Paradise,NV,89109,702-555-5696,james.ramirez28@yahoo.com,2016-07-02,Consumer,8490
+100196,Kevin,Watson,2452 Gibson Pkwy,Las Vegas,NV,89119,702-555-7265,kevin.watson16@gmail.com,2018-06-22,SMB,32230
+100197,Linda,Ford,6956 Rainbow St,Las Vegas,NV,89117,702-555-5559,linda.ford98@icloud.com,2022-04-29,SMB,35536
+100198,Angela,Simmons,916 Canyon Ave,Las Vegas,NV,89101,702-555-6566,angela.simmons42@gmail.com,2015-03-22,SMB,50828
+100199,Fatima,Anderson,1152 Grand Rd,Las Vegas,NV,89101,725-555-1397,fatima.anderson56@hotmail.com,2018-12-15,Enterprise,59425
+100200,Emily,Long,5419 Buffalo Way,Paradise,NV,89109,725-555-8244,emily.long59@icloud.com,2023-10-03,SMB,13076
+100201,Andrew,Ross,5733 Maryland Ct,Henderson,NV,89052,702-555-3874,andrew.ross82@gmail.com,2020-09-08,SMB,59743
+100202,Debra,Brown,5900 Diamond Ct,North Las Vegas,NV,89031,725-555-1012,debra.brown15@yahoo.com,2020-09-25,SMB,37065
+100203,Nancy,Wood,3400 Cactus Ct,Paradise,NV,89109,702-555-7328,nancy.wood58@hotmail.com,2022-03-13,Consumer,41507
+100204,Christopher,Fisher,6349 Lamb Ct,Paradise,NV,89109,725-555-3329,christopher.fisher98@hotmail.com,2016-04-27,Consumer,22970
+100205,Matthew,Ellis,2451 Flamingo Pkwy,Henderson,NV,89052,725-555-5053,matthew.ellis51@yahoo.com,2017-09-12,SMB,57846
+100206,Diane,Johnson,7640 Sandhill Ln,Henderson,NV,89052,702-555-4721,diane.johnson48@hotmail.com,2021-10-12,Consumer,17603
+100207,Thomas,Carter,3441 Carey Way,Las Vegas,NV,89101,725-555-6291,thomas.carter10@gmail.com,2024-05-25,Enterprise,36508
+100208,Margaret,Jordan,9687 Sunset Way,Las Vegas,NV,89119,702-555-2841,margaret.jordan98@yahoo.com,2019-02-07,SMB,4636
+100209,Grace,Roberts,3024 Cheyenne Dr,Las Vegas,NV,89117,702-555-9329,grace.roberts8@hotmail.com,2024-08-23,Consumer,28246
+100210,Brandon,Taylor,8441 Ann St,Las Vegas,NV,89119,702-555-1657,brandon.taylor36@icloud.com,2024-04-01,Consumer,13458
+100211,John,Wood,2960 Charleston Ave,Las Vegas,NV,89101,725-555-5693,john.wood32@outlook.com,2024-10-12,Consumer,18777
+100212,Andrew,Herrera,7887 Warm Dr,North Las Vegas,NV,89031,702-555-9858,andrew.herrera58@outlook.com,2021-09-30,Consumer,54406
+100213,Grace,Hughes,7676 Diamond Ave,Las Vegas,NV,89101,725-555-2602,grace.hughes48@yahoo.com,2023-08-30,Enterprise,25136
+100214,Wei,Peterson,6713 Warm Ave,Henderson,NV,89011,725-555-2399,wei.peterson58@yahoo.com,2016-08-25,SMB,27560
+100215,Melissa,Stevens,1252 Bonanza Ln,Summerlin,NV,89135,725-555-4082,melissa.stevens27@outlook.com,2023-08-22,Consumer,21759
+100216,Juan,Patel,1080 Nellis St,Henderson,NV,89011,702-555-6141,juan.patel2@outlook.com,2024-11-30,Enterprise,14877
+100217,Jose,Medina,1207 Mojave Blvd,Las Vegas,NV,89117,725-555-3032,jose.medina60@gmail.com,2021-10-02,Consumer,23394
+100218,Kenneth,Garcia,9310 Craig Rd,Henderson,NV,89052,725-555-1979,kenneth.garcia38@yahoo.com,2016-11-12,Enterprise,42551
+100219,Katherine,Rogers,826 Durango Ave,Summerlin,NV,89135,725-555-7819,katherine.rogers39@hotmail.com,2024-12-11,Consumer,1280
+100220,Shirley,Peterson,1901 Sahara Ave,Summerlin,NV,89135,702-555-3400,shirley.peterson81@outlook.com,2019-04-30,Enterprise,2986
+100221,Pamela,Hill,8917 Craig Pkwy,Paradise,NV,89109,725-555-9429,pamela.hill11@icloud.com,2016-03-09,SMB,11008
+100222,Joseph,Ramos,5120 Durango Pkwy,Las Vegas,NV,89117,725-555-6502,joseph.ramos78@outlook.com,2018-09-29,Enterprise,48960
+100223,Ryan,Herrera,255 Cactus Pkwy,Henderson,NV,89011,725-555-5847,ryan.herrera93@gmail.com,2016-11-11,Enterprise,44543
+100224,Benjamin,Hughes,7380 Cactus Ln,Las Vegas,NV,89119,702-555-6312,benjamin.hughes36@hotmail.com,2015-10-17,Consumer,12131
+100225,Grace,Gray,6193 Gibson Blvd,Henderson,NV,89052,702-555-3234,grace.gray19@icloud.com,2020-03-21,Enterprise,33863
+100226,Kyle,Ramos,583 Flamingo Ln,Las Vegas,NV,89119,725-555-8746,kyle.ramos72@outlook.com,2015-05-14,SMB,13158
+100227,Janet,Adams,8876 Alta Pkwy,Las Vegas,NV,89101,725-555-4011,janet.adams2@outlook.com,2024-09-19,Consumer,36456
+100228,Alexander,Perez,7259 Carey St,Summerlin,NV,89135,725-555-1605,alexander.perez12@icloud.com,2022-08-23,Consumer,11140
+100229,Sandra,Tran,2142 Lamb Pkwy,Henderson,NV,89011,702-555-1787,sandra.tran15@icloud.com,2018-06-18,Consumer,52206
+100230,Priya,Robinson,8496 Blue St,Las Vegas,NV,89119,725-555-1569,priya.robinson59@outlook.com,2016-11-30,Consumer,40812
+100231,Edward,Butler,5746 Nellis Way,Henderson,NV,89052,725-555-8989,edward.butler61@outlook.com,2024-09-25,Consumer,45439
+100232,Barbara,Parker,4703 Mojave Way,Las Vegas,NV,89101,702-555-6892,barbara.parker45@gmail.com,2022-03-09,Consumer,29070
+100233,Isabella,Thomas,1333 Buffalo Pkwy,Paradise,NV,89109,725-555-9839,isabella.thomas97@yahoo.com,2020-03-12,Consumer,49186
+100234,William,Cruz,277 Jones Way,Henderson,NV,89011,702-555-1399,william.cruz33@hotmail.com,2018-09-02,SMB,54719
+100235,Andrew,Aguilar,1829 Decatur Rd,Henderson,NV,89011,702-555-7038,andrew.aguilar91@icloud.com,2020-04-21,Enterprise,47690
+100236,Margaret,Richardson,3422 Stephanie Ave,Las Vegas,NV,89101,725-555-6317,margaret.richardson29@icloud.com,2020-01-27,Consumer,37324
+100237,Andrew,Davis,2495 Craig Rd,Las Vegas,NV,89119,702-555-7543,andrew.davis31@gmail.com,2020-11-16,Consumer,38910
+100238,Melissa,Brown,1392 Buffalo Ave,Las Vegas,NV,89101,725-555-7558,melissa.brown65@hotmail.com,2016-01-04,Consumer,51937
+100239,Benjamin,Morgan,4585 Durango Ct,Henderson,NV,89011,702-555-2194,benjamin.morgan2@yahoo.com,2019-05-15,Enterprise,58244
+100240,Eric,Martinez,4693 Rainbow Way,North Las Vegas,NV,89031,702-555-5998,eric.martinez47@yahoo.com,2023-06-05,SMB,46423
+100241,Cynthia,Fernandez,896 Buffalo Blvd,North Las Vegas,NV,89031,725-555-7716,cynthia.fernandez85@hotmail.com,2019-06-07,Consumer,20120
+100242,Jacob,Robinson,2197 Bonanza Ct,Henderson,NV,89052,725-555-9199,jacob.robinson97@yahoo.com,2018-11-15,SMB,9673
+100243,Omar,Moore,2114 Tropicana Ave,Las Vegas,NV,89101,725-555-9755,omar.moore47@icloud.com,2019-01-11,SMB,4888
+100244,Joseph,Williams,1170 Silverado Dr,Henderson,NV,89052,725-555-5968,joseph.williams22@outlook.com,2018-06-23,Consumer,33299
+100245,Eric,Clark,2936 Jones Rd,Las Vegas,NV,89117,725-555-6642,eric.clark13@hotmail.com,2020-07-21,Consumer,17232
+100246,Robert,Rivera,8981 Nellis Dr,Paradise,NV,89109,702-555-4713,robert.rivera34@gmail.com,2019-07-31,SMB,21891
+100247,Michael,Thomas,5148 Alta Pkwy,Las Vegas,NV,89119,702-555-5846,michael.thomas1@hotmail.com,2015-11-01,SMB,16409
+100248,Isabella,Murray,1295 Flamingo Rd,Paradise,NV,89109,702-555-9190,isabella.murray79@hotmail.com,2019-06-13,Consumer,31075
+100249,James,Vasquez,1361 Washington Blvd,Las Vegas,NV,89119,725-555-7365,james.vasquez34@icloud.com,2020-02-11,Enterprise,12081
+100250,Morgan,Powell,8021 Carey Way,Paradise,NV,89109,725-555-7687,morgan.powell54@yahoo.com,2018-04-07,Consumer,24315
+100251,Frank,Simmons,3556 Rainbow Ct,Summerlin,NV,89135,725-555-6000,frank.simmons17@hotmail.com,2021-01-07,Consumer,39878
+100252,Jordan,Wilson,776 Lamb Dr,Paradise,NV,89109,725-555-5516,jordan.wilson50@hotmail.com,2021-02-11,Consumer,17178
+100253,Scott,Gonzales,8888 Canyon St,Summerlin,NV,89135,725-555-4504,scott.gonzales20@yahoo.com,2021-05-11,SMB,5260
+100254,Dorothy,Ramirez,984 Apache Dr,Henderson,NV,89052,702-555-4949,dorothy.ramirez33@yahoo.com,2024-04-04,Enterprise,49902
+100255,Emily,Patterson,3835 Charleston Rd,North Las Vegas,NV,89031,702-555-7948,emily.patterson10@gmail.com,2015-04-10,Consumer,3251
+100256,Andrew,Henderson,414 Grand St,Las Vegas,NV,89119,702-555-1398,andrew.henderson60@outlook.com,2024-08-20,Consumer,28087
+100257,Sharon,Tran,8245 Centennial St,Paradise,NV,89109,702-555-7403,sharon.tran89@outlook.com,2015-03-04,Enterprise,51793
+100258,Anna,Cruz,6522 Charleston Ct,Henderson,NV,89052,702-555-7395,anna.cruz10@outlook.com,2022-03-07,Enterprise,55049
+100259,Carolyn,Tran,7718 Flamingo St,Henderson,NV,89011,702-555-5109,carolyn.tran35@icloud.com,2018-09-13,Consumer,46909
+100260,Donald,Allen,3967 Blue Dr,Henderson,NV,89052,725-555-8148,donald.allen31@outlook.com,2022-07-14,Consumer,19825
+100261,Ashley,Reyes,4245 Sahara St,Henderson,NV,89052,702-555-9007,ashley.reyes62@gmail.com,2020-05-19,Consumer,19225
+100262,Emma,Russell,5280 Centennial St,Summerlin,NV,89135,702-555-3898,emma.russell44@outlook.com,2023-10-21,SMB,24182
+100263,Deborah,Brooks,8099 Blue Ln,Summerlin,NV,89135,702-555-6037,deborah.brooks80@icloud.com,2023-08-26,SMB,21639
+100264,Stephanie,Myers,9307 Craig Rd,Summerlin,NV,89135,702-555-5556,stephanie.myers78@yahoo.com,2015-01-25,Consumer,32979
+100265,Omar,Rogers,1708 Losee Ln,Henderson,NV,89052,702-555-7402,omar.rogers22@yahoo.com,2024-02-17,Consumer,13332
+100266,David,Webb,2135 Maryland Dr,Henderson,NV,89011,702-555-3105,david.webb21@hotmail.com,2022-05-07,Enterprise,14119
+100267,Diego,Green,3872 Rainbow Ave,Henderson,NV,89052,702-555-2754,diego.green11@yahoo.com,2019-09-10,SMB,14449
+100268,Susan,Cole,3771 Alta Ln,North Las Vegas,NV,89031,725-555-1817,susan.cole15@yahoo.com,2020-10-15,Enterprise,10757
+100269,Sharon,Moore,5072 Gibson Pkwy,Las Vegas,NV,89117,725-555-5356,sharon.moore96@gmail.com,2018-12-07,Consumer,7228
+100270,Ethan,Miller,4250 Fort Dr,Las Vegas,NV,89101,702-555-4571,ethan.miller62@hotmail.com,2018-07-08,Consumer,54828
+100271,Brian,Cox,9659 Warm Ct,Las Vegas,NV,89117,725-555-5072,brian.cox50@icloud.com,2024-04-21,Consumer,27777
+100272,Samantha,Morales,3907 Mojave Blvd,North Las Vegas,NV,89031,702-555-9266,samantha.morales68@outlook.com,2022-01-09,Consumer,2349
+100273,Juan,Ellis,1926 Jones Dr,Henderson,NV,89052,702-555-5642,juan.ellis9@hotmail.com,2019-08-21,Consumer,4401
+100274,Janet,Crawford,2831 Russell Way,Las Vegas,NV,89117,702-555-9667,janet.crawford11@outlook.com,2023-09-02,Consumer,34351
+100275,Jerry,Sanders,5416 Ann Blvd,Las Vegas,NV,89119,725-555-4954,jerry.sanders62@hotmail.com,2020-03-08,Consumer,56879
+100276,Aisha,Aguilar,8773 Carey Dr,North Las Vegas,NV,89031,702-555-6525,aisha.aguilar66@hotmail.com,2019-12-16,SMB,14521
+100277,Nicole,Wright,6789 Springs St,Las Vegas,NV,89117,702-555-4534,nicole.wright81@yahoo.com,2024-04-12,Consumer,50172
+100278,Nancy,Sanchez,5021 Maryland St,Las Vegas,NV,89117,702-555-7059,nancy.sanchez37@gmail.com,2016-03-26,Consumer,59691
+100279,Patrick,Reyes,2663 Mojave Ln,North Las Vegas,NV,89031,702-555-4651,patrick.reyes54@yahoo.com,2021-06-28,Consumer,43861
+100280,Douglas,Coleman,7461 Windmill Ln,North Las Vegas,NV,89031,725-555-8158,douglas.coleman89@yahoo.com,2021-11-18,Consumer,24472
+100281,Peter,Nelson,6704 Nellis St,North Las Vegas,NV,89031,725-555-9171,peter.nelson24@yahoo.com,2018-09-10,Consumer,52056
+100282,Pamela,Jordan,2109 Hualapai Ln,Paradise,NV,89109,725-555-1999,pamela.jordan9@outlook.com,2024-09-08,Consumer,5199
+100283,Kimberly,Chavez,3241 Alta Rd,Summerlin,NV,89135,702-555-5426,kimberly.chavez23@gmail.com,2016-02-14,SMB,14838
+100284,Omar,Patterson,1697 Cactus Ln,Henderson,NV,89052,725-555-7977,omar.patterson65@outlook.com,2019-03-03,Consumer,26379
+100285,Scott,Richardson,7183 Apache Dr,Paradise,NV,89109,725-555-9062,scott.richardson91@hotmail.com,2019-07-11,Enterprise,45312
+100286,Diego,Nelson,726 Maryland Ave,Henderson,NV,89052,725-555-8180,diego.nelson69@hotmail.com,2018-04-27,Consumer,5323
+100287,Robert,Guzman,1695 Windmill Rd,Henderson,NV,89011,702-555-1555,robert.guzman16@hotmail.com,2016-08-26,Consumer,29857
+100288,Justin,Cox,4453 Fort Blvd,Las Vegas,NV,89119,725-555-5443,justin.cox66@gmail.com,2015-10-13,Consumer,34604
+100289,Richard,Alvarez,7095 Apache Blvd,Las Vegas,NV,89117,725-555-4303,richard.alvarez74@hotmail.com,2021-12-24,Consumer,33000
+100290,Donald,Ramos,6884 Ann Pkwy,Las Vegas,NV,89119,702-555-8349,donald.ramos58@hotmail.com,2019-04-14,Consumer,58654
+100291,Jerry,Robinson,2145 Cheyenne St,Summerlin,NV,89135,725-555-9589,jerry.robinson44@yahoo.com,2017-07-01,Consumer,40015
+100292,Benjamin,Woods,6729 Torrey Ln,Paradise,NV,89109,702-555-7088,benjamin.woods47@icloud.com,2017-03-04,Consumer,919
+100293,Kathleen,Carter,1982 Sandhill Ln,Henderson,NV,89052,725-555-2137,kathleen.carter80@hotmail.com,2017-05-27,SMB,33562
+100294,Omar,Smith,6697 Rampart Ct,Las Vegas,NV,89117,702-555-1570,omar.smith1@gmail.com,2015-10-02,Consumer,27839
+100295,Christine,Davis,4744 Apache Ct,North Las Vegas,NV,89031,702-555-8882,christine.davis57@outlook.com,2020-10-06,Consumer,55487
+100296,Carl,Allen,2535 Rampart Blvd,Las Vegas,NV,89101,725-555-7241,carl.allen4@outlook.com,2023-03-09,SMB,36379
+100297,Katherine,Parker,5452 Boulder Ln,Las Vegas,NV,89101,702-555-6514,katherine.parker11@yahoo.com,2019-12-25,SMB,44839
+100298,Sarah,Wright,5548 Alta Way,North Las Vegas,NV,89031,725-555-5158,sarah.wright80@outlook.com,2020-11-01,SMB,14240
+100299,Sofia,Reed,3613 Stephanie St,North Las Vegas,NV,89031,725-555-6504,sofia.reed30@yahoo.com,2021-11-30,Enterprise,633
+100300,Carolyn,Jackson,5002 Springs St,Las Vegas,NV,89119,702-555-4731,carolyn.jackson91@outlook.com,2024-06-05,Enterprise,34957
+100301,Aisha,Edwards,9771 Bonanza St,Paradise,NV,89109,725-555-2201,aisha.edwards60@gmail.com,2022-11-28,Consumer,39901
+100302,Jennifer,Richardson,6455 Apache Ave,Las Vegas,NV,89117,725-555-1312,jennifer.richardson20@hotmail.com,2020-12-27,Consumer,33779
+100303,Omar,Patel,9158 Sunset Way,Summerlin,NV,89135,702-555-3183,omar.patel41@icloud.com,2021-11-23,Consumer,30020
+100304,Kimberly,Henderson,2623 Cheyenne Ct,Paradise,NV,89109,702-555-4987,kimberly.henderson2@hotmail.com,2020-02-07,SMB,46291
+100305,Debra,Ford,709 Hualapai St,Henderson,NV,89011,702-555-9523,debra.ford94@hotmail.com,2023-07-12,Consumer,21509
+100306,Morgan,Allen,5755 Jones Dr,Paradise,NV,89109,702-555-4431,morgan.allen67@yahoo.com,2018-05-07,Consumer,33627
+100307,Sarah,Castillo,8510 Buffalo Pkwy,North Las Vegas,NV,89031,725-555-4023,sarah.castillo76@outlook.com,2023-07-24,SMB,26301
+100308,Gregory,Scott,1999 Ann Blvd,Henderson,NV,89052,725-555-4307,gregory.scott20@gmail.com,2023-09-05,Consumer,19946
+100309,Larry,Aguilar,7878 Silverado Blvd,Henderson,NV,89011,725-555-3397,larry.aguilar51@yahoo.com,2019-06-02,Consumer,28695
+100310,Amy,Castillo,2236 Hualapai St,Henderson,NV,89011,702-555-8128,amy.castillo35@icloud.com,2016-12-24,Consumer,38789
+100311,Ronald,Lee,4045 Flamingo St,Henderson,NV,89011,702-555-4599,ronald.lee41@yahoo.com,2020-04-30,Consumer,43617
+100312,Robert,Tucker,3664 Maryland Blvd,North Las Vegas,NV,89031,702-555-5641,robert.tucker74@outlook.com,2015-12-18,Consumer,56459
+100313,Raymond,Griffin,7652 Decatur Blvd,Paradise,NV,89109,725-555-7610,raymond.griffin89@hotmail.com,2017-11-04,Consumer,52697
+100314,Zachary,Medina,3711 Owens Blvd,Henderson,NV,89011,725-555-5459,zachary.medina88@gmail.com,2024-06-22,Enterprise,22685
+100315,Angela,Fernandez,8816 Hualapai St,Las Vegas,NV,89117,702-555-9751,angela.fernandez72@yahoo.com,2023-05-20,Consumer,16378
+100316,Melissa,Harrison,1703 Buffalo Blvd,Paradise,NV,89109,725-555-6814,melissa.harrison89@gmail.com,2016-05-31,Enterprise,44486
+100317,Michelle,Webb,3356 Canyon Way,North Las Vegas,NV,89031,702-555-9435,michelle.webb11@yahoo.com,2020-10-30,Consumer,13051
+100318,Roger,Reynolds,4319 Mojave Rd,Las Vegas,NV,89119,702-555-5852,roger.reynolds87@outlook.com,2019-07-01,SMB,40801
+100319,Frank,Davis,2113 Rainbow St,Las Vegas,NV,89117,725-555-4265,frank.davis79@gmail.com,2020-02-19,Consumer,59124
+100320,Samuel,Brooks,5339 Sandhill Ln,Paradise,NV,89109,725-555-4497,samuel.brooks60@icloud.com,2019-12-25,SMB,49365
+100321,Joseph,White,1502 Russell Way,Las Vegas,NV,89117,725-555-9493,joseph.white52@outlook.com,2015-11-20,Consumer,33197
+100322,Kenneth,Hughes,8070 Lamb Pkwy,Las Vegas,NV,89101,702-555-4811,kenneth.hughes21@gmail.com,2020-07-03,Consumer,54354
+100323,Daniel,Adams,5133 Canyon Pkwy,Summerlin,NV,89135,725-555-8635,daniel.adams62@icloud.com,2022-07-14,Enterprise,2434
+100324,Jeffrey,Johnson,2712 Bonanza St,Henderson,NV,89011,725-555-1626,jeffrey.johnson23@outlook.com,2023-12-19,Consumer,57037
+100325,Scott,Ford,3687 Centennial Pkwy,Las Vegas,NV,89119,725-555-2008,scott.ford91@gmail.com,2021-07-01,Consumer,6894
+100326,Benjamin,Martinez,6570 Flamingo Dr,Las Vegas,NV,89117,702-555-3843,benjamin.martinez38@outlook.com,2021-07-31,Consumer,17887
+100327,Taylor,Diaz,7964 Stephanie Way,Las Vegas,NV,89101,702-555-5702,taylor.diaz31@yahoo.com,2020-10-17,SMB,35805
+100328,Donald,Ford,6097 Sunset Dr,Las Vegas,NV,89101,725-555-3371,donald.ford46@gmail.com,2019-04-01,SMB,6392
+100329,Natalie,Cole,1384 Gibson Ct,Las Vegas,NV,89119,702-555-4898,natalie.cole10@gmail.com,2015-02-28,Enterprise,15809
+100330,Matthew,Morgan,1896 Pecos Pkwy,Summerlin,NV,89135,725-555-2734,matthew.morgan14@gmail.com,2023-10-19,Consumer,27701
+100331,Jacob,Smith,5921 Losee Pkwy,North Las Vegas,NV,89031,725-555-2066,jacob.smith5@icloud.com,2018-01-08,Consumer,58185
+100332,Adam,Gutierrez,1603 Canyon Way,Las Vegas,NV,89119,725-555-6497,adam.gutierrez95@gmail.com,2017-03-31,SMB,39082
+100333,Kyle,Herrera,657 Nellis Ave,Henderson,NV,89052,725-555-5692,kyle.herrera35@gmail.com,2019-08-02,Consumer,37461
+100334,Jessica,Barnes,804 Cheyenne Way,Summerlin,NV,89135,702-555-8092,jessica.barnes80@icloud.com,2023-12-08,SMB,4605
+100335,Ryan,Patterson,8835 Ann Blvd,Henderson,NV,89011,725-555-1704,ryan.patterson19@yahoo.com,2023-10-05,Consumer,44086
+100336,Elizabeth,Hill,4262 Boulder Ct,Las Vegas,NV,89119,725-555-8799,elizabeth.hill18@yahoo.com,2015-08-15,Consumer,34184
+100337,Amanda,Turner,4310 Mojave Blvd,Summerlin,NV,89135,725-555-4392,amanda.turner49@icloud.com,2020-12-05,SMB,27138
+100338,Steven,Watson,3455 Horizon Ave,Paradise,NV,89109,702-555-6176,steven.watson14@gmail.com,2023-09-06,Consumer,10931
+100339,Stephen,Torres,1916 Cheyenne Ln,Henderson,NV,89011,702-555-3689,stephen.torres49@yahoo.com,2022-01-22,SMB,1949
+100340,Jason,Parker,729 Eastern Rd,Paradise,NV,89109,702-555-5555,jason.parker8@icloud.com,2024-01-12,Enterprise,43646
+100341,Jordan,Parker,3198 Cactus St,Henderson,NV,89011,725-555-2184,jordan.parker35@yahoo.com,2019-02-07,Consumer,59887
+100342,Richard,West,428 Durango Pkwy,Las Vegas,NV,89101,702-555-2053,richard.west21@outlook.com,2016-04-02,Consumer,5899
+100343,Deborah,Moreno,8715 Windmill Ct,Las Vegas,NV,89117,725-555-9645,deborah.moreno93@outlook.com,2019-09-19,Consumer,8135
+100344,Angela,Anderson,924 Carey Dr,North Las Vegas,NV,89031,725-555-1072,angela.anderson57@icloud.com,2021-08-07,SMB,42023
+100345,Susan,Phillips,4403 Carey Way,Las Vegas,NV,89119,702-555-8482,susan.phillips20@icloud.com,2015-01-01,Enterprise,31938
+100346,Andrew,Collins,4297 Durango Ct,Las Vegas,NV,89119,702-555-5142,andrew.collins83@outlook.com,2019-12-29,Consumer,22352
+100347,Ashley,Harris,1417 Hualapai Dr,Henderson,NV,89052,702-555-9179,ashley.harris23@outlook.com,2019-12-08,Consumer,8992
+100348,Michael,Martin,5495 Flamingo Ave,Las Vegas,NV,89119,702-555-3053,michael.martin57@hotmail.com,2019-04-05,Enterprise,56887
+100349,Barbara,Long,2145 Canyon Way,Las Vegas,NV,89101,702-555-1485,barbara.long40@outlook.com,2016-07-15,Consumer,4669
+100350,Adam,Murphy,4864 Alta Way,Henderson,NV,89011,725-555-1657,adam.murphy4@yahoo.com,2015-02-22,Consumer,21986
+100351,Pamela,Evans,9861 Rainbow Dr,Las Vegas,NV,89119,702-555-9920,pamela.evans3@hotmail.com,2019-12-15,Consumer,1516
+100352,Samantha,Gutierrez,347 Grand Rd,Las Vegas,NV,89117,725-555-3787,samantha.gutierrez11@yahoo.com,2024-01-01,Consumer,41283
+100353,Jennifer,Fernandez,3927 Cactus Rd,Henderson,NV,89011,725-555-5128,jennifer.fernandez86@yahoo.com,2015-07-10,Consumer,55596
+100354,Grace,Stewart,2454 Cactus Ave,North Las Vegas,NV,89031,702-555-7017,grace.stewart84@hotmail.com,2022-01-23,Consumer,47591
+100355,Harold,Howard,5756 Durango Rd,Las Vegas,NV,89101,725-555-5735,harold.howard17@yahoo.com,2021-09-23,Enterprise,52908
+100356,Andrew,Cook,2152 Alta Ct,Las Vegas,NV,89101,725-555-5842,andrew.cook71@yahoo.com,2015-03-12,Consumer,17941
+100357,Laura,Allen,8443 Washington Way,Summerlin,NV,89135,725-555-2921,laura.allen86@yahoo.com,2018-10-10,Consumer,44045
+100358,Justin,Jordan,9794 Losee Pkwy,Henderson,NV,89052,702-555-8767,justin.jordan25@icloud.com,2018-04-07,Consumer,41485
+100359,Walter,Brown,4358 Rampart Way,Paradise,NV,89109,725-555-8443,walter.brown11@yahoo.com,2024-11-28,Consumer,57831
+100360,Larry,Ramirez,4089 Horizon Way,Las Vegas,NV,89101,702-555-5435,larry.ramirez73@icloud.com,2020-11-07,Consumer,51457
+100361,Omar,Parker,4867 Buffalo St,Las Vegas,NV,89117,725-555-6344,omar.parker23@icloud.com,2022-08-13,Consumer,8279
+100362,James,Foster,1728 Maryland Dr,Paradise,NV,89109,725-555-8402,james.foster51@hotmail.com,2017-11-19,Consumer,50183
+100363,Kenneth,Perry,1132 Mojave Rd,Las Vegas,NV,89119,725-555-6637,kenneth.perry32@hotmail.com,2024-04-29,SMB,16015
+100364,Robert,Collins,5529 Springs Rd,Las Vegas,NV,89119,725-555-8405,robert.collins66@outlook.com,2019-03-31,Enterprise,6072
+100365,Donald,Graham,2381 Charleston Rd,Paradise,NV,89109,725-555-1796,donald.graham51@gmail.com,2024-05-31,Consumer,52150
+100366,Maria,Crawford,9553 Cactus Ln,Henderson,NV,89011,702-555-5022,maria.crawford8@outlook.com,2022-11-05,Enterprise,48921
+100367,Priya,Moreno,8548 Silverado St,Las Vegas,NV,89101,725-555-3263,priya.moreno11@outlook.com,2019-03-23,Consumer,45308
+100368,Helen,Murphy,884 Torrey Dr,Summerlin,NV,89135,725-555-6417,helen.murphy27@yahoo.com,2018-12-27,Consumer,16456
+100369,Luis,Myers,6398 Cactus Rd,Paradise,NV,89109,702-555-3641,luis.myers99@gmail.com,2023-03-09,SMB,22537
+100370,Emma,Freeman,7290 Rainbow Ave,Henderson,NV,89011,702-555-2180,emma.freeman85@gmail.com,2023-12-18,Consumer,9430
+100371,Diego,Robinson,9574 Maryland Blvd,Las Vegas,NV,89117,702-555-8417,diego.robinson64@hotmail.com,2020-09-02,Consumer,42353
+100372,Tyler,Morris,8081 Tropicana Ln,Las Vegas,NV,89119,702-555-3226,tyler.morris39@yahoo.com,2017-08-09,SMB,53676
+100373,Angela,Johnson,5792 Tropicana Ave,North Las Vegas,NV,89031,725-555-8492,angela.johnson19@gmail.com,2018-06-29,SMB,48036
+100374,Ronald,Kennedy,528 Apache Ln,Las Vegas,NV,89117,725-555-2764,ronald.kennedy2@hotmail.com,2018-11-30,Consumer,52855
+100375,Dennis,Jimenez,5853 Alta Way,Summerlin,NV,89135,702-555-6903,dennis.jimenez89@yahoo.com,2024-09-26,Consumer,49235
+100376,Ronald,Griffin,7787 Silverado Dr,Las Vegas,NV,89117,702-555-8663,ronald.griffin21@gmail.com,2023-10-02,SMB,12752
+100377,Linda,Wood,302 Losee Ln,Paradise,NV,89109,702-555-8611,linda.wood98@hotmail.com,2018-01-20,SMB,52671
+100378,Angela,Phillips,964 Russell Dr,Las Vegas,NV,89117,725-555-6480,angela.phillips86@hotmail.com,2015-05-15,SMB,9036
+100379,Thomas,Walker,4049 Blue St,Las Vegas,NV,89101,725-555-2762,thomas.walker97@yahoo.com,2023-04-28,SMB,25068
+100380,Rebecca,Rodriguez,633 Torrey Pkwy,Las Vegas,NV,89117,702-555-5552,rebecca.rodriguez26@yahoo.com,2016-05-11,SMB,39010
+100381,Emily,Wood,6136 Sahara Ct,Henderson,NV,89011,725-555-1351,emily.wood34@gmail.com,2019-11-06,Consumer,42984
+100382,Susan,Sanchez,849 Decatur Ave,Paradise,NV,89109,725-555-6984,susan.sanchez93@gmail.com,2022-08-12,SMB,29770
+100383,Kenneth,Hayes,3215 Tropicana Ct,North Las Vegas,NV,89031,702-555-6337,kenneth.hayes88@outlook.com,2017-08-29,SMB,47096
+100384,Steven,Jones,579 Losee St,Las Vegas,NV,89119,725-555-5147,steven.jones53@outlook.com,2023-04-19,SMB,11107
+100385,Keith,Freeman,986 Gibson Pkwy,Las Vegas,NV,89101,725-555-2655,keith.freeman32@gmail.com,2022-02-15,SMB,54179
+100386,Raymond,Rivera,5532 Fort Ave,Henderson,NV,89052,702-555-5877,raymond.rivera86@hotmail.com,2023-06-10,SMB,35658
+100387,Elizabeth,Ruiz,1783 Buffalo Ct,Las Vegas,NV,89119,725-555-1383,elizabeth.ruiz69@hotmail.com,2024-10-28,Consumer,47033
+100388,Carlos,Cooper,9549 Mojave Dr,Paradise,NV,89109,725-555-4850,carlos.cooper41@gmail.com,2015-12-22,Consumer,25313
+100389,Jacob,Ward,4676 Washington Dr,Paradise,NV,89109,725-555-5774,jacob.ward67@hotmail.com,2017-03-07,Enterprise,39839
+100390,Hannah,Howard,7252 Sandhill Blvd,Las Vegas,NV,89101,725-555-4724,hannah.howard82@icloud.com,2018-02-19,Enterprise,486
+100391,Jessica,Young,4669 Torrey Dr,Henderson,NV,89011,702-555-2829,jessica.young72@hotmail.com,2017-03-18,Consumer,47265
+100392,Carolyn,Rivera,3868 Hualapai Ct,Las Vegas,NV,89101,725-555-1543,carolyn.rivera1@gmail.com,2021-08-24,Consumer,18817
+100393,Barbara,Harris,8715 Stephanie Ct,Summerlin,NV,89135,702-555-8392,barbara.harris96@gmail.com,2016-08-03,Consumer,29983
+100394,Keith,Carter,449 Jones Ave,Henderson,NV,89011,702-555-6767,keith.carter55@gmail.com,2022-09-02,SMB,17721
+100395,Samantha,Wood,9270 Blue Ct,Las Vegas,NV,89119,725-555-3232,samantha.wood44@gmail.com,2020-12-11,Consumer,26620
+100396,Jonathan,Lee,1311 Diamond Pkwy,Henderson,NV,89011,725-555-9558,jonathan.lee99@icloud.com,2015-09-02,Consumer,10480
+100397,Wei,Medina,5015 Warm Blvd,Las Vegas,NV,89117,702-555-6702,wei.medina79@gmail.com,2016-02-26,SMB,11272
+100398,Sandra,Coleman,4111 Mojave Rd,Henderson,NV,89052,725-555-5992,sandra.coleman48@hotmail.com,2019-09-06,Consumer,23471
+100399,Keith,Wallace,5432 Rainbow Ct,Henderson,NV,89011,702-555-1359,keith.wallace72@yahoo.com,2018-11-10,Enterprise,19974
+100400,John,Flores,7505 Alta Rd,Henderson,NV,89052,702-555-4788,john.flores10@hotmail.com,2017-02-08,Consumer,52411
+100401,Peter,Vargas,4610 Apache Ln,North Las Vegas,NV,89031,702-555-6079,peter.vargas3@yahoo.com,2023-02-18,Consumer,41996
+100402,Douglas,Gomez,8274 Rainbow Way,Henderson,NV,89052,702-555-8384,douglas.gomez30@yahoo.com,2016-08-13,Consumer,54363
+100403,Isabella,Scott,7517 Canyon Pkwy,Las Vegas,NV,89119,702-555-3920,isabella.scott37@icloud.com,2016-07-20,Consumer,712
+100404,Helen,Sanchez,5905 Hualapai Ct,Henderson,NV,89011,702-555-2685,helen.sanchez58@icloud.com,2023-07-01,Enterprise,49801
+100405,Michelle,Vargas,3941 Alta Way,Las Vegas,NV,89117,702-555-4770,michelle.vargas68@icloud.com,2019-09-28,Enterprise,15772
+100406,Kevin,Cole,5846 Mojave Way,Henderson,NV,89052,702-555-5352,kevin.cole5@outlook.com,2021-10-23,Enterprise,28011
+100407,Frank,Gomez,3498 Buffalo Ave,Las Vegas,NV,89119,725-555-6769,frank.gomez37@gmail.com,2024-06-26,Consumer,42788
+100408,Donna,Hayes,3584 Rampart Way,North Las Vegas,NV,89031,702-555-7832,donna.hayes86@hotmail.com,2018-05-27,Consumer,4239
+100409,Brian,Wells,5588 Tropicana St,Paradise,NV,89109,725-555-5368,brian.wells53@hotmail.com,2024-10-05,Consumer,35675
+100410,Kathleen,Smith,1952 Canyon Dr,Las Vegas,NV,89101,702-555-8134,kathleen.smith99@icloud.com,2023-04-30,Consumer,51792
+100411,Henry,Miller,7246 Nellis Rd,Paradise,NV,89109,725-555-7813,henry.miller3@gmail.com,2018-08-26,Consumer,27674
+100412,Luis,Coleman,3808 Nellis Ln,Summerlin,NV,89135,702-555-3543,luis.coleman77@outlook.com,2024-06-13,Consumer,34045
+100413,Donald,Edwards,5620 Lamb Ave,Las Vegas,NV,89117,702-555-3558,donald.edwards97@outlook.com,2015-02-08,SMB,57489
+100414,Debra,Butler,1786 Ann Way,North Las Vegas,NV,89031,702-555-2286,debra.butler35@gmail.com,2021-06-19,SMB,32231
+100415,Diane,Tran,4773 Horizon Blvd,Henderson,NV,89052,725-555-4199,diane.tran26@hotmail.com,2021-12-04,Enterprise,21084
+100416,Larry,Cruz,1622 Cheyenne Pkwy,North Las Vegas,NV,89031,725-555-6311,larry.cruz7@icloud.com,2019-09-16,Consumer,33207
+100417,Brandon,Moore,1136 Jones Dr,Henderson,NV,89052,725-555-5492,brandon.moore38@yahoo.com,2023-12-25,Consumer,35571
+100418,John,Castro,9327 Gibson Rd,Las Vegas,NV,89117,702-555-5985,john.castro94@icloud.com,2020-06-11,Consumer,9540
+100419,Anna,Jackson,9617 Tropicana Blvd,Las Vegas,NV,89119,725-555-3640,anna.jackson24@hotmail.com,2018-08-07,Consumer,30438
+100420,Gregory,Long,9760 Maryland Dr,Las Vegas,NV,89117,702-555-2420,gregory.long91@icloud.com,2015-02-04,Consumer,39284
+100421,Brenda,Anderson,7339 Ann Blvd,North Las Vegas,NV,89031,725-555-5469,brenda.anderson80@gmail.com,2016-08-17,Consumer,29501
+100422,Anthony,Butler,6629 Charleston Ave,Las Vegas,NV,89101,702-555-4998,anthony.butler50@icloud.com,2021-04-09,Enterprise,42195
+100423,Priya,Kennedy,330 Craig Rd,Las Vegas,NV,89117,702-555-5055,priya.kennedy54@outlook.com,2020-07-20,Consumer,24444
+100424,Douglas,Martinez,3469 Tropicana Ln,North Las Vegas,NV,89031,702-555-4634,douglas.martinez97@outlook.com,2020-03-24,Enterprise,8645
+100425,Gregory,Reynolds,5834 Pecos Ave,Summerlin,NV,89135,702-555-2702,gregory.reynolds43@gmail.com,2015-04-17,Consumer,1562
+100426,Isabella,Sanchez,8037 Stephanie St,Summerlin,NV,89135,702-555-3610,isabella.sanchez2@hotmail.com,2016-01-21,Consumer,22791
+100427,Robert,Patel,8664 Russell Ln,Henderson,NV,89052,702-555-2580,robert.patel87@gmail.com,2024-04-13,Enterprise,26256
+100428,Dennis,Morgan,3716 Rampart Dr,Henderson,NV,89052,725-555-9021,dennis.morgan65@outlook.com,2017-02-15,Consumer,19427
+100429,Natalie,Brooks,6605 Cheyenne Pkwy,Las Vegas,NV,89117,702-555-3368,natalie.brooks61@outlook.com,2019-08-10,SMB,9462
+100430,Joshua,Cox,1423 Maryland St,Henderson,NV,89052,702-555-5676,joshua.cox28@yahoo.com,2023-06-13,Consumer,32066
+100431,Anna,West,6634 Lamb Rd,Summerlin,NV,89135,725-555-1857,anna.west18@icloud.com,2021-02-20,Consumer,33649
+100432,Adam,Reed,5093 Boulder Ct,Las Vegas,NV,89101,725-555-3781,adam.reed5@outlook.com,2017-12-03,Consumer,43383
+100433,Melissa,Richardson,4044 Pecos Dr,Las Vegas,NV,89117,725-555-4742,melissa.richardson43@outlook.com,2016-06-02,Enterprise,26351
+100434,Carolyn,Robinson,163 Cactus Ct,Las Vegas,NV,89117,702-555-5053,carolyn.robinson20@gmail.com,2020-09-19,Consumer,44368
+100435,Carlos,Kennedy,8627 Springs Ct,Las Vegas,NV,89117,702-555-1762,carlos.kennedy36@yahoo.com,2017-02-07,Enterprise,19214
+100436,Angela,Webb,8997 Maryland Blvd,Paradise,NV,89109,725-555-3773,angela.webb66@hotmail.com,2024-03-19,Consumer,21978
+100437,Jason,Kim,7357 Grand Ct,Henderson,NV,89052,702-555-6696,jason.kim64@icloud.com,2016-11-02,SMB,16731
+100438,Nancy,Fisher,769 Canyon St,Paradise,NV,89109,702-555-5048,nancy.fisher87@outlook.com,2020-12-23,Consumer,3330
+100439,Henry,Evans,7717 Apache Way,Las Vegas,NV,89101,702-555-6649,henry.evans96@yahoo.com,2021-01-06,Consumer,53175
+100440,George,Bennett,8446 Torrey Ct,Las Vegas,NV,89101,725-555-8072,george.bennett38@icloud.com,2022-02-06,SMB,1558
+100441,William,Wells,5650 Durango Pkwy,Las Vegas,NV,89101,725-555-7066,william.wells52@gmail.com,2018-05-18,Consumer,38880
+100442,Rebecca,Bell,4408 Durango Way,Las Vegas,NV,89119,702-555-3248,rebecca.bell38@yahoo.com,2022-06-09,Enterprise,5179
+100443,Margaret,Wilson,7371 Cactus Ct,North Las Vegas,NV,89031,725-555-7836,margaret.wilson9@gmail.com,2024-05-20,SMB,22101
+100444,Carol,Brooks,8101 Ann Rd,Las Vegas,NV,89119,725-555-6279,carol.brooks62@hotmail.com,2015-02-22,SMB,44169
+100445,Scott,Barnes,6086 Apache Ln,Summerlin,NV,89135,702-555-6220,scott.barnes49@gmail.com,2020-12-30,Consumer,6304
+100446,Anna,Fisher,1505 Eastern Pkwy,North Las Vegas,NV,89031,702-555-9765,anna.fisher4@outlook.com,2019-03-27,Enterprise,12223
+100447,Walter,Campbell,1142 Centennial Blvd,North Las Vegas,NV,89031,702-555-8949,walter.campbell48@gmail.com,2023-09-12,Consumer,38502
+100448,Aaron,Bennett,2813 Washington Dr,Las Vegas,NV,89117,725-555-7366,aaron.bennett29@icloud.com,2019-09-26,SMB,54273
+100449,Samantha,West,7828 Fort St,Paradise,NV,89109,725-555-2190,samantha.west93@icloud.com,2017-02-04,Consumer,33835
+100450,Kevin,Burns,7696 Rampart Ln,Summerlin,NV,89135,702-555-3579,kevin.burns91@hotmail.com,2021-01-12,Enterprise,6006
+100451,Aisha,Ruiz,3790 Mojave Rd,Summerlin,NV,89135,725-555-2795,aisha.ruiz93@hotmail.com,2021-10-02,Consumer,9758
+100452,Diane,Stewart,3370 Carey St,Las Vegas,NV,89117,702-555-9164,diane.stewart12@icloud.com,2018-01-21,Consumer,59070
+100453,Jacob,Guzman,8104 Washington Rd,Paradise,NV,89109,702-555-1308,jacob.guzman83@hotmail.com,2017-01-24,Consumer,475
+100454,Anthony,Lopez,8529 Buffalo Dr,Las Vegas,NV,89117,725-555-4668,anthony.lopez98@icloud.com,2024-12-10,Consumer,39357
+100455,Sharon,Stevens,2823 Pecos Blvd,Las Vegas,NV,89101,702-555-2761,sharon.stevens54@hotmail.com,2021-01-26,SMB,27004
+100456,Sandra,Wood,2801 Decatur St,Summerlin,NV,89135,725-555-1186,sandra.wood58@yahoo.com,2024-07-25,Consumer,54273
+100457,Henry,Hall,5133 Russell Way,Henderson,NV,89011,702-555-9649,henry.hall73@gmail.com,2020-03-25,Enterprise,14537
+100458,Hannah,Kim,5595 Springs Ave,Las Vegas,NV,89119,725-555-3831,hannah.kim36@icloud.com,2019-01-13,Consumer,50971
+100459,John,Miller,8475 Alta Dr,Las Vegas,NV,89119,702-555-9737,john.miller84@gmail.com,2024-10-16,Consumer,52545
+100460,Carlos,Thompson,2870 Gibson Pkwy,Summerlin,NV,89135,725-555-8998,carlos.thompson36@outlook.com,2016-05-03,SMB,26362
+100461,Kimberly,Burns,7916 Canyon Dr,Las Vegas,NV,89119,725-555-3177,kimberly.burns21@icloud.com,2018-05-31,Enterprise,27050
+100462,Douglas,Butler,2974 Hualapai St,Henderson,NV,89052,702-555-5466,douglas.butler60@outlook.com,2018-12-11,SMB,11055
+100463,Joseph,Russell,9462 Sandhill Blvd,North Las Vegas,NV,89031,702-555-5976,joseph.russell3@gmail.com,2018-07-21,Enterprise,46099
+100464,Emma,Vasquez,5177 Washington Ln,Summerlin,NV,89135,725-555-4254,emma.vasquez24@yahoo.com,2016-03-15,Consumer,23995
+100465,Peter,Thomas,1591 Russell Ln,Summerlin,NV,89135,702-555-8525,peter.thomas95@hotmail.com,2023-12-06,Consumer,30970
+100466,Pamela,Alvarez,2038 Gibson Ct,Henderson,NV,89011,725-555-9855,pamela.alvarez64@gmail.com,2020-09-27,Enterprise,59438
+100467,Gary,Jordan,7106 Alta St,Las Vegas,NV,89101,702-555-2985,gary.jordan42@yahoo.com,2016-12-17,Consumer,29850
+100468,Edward,Green,5864 Cheyenne Rd,Paradise,NV,89109,702-555-8011,edward.green1@yahoo.com,2015-02-21,SMB,49600
+100469,Tyler,Fisher,544 Decatur Ln,Las Vegas,NV,89117,725-555-7921,tyler.fisher28@outlook.com,2023-01-19,Consumer,45263
+100470,Jessica,Gibson,7839 Apache Dr,Henderson,NV,89011,725-555-9333,jessica.gibson84@gmail.com,2024-01-09,Consumer,23111
+100471,Kenneth,Cook,9756 Rampart Ct,Henderson,NV,89011,725-555-9906,kenneth.cook94@gmail.com,2015-05-24,Consumer,2406
+100472,William,King,2201 Mojave Rd,North Las Vegas,NV,89031,702-555-1305,william.king44@gmail.com,2016-03-17,Consumer,6298
+100473,Betty,Owens,8346 Lamb St,Las Vegas,NV,89101,702-555-4552,betty.owens65@yahoo.com,2023-01-16,Consumer,3665
+100474,Jeremy,Burns,4350 Flamingo Way,Las Vegas,NV,89119,702-555-1448,jeremy.burns77@gmail.com,2022-03-20,Consumer,15001
+100475,Carolyn,Castillo,5631 Washington Rd,Las Vegas,NV,89119,702-555-1822,carolyn.castillo18@hotmail.com,2020-04-12,Consumer,33963
+100476,Anthony,Mendoza,3335 Pecos Ln,North Las Vegas,NV,89031,725-555-8936,anthony.mendoza74@outlook.com,2024-01-06,Consumer,42536
+100477,Emily,Hamilton,1505 Silverado Rd,Henderson,NV,89052,702-555-6060,emily.hamilton28@hotmail.com,2017-09-15,Consumer,41547
+100478,Mark,Harris,2725 Maryland Ave,Henderson,NV,89052,725-555-8447,mark.harris41@icloud.com,2019-06-17,Consumer,23938
+100479,Robert,Gutierrez,2862 Decatur Ln,Las Vegas,NV,89101,725-555-9448,robert.gutierrez2@yahoo.com,2019-02-27,Enterprise,21471
+100480,Diane,Reed,5497 Bonanza Ln,Paradise,NV,89109,702-555-2917,diane.reed22@outlook.com,2020-08-24,Consumer,27734
+100481,Robert,Gonzalez,5003 Sandhill Ln,Henderson,NV,89011,725-555-6477,robert.gonzalez83@outlook.com,2023-10-03,Consumer,22920
+100482,Keith,Evans,9873 Hualapai Blvd,Henderson,NV,89052,725-555-1757,keith.evans87@outlook.com,2019-09-17,Consumer,27176
+100483,Kimberly,Fernandez,6196 Sandhill Blvd,North Las Vegas,NV,89031,702-555-1541,kimberly.fernandez87@icloud.com,2015-09-14,Enterprise,43774
+100484,Katherine,Henderson,5317 Craig St,Las Vegas,NV,89117,702-555-9985,katherine.henderson56@icloud.com,2018-12-20,Consumer,55679
+100485,Sharon,Carter,7036 Torrey Ln,Paradise,NV,89109,725-555-3849,sharon.carter78@gmail.com,2018-04-22,Consumer,47188
+100486,Jose,Diaz,4682 Gibson Blvd,Henderson,NV,89011,725-555-8955,jose.diaz56@outlook.com,2023-01-30,SMB,16893
+100487,Barbara,Patterson,3750 Alta Ln,Las Vegas,NV,89101,702-555-1037,barbara.patterson86@icloud.com,2015-12-04,Consumer,51051
+100488,Melissa,Ortiz,9098 Cheyenne Way,Henderson,NV,89011,702-555-7433,melissa.ortiz19@gmail.com,2016-04-14,SMB,18740
+100489,Shirley,Miller,110 Flamingo St,Las Vegas,NV,89101,725-555-6367,shirley.miller75@yahoo.com,2020-12-25,SMB,28755
+100490,Benjamin,Parker,8979 Losee Dr,Las Vegas,NV,89117,702-555-8275,benjamin.parker59@hotmail.com,2016-07-25,Consumer,56339
+100491,Grace,Miller,1819 Flamingo Ln,North Las Vegas,NV,89031,702-555-2047,grace.miller54@icloud.com,2021-03-13,Consumer,34968
+100492,Gary,Burns,155 Fort St,Henderson,NV,89052,725-555-1566,gary.burns99@outlook.com,2021-09-08,Consumer,2324
+100493,Wei,Simmons,2667 Pecos Ct,Summerlin,NV,89135,725-555-9276,wei.simmons49@icloud.com,2024-05-07,Consumer,15713
+100494,Fatima,Chavez,6125 Eastern Ave,Las Vegas,NV,89117,702-555-9459,fatima.chavez24@outlook.com,2022-09-11,Consumer,54193
+100495,Jacob,Reyes,6673 Silverado Way,Henderson,NV,89011,702-555-9107,jacob.reyes51@yahoo.com,2016-04-23,Consumer,47924
+100496,Amy,Woods,1371 Blue Rd,Henderson,NV,89011,725-555-8568,amy.woods57@icloud.com,2021-09-15,Enterprise,4350
+100497,Elizabeth,Murray,6731 Russell Dr,North Las Vegas,NV,89031,702-555-1730,elizabeth.murray33@gmail.com,2016-07-31,Consumer,11039
+100498,Dennis,White,2544 Stephanie Rd,Henderson,NV,89052,702-555-6504,dennis.white75@outlook.com,2018-04-28,SMB,24812
+100499,Jeremy,Webb,7378 Nellis Dr,North Las Vegas,NV,89031,725-555-9782,jeremy.webb31@hotmail.com,2018-11-09,Consumer,14904
+100500,Aisha,Harris,7552 Windmill Pkwy,North Las Vegas,NV,89031,725-555-2188,aisha.harris29@yahoo.com,2019-03-17,Consumer,48280
+100501,Walter,Cook,2886 Tropicana Pkwy,North Las Vegas,NV,89031,725-555-6485,walter.cook82@hotmail.com,2020-06-06,Consumer,18679
+100502,Amanda,Sanchez,7944 Grand Pkwy,Las Vegas,NV,89117,702-555-8549,amanda.sanchez92@outlook.com,2016-07-02,Enterprise,28689
+100503,Sarah,Hall,7584 Blue Ln,Las Vegas,NV,89101,702-555-6154,sarah.hall70@icloud.com,2021-09-25,Consumer,55697
+100504,Anna,Ramirez,834 Buffalo Ln,Las Vegas,NV,89117,725-555-6695,anna.ramirez18@hotmail.com,2016-02-28,Enterprise,53443
+100505,Mark,Morgan,6974 Sahara Ave,Las Vegas,NV,89119,702-555-4574,mark.morgan60@icloud.com,2022-09-11,Consumer,16001
+100506,Christine,Walker,6770 Bonanza Ln,Henderson,NV,89011,702-555-7253,christine.walker72@yahoo.com,2024-12-01,Enterprise,49089
+100507,Helen,Peterson,7915 Ann Ln,Summerlin,NV,89135,702-555-5863,helen.peterson90@gmail.com,2017-06-20,Consumer,48842
+100508,Dorothy,Bryant,8318 Horizon Pkwy,Summerlin,NV,89135,725-555-8609,dorothy.bryant77@yahoo.com,2019-08-17,Consumer,50079
+100509,Kevin,Patel,894 Alta Way,Las Vegas,NV,89101,702-555-9880,kevin.patel77@gmail.com,2017-05-03,Consumer,38630
+100510,Patricia,Perry,1019 Decatur St,Las Vegas,NV,89119,702-555-1848,patricia.perry45@yahoo.com,2021-03-05,Consumer,42195
+100511,Harold,Jones,7940 Buffalo Way,Paradise,NV,89109,725-555-5280,harold.jones93@outlook.com,2024-03-06,SMB,4286
+100512,Aisha,Bell,5231 Apache Ln,North Las Vegas,NV,89031,725-555-5187,aisha.bell78@outlook.com,2018-03-20,SMB,20987
+100513,Jason,Webb,7538 Carey Ln,Henderson,NV,89011,725-555-5289,jason.webb69@outlook.com,2019-03-03,Consumer,38713
+100514,Angela,Hayes,6140 Mojave Dr,Henderson,NV,89011,725-555-4661,angela.hayes77@yahoo.com,2024-02-02,Consumer,32963
+100515,Justin,Hamilton,7672 Ann Pkwy,Henderson,NV,89011,702-555-8574,justin.hamilton56@hotmail.com,2018-08-28,SMB,16937
+100516,Timothy,Fisher,2094 Decatur Ct,Henderson,NV,89011,725-555-9315,timothy.fisher36@hotmail.com,2019-09-16,Consumer,40244
+100517,Heather,Mendoza,487 Windmill Dr,Paradise,NV,89109,702-555-2897,heather.mendoza66@outlook.com,2023-01-02,Consumer,29482
+100518,Walter,Reynolds,6607 Gibson Rd,Summerlin,NV,89135,702-555-7246,walter.reynolds75@hotmail.com,2017-07-21,Enterprise,42316
+100519,Peter,Wood,4393 Tropicana Pkwy,Paradise,NV,89109,725-555-7772,peter.wood80@yahoo.com,2017-06-24,Consumer,22360
+100520,Nicole,Price,8008 Horizon Blvd,Henderson,NV,89011,725-555-7200,nicole.price14@gmail.com,2017-06-24,Consumer,37247
+100521,Steven,Vargas,5946 Springs St,Las Vegas,NV,89119,725-555-5167,steven.vargas44@outlook.com,2018-12-16,Enterprise,44190
+100522,Susan,Ward,2272 Rainbow Pkwy,Summerlin,NV,89135,702-555-8899,susan.ward43@hotmail.com,2019-01-03,Consumer,1083
+100523,Charles,Brown,8127 Russell Ct,North Las Vegas,NV,89031,725-555-6930,charles.brown52@gmail.com,2016-03-16,Consumer,31659
+100524,Michelle,Mendoza,913 Warm Ave,Paradise,NV,89109,725-555-9366,michelle.mendoza14@outlook.com,2018-08-02,Consumer,17455
+100525,Matthew,Rodriguez,9039 Craig Ln,Henderson,NV,89052,725-555-9104,matthew.rodriguez44@outlook.com,2020-03-03,Consumer,36236
+100526,Carol,Cole,4153 Lamb Rd,Las Vegas,NV,89117,725-555-8467,carol.cole5@outlook.com,2015-04-05,Consumer,54920
+100527,Sandra,Romero,3054 Fort Blvd,Henderson,NV,89052,725-555-7598,sandra.romero2@outlook.com,2022-01-31,Consumer,34635
+100528,Jennifer,Nguyen,3379 Jones Ave,Henderson,NV,89052,725-555-6603,jennifer.nguyen17@icloud.com,2023-03-23,Consumer,10580
+100529,Nathan,Harris,4221 Decatur St,Las Vegas,NV,89101,702-555-7401,nathan.harris12@gmail.com,2018-07-15,Enterprise,9772
+100530,Walter,Ford,9842 Sahara Way,Las Vegas,NV,89101,702-555-9582,walter.ford96@gmail.com,2024-11-14,Enterprise,39860
+100531,Kenneth,Sanchez,3825 Boulder Rd,Henderson,NV,89052,725-555-7715,kenneth.sanchez66@yahoo.com,2018-09-20,SMB,40640
+100532,Jerry,Simmons,1904 Horizon Ln,Paradise,NV,89109,725-555-9681,jerry.simmons81@yahoo.com,2020-09-22,Consumer,52548
+100533,Carl,Reynolds,8373 Hualapai Ln,Henderson,NV,89052,725-555-4611,carl.reynolds89@hotmail.com,2017-01-02,Consumer,48050
+100534,Benjamin,Barnes,4178 Rampart Way,Paradise,NV,89109,725-555-2722,benjamin.barnes34@gmail.com,2020-02-03,Consumer,29082
+100535,Harold,Murphy,2495 Warm Dr,Henderson,NV,89011,702-555-4711,harold.murphy55@hotmail.com,2023-11-08,Consumer,30684
+100536,Michelle,Roberts,4823 Losee Ln,Las Vegas,NV,89119,725-555-7911,michelle.roberts81@outlook.com,2022-01-10,SMB,31498
+100537,Donna,Wright,3979 Stephanie Ave,Summerlin,NV,89135,725-555-9818,donna.wright41@hotmail.com,2016-09-06,SMB,36036
+100538,Donna,Adams,9806 Silverado Ave,North Las Vegas,NV,89031,725-555-6220,donna.adams36@gmail.com,2016-05-27,Consumer,4598
+100539,Barbara,Castillo,3270 Washington Blvd,North Las Vegas,NV,89031,725-555-5658,barbara.castillo29@yahoo.com,2022-02-27,SMB,21995
+100540,Mei,Vasquez,1618 Carey St,North Las Vegas,NV,89031,702-555-7699,mei.vasquez53@gmail.com,2021-11-22,Consumer,1755
+100541,Deborah,Anderson,7768 Torrey Ave,Paradise,NV,89109,725-555-6638,deborah.anderson35@icloud.com,2024-12-22,Consumer,42210
+100542,Luis,Mendoza,7655 Russell Dr,Henderson,NV,89052,702-555-6181,luis.mendoza57@gmail.com,2016-05-19,Consumer,16008
+100543,Sofia,Sanders,5490 Cheyenne Pkwy,Henderson,NV,89011,702-555-4933,sofia.sanders83@hotmail.com,2020-06-30,Enterprise,39188
+100544,Omar,Vargas,5381 Flamingo Ct,Paradise,NV,89109,725-555-1907,omar.vargas74@yahoo.com,2024-06-04,Enterprise,6293
+100545,Laura,Barnes,1890 Torrey Way,Henderson,NV,89052,702-555-8039,laura.barnes12@icloud.com,2023-06-05,SMB,54189
+100546,Timothy,Castillo,8618 Durango Way,Las Vegas,NV,89101,702-555-2711,timothy.castillo98@icloud.com,2024-12-04,Consumer,34526
+100547,Paul,Harris,8623 Horizon Ct,Summerlin,NV,89135,725-555-7686,paul.harris68@outlook.com,2020-10-13,Consumer,59561
+100548,Heather,Bell,4023 Stephanie Way,Paradise,NV,89109,725-555-9638,heather.bell36@yahoo.com,2020-06-01,Consumer,49730
+100549,Carol,Brown,5976 Centennial St,Henderson,NV,89011,702-555-9502,carol.brown62@gmail.com,2016-08-22,Consumer,10960
+100550,Linda,Bennett,8833 Boulder Rd,Las Vegas,NV,89119,725-555-6155,linda.bennett32@yahoo.com,2024-11-11,SMB,33460
+100551,Keith,Hall,338 Nellis Dr,Summerlin,NV,89135,702-555-2276,keith.hall52@yahoo.com,2017-10-16,Consumer,41673
+100552,Kathleen,Johnson,540 Russell St,North Las Vegas,NV,89031,725-555-1328,kathleen.johnson87@icloud.com,2020-05-22,Consumer,34081
+100553,Jeremy,Cruz,8753 Maryland Dr,Henderson,NV,89011,725-555-3341,jeremy.cruz78@outlook.com,2023-06-27,SMB,3705
+100554,Donald,Martin,925 Jones Way,Las Vegas,NV,89119,725-555-9993,donald.martin81@hotmail.com,2024-03-16,Consumer,18694
+100555,Mary,Nelson,9675 Eastern Blvd,Las Vegas,NV,89119,702-555-7991,mary.nelson48@hotmail.com,2021-10-01,Consumer,56918
+100556,Pamela,Murphy,1678 Sandhill Way,Las Vegas,NV,89117,725-555-4096,pamela.murphy43@icloud.com,2017-01-25,Consumer,34413
+100557,Samantha,Freeman,8353 Centennial St,Henderson,NV,89011,702-555-6351,samantha.freeman10@gmail.com,2016-12-30,Enterprise,43003
+100558,Sandra,Sullivan,7917 Blue Dr,Las Vegas,NV,89117,702-555-8919,sandra.sullivan1@hotmail.com,2021-06-28,Consumer,27386
+100559,Harold,Fisher,4113 Eastern Way,Paradise,NV,89109,725-555-1831,harold.fisher53@hotmail.com,2018-04-04,Consumer,10547
+100560,Elizabeth,Anderson,582 Cheyenne Ave,North Las Vegas,NV,89031,725-555-9784,elizabeth.anderson27@icloud.com,2024-03-23,Consumer,21120
+100561,Michelle,Hayes,1371 Cactus Blvd,Henderson,NV,89011,702-555-7814,michelle.hayes87@hotmail.com,2016-12-13,Enterprise,23447
+100562,Cynthia,Brooks,2352 Centennial Ln,Las Vegas,NV,89119,725-555-7592,cynthia.brooks2@hotmail.com,2015-11-07,Consumer,54885
+100563,Debra,Vasquez,4145 Decatur Dr,Las Vegas,NV,89119,702-555-6689,debra.vasquez68@hotmail.com,2016-06-24,Consumer,16905
+100564,Alexander,Robinson,494 Diamond St,Las Vegas,NV,89117,725-555-6794,alexander.robinson99@gmail.com,2023-11-28,Enterprise,735
+100565,Kenneth,Thompson,8031 Boulder Ave,North Las Vegas,NV,89031,725-555-8802,kenneth.thompson96@outlook.com,2022-02-19,Consumer,2281
+100566,Natalie,Powell,2578 Washington Dr,Las Vegas,NV,89117,725-555-4905,natalie.powell24@yahoo.com,2023-09-19,SMB,37756
+100567,Mei,Stevens,434 Losee Rd,North Las Vegas,NV,89031,702-555-7170,mei.stevens49@icloud.com,2024-06-17,Consumer,7403
+100568,Natalie,Russell,3569 Alta Pkwy,North Las Vegas,NV,89031,702-555-1686,natalie.russell92@icloud.com,2016-01-09,Enterprise,12709
+100569,Deborah,Hayes,3772 Canyon Way,Henderson,NV,89052,702-555-2495,deborah.hayes88@hotmail.com,2017-08-22,SMB,46819
+100570,Dorothy,Thompson,7625 Sahara Dr,Las Vegas,NV,89119,702-555-4820,dorothy.thompson74@icloud.com,2019-10-18,SMB,10590
+100571,Sharon,Aguilar,7837 Craig Ave,Henderson,NV,89011,702-555-6667,sharon.aguilar20@yahoo.com,2023-12-22,Consumer,30701
+100572,Janet,Cooper,5843 Boulder Way,Summerlin,NV,89135,725-555-6994,janet.cooper84@yahoo.com,2016-11-04,Consumer,26180
+100573,Hannah,Lopez,2254 Jones St,Summerlin,NV,89135,725-555-6034,hannah.lopez98@gmail.com,2017-03-10,Consumer,42455
+100574,Susan,Powell,7827 Craig St,North Las Vegas,NV,89031,725-555-8410,susan.powell52@gmail.com,2022-12-17,SMB,47715
+100575,Thomas,Hill,771 Rainbow Dr,Summerlin,NV,89135,725-555-9573,thomas.hill51@gmail.com,2019-12-04,SMB,10430
+100576,Peter,Kennedy,894 Jones Ln,Henderson,NV,89011,725-555-8078,peter.kennedy25@outlook.com,2023-09-19,Consumer,9348
+100577,Douglas,Marshall,7341 Rampart Ln,North Las Vegas,NV,89031,725-555-9791,douglas.marshall6@gmail.com,2016-10-22,Consumer,968
+100578,Grace,Medina,9481 Boulder Dr,Las Vegas,NV,89101,725-555-3915,grace.medina23@outlook.com,2024-10-29,Consumer,35815
+100579,Amanda,Sanders,6428 Charleston Ct,Henderson,NV,89011,725-555-8476,amanda.sanders50@yahoo.com,2017-11-02,Consumer,43552
+100580,Katherine,Sanders,1734 Pecos Rd,Henderson,NV,89011,725-555-1603,katherine.sanders56@yahoo.com,2017-09-29,Consumer,32501
+100581,Zachary,Thompson,7185 Carey Way,Summerlin,NV,89135,725-555-8844,zachary.thompson7@yahoo.com,2017-10-23,Consumer,41146
+100582,Karen,Bailey,2369 Durango Ln,Paradise,NV,89109,725-555-1082,karen.bailey81@gmail.com,2021-07-12,Consumer,38005
+100583,Kathleen,Rivera,4152 Stephanie Ct,Las Vegas,NV,89119,702-555-5977,kathleen.rivera13@yahoo.com,2020-09-04,Consumer,6009
+100584,Linda,Gray,277 Diamond St,Las Vegas,NV,89119,702-555-1864,linda.gray80@hotmail.com,2016-09-03,Consumer,52470
+100585,Rebecca,Medina,3677 Alta St,Las Vegas,NV,89101,725-555-2773,rebecca.medina26@icloud.com,2018-04-17,SMB,59884
+100586,Amy,Cole,9603 Hualapai Way,Henderson,NV,89011,725-555-4671,amy.cole95@gmail.com,2020-04-10,Consumer,35600
+100587,Omar,Guzman,1843 Canyon Ln,Las Vegas,NV,89101,725-555-2778,omar.guzman54@outlook.com,2019-06-13,Consumer,42894
+100588,David,Miller,3442 Decatur St,Henderson,NV,89052,725-555-3883,david.miller14@yahoo.com,2022-10-02,Consumer,36843
+100589,Ashley,Cole,9254 Boulder Ct,Henderson,NV,89052,725-555-9672,ashley.cole16@icloud.com,2023-09-05,Consumer,2091
+100590,Grace,Castro,5653 Bonanza Rd,Henderson,NV,89011,702-555-5477,grace.castro62@icloud.com,2016-08-04,Consumer,7689
+100591,Debra,Stewart,350 Decatur Blvd,North Las Vegas,NV,89031,725-555-3744,debra.stewart53@hotmail.com,2022-09-10,SMB,37713
+100592,Walter,Morales,4944 Torrey Ln,Henderson,NV,89011,702-555-7582,walter.morales49@gmail.com,2020-11-05,Enterprise,48611
+100593,Kathleen,Ramirez,4210 Buffalo Way,North Las Vegas,NV,89031,702-555-6678,kathleen.ramirez29@yahoo.com,2016-08-14,Enterprise,35716
+100594,Deborah,Bennett,4831 Torrey Rd,Henderson,NV,89011,725-555-4100,deborah.bennett86@outlook.com,2020-06-01,Enterprise,30824
+100595,Jeremy,Walker,3592 Centennial Ave,Las Vegas,NV,89101,725-555-9508,jeremy.walker65@outlook.com,2017-10-04,Enterprise,11084
+100596,John,Graham,1041 Charleston Ln,Las Vegas,NV,89101,702-555-1098,john.graham98@yahoo.com,2017-05-07,Consumer,21628
+100597,Brian,Sanders,3728 Rainbow Pkwy,Las Vegas,NV,89101,725-555-3743,brian.sanders46@outlook.com,2017-10-22,Consumer,37562
+100598,Matthew,Wood,5594 Warm Pkwy,Paradise,NV,89109,702-555-3097,matthew.wood24@outlook.com,2021-11-04,SMB,5476
+100599,Richard,Stevens,2286 Blue Pkwy,Summerlin,NV,89135,725-555-4510,richard.stevens95@yahoo.com,2019-10-06,Consumer,35432
+100600,Amanda,Ramirez,6433 Fort Dr,Las Vegas,NV,89117,725-555-9724,amanda.ramirez50@icloud.com,2016-03-31,SMB,3148
+100601,Jordan,Nguyen,5110 Hualapai Ct,Las Vegas,NV,89119,725-555-4946,jordan.nguyen81@icloud.com,2022-10-08,Consumer,19516
+100602,Tyler,Scott,8561 Hualapai Ct,Henderson,NV,89011,702-555-6068,tyler.scott61@outlook.com,2023-02-09,Enterprise,46309
+100603,Kimberly,Long,5647 Apache Blvd,Henderson,NV,89052,702-555-2809,kimberly.long10@gmail.com,2019-01-09,SMB,9053
+100604,Ethan,Barnes,813 Charleston Rd,Summerlin,NV,89135,702-555-7096,ethan.barnes39@gmail.com,2016-04-16,Consumer,37887
+100605,Melissa,Fernandez,6275 Rampart Ct,Las Vegas,NV,89101,702-555-6682,melissa.fernandez6@yahoo.com,2022-12-27,Enterprise,653
+100606,Debra,Gibson,8504 Canyon Way,Henderson,NV,89052,725-555-7188,debra.gibson64@outlook.com,2016-01-24,SMB,57864
+100607,Patricia,Carter,3666 Canyon St,Summerlin,NV,89135,725-555-9004,patricia.carter74@hotmail.com,2018-09-10,Consumer,53404
+100608,Natalie,Hill,9008 Charleston Ct,Las Vegas,NV,89119,702-555-6208,natalie.hill48@gmail.com,2022-01-25,Consumer,8180
+100609,Keith,Reyes,9211 Apache Ln,Henderson,NV,89011,702-555-3379,keith.reyes42@hotmail.com,2020-11-16,SMB,36213
+100610,Matthew,Morris,2413 Alta Ln,Las Vegas,NV,89117,725-555-7647,matthew.morris92@yahoo.com,2018-04-11,Consumer,51271
+100611,Juan,Green,6657 Blue Pkwy,North Las Vegas,NV,89031,702-555-6829,juan.green36@hotmail.com,2020-01-18,Consumer,15312
+100612,Lisa,Foster,6840 Losee Ln,Henderson,NV,89052,725-555-6978,lisa.foster94@icloud.com,2023-06-14,Consumer,13446
+100613,Jonathan,Murray,531 Cheyenne Pkwy,Summerlin,NV,89135,702-555-9020,jonathan.murray70@icloud.com,2023-04-03,Consumer,30178
+100614,Carolyn,Mendoza,638 Russell Rd,Henderson,NV,89052,702-555-3809,carolyn.mendoza91@gmail.com,2022-07-05,Consumer,13029
+100615,Sharon,Garcia,3614 Carey Way,Las Vegas,NV,89119,702-555-6297,sharon.garcia1@outlook.com,2017-09-27,SMB,50771
+100616,Lisa,Wallace,2916 Charleston Pkwy,Las Vegas,NV,89119,702-555-1604,lisa.wallace52@outlook.com,2024-09-19,Consumer,57659
+100617,Keith,Ford,2584 Grand Way,Las Vegas,NV,89101,725-555-8984,keith.ford4@hotmail.com,2024-09-25,Consumer,51406
+100618,Paul,Cruz,1346 Charleston Rd,Summerlin,NV,89135,725-555-7720,paul.cruz47@outlook.com,2018-11-06,Consumer,41224
+100619,Heather,Kennedy,6415 Alta Ct,Las Vegas,NV,89119,702-555-3799,heather.kennedy71@icloud.com,2019-05-21,Consumer,34397
+100620,Raymond,Woods,1066 Hualapai Ct,Henderson,NV,89011,702-555-3823,raymond.woods40@yahoo.com,2024-11-20,Enterprise,1301
+100621,Jonathan,Garcia,2181 Cactus Rd,Henderson,NV,89011,725-555-5444,jonathan.garcia14@yahoo.com,2019-10-08,Consumer,59329
+100622,Priya,Castillo,1526 Gibson Way,Las Vegas,NV,89119,725-555-5455,priya.castillo82@outlook.com,2017-01-15,SMB,26365
+100623,Dana,Kim,8582 Eastern Ave,Henderson,NV,89011,702-555-1895,dana.kim49@gmail.com,2018-10-07,Consumer,47832
+100624,John,Morgan,7078 Gibson Way,Summerlin,NV,89135,725-555-1018,john.morgan6@icloud.com,2016-08-27,Enterprise,34214
+100625,Angela,Aguilar,3170 Gibson Blvd,Las Vegas,NV,89101,702-555-7448,angela.aguilar90@yahoo.com,2020-06-20,SMB,54863
+100626,Amy,Howard,4821 Centennial Ct,Henderson,NV,89011,725-555-8235,amy.howard5@hotmail.com,2015-04-01,SMB,41863
+100627,Amy,Alexander,5816 Canyon Way,Henderson,NV,89052,702-555-9186,amy.alexander71@hotmail.com,2024-09-07,Consumer,30858
+100628,Donna,Hall,7948 Alta Ln,North Las Vegas,NV,89031,725-555-7980,donna.hall20@gmail.com,2017-12-17,Consumer,44783
+100629,Harold,Guzman,8080 Durango Blvd,Henderson,NV,89011,702-555-6559,harold.guzman50@yahoo.com,2016-02-29,Consumer,47669
+100630,James,Torres,3037 Durango Ave,Henderson,NV,89011,725-555-8066,james.torres18@hotmail.com,2018-03-29,SMB,17754
+100631,Sarah,Ford,6383 Windmill Blvd,Las Vegas,NV,89117,702-555-9550,sarah.ford42@gmail.com,2021-03-18,Consumer,56002
+100632,Ronald,Tran,6570 Centennial Ln,Paradise,NV,89109,702-555-5408,ronald.tran39@gmail.com,2020-12-30,Enterprise,20564
+100633,Aisha,Perez,5976 Canyon Ct,Las Vegas,NV,89101,702-555-6850,aisha.perez30@icloud.com,2021-07-01,Consumer,18643
+100634,Susan,Parker,7598 Boulder St,Las Vegas,NV,89101,725-555-6874,susan.parker84@gmail.com,2021-08-10,Consumer,5469
+100635,Aaron,Sanders,8983 Charleston Blvd,Henderson,NV,89011,702-555-7239,aaron.sanders93@gmail.com,2019-11-27,SMB,56962
+100636,Carolyn,Ramirez,8487 Charleston Way,Las Vegas,NV,89101,725-555-1079,carolyn.ramirez83@outlook.com,2024-01-28,Consumer,2084
+100637,Elizabeth,Mitchell,4487 Cactus Pkwy,Paradise,NV,89109,725-555-1680,elizabeth.mitchell1@gmail.com,2020-12-24,Consumer,24129
+100638,Natalie,Hughes,3433 Stephanie Ln,Las Vegas,NV,89119,725-555-1903,natalie.hughes54@gmail.com,2019-01-11,Consumer,35657
+100639,Jeremy,Martinez,2475 Decatur Ln,North Las Vegas,NV,89031,702-555-2147,jeremy.martinez44@outlook.com,2017-02-26,Consumer,36261
+100640,Michael,Hill,5557 Sahara Ct,Henderson,NV,89011,702-555-2920,michael.hill36@icloud.com,2024-12-11,Consumer,23316
+100641,Edward,Wood,1862 Fort Ct,Henderson,NV,89011,702-555-4135,edward.wood66@outlook.com,2015-09-29,Enterprise,21363
+100642,Benjamin,Wilson,1157 Stephanie Ct,Summerlin,NV,89135,725-555-3295,benjamin.wilson53@outlook.com,2023-02-06,Consumer,12466
+100643,Carl,Wright,9378 Canyon Dr,Las Vegas,NV,89117,725-555-1227,carl.wright80@gmail.com,2023-05-21,Enterprise,44411
+100644,Douglas,Young,4311 Ann Ct,Las Vegas,NV,89119,702-555-6580,douglas.young1@icloud.com,2019-09-27,Enterprise,37855
+100645,Emma,Garcia,9395 Eastern Dr,Las Vegas,NV,89119,725-555-9260,emma.garcia64@yahoo.com,2016-10-18,SMB,40837
+100646,Michelle,Jimenez,3059 Owens Dr,Henderson,NV,89052,725-555-3502,michelle.jimenez65@yahoo.com,2022-05-26,SMB,21108
+100647,Joseph,Gonzales,880 Windmill Way,North Las Vegas,NV,89031,702-555-3882,joseph.gonzales25@outlook.com,2022-01-19,Enterprise,13563
+100648,Carlos,Freeman,6258 Hualapai Dr,Las Vegas,NV,89101,702-555-6341,carlos.freeman43@hotmail.com,2020-02-16,Consumer,48594
+100649,Deborah,Henderson,3711 Canyon Pkwy,North Las Vegas,NV,89031,725-555-8938,deborah.henderson73@hotmail.com,2016-02-05,Consumer,2257
+100650,John,Davis,611 Pecos Rd,Summerlin,NV,89135,702-555-8533,john.davis59@hotmail.com,2018-02-17,SMB,714
+100651,Jack,Tran,7406 Warm Way,Las Vegas,NV,89101,725-555-4002,jack.tran47@gmail.com,2020-06-20,Consumer,34308
+100652,Nancy,Long,2878 Nellis Ave,Paradise,NV,89109,702-555-3949,nancy.long26@outlook.com,2022-08-19,Consumer,49377
+100653,Donald,Ramirez,749 Buffalo Way,Las Vegas,NV,89119,702-555-9666,donald.ramirez94@hotmail.com,2016-06-07,SMB,11403
+100654,Stephanie,Ruiz,3919 Mojave Dr,Las Vegas,NV,89101,725-555-3712,stephanie.ruiz45@gmail.com,2016-06-13,Enterprise,13711
+100655,Cynthia,Crawford,6452 Owens Blvd,North Las Vegas,NV,89031,725-555-2728,cynthia.crawford34@icloud.com,2019-09-06,SMB,2791
+100656,Jerry,Cruz,5974 Apache Ln,Las Vegas,NV,89117,725-555-2869,jerry.cruz28@gmail.com,2021-11-28,Consumer,33880
+100657,Barbara,Hill,5522 Torrey St,Summerlin,NV,89135,725-555-3729,barbara.hill83@gmail.com,2019-10-24,Consumer,52240
+100658,Peter,Price,1380 Tropicana Pkwy,North Las Vegas,NV,89031,725-555-1370,peter.price86@hotmail.com,2024-03-20,Consumer,54323
+100659,Christopher,Nelson,5842 Bonanza Ave,Las Vegas,NV,89117,702-555-9954,christopher.nelson40@hotmail.com,2016-06-12,Enterprise,53847
+100660,Emma,Cook,1115 Eastern Ave,Henderson,NV,89052,702-555-6849,emma.cook64@gmail.com,2022-12-02,Consumer,44758
+100661,Nicole,Cooper,9633 Torrey Ct,Las Vegas,NV,89119,702-555-8585,nicole.cooper47@icloud.com,2022-09-01,Consumer,29164
+100662,Andrew,Miller,969 Nellis Rd,Summerlin,NV,89135,702-555-5317,andrew.miller76@outlook.com,2019-03-27,Enterprise,29103
+100663,Ethan,Diaz,8038 Grand Ct,Las Vegas,NV,89101,725-555-5556,ethan.diaz54@gmail.com,2015-01-25,Consumer,24578
+100664,Cynthia,Cooper,6856 Springs Ct,Las Vegas,NV,89101,725-555-6488,cynthia.cooper99@yahoo.com,2022-11-18,Consumer,4221
+100665,Sarah,Howard,5351 Carey Ct,Las Vegas,NV,89101,725-555-4545,sarah.howard18@gmail.com,2019-05-07,Consumer,20519
+100666,Kimberly,Jimenez,8576 Jones Ave,Henderson,NV,89052,702-555-7064,kimberly.jimenez61@icloud.com,2020-06-18,Consumer,50497
+100667,Elizabeth,Young,765 Losee St,Henderson,NV,89011,702-555-7161,elizabeth.young67@icloud.com,2017-02-04,Consumer,59478
+100668,Carolyn,Barnes,4714 Cheyenne Ave,North Las Vegas,NV,89031,702-555-1012,carolyn.barnes9@outlook.com,2021-02-04,Consumer,44699
+100669,Carlos,Hayes,3485 Stephanie Way,North Las Vegas,NV,89031,725-555-6619,carlos.hayes14@yahoo.com,2019-01-29,Enterprise,4408
+100670,Matthew,Williams,5741 Fort Ln,Henderson,NV,89011,702-555-1662,matthew.williams40@icloud.com,2024-09-02,Consumer,47756
+100671,Patrick,Henderson,7676 Grand Way,North Las Vegas,NV,89031,702-555-9811,patrick.henderson29@outlook.com,2018-05-24,Consumer,43705
+100672,Brian,Stevens,8613 Pecos St,North Las Vegas,NV,89031,702-555-7341,brian.stevens47@outlook.com,2021-10-20,SMB,55932
+100673,Ashley,Mitchell,3000 Russell Dr,Henderson,NV,89052,702-555-8775,ashley.mitchell29@icloud.com,2016-05-28,Enterprise,30559
+100674,Michael,Richardson,2345 Sunset Ct,Las Vegas,NV,89101,725-555-8335,michael.richardson86@yahoo.com,2023-09-10,Consumer,11407
+100675,Adam,Simmons,7117 Sahara St,Las Vegas,NV,89117,702-555-9521,adam.simmons6@yahoo.com,2016-02-22,Consumer,19490
+100676,Mei,Wright,4858 Fort Ct,Paradise,NV,89109,725-555-9960,mei.wright74@icloud.com,2023-03-15,Consumer,27178
+100677,Mary,Smith,2081 Fort Ave,Las Vegas,NV,89117,725-555-5071,mary.smith31@hotmail.com,2017-11-29,SMB,40002
+100678,Samuel,Simmons,6457 Springs Ct,Summerlin,NV,89135,725-555-1305,samuel.simmons69@outlook.com,2024-05-25,SMB,59240
+100679,Jacob,Jones,4170 Canyon Ave,Paradise,NV,89109,725-555-1693,jacob.jones81@yahoo.com,2020-12-26,SMB,17444
+100680,Natalie,Watson,2267 Maryland Rd,Henderson,NV,89011,702-555-3011,natalie.watson20@hotmail.com,2018-08-18,Enterprise,9376
+100681,Hannah,Scott,2611 Charleston Pkwy,Paradise,NV,89109,725-555-3958,hannah.scott36@hotmail.com,2019-03-02,Consumer,5412
+100682,Richard,Wallace,712 Apache Pkwy,Las Vegas,NV,89119,725-555-3450,richard.wallace99@icloud.com,2019-01-14,Consumer,16854
+100683,Sarah,Thompson,242 Durango Pkwy,Paradise,NV,89109,725-555-3241,sarah.thompson28@outlook.com,2016-10-01,Consumer,57933
+100684,Gary,Kennedy,4310 Boulder Ct,North Las Vegas,NV,89031,702-555-1975,gary.kennedy5@gmail.com,2020-10-02,SMB,44653
+100685,Stephanie,Murray,2611 Charleston Way,Las Vegas,NV,89119,725-555-4211,stephanie.murray57@gmail.com,2024-10-04,Consumer,56625
+100686,Rebecca,Murray,5993 Canyon Way,Las Vegas,NV,89101,702-555-5063,rebecca.murray63@hotmail.com,2022-09-29,Enterprise,36455
+100687,Maria,Anderson,9223 Jones Ave,Henderson,NV,89052,725-555-9838,maria.anderson70@gmail.com,2018-02-14,Consumer,36457
+100688,Karen,Vasquez,426 Canyon Way,Summerlin,NV,89135,725-555-5096,karen.vasquez90@hotmail.com,2024-06-07,SMB,21026
+100689,Jason,Martinez,1205 Ann Ct,Las Vegas,NV,89101,702-555-4505,jason.martinez99@hotmail.com,2015-09-09,Consumer,39468
+100690,Nancy,Harrison,5742 Horizon Way,Las Vegas,NV,89119,725-555-3078,nancy.harrison55@outlook.com,2015-07-18,Consumer,13299
+100691,Fatima,Davis,9065 Cactus Pkwy,Las Vegas,NV,89119,725-555-4595,fatima.davis50@yahoo.com,2017-05-26,Consumer,48438
+100692,Laura,Vasquez,7558 Losee Pkwy,Henderson,NV,89052,725-555-6610,laura.vasquez15@yahoo.com,2020-10-27,Consumer,10096
+100693,Zachary,Bennett,8842 Flamingo St,Las Vegas,NV,89119,725-555-2302,zachary.bennett85@gmail.com,2024-04-08,Enterprise,45022
+100694,Amy,Ramos,3497 Washington Ct,Henderson,NV,89052,725-555-7092,amy.ramos92@icloud.com,2019-03-28,Enterprise,39023
+100695,Ethan,Reyes,3196 Grand Ln,North Las Vegas,NV,89031,702-555-7924,ethan.reyes96@yahoo.com,2022-07-29,Enterprise,22650
+100696,Elizabeth,Howard,5132 Flamingo Ct,Henderson,NV,89011,702-555-6478,elizabeth.howard49@outlook.com,2020-01-06,Consumer,9621
+100697,Carolyn,Morgan,3602 Grand St,North Las Vegas,NV,89031,702-555-2056,carolyn.morgan6@gmail.com,2021-08-24,SMB,37797
+100698,Priya,Diaz,1911 Windmill Rd,Summerlin,NV,89135,725-555-8256,priya.diaz18@hotmail.com,2016-10-02,Consumer,32453
+100699,Cynthia,Carter,1015 Nellis Pkwy,Las Vegas,NV,89117,725-555-4681,cynthia.carter37@outlook.com,2017-07-03,Consumer,18534
+100700,Harold,Smith,7065 Horizon Way,Las Vegas,NV,89117,702-555-3740,harold.smith82@hotmail.com,2019-09-13,Consumer,3176
+100701,Donna,Walker,8375 Blue Ln,Paradise,NV,89109,725-555-2804,donna.walker46@hotmail.com,2015-11-17,Consumer,59640
+100702,Kathleen,Thompson,685 Cheyenne Blvd,Henderson,NV,89052,725-555-2011,kathleen.thompson7@yahoo.com,2017-12-08,Enterprise,15658
+100703,Jason,Taylor,6328 Grand Blvd,Las Vegas,NV,89117,725-555-5601,jason.taylor54@icloud.com,2016-08-12,Consumer,46208
+100704,Ronald,Hall,9331 Ann Pkwy,Summerlin,NV,89135,725-555-1898,ronald.hall51@outlook.com,2017-05-26,Consumer,23033
+100705,Jeffrey,Campbell,7503 Nellis St,Henderson,NV,89052,702-555-5308,jeffrey.campbell97@hotmail.com,2023-07-30,Enterprise,6799
+100706,Jack,Brown,9427 Gibson Ln,Las Vegas,NV,89117,702-555-7803,jack.brown87@hotmail.com,2019-12-15,Consumer,44407
+100707,Mark,Bennett,4286 Cactus Ct,Las Vegas,NV,89119,702-555-8515,mark.bennett67@outlook.com,2023-07-14,Enterprise,23431
+100708,Natalie,Flores,5926 Sandhill St,Las Vegas,NV,89101,702-555-3503,natalie.flores78@yahoo.com,2016-05-17,Consumer,34838
+100709,Heather,Wells,5907 Carey Ln,Henderson,NV,89011,702-555-8780,heather.wells11@outlook.com,2021-06-02,Consumer,17236
+100710,Eric,Nguyen,979 Eastern Pkwy,Las Vegas,NV,89101,725-555-7757,eric.nguyen87@hotmail.com,2015-10-18,Consumer,9699
+100711,William,Ruiz,5764 Hualapai Dr,Las Vegas,NV,89101,702-555-9160,william.ruiz18@hotmail.com,2021-05-15,Consumer,6926
+100712,Mark,Sullivan,3815 Boulder Blvd,Paradise,NV,89109,725-555-9507,mark.sullivan63@icloud.com,2015-08-28,Consumer,18705
+100713,Rebecca,Nelson,9276 Rainbow Rd,North Las Vegas,NV,89031,725-555-3969,rebecca.nelson76@outlook.com,2019-01-25,Consumer,5422
+100714,Janet,Collins,470 Eastern Way,Henderson,NV,89052,702-555-7681,janet.collins61@outlook.com,2024-04-27,Consumer,35766
+100715,Brandon,White,2972 Owens Dr,Henderson,NV,89052,702-555-3598,brandon.white96@outlook.com,2017-06-27,Consumer,29252
+100716,Nancy,Carter,3301 Bonanza Rd,North Las Vegas,NV,89031,702-555-9671,nancy.carter5@outlook.com,2023-02-01,Consumer,28155
+100717,Aaron,Gibson,2871 Rampart Dr,Las Vegas,NV,89117,702-555-7755,aaron.gibson43@icloud.com,2015-05-08,SMB,44044
+100718,Christine,Nguyen,669 Hualapai Ct,North Las Vegas,NV,89031,725-555-6547,christine.nguyen95@gmail.com,2024-08-18,Consumer,18702
+100719,Christopher,Freeman,4396 Windmill Rd,Las Vegas,NV,89119,702-555-7390,christopher.freeman33@gmail.com,2018-11-27,Consumer,6379
+100720,Carlos,Bennett,3501 Carey Ct,Paradise,NV,89109,702-555-9631,carlos.bennett30@yahoo.com,2017-11-19,SMB,35159
+100721,Richard,Butler,4727 Decatur Dr,Las Vegas,NV,89101,725-555-8874,richard.butler89@outlook.com,2022-07-31,Consumer,58127
+100722,Mei,Fisher,7732 Craig Dr,Henderson,NV,89052,725-555-7790,mei.fisher43@gmail.com,2015-08-01,Enterprise,54850
+100723,Karen,Morris,4657 Maryland Ct,Las Vegas,NV,89117,702-555-1886,karen.morris13@hotmail.com,2023-08-23,SMB,19334
+100724,Rachel,Bryant,8372 Springs Ln,Henderson,NV,89011,702-555-9574,rachel.bryant62@hotmail.com,2022-07-27,SMB,10138
+100725,Jeremy,Richardson,4690 Apache Ct,Summerlin,NV,89135,725-555-5401,jeremy.richardson18@yahoo.com,2015-10-20,Consumer,34637
+100726,Fatima,Hernandez,8823 Torrey Way,Summerlin,NV,89135,702-555-7535,fatima.hernandez80@hotmail.com,2020-07-04,Consumer,22353
+100727,Hannah,Patterson,7269 Craig Ct,Henderson,NV,89011,702-555-5990,hannah.patterson4@gmail.com,2024-11-29,Consumer,47514
+100728,Omar,Wallace,5007 Decatur Blvd,Summerlin,NV,89135,702-555-4522,omar.wallace29@hotmail.com,2019-11-25,SMB,26344
+100729,Michael,Cole,8918 Decatur Rd,Las Vegas,NV,89101,702-555-1190,michael.cole61@icloud.com,2016-07-08,SMB,3001
+100730,Jordan,Bennett,5811 Apache Ave,Summerlin,NV,89135,702-555-9589,jordan.bennett73@hotmail.com,2020-11-13,Enterprise,37487
+100731,Diego,Garcia,4587 Carey Pkwy,Henderson,NV,89052,725-555-3207,diego.garcia25@icloud.com,2021-07-30,Consumer,5518
+100732,Mei,Moore,5501 Tropicana Blvd,Summerlin,NV,89135,725-555-8141,mei.moore53@icloud.com,2022-04-01,Consumer,26780
+100733,Brian,Gibson,7635 Tropicana Blvd,Henderson,NV,89052,725-555-8296,brian.gibson11@icloud.com,2023-01-27,Consumer,26215
+100734,Sarah,Nguyen,1726 Sandhill Rd,North Las Vegas,NV,89031,702-555-3734,sarah.nguyen39@gmail.com,2015-11-20,Consumer,14846
+100735,John,Wells,3699 Rainbow St,Summerlin,NV,89135,725-555-9919,john.wells73@outlook.com,2021-05-21,Consumer,45219
+100736,Jessica,Taylor,4528 Stephanie Ave,Summerlin,NV,89135,702-555-9138,jessica.taylor26@hotmail.com,2020-02-27,Enterprise,25081
+100737,Carl,Cooper,4670 Durango Way,Henderson,NV,89011,725-555-7518,carl.cooper88@icloud.com,2018-07-28,Consumer,14306
+100738,Edward,Hughes,3738 Durango Pkwy,Henderson,NV,89011,702-555-8330,edward.hughes88@yahoo.com,2016-07-24,Enterprise,33112
+100739,Douglas,Kennedy,5070 Sandhill Ln,Henderson,NV,89052,702-555-7844,douglas.kennedy71@icloud.com,2015-01-08,Consumer,7878
+100740,Michael,Ellis,2697 Fort Pkwy,Las Vegas,NV,89119,725-555-8703,michael.ellis70@outlook.com,2021-02-17,SMB,22494
+100741,Joseph,Bailey,4605 Sunset Pkwy,Las Vegas,NV,89119,725-555-4204,joseph.bailey61@gmail.com,2023-10-10,Consumer,29102
+100742,Anthony,Jenkins,4209 Diamond Way,Summerlin,NV,89135,702-555-5394,anthony.jenkins82@outlook.com,2017-07-31,Consumer,53381
+100743,Susan,Roberts,7757 Buffalo Dr,Las Vegas,NV,89117,702-555-8225,susan.roberts71@icloud.com,2018-04-07,Enterprise,4149
+100744,Hannah,Hill,6486 Craig Dr,Las Vegas,NV,89117,702-555-6595,hannah.hill49@hotmail.com,2022-07-31,Consumer,56668
+100745,Barbara,Barnes,9480 Silverado Pkwy,Paradise,NV,89109,725-555-8212,barbara.barnes19@icloud.com,2020-05-13,Consumer,9338
+100746,Emma,Long,706 Canyon Ct,Henderson,NV,89052,725-555-2442,emma.long73@icloud.com,2021-07-27,Enterprise,30902
+100747,Sharon,Medina,5864 Washington Ct,Henderson,NV,89052,725-555-4165,sharon.medina39@yahoo.com,2018-12-25,Consumer,5658
+100748,Stephanie,Tran,3162 Grand St,Las Vegas,NV,89101,702-555-4035,stephanie.tran63@outlook.com,2020-12-14,Consumer,4481
+100749,Nancy,Parker,3772 Windmill Ct,North Las Vegas,NV,89031,725-555-4168,nancy.parker10@hotmail.com,2024-05-20,SMB,20755
+100750,Lisa,Reynolds,7936 Pecos Pkwy,Henderson,NV,89011,725-555-7931,lisa.reynolds94@hotmail.com,2017-09-11,Consumer,57368
+100751,Jacob,Vasquez,8229 Horizon Ct,North Las Vegas,NV,89031,702-555-9569,jacob.vasquez30@yahoo.com,2015-12-23,SMB,24329
+100752,Karen,Robinson,9272 Nellis Ct,Henderson,NV,89011,725-555-2168,karen.robinson74@icloud.com,2017-04-01,Enterprise,57350
+100753,Patricia,Tucker,3358 Alta St,Henderson,NV,89052,725-555-5838,patricia.tucker17@icloud.com,2024-12-28,Consumer,1516
+100754,Mei,Morgan,5995 Owens Ct,Henderson,NV,89052,725-555-5853,mei.morgan2@hotmail.com,2024-02-15,Consumer,34924
+100755,Thomas,Vargas,858 Rampart Ln,Henderson,NV,89052,725-555-3625,thomas.vargas54@gmail.com,2015-10-09,Consumer,4602
+100756,Pamela,Roberts,7271 Losee Blvd,Las Vegas,NV,89119,725-555-9687,pamela.roberts32@yahoo.com,2015-10-11,Consumer,37056
+100757,Justin,Vasquez,8252 Apache Ln,Las Vegas,NV,89101,702-555-5658,justin.vasquez15@outlook.com,2022-06-11,Enterprise,47063
+100758,Walter,Myers,6274 Nellis St,Paradise,NV,89109,702-555-9478,walter.myers83@hotmail.com,2017-12-24,Consumer,39870
+100759,Ryan,Gutierrez,2938 Gibson Dr,Henderson,NV,89011,702-555-1169,ryan.gutierrez43@yahoo.com,2022-07-14,SMB,39002
+100760,Carlos,Edwards,1061 Stephanie Ct,Paradise,NV,89109,725-555-4172,carlos.edwards98@gmail.com,2015-06-29,Enterprise,8801
+100761,Ronald,Hill,6367 Diamond Pkwy,North Las Vegas,NV,89031,702-555-7230,ronald.hill19@gmail.com,2015-12-29,Consumer,38713
+100762,Heather,Guzman,746 Stephanie Pkwy,Henderson,NV,89052,702-555-1641,heather.guzman30@gmail.com,2020-12-13,Consumer,29057
+100763,Kevin,Hamilton,8139 Owens Way,Summerlin,NV,89135,725-555-4953,kevin.hamilton23@outlook.com,2023-07-02,SMB,37010
+100764,Kevin,Bell,7617 Nellis Ln,Paradise,NV,89109,725-555-3653,kevin.bell16@icloud.com,2021-08-26,Consumer,26162
+100765,Jeffrey,Murray,2652 Decatur St,North Las Vegas,NV,89031,725-555-2825,jeffrey.murray76@gmail.com,2018-08-31,Enterprise,11977
+100766,Mark,Rivera,9275 Horizon Way,Las Vegas,NV,89119,702-555-8041,mark.rivera12@hotmail.com,2020-04-13,Consumer,14853
+100767,Kathleen,Reyes,3661 Durango Way,Paradise,NV,89109,725-555-4725,kathleen.reyes58@gmail.com,2015-04-03,Consumer,2048
+100768,Sarah,Patel,4354 Maryland Blvd,Henderson,NV,89052,702-555-2926,sarah.patel98@outlook.com,2016-04-25,Consumer,13982
+100769,Laura,Medina,5882 Canyon St,Las Vegas,NV,89119,725-555-2631,laura.medina93@yahoo.com,2018-10-06,Consumer,24358
+100770,Timothy,Guzman,9244 Stephanie Way,Henderson,NV,89011,725-555-6581,timothy.guzman35@icloud.com,2017-03-08,Consumer,50570
+100771,Alexander,Castillo,5066 Cactus Dr,Henderson,NV,89052,702-555-7133,alexander.castillo82@yahoo.com,2015-05-18,Consumer,56046
+100772,Larry,Hall,2188 Nellis Blvd,Las Vegas,NV,89101,702-555-6568,larry.hall33@hotmail.com,2023-01-17,Consumer,47772
+100773,Jennifer,Castillo,6251 Diamond Pkwy,Henderson,NV,89052,702-555-2008,jennifer.castillo3@outlook.com,2019-07-12,Enterprise,22444
+100774,Dennis,Alvarez,7601 Stephanie Rd,Summerlin,NV,89135,725-555-4594,dennis.alvarez32@yahoo.com,2019-06-23,Consumer,38121
+100775,Jerry,Hall,5044 Blue Ave,Henderson,NV,89052,725-555-9322,jerry.hall35@icloud.com,2015-11-08,Enterprise,39189
+100776,Deborah,Clark,2463 Sunset Ln,Las Vegas,NV,89119,725-555-6468,deborah.clark9@outlook.com,2023-03-26,Consumer,28996
+100777,Paul,Fisher,9638 Carey St,North Las Vegas,NV,89031,725-555-8255,paul.fisher46@gmail.com,2024-04-22,Consumer,766
+100778,Patrick,Parker,1674 Blue Way,Paradise,NV,89109,725-555-1641,patrick.parker8@yahoo.com,2024-01-15,Consumer,6383
+100779,Zachary,Fisher,6691 Carey Rd,Las Vegas,NV,89119,725-555-3898,zachary.fisher62@yahoo.com,2017-05-03,Consumer,20121
+100780,Peter,Morris,9234 Horizon Ave,Las Vegas,NV,89101,725-555-1665,peter.morris82@gmail.com,2015-06-04,Consumer,35125
+100781,Anna,Martinez,5390 Mojave Way,Henderson,NV,89011,702-555-7528,anna.martinez80@outlook.com,2019-01-08,SMB,3730
+100782,Justin,Kennedy,3193 Craig Ln,Henderson,NV,89052,702-555-3710,justin.kennedy18@hotmail.com,2022-05-09,Consumer,24001
+100783,Mei,Howard,1640 Centennial Ln,Las Vegas,NV,89119,725-555-1211,mei.howard64@icloud.com,2022-10-13,SMB,10934
+100784,Carl,Aguilar,5884 Hualapai Pkwy,North Las Vegas,NV,89031,702-555-7923,carl.aguilar39@yahoo.com,2017-12-27,Enterprise,14081
+100785,Steven,Butler,2741 Charleston Ln,Henderson,NV,89011,702-555-2370,steven.butler44@icloud.com,2024-03-22,SMB,59600
+100786,Aisha,Jenkins,1136 Horizon Way,Las Vegas,NV,89117,702-555-3065,aisha.jenkins85@gmail.com,2024-10-15,SMB,9758
+100787,Carl,Thompson,7473 Diamond Dr,Henderson,NV,89011,725-555-1293,carl.thompson85@gmail.com,2024-06-07,Consumer,11682
+100788,Aaron,West,2349 Owens Rd,Las Vegas,NV,89119,702-555-8201,aaron.west53@hotmail.com,2019-01-08,Consumer,17205
+100789,Dorothy,Reynolds,7737 Sahara Ave,Las Vegas,NV,89119,725-555-6628,dorothy.reynolds54@gmail.com,2019-12-13,Enterprise,15791
+100790,Heather,Ramos,3351 Alta Ln,Henderson,NV,89052,725-555-5150,heather.ramos42@outlook.com,2019-04-19,Consumer,10763
+100791,Sharon,Coleman,1147 Rainbow St,Paradise,NV,89109,702-555-1272,sharon.coleman92@gmail.com,2015-11-09,Consumer,13603
+100792,Carol,King,6799 Sunset Ave,Las Vegas,NV,89119,702-555-1663,carol.king2@outlook.com,2017-11-24,Enterprise,10380
+100793,Samuel,Ramos,1130 Sandhill Pkwy,Las Vegas,NV,89119,702-555-3392,samuel.ramos87@yahoo.com,2019-07-02,Consumer,22116
+100794,Andrew,Walker,8558 Rampart Rd,Las Vegas,NV,89101,725-555-6267,andrew.walker93@outlook.com,2020-05-02,SMB,49012
+100795,Ryan,Johnson,5672 Boulder Pkwy,Paradise,NV,89109,702-555-1817,ryan.johnson13@gmail.com,2018-10-30,Consumer,32576
+100796,Kathleen,Gonzales,8341 Owens Pkwy,Las Vegas,NV,89117,725-555-1583,kathleen.gonzales54@yahoo.com,2024-12-02,Enterprise,42212
+100797,Jeffrey,Cooper,5877 Silverado Rd,Henderson,NV,89052,702-555-8618,jeffrey.cooper99@gmail.com,2024-06-13,Enterprise,6089
+100798,Scott,Alexander,7941 Losee Dr,Las Vegas,NV,89101,725-555-8408,scott.alexander73@hotmail.com,2019-07-09,Consumer,32552
+100799,Dana,Aguilar,885 Nellis Dr,Las Vegas,NV,89119,725-555-8944,dana.aguilar35@outlook.com,2021-12-22,SMB,17376
+100800,Samuel,Burns,8841 Silverado Pkwy,Las Vegas,NV,89117,725-555-4198,samuel.burns56@hotmail.com,2020-09-10,Consumer,41981
+100801,Carolyn,Baker,5833 Diamond St,Las Vegas,NV,89117,702-555-7504,carolyn.baker41@yahoo.com,2021-07-05,Consumer,30234
+100802,Hannah,Garcia,9447 Durango St,Henderson,NV,89052,702-555-6116,hannah.garcia14@yahoo.com,2020-06-12,Enterprise,47575
+100803,Stephanie,Alvarez,1987 Springs Dr,Henderson,NV,89052,725-555-8350,stephanie.alvarez93@icloud.com,2018-04-06,Enterprise,56502
+100804,Jason,Rivera,7944 Rampart Blvd,Las Vegas,NV,89101,725-555-7678,jason.rivera90@outlook.com,2024-08-08,Consumer,45463
+100805,Benjamin,Ruiz,6789 Sandhill Dr,Las Vegas,NV,89101,702-555-8471,benjamin.ruiz70@icloud.com,2018-02-14,Consumer,10129
+100806,Harold,Stewart,7717 Washington Ave,Henderson,NV,89011,725-555-6552,harold.stewart66@icloud.com,2024-02-25,SMB,23191
+100807,William,Bailey,9361 Bonanza Dr,Summerlin,NV,89135,702-555-2999,william.bailey79@outlook.com,2023-11-27,Enterprise,8059
+100808,Michelle,Cruz,4605 Bonanza Rd,Las Vegas,NV,89119,702-555-8620,michelle.cruz62@icloud.com,2019-08-27,SMB,54588
+100809,Joshua,Morris,2286 Charleston Blvd,Paradise,NV,89109,725-555-3976,joshua.morris24@yahoo.com,2016-07-07,Enterprise,57809
+100810,Melissa,Bryant,914 Sunset St,Henderson,NV,89011,702-555-3017,melissa.bryant28@outlook.com,2022-11-30,Consumer,4511
+100811,Larry,Turner,5629 Bonanza Dr,Summerlin,NV,89135,702-555-8973,larry.turner98@gmail.com,2020-01-16,Consumer,45277
+100812,Carol,Robinson,1140 Flamingo Ave,Summerlin,NV,89135,725-555-9066,carol.robinson26@hotmail.com,2021-04-29,SMB,27372
+100813,Mary,Green,5490 Carey Ct,Las Vegas,NV,89101,702-555-8591,mary.green25@gmail.com,2021-11-28,Consumer,20123
+100814,Jeffrey,Morales,7045 Lamb Ln,Las Vegas,NV,89117,725-555-1744,jeffrey.morales75@outlook.com,2022-12-20,Consumer,8114
+100815,Frank,Wilson,1067 Washington Pkwy,Summerlin,NV,89135,725-555-7159,frank.wilson82@yahoo.com,2023-05-23,Consumer,12057
+100816,Peter,Crawford,1659 Rainbow Pkwy,Henderson,NV,89011,702-555-3127,peter.crawford48@gmail.com,2024-06-20,Consumer,23346
+100817,Patrick,White,7425 Pecos Ln,Las Vegas,NV,89119,725-555-7565,patrick.white44@yahoo.com,2018-10-12,Enterprise,41458
+100818,Jerry,Ford,4563 Sahara Pkwy,Las Vegas,NV,89101,725-555-3997,jerry.ford79@outlook.com,2018-03-20,Consumer,34965
+100819,Emma,Ruiz,7327 Gibson Pkwy,Las Vegas,NV,89101,702-555-7464,emma.ruiz79@yahoo.com,2023-02-26,Consumer,45821
+100820,Ashley,Alexander,4449 Pecos Way,Summerlin,NV,89135,702-555-2710,ashley.alexander64@icloud.com,2024-08-31,Consumer,30117
+100821,Donald,Burns,9745 Springs Way,Las Vegas,NV,89101,702-555-2610,donald.burns78@outlook.com,2015-12-05,Consumer,28143
+100822,Cynthia,Moore,1115 Warm St,Paradise,NV,89109,702-555-6195,cynthia.moore99@gmail.com,2018-05-24,Enterprise,2672
+100823,Luis,Kim,4313 Centennial Way,Las Vegas,NV,89119,725-555-8582,luis.kim35@icloud.com,2016-09-19,Consumer,30188
+100824,Helen,Hall,1176 Apache Way,Henderson,NV,89011,702-555-2963,helen.hall23@gmail.com,2023-08-03,Consumer,9920
+100825,Alexander,Harrison,9472 Silverado Pkwy,Paradise,NV,89109,702-555-6782,alexander.harrison38@icloud.com,2021-02-03,Consumer,8518
+100826,Juan,Stewart,3244 Torrey St,Paradise,NV,89109,702-555-6759,juan.stewart39@outlook.com,2022-08-02,Consumer,28010
+100827,Carlos,Chavez,1228 Windmill St,North Las Vegas,NV,89031,702-555-7342,carlos.chavez84@gmail.com,2019-03-19,Enterprise,5084
+100828,Samuel,Bryant,4801 Sunset St,Summerlin,NV,89135,702-555-8749,samuel.bryant75@outlook.com,2018-09-18,SMB,59369
+100829,Thomas,Davis,5548 Eastern Ave,Las Vegas,NV,89119,702-555-6613,thomas.davis56@icloud.com,2022-06-20,Consumer,15688
+100830,Sarah,Mitchell,6101 Apache Dr,Las Vegas,NV,89101,725-555-6219,sarah.mitchell56@gmail.com,2017-01-12,SMB,38702
+100831,Jennifer,Taylor,5482 Centennial Dr,Henderson,NV,89011,702-555-2232,jennifer.taylor81@gmail.com,2018-04-19,Consumer,34793
+100832,Stephanie,Ortiz,5304 Sandhill Ln,Las Vegas,NV,89119,725-555-1132,stephanie.ortiz31@hotmail.com,2024-01-22,SMB,25763
+100833,Mark,Kim,9387 Silverado Ct,Summerlin,NV,89135,702-555-7792,mark.kim81@icloud.com,2024-12-16,Enterprise,8710
+100834,David,Butler,2529 Eastern Ct,Paradise,NV,89109,702-555-8967,david.butler71@hotmail.com,2018-08-03,Consumer,59033
+100835,Jason,Cook,6621 Alta Rd,North Las Vegas,NV,89031,702-555-3902,jason.cook31@outlook.com,2019-04-25,Consumer,31411
+100836,Rachel,Kelly,7025 Sahara Ln,Las Vegas,NV,89101,702-555-8167,rachel.kelly19@hotmail.com,2023-11-18,Enterprise,35977
+100837,Sharon,Cox,9503 Blue Ave,Summerlin,NV,89135,725-555-6977,sharon.cox84@icloud.com,2018-02-03,Consumer,36029
+100838,Betty,Cox,3936 Horizon Blvd,Las Vegas,NV,89117,725-555-2556,betty.cox82@hotmail.com,2024-02-28,Consumer,23708
+100839,Jack,Bryant,8777 Ann Ln,North Las Vegas,NV,89031,725-555-3029,jack.bryant2@hotmail.com,2022-05-18,Consumer,27915
+100840,Edward,Chavez,6366 Flamingo Way,Paradise,NV,89109,725-555-5400,edward.chavez65@yahoo.com,2022-08-20,Consumer,14613
+100841,Anthony,Tucker,6426 Craig Ct,North Las Vegas,NV,89031,725-555-1002,anthony.tucker40@outlook.com,2019-01-28,Consumer,20709
+100842,Mark,Wilson,3038 Hualapai Rd,Summerlin,NV,89135,702-555-1208,mark.wilson75@gmail.com,2020-10-23,Consumer,26749
+100843,Morgan,Webb,1906 Sahara Pkwy,Henderson,NV,89011,725-555-6974,morgan.webb16@icloud.com,2020-08-29,Consumer,42353
+100844,Dorothy,Brown,2015 Hualapai Ln,Las Vegas,NV,89117,702-555-6870,dorothy.brown27@yahoo.com,2021-08-08,Consumer,48966
+100845,Ryan,Williams,2000 Cheyenne St,Paradise,NV,89109,702-555-5013,ryan.williams36@outlook.com,2017-09-29,Consumer,25260
+100846,Amanda,Marshall,6784 Warm Ave,North Las Vegas,NV,89031,702-555-4560,amanda.marshall8@icloud.com,2018-12-25,Consumer,25620
+100847,Charles,Evans,6610 Diamond Ct,Henderson,NV,89011,725-555-2283,charles.evans95@hotmail.com,2021-11-16,SMB,53839
+100848,Jordan,Reynolds,1536 Cactus Ct,Las Vegas,NV,89119,725-555-5163,jordan.reynolds13@hotmail.com,2015-03-06,Enterprise,16107
+100849,Heather,Lopez,2761 Diamond Blvd,Las Vegas,NV,89119,725-555-9476,heather.lopez36@yahoo.com,2018-02-20,SMB,42390
+100850,Andrew,Patel,587 Rainbow Blvd,Summerlin,NV,89135,702-555-4195,andrew.patel78@outlook.com,2021-04-21,Consumer,26046
+100851,Morgan,Mendoza,3235 Bonanza Ct,Henderson,NV,89052,702-555-8002,morgan.mendoza78@hotmail.com,2019-12-19,Consumer,32408
+100852,Christine,Phillips,8667 Russell Pkwy,Henderson,NV,89052,702-555-2561,christine.phillips85@gmail.com,2023-08-29,Consumer,42251
+100853,Raymond,Mendoza,9646 Boulder Ct,Las Vegas,NV,89117,702-555-8643,raymond.mendoza19@gmail.com,2017-09-29,Consumer,55573
+100854,Kenneth,Adams,8086 Blue Dr,Summerlin,NV,89135,702-555-5589,kenneth.adams91@outlook.com,2020-08-05,Consumer,31876
+100855,Rebecca,Diaz,6489 Warm Ln,Paradise,NV,89109,702-555-1200,rebecca.diaz86@yahoo.com,2021-02-26,Enterprise,40256
+100856,Donald,Foster,4065 Horizon Dr,Las Vegas,NV,89101,702-555-4778,donald.foster21@hotmail.com,2020-10-31,Enterprise,51116
+100857,Amanda,Murray,5478 Russell Pkwy,Las Vegas,NV,89119,725-555-4153,amanda.murray97@yahoo.com,2020-08-21,SMB,30549
+100858,Timothy,Aguilar,7707 Silverado Way,Henderson,NV,89052,702-555-7575,timothy.aguilar65@hotmail.com,2024-10-24,Enterprise,36173
+100859,Pamela,Kennedy,2030 Boulder Ave,Paradise,NV,89109,725-555-8549,pamela.kennedy31@gmail.com,2016-08-27,SMB,40935
+100860,Steven,Bell,2350 Sahara Ct,Las Vegas,NV,89117,702-555-7063,steven.bell72@yahoo.com,2017-11-10,Consumer,20284
+100861,Katherine,Chavez,7189 Stephanie Way,Henderson,NV,89011,725-555-4790,katherine.chavez36@icloud.com,2021-04-03,Enterprise,13967
+100862,Jacob,Cole,3532 Charleston Pkwy,North Las Vegas,NV,89031,725-555-7957,jacob.cole73@gmail.com,2024-01-23,SMB,14950
+100863,Zachary,Bailey,4445 Diamond Rd,North Las Vegas,NV,89031,702-555-9084,zachary.bailey99@yahoo.com,2018-09-19,Consumer,1990
+100864,Maria,Robinson,3743 Ann St,North Las Vegas,NV,89031,702-555-3284,maria.robinson82@hotmail.com,2019-11-24,Consumer,12601
+100865,Jack,Wilson,1197 Decatur Way,Summerlin,NV,89135,702-555-6511,jack.wilson25@yahoo.com,2015-01-20,SMB,22717
+100866,Sofia,Brooks,5414 Centennial Pkwy,Henderson,NV,89011,725-555-1294,sofia.brooks12@hotmail.com,2021-01-06,SMB,3810
+100867,Carolyn,Lewis,6490 Hualapai Ln,Las Vegas,NV,89117,725-555-9801,carolyn.lewis99@hotmail.com,2021-04-22,Consumer,50368
+100868,Nicole,Rodriguez,5972 Apache St,North Las Vegas,NV,89031,725-555-7593,nicole.rodriguez95@outlook.com,2023-01-27,Enterprise,38073
+100869,Brenda,Reynolds,5722 Sahara Dr,North Las Vegas,NV,89031,725-555-3254,brenda.reynolds40@icloud.com,2022-12-19,SMB,57716
+100870,Taylor,Jones,1483 Sunset Ct,Paradise,NV,89109,702-555-6489,taylor.jones68@gmail.com,2024-03-01,Consumer,57322
+100871,Benjamin,Long,8175 Stephanie Way,Henderson,NV,89052,725-555-6696,benjamin.long66@icloud.com,2023-05-29,SMB,26153
+100872,Benjamin,Guzman,8175 Stephanie Way,Henderson,NV,89052,725-555-3746,benjamin.guzman51@hotmail.com,2018-11-07,SMB,19968
+100873,Cynthia,Cole,959 Sandhill St,Summerlin,NV,89135,725-555-5023,cynthia.cole89@gmail.com,2019-04-23,Consumer,21880
+100874,Cynthia,Williams,2908 Russell Rd,Henderson,NV,89052,725-555-5023,cynthia.williams85@hotmail.com,2016-09-03,Enterprise,12593
+100875,Gary,Rodriguez,3319 Eastern Dr,Henderson,NV,89011,725-555-2810,gary.rodriguez13@icloud.com,2020-07-05,Consumer,18628
+100876,Gary,Johnson,3319 Eastern Dr,Henderson,NV,89011,702-555-4392,gary.johnson28@hotmail.com,2016-01-08,Consumer,39389
+100877,Donald,Mitchell,5523 Torrey Pkwy,Las Vegas,NV,89119,725-555-1629,donald.mitchell1@yahoo.com,2016-03-06,Consumer,41278
+100878,Karen,Mitchell,5523 Torrey Pkwy,Las Vegas,NV,89119,725-555-1629,karen.brooks37@outlook.com,2019-04-06,SMB,33246
+100879,Jeremy,Smith,6091 Lamb St,Henderson,NV,89011,725-555-3467,jeremy.smith29@yahoo.com,2022-10-04,Consumer,20093
+100880,Janet,Woods,6091 Lamb St,Las Vegas,NV,89101,725-555-3467,janet.woods55@gmail.com,2015-05-13,Consumer,11833
+100881,Harold,Allen,7497 Windmill Ln,Henderson,NV,89052,725-555-7103,harold.allen71@gmail.com,2021-07-22,Consumer,51133
+100882,Janet,Allen,7497 Windmill Ln,Las Vegas,NV,89117,725-555-7103,janet.robinson61@icloud.com,2022-01-31,SMB,56011
+100883,Nicole,Murray,8762 Grand Rd,Summerlin,NV,89135,702-555-5254,nicole.murray44@icloud.com,2022-03-17,SMB,21449
+100884,Ronald,Murray,8762 Grand Rd,Las Vegas,NV,89117,702-555-5254,ronald.walker56@outlook.com,2022-08-05,Consumer,36265
+100885,Samuel,Allen,3627 Washington Blvd,Summerlin,NV,89135,702-555-8256,samuel.allen50@icloud.com,2017-02-04,Consumer,1572
+100886,Christine,Castillo,3627 Washington Blvd,Henderson,NV,89052,702-555-8256,christine.castillo69@icloud.com,2022-12-15,Enterprise,42330
+100887,Jerry,Davis,8060 Cactus Ln,Henderson,NV,89052,702-555-7513,jerry.davis82@outlook.com,2024-01-18,Consumer,1588
+100888,Jason,Davis,8060 Cactus Ln,Las Vegas,NV,89101,702-555-7513,jason.crawford67@yahoo.com,2015-12-19,Consumer,48058
+100889,Matthew,Myers,6093 Lamb Ave,Henderson,NV,89052,725-555-1179,matthew.myers32@icloud.com,2015-12-10,Consumer,55749
+100890,Steven,Burns,6093 Lamb Ave,Henderson,NV,89052,725-555-1179,steven.burns90@outlook.com,2016-10-13,Consumer,27209
+100891,Nicholas,Chavez,796 Apache Rd,Henderson,NV,89011,725-555-5775,nicholas.chavez88@yahoo.com,2023-05-04,Consumer,38974
+100892,Brian,Turner,796 Apache Rd,Summerlin,NV,89135,725-555-5775,brian.turner23@gmail.com,2021-09-10,Consumer,45599
+100893,Nancy,Butler,455 Grand Pkwy,Henderson,NV,89052,702-555-5345,nancy.butler40@icloud.com,2016-07-19,SMB,21787
+100894,Stephanie,Green,455 Grand Pkwy,Las Vegas,NV,89101,702-555-5345,stephanie.green47@outlook.com,2017-06-28,Enterprise,35186
+100895,Melissa,Russell,5602 Sahara Ct,Henderson,NV,89052,702-555-6270,melissa.russell27@hotmail.com,2024-05-24,Enterprise,22297
+100896,Nicholas,Ortiz,5602 Sahara Ct,North Las Vegas,NV,89031,702-555-6270,nicholas.ortiz8@yahoo.com,2019-03-08,Enterprise,9232
+100897,Justin,Perry,4822 Russell St,Henderson,NV,89011,725-555-3960,justin.perry23@hotmail.com,2023-04-18,Consumer,57645
+100898,Dennis,Perry,4822 Russell St,Las Vegas,NV,89119,725-555-3960,dennis.perez35@hotmail.com,2022-06-26,Consumer,22915
+100899,Morgan,Coleman,8690 Hualapai Ct,Las Vegas,NV,89117,702-555-1534,morgan.coleman40@gmail.com,2020-06-25,Consumer,57433
+100900,Douglas,Edwards,8690 Hualapai Ct,Las Vegas,NV,89117,702-555-1534,douglas.edwards46@hotmail.com,2022-06-20,SMB,19321
+100901,Gary,Webb,8277 Windmill St,North Las Vegas,NV,89031,725-555-7323,gary.webb96@gmail.com,2019-11-23,Consumer,47825
+100902,Angela,Webb,8277 Windmill St,Las Vegas,NV,89119,725-555-7323,angela.diaz3@gmail.com,2016-12-17,Consumer,22206
+100903,Sarah,Phillips,143 Lamb Dr,North Las Vegas,NV,89031,725-555-6046,sarah.phillips61@icloud.com,2018-11-06,Consumer,52569
+100904,Thomas,Phillips,143 Lamb Dr,Henderson,NV,89052,725-555-6046,thomas.anderson69@outlook.com,2018-11-02,Enterprise,25359
+100905,Natalie,Rodriguez,9020 Blue Ln,Henderson,NV,89052,702-555-2266,natalie.rodriguez51@outlook.com,2023-03-25,SMB,11559
+100906,Heather,Rodriguez,9020 Blue Ln,Henderson,NV,89011,702-555-2266,heather.king2@gmail.com,2015-10-06,Enterprise,45644
+100907,Donald,Hernandez,1183 Hualapai Dr,Paradise,NV,89109,702-555-1814,donald.hernandez87@outlook.com,2021-01-24,Consumer,21353
+100908,Scott,Gray,1183 Hualapai Dr,Las Vegas,NV,89119,702-555-1814,scott.gray78@icloud.com,2015-03-29,Consumer,4580
+100909,Anthony,Long,6705 Flamingo Way,North Las Vegas,NV,89031,725-555-6154,anthony.long45@yahoo.com,2019-12-24,Consumer,3726
+100910,Jordan,Garcia,6705 Flamingo Way,Summerlin,NV,89135,725-555-6154,jordan.garcia90@outlook.com,2019-06-24,SMB,25056
+100911,Brandon,Scott,5124 Blue Dr,Las Vegas,NV,89117,702-555-5326,brandon.scott44@hotmail.com,2017-11-11,Consumer,36121
+100912,Carlos,Scott,5124 Blue Dr,Las Vegas,NV,89101,702-555-5326,carlos.ellis51@hotmail.com,2024-11-26,Enterprise,19863
+100913,Rebecca,Morales,9241 Flamingo Ln,Henderson,NV,89011,725-555-5535,rebecca.morales54@hotmail.com,2024-02-05,Consumer,51199
+100914,Timothy,Reynolds,9241 Flamingo Ln,Henderson,NV,89052,725-555-5535,timothy.reynolds12@gmail.com,2024-05-25,SMB,12323
+100915,Emma,Powell,8784 Blue Blvd,Las Vegas,NV,89119,725-555-2116,emma.powell27@hotmail.com,2024-12-18,Consumer,1624
+100916,Aisha,Price,8784 Blue Blvd,North Las Vegas,NV,89031,725-555-2116,aisha.price73@icloud.com,2019-11-20,Consumer,50537
+100917,Linda,Smith,7839 Cheyenne Ave,Henderson,NV,89052,702-555-5413,linda.smith40@hotmail.com,2018-12-29,Consumer,16869
+100918,Stephen,Sanders,7839 Cheyenne Ave,Paradise,NV,89109,702-555-5413,stephen.sanders3@yahoo.com,2024-04-06,Enterprise,12649
+100919,Diane,Gibson,9052 Carey Ave,Summerlin,NV,89135,725-555-1431,diane.gibson41@gmail.com,2022-08-24,Enterprise,6245
+100920,Deborah,Harris,9052 Carey Ave,Paradise,NV,89109,725-555-1431,deborah.harris14@yahoo.com,2020-11-07,Consumer,28009
+100921,Eric,White,8723 Owens Ln,Las Vegas,NV,89101,702-555-3572,eric.white61@outlook.com,2022-04-10,Enterprise,45787
+100922,Brian,White,8723 Owens Ln,Las Vegas,NV,89101,702-555-3572,brian.wilson89@gmail.com,2016-09-04,SMB,42934
+100923,Nathan,Mitchell,4690 Stephanie Way,Henderson,NV,89011,725-555-5930,nathan.mitchell1@hotmail.com,2022-04-18,Consumer,11077
+100924,Carol,Mitchell,4690 Stephanie Way,Las Vegas,NV,89101,725-555-5930,carol.gonzalez97@icloud.com,2021-06-26,SMB,36364
+100925,Thomas,Kelly,217 Sandhill St,Henderson,NV,89011,725-555-6080,thomas.kelly79@outlook.com,2023-11-07,SMB,56374
+100926,Mary,Murray,217 Sandhill St,Las Vegas,NV,89101,725-555-6080,mary.murray5@yahoo.com,2023-08-21,SMB,1134
+100927,Diane,Williams,7688 Silverado Dr,Henderson,NV,89011,725-555-3492,diane.williams42@hotmail.com,2018-04-27,Enterprise,52150
+100928,Michelle,Morgan,7688 Silverado Dr,Las Vegas,NV,89101,725-555-3492,michelle.morgan2@yahoo.com,2018-03-08,Consumer,30358
+100929,Nathan,Johnson,8829 Craig St,Las Vegas,NV,89119,725-555-2986,nathan.johnson92@hotmail.com,2024-06-16,Consumer,33268
+100930,Juan,Johnson,8829 Craig St,Summerlin,NV,89135,725-555-2986,juan.myers48@yahoo.com,2022-11-23,Consumer,50292
+100931,Elizabeth,Lopez,7054 Torrey Ct,Henderson,NV,89011,702-555-7097,elizabeth.lopez88@yahoo.com,2018-09-23,Consumer,14649
+100932,Jennifer,Lopez,7054 Torrey Ct,Henderson,NV,89011,702-555-7097,jennifer.hamilton72@yahoo.com,2024-03-14,Consumer,42982
+100933,Natalie,Green,6313 Durango Ct,Summerlin,NV,89135,702-555-1605,natalie.green53@hotmail.com,2015-08-11,Consumer,56820
+100934,Larry,Green,6313 Durango Ct,North Las Vegas,NV,89031,702-555-1605,larry.green1@icloud.com,2024-05-08,Consumer,38618
+100935,Kenneth,Kelly,129 Losee Blvd,Summerlin,NV,89135,702-555-2775,kenneth.kelly89@hotmail.com,2022-02-11,Consumer,5763
+100936,Diego,Alvarez,129 Losee Blvd,Las Vegas,NV,89117,702-555-2775,diego.alvarez95@icloud.com,2022-04-27,Consumer,45302
+100937,Maria,Harris,671 Canyon Rd,North Las Vegas,NV,89031,725-555-9461,maria.harris28@yahoo.com,2020-10-19,Consumer,26869
+100938,Michelle,Harris,671 Canyon Rd,Summerlin,NV,89135,725-555-9461,michelle.gomez51@outlook.com,2020-12-11,Consumer,42111
+100939,Cynthia,Phillips,2677 Charleston Ct,Las Vegas,NV,89117,725-555-8557,cynthia.phillips91@gmail.com,2018-08-27,Consumer,48229
+100940,Jessica,Phillips,2677 Charleston Ct,Henderson,NV,89011,725-555-8557,jessica.woods22@yahoo.com,2023-06-26,SMB,35909
+100941,Keith,Morgan,307 Craig Ave,Las Vegas,NV,89119,725-555-6003,keith.morgan27@yahoo.com,2021-08-25,Consumer,48588
+100942,Wei,Hill,307 Craig Ave,North Las Vegas,NV,89031,725-555-6003,wei.hill35@yahoo.com,2021-08-24,Consumer,47799
+100943,Lisa,Adams,5693 Warm Ct,Las Vegas,NV,89101,702-555-1884,lisa.adams72@icloud.com,2022-09-23,Consumer,40004
+100944,Robert,Adams,5693 Warm Ct,Henderson,NV,89052,702-555-1884,robert.hall11@yahoo.com,2020-08-09,Consumer,16857
+100945,Jeffrey,Clark,8939 Centennial Dr,North Las Vegas,NV,89031,702-555-2340,jeffrey.clark78@outlook.com,2021-03-17,Enterprise,37885
+100946,Joshua,Clark,8939 Centennial Dr,Las Vegas,NV,89101,702-555-2340,joshua.west8@hotmail.com,2015-07-07,Consumer,48956
+100947,Sarah,Herrera,9688 Decatur Blvd,Summerlin,NV,89135,702-555-4437,sarah.herrera64@gmail.com,2016-10-30,Consumer,700
+100948,Kevin,Gray,9688 Decatur Blvd,Summerlin,NV,89135,702-555-4437,kevin.gray56@outlook.com,2024-05-13,Consumer,41913
+100949,Aaron,Robinson,2029 Fort Pkwy,Paradise,NV,89109,725-555-7961,aaron.robinson23@outlook.com,2020-06-01,Enterprise,56666
+100950,Janet,Robinson,2029 Fort Pkwy,Las Vegas,NV,89119,725-555-7961,janet.richardson71@hotmail.com,2018-05-06,Enterprise,53612
+100951,Adam,Harrison,1236 Canyon Pkwy,Las Vegas,NV,89119,725-555-4079,adam.harrison94@hotmail.com,2021-10-09,Consumer,15790
+100952,Jose,Harrison,1236 Canyon Pkwy,North Las Vegas,NV,89031,725-555-4079,jose.patterson32@icloud.com,2021-03-01,Consumer,19367
+100953,Keith,Jimenez,3013 Owens Blvd,Henderson,NV,89011,702-555-2898,keith.jimenez18@outlook.com,2018-03-20,Consumer,18324
+100954,Kenneth,Wells,3013 Owens Blvd,Paradise,NV,89109,702-555-2898,kenneth.wells46@outlook.com,2021-12-10,Enterprise,35300
+100955,Rebecca,Brown,5331 Horizon Way,Paradise,NV,89109,725-555-8018,rebecca.brown9@outlook.com,2021-06-22,Consumer,29327
+100956,Nicholas,Harrison,5331 Horizon Way,Las Vegas,NV,89117,725-555-8018,nicholas.harrison78@icloud.com,2016-01-11,Enterprise,42065
+100957,Stephanie,Ross,2779 Silverado Ct,Las Vegas,NV,89119,702-555-3952,stephanie.ross93@gmail.com,2022-07-07,Enterprise,42691
+100958,Natalie,Patterson,2779 Silverado Ct,Las Vegas,NV,89101,702-555-3952,natalie.patterson77@gmail.com,2022-12-23,Consumer,15198
+100959,Samuel,Thompson,7258 Centennial Dr,Summerlin,NV,89135,702-555-5073,samuel.thompson62@hotmail.com,2017-09-28,Consumer,1168
+100960,Ethan,Johnson,7258 Centennial Dr,Las Vegas,NV,89101,702-555-5073,ethan.johnson50@hotmail.com,2019-08-24,SMB,47943
+100961,Pamela,Mendoza,4245 Silverado St,Las Vegas,NV,89101,702-555-7041,pamela.mendoza30@gmail.com,2018-04-30,Consumer,11801
+100962,Katherine,Hayes,4245 Silverado St,Henderson,NV,89011,702-555-7041,katherine.hayes98@hotmail.com,2020-05-31,Consumer,8061
+100963,Scott,Clark,7453 Springs Rd,Las Vegas,NV,89101,702-555-2721,scott.clark93@outlook.com,2019-01-08,Consumer,13563
+100964,Tyler,Phillips,7453 Springs Rd,Las Vegas,NV,89119,702-555-2721,tyler.phillips85@outlook.com,2022-10-10,SMB,27643
+100965,Steven,Kennedy,1326 Stephanie St,Las Vegas,NV,89119,725-555-5594,steven.kennedy10@icloud.com,2021-11-01,Enterprise,16234
+100966,Jonathan,Wood,1326 Stephanie St,Las Vegas,NV,89101,725-555-5594,jonathan.wood22@gmail.com,2020-01-21,Consumer,38767
+100967,Emily,Kim,1647 Canyon Blvd,Henderson,NV,89052,702-555-4334,emily.kim91@hotmail.com,2021-09-10,Consumer,12151
+100968,Kimberly,Kim,1647 Canyon Blvd,Las Vegas,NV,89119,702-555-4334,kimberly.freeman36@gmail.com,2024-12-13,Enterprise,13713
+100969,Jacob,Morales,5954 Cactus Ct,Las Vegas,NV,89101,702-555-3043,jacob.morales76@yahoo.com,2022-12-07,Consumer,53705
+100970,Carol,Jackson,5954 Cactus Ct,Henderson,NV,89052,702-555-3043,carol.jackson87@yahoo.com,2018-12-17,Consumer,30597
+100971,Sara,Ford,8935 Owens Rd,Las Vegas,NV,89117,702-555-9550,sarah.ford42@gmail.com,2019-04-24,Consumer,3518
+100972,Mary,Perrie,3042 Warm Dr,Las Vegas,NV,89117,702-555-1365,mary.perry34@yahoo.com,2024-10-31,SMB,37543
+100973,Cathleen,Reyes,5047 Grand Pkwy,Paradise,NV,89109,725-555-4725,kathleen.reyes58@gmail.com,2021-01-01,Consumer,14500
+100974,Sharon,Ellis,1147 Rainbow St,Paradise,NV,89109,702-555-2851,sharon.coleman92@gmail.com,2022-03-07,SMB,32313
+100975,Bryan,Wells,3242 Rampart Blvd,Paradise,NV,89109,725-555-5368,brian.wells53@hotmail.com,2019-06-25,Enterprise,3697
+100976,Sam,West,7828 Fort St,Paradise,NV,89109,725-555-4032,samantha.west93@icloud.com,2018-08-25,Consumer,34705
+100977,Larry,Simmons,1374 Cheyenne Ave,Las Vegas,NV,89119,725-555-6939,larry.simmons92@icloud.com,2019-04-06,Consumer,32043
+100978,Melissa,Thomas,2241 Sandhill Dr,Las Vegas,NV,89117,725-555-4742,melissa.richardson43@outlook.com,2021-05-18,Consumer,36152
+100979,Jacob,Vasquez,2038 Cheyenne Dr,North Las Vegas,NV,89031,702-555-9569,jvasquez33@gmail.com,2022-03-16,Consumer,16577
+100980,George,Burns,664 Decatur St,Paradise,NV,89109,725-555-4659,george.burns24@icloud.com,2024-03-05,Consumer,12317
+100981,Aisha,Walker,5976 Canyon Ct,Las Vegas,NV,89101,725-555-4590,aisha.perez30@icloud.com,2019-10-23,Consumer,4073
+100982,Linda,Barnes,5082 Grand Way,Las Vegas,NV,89119,702-555-3546,linda.reynolds37@yahoo.com,2017-12-17,Consumer,44255
+100983,Carolyn,King,8487 Charleston Way,Las Vegas,NV,89101,702-555-9019,carolyn.ramirez83@outlook.com,2019-06-21,SMB,45832
+100984,Jim,Torres,7178 Flamingo Dr,Henderson,NV,89011,725-555-8066,james.torres18@hotmail.com,2023-04-30,Consumer,38834
+100985,Diego,Robinson,4676 Gibson Way,Las Vegas,NV,89117,702-555-8417,drobinson3@yahoo.com,2023-08-27,Enterprise,23009
+100986,Hanna,Howard,7252 Sandhill Blvd,Las Vegas,NV,89101,702-555-8171,hannah.howard82@icloud.com,2018-03-08,SMB,49062
+100987,Tyler,Scott,9549 Washington Dr,Henderson,NV,89011,702-555-2659,tyler.scott61@outlook.com,2019-12-26,Consumer,18905
+100988,Melissa,Sanders,6598 Canyon Way,Paradise,NV,89109,725-555-6814,melissa.harrison89@gmail.com,2023-01-23,Enterprise,19734
+100989,Nathalie,Brooks,6605 Cheyenne Pkwy,Las Vegas,NV,89117,725-555-7332,natalie.brooks61@outlook.com,2015-10-25,Consumer,50178
+100990,Aisha,Kennedy,8921 Apache Ave,Las Vegas,NV,89119,702-555-8190,aisha.bailey29@icloud.com,2015-04-23,Enterprise,22813
+100991,Natalie,Powell,2590 Springs Blvd,Henderson,NV,89011,725-555-8584,npowell71@icloud.com,2023-10-25,Consumer,20130
+100992,Raymond,Griffin,6614 Ann Rd,North Las Vegas,NV,89031,725-555-7519,rgriffin23@hotmail.com,2016-10-17,Consumer,32791

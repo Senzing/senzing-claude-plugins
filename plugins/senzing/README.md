@@ -156,6 +156,8 @@ Senzing is Verified.
 - **It can also fetch public content** from `raw.githubusercontent.com`: indexed code examples (an
   optional fallback). Cookbook recipes are bundled in the plugin and are not fetched.
 
+Read our [Privacy Policy](https://mcp.senzing.com/privacy) for details on how data is handled.
+
 ## Troubleshooting
 
 Something failing? Run `/senzing:doctor` first — it checks the SDK, database, license and config
