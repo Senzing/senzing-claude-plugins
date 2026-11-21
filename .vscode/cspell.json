@@ -40,6 +40,7 @@
     "esac",
     "evals",
     "fabricable",
+    "findall",
     "firewalled",
     "fromkeys",
     "frontmatter",
@@ -113,7 +114,8 @@
     "watchlist",
     "webfetch",
     "webp",
-    "writability"
+    "writability",
+    "zizmor"
   ],
   "ignorePaths": [
     ".git/**",
