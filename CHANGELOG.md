@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-3] - 2026-11-20
+
+### Changed
+
+- **Stripped to the minimum, to test whether a submission with ZERO directory findings
+  publishes without a human reviewer.** 1.46.3-2 was the cleanest version yet — no
+  download-and-run, no refused file types, no agent warnings — and was still held, with the
+  portal reporting *"This plugin's versions wait for an Anthropic reviewer."* It has said that
+  for four months, across every version, and the plugin has never been live. The three items
+  left all said no action was needed, so this removes them anyway to find out whether "nothing
+  to report" is what unblocks automatic publication:
+  - `icon` and `privacyPolicyUrl` removed from `plugin.json`. Both are listing-only fields the
+    directory reads and Claude Code ignores at load time; both were reported on every
+    submission. Removing them may instead trigger `ICON_MISSING` / `PRIVACY_URL_MISSING` — that
+    is the thing being measured.
+  - `icon.png` removed, so the plugin ships no image at all and the "images passed without a
+    code check" note has nothing to fire on. The listing loses its icon.
+  - The recipes' ingredient data is no longer vendored. It was 815 KB of the 1.15 MB, and the
+    policy review reported it "couldn't cover" some files. The plugin is now 27 files / 275 KB.
+    `recipes` relays the recipes' own instruction — download the files and attach them — and
+    downloads nothing itself.
+
+**This is an experiment, and it costs real things:** the listing icon, the privacy-policy link
+and automatic ingredient data. If the version is still held, nothing shippable from this repo
+publishes without Verification, and all of it should be reverted.
+
 ## [1.46.3-2] - 2026-11-20
 
 ### Fixed
