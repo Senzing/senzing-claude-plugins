@@ -21,7 +21,7 @@ needs is its own business.
 | `ask` | `search_docs` | the answer must carry a source the user can open |
 | `build` | `generate_scaffold` / `get_sdk_reference` | argument shapes diverge per binding |
 | `poc-planner` | `search_docs` | the plan quotes Senzing's own PoC guidance |
-| `recipes` | the bundled cookbook read | a recipe is chef-authored, not reconstructed |
+| `recipes` | the live cookbook fetch | a recipe is chef-authored, not reconstructed |
 
 ## What this does NOT assert
 

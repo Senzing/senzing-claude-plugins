@@ -110,11 +110,11 @@ the Senzing knowledge is served over HTTPS — so for the full experience, allow
 | Domain | Needed for |
 |---|---|
 | `mcp.senzing.com` | everything the server hosts itself — Senzing knowledge, SDK package downloads, sample-data downloads, workflow resources |
-| `raw.githubusercontent.com` | only the `raw_url` fallback for indexed code examples (examples are served from `mcp.senzing.com/examples/`) — **optional**; cookbook recipes ship inside the plugin and need no domain |
+| `raw.githubusercontent.com` | cookbook recipes, and the `raw_url` fallback for indexed code examples (examples are served from `mcp.senzing.com/examples/`) |
 
 Without `mcp.senzing.com` the plugin cannot ground anything and will say so rather than answer
-from memory. Without `raw.githubusercontent.com` you still get answers, example code and every cookbook recipe;
-only the `raw_url` fallback for examples is unavailable.
+from memory. Without `raw.githubusercontent.com` you still get answers and example code, but cookbook recipes
+cannot be fetched.
 
 ## Install
 
@@ -148,8 +148,8 @@ Senzing is Verified.
   for Senzing knowledge. It sends the questions Claude asks and their arguments — which, when you
   are mapping, include your source field names and mapping choices. What is logged and retained is
   covered by the **[Senzing MCP privacy policy](https://mcp.senzing.com/privacy)**.
-- **It can also fetch public content** from `raw.githubusercontent.com`: indexed code examples (an
-  optional fallback). Cookbook recipes are bundled in the plugin and are not fetched.
+- **It also fetches public content** from `raw.githubusercontent.com`: indexed code examples and
+  cookbook recipes.
 
 Read our [Privacy Policy](https://mcp.senzing.com/privacy) for details on how data is handled.
 

@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-7] - 2026-11-21
+
+### Changed
+
+- **The cookbook goes back to being referenced, not bundled.** 1.46.3-5 reached **zero
+  actionable directory findings** — `RUNTIME_FETCH_EXEC`, `ICON_MISSING` and
+  `PRIVACY_URL_MISSING` all cleared — and the listing was still "Held by directory policy",
+  with the only remaining text being the coverage note that says *"No action is needed unless
+  you're asked."* Clearing findings is therefore not what moves a submission; the reviewer
+  queue is a separate gate, and the listing has waited in it since July regardless of content.
+  That settles the trade: bundling cost us a 916 KB vendored copy inside the plugin, a vendor
+  script, a re-vendor step on every version bump, a CI drift job, and recipe ingredients
+  rewritten as `.txt` to get past a file-type rule — all to satisfy a check that was never the
+  thing holding the listing. Recipes are fetched from the pinned `senzing/recipes` commit
+  again, which is the scalable arrangement: a new recipe upstream is live without a plugin
+  release.
+- Reverted with it: the `curl` → "plain HTTP GET" / "HEAD probe" rewording in `demo` and
+  `doctor`, which existed only to avoid a download-and-run classifier and made both skills
+  vaguer than the commands they describe.
+
+### Kept
+
+- The two **real** upstream fixes that PR #106 carried alongside the bundling: `patient-fraud-uk`
+  in the `no-invented-recipe` whitelist, and the `title-stewardship` pattern matching the
+  recipe's new "(part 2)" title. Neither had anything to do with bundling.
+- `icon.png` at the default location and the README privacy link — the no-field routes that
+  cleared their findings cost the product nothing, so they stay.
+
 ## [1.46.3-6] - 2026-11-21
 
 ### Fixed
