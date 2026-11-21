@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **`poc-planner` stops answering its own open questions, and stops scripting its own plan
+  check.** Two real defects, both found by reading a failing eval rather than re-running it.
+  (1) A run wrote a correct §9 `open_decisions` block and then appended an "Open questions for
+  the data platform lead" section that answered its own `license_path` line - "a free evaluation
+  license (10-day, 250K-record cap) ... your total (755,000 records) exceeds that cap" - a day
+  count, a record cap and a volume to reduce to, the three hints rule 4c names one by one. Every
+  TBD check keys on the `TBD` literal, so a restatement that omits it was invisible to all of
+  them; step 8 now has a check 7 that closes it. (2) Two runs failed `no-shell-ran` by rebuilding
+  the removed `validate_plan.py` in Bash, one of them running `pip install pyyaml` first. Rule 8
+  listed probing, profiling and counting, and checking your own output reads as none of those, so
+  it now names that case. Both rules are guarded in `scripts/check.sh`, each armed by breaking it
+  and watching the guard fail.
+
 - **`lint workflows` goes green for the first time since September.** The job had failed on
   every branch that touched a workflow file - 23 runs back to 2026-09-28, including four on
   the cookbook-bundling PR, which merged red because the check is not required. The cause is

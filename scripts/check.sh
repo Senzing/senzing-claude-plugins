@@ -521,6 +521,26 @@ else
   bad "poc-planner/SKILL.md lost the 'decline is not the whole reply' rule - a bare 'how long' can again end with no question"
 fi
 
+# The judge-nothing-after-tbd grader failed 3 of 3 votes on a run whose section 9 YAML was
+# correct and which then appended an "Open questions for <owner>" block answering its own
+# license_path line with "10-day, 250K-record cap" and "755,000 records". Every other TBD check
+# keys on the literal, so a restatement that omits it is invisible to all of them. Guard the
+# rule that closes that hole.
+if grep -qF "Nothing after it restates an open" plugins/senzing/skills/poc-planner/SKILL.md; then
+  ok "poc-planner/SKILL.md forbids restating an open decision after section 9"
+else
+  bad "poc-planner/SKILL.md lost the no-restatement rule - a plan can again answer its own TBD in prose that carries no TBD literal"
+fi
+
+# Two runs failed no-shell-ran by rebuilding the removed validate_plan.py in Bash (one of them
+# ran `pip install pyyaml` to do it). Rule 8 listed probing/profiling/counting, and checking
+# your own output does not read as any of those - so name it.
+if grep -qF "no script to check your own plan" plugins/senzing/skills/poc-planner/SKILL.md; then
+  ok "poc-planner/SKILL.md forbids scripting its own plan check (rule 8)"
+else
+  bad "poc-planner/SKILL.md lost the no-self-validation rule - a run can again rebuild validate_plan.py in Bash"
+fi
+
 echo; echo "== 8k. recipes hands off to install instead of promising the cook =="
 # A run stopped on a menu of Cook-step questions and promised "I'll install ... then cook the recipe".
 # A later run appended "and only then resume the recipe's Prep → Cook → Plate steps" to install's message.

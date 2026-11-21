@@ -168,6 +168,15 @@ license terms here or from memory — call the tool named in each step and cite 
    Wanting a command for any other reason — to profile
    a file, probe the host, count records — means you are in `analyze`'s or `doctor`'s job: write
    the hand-off into the plan and stop.
+   **And no script to check your own plan — that is the one this rule keeps losing.** Step 8's
+   checks run on the text `Read` returned, in your head. A run that wrote
+   `python3 - <<'EOF' ... re.findall(r"```yaml...", text)` over `senzing-poc-plan.md`, and
+   another that ran `pip install pyyaml` first, both failed this rule while believing they were
+   being careful: they had rebuilt `validate_plan.py`, the validator removed from this plugin
+   because the directory accepts no script file from an organization that isn't Verified.
+   Verifying your own output feels unlike probing, profiling or counting, so the list above does
+   not read as covering it — it does. Reconstructing the validator in Bash is still a shell call,
+   it still fails `no-shell-ran`, and installing a package to do it compounds it.
    Host facts about the POC target come from the user or from `doctor` run **on that host**,
    never from a probe here.
    **The one that keeps happening is `ls`.** Step 8 asks whether the plan file already exists,
@@ -347,6 +356,17 @@ come — the user asked for a plan, and the TBD rows are how the plan stays trut
    6. If §6 discusses licensing, §9 has a license line that names the differing sources only
       (`license path: <tool> vs <tool>`), with no figures; §6 quotes each source and never says
       the terms agree.
+   7. §9 ends with its `yaml` block and the draft sentence. **Nothing after it restates an open
+      decision.** A closing block like "Open questions for <owner>" that re-asks what §9 already
+      lists is the same defect as a hint after a TBD — and it is the one every check above is
+      blind to, because a restatement carries no `TBD` literal and so passes every test anchored
+      on that literal. A shipped plan answered its own `license_path` line exactly there: "a free
+      evaluation license (10-day, 250K-record cap) ... your total (755,000 records) exceeds that
+      cap, so a slice would be needed" — a day count, a record cap and a volume to reduce to, the
+      three hints rule 4c names one by one. The sizes and license terms you retrieved are the
+      tempting material here; they belong on a cited line in the section the decision lives in,
+      never beside the open question. If the user needs prompting, §9's list IS the prompt: hand
+      it over verbatim (step 9) and add nothing to it.
 
    These rules were once checked by a script that the Claude directory doesn't accept from an
    organization that isn't Verified; prose-only checking let 8 of 10 plans through malformed,
