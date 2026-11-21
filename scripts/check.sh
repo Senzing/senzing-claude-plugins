@@ -554,6 +554,20 @@ else
   bad "recipes-named criteria lost the install-message clause - the judge will fail the correct hand-off at random"
 fi
 
+# The redo-retrieval rule is an ASSERTION in evals-real (resolve-truthset/redo-guidance-retrieved
+# requires sdk_guide with topic=redo), and that assertion failed twice on 2026-11-21 -- on this
+# branch AND on an unrelated docs-only PR -- after five consecutive passes, with the skill text
+# unchanged since #104. The rule was buried mid-paragraph behind a louder "do NOT Bash-run the
+# snippet" warning. It is now a separated, imperative precondition; this guard keeps it that way,
+# because the failure mode is silent: a run can drain the queue correctly from memory and look
+# perfect while being ungrounded.
+if grep -qF "This is a step, not a suggestion" plugins/senzing/skills/analyze/SKILL.md \
+  && grep -qF "before you write a single" plugins/senzing/skills/analyze/SKILL.md; then
+  ok "analyze/SKILL.md makes the redo retrieval a precondition, not an aside"
+else
+  bad "analyze/SKILL.md lost the redo-retrieval precondition - a run can drain redo from memory and still look correct"
+fi
+
 # Main-branch CI (run 37196169047) failed three cases the PR run had passed -- each a real behavior the
 # skill text left room for. Text guards keep the fix from being edited away.
 # The verb changed from "fetch" to "read" when the cookbook was bundled into the plugin
