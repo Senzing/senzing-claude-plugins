@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The READMEs present the Senzing MCP server as multi-client, Claude first.** The connector
+  section of `plugins/senzing/README.md` and the install section of the repository README now
+  also point at the Senzing plugin in the ChatGPT and Codex plugin directory
+  (<https://chatgpt.com/plugins/plugin_asdk_app_6af86f982ca08191b15c32c5c9c485a1>),
+  which pairs the same server with the `senzing-entity-resolution` skill. Documentation only: no
+  plugin file the commands use changes.
+
 ## [1.46.3-2] - 2026-11-20
 
 ### Fixed

@@ -59,6 +59,11 @@ Senzing SDK**. Your records never leave your machine.
 Restart Claude Code, then use any of the commands below. No binary is downloaded — the Senzing
 knowledge is served from the hosted Senzing Model Context Protocol (MCP) server.
 
+The same server is listed in the [Claude Connectors Directory](https://claude.ai/directory/senzing)
+for Claude without the plugin, and as the
+[Senzing plugin for ChatGPT and Codex](https://chatgpt.com/plugins/plugin_asdk_app_6af86f982ca08191b15c32c5c9c485a1)
+in their plugin directory.
+
 ### Claude Desktop
 
 Claude Desktop can add this marketplace directly: **+ → Plugins → Add marketplace**, enter

@@ -104,6 +104,11 @@ to add it separately. Its endpoint, if you ever want to add it by hand, is
 `https://mcp.senzing.com/mcp` (no authentication). Setup notes for other MCP clients:
 <https://mcp.senzing.com/docs>.
 
+**Also in ChatGPT and Codex.** The same Senzing MCP server, paired with the
+`senzing-entity-resolution` skill, is published as the
+[Senzing plugin in the ChatGPT and Codex plugin directory](https://chatgpt.com/plugins/plugin_asdk_app_6af86f982ca08191b15c32c5c9c485a1).
+Install it there to use Senzing knowledge from ChatGPT or Codex.
+
 **On Chat and Cowork, allowlist the domain.** Those surfaces restrict outbound network access, and
 the Senzing knowledge is served over HTTPS — so for the full experience, allow:
 
