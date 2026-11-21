@@ -17,6 +17,12 @@
 # skill never renders an image, and 1.4 MB of screenshots would be dead weight in
 # every install.
 #
+# INGREDIENTS ARE NOT VENDORED. They were, as <name>.txt, until the policy review
+# reported it "couldn't cover" some files -- 815 KB of the 1.15 MB was ingredient data.
+# The plugin has never published, and every version waits for a human reviewer, so this
+# strips to the minimum to test whether a submission with ZERO findings publishes on its
+# own. Recipes get their data from the user, which is what the recipes themselves say.
+#
 # WHAT MAY BE VENDORED IS SET BY THE CLAUDE DIRECTORY, NOT BY TASTE. For an
 # organization that is not Verified the directory accepts only Markdown, text, JSON,
 # YAML and PNG/JPEG/GIF/WebP/ICO images, and cannot inspect a text file over 256 KB.
@@ -56,9 +62,8 @@ echo "Vendoring $REPO @ $SHA"
 # binaries, .github/, .vscode/, contributor/housekeeping files.
 PATHS="$(api "https://api.github.com/repos/$REPO/git/trees/$SHA?recursive=1" | jq -r '
   .tree[] | select(.type=="blob") | .path
-  | select(startswith(".github/") or startswith(".vscode/") | not)
-  | select(test("\\.(png|jpg|jpeg|gif|svg|pdf|zip)$") | not)
-  | select(. == "LICENSE" or startswith("ingredients/") or endswith(".md"))
+  | select(startswith(".github/") or startswith(".vscode/") or startswith("ingredients/") | not)
+  | select(. == "LICENSE" or endswith(".md"))
   | select(. != "CODE_OF_CONDUCT.md" and . != "CONTRIBUTING.md" and . != "CHANGELOG.md" and . != "README.md")
 ')"
 [ -n "$PATHS" ] || { echo "upstream tree yielded no files -- refusing to empty the bundle" >&2; exit 1; }
