@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "senzing",
   "displayName": "Senzing",
-  "version": "1.46.3-6",
+  "version": "1.46.3-7",
   "description": "Entity resolution: point Claude at your data, it does the work and you have results today.",
   "author": {
     "name": "Senzing, Inc.",

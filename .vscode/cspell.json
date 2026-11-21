@@ -123,8 +123,7 @@
     "**/evals/results/**",
     "evals-real/resolve-truthset/fixtures/**",
     "evals-real/ground-truth/*.csv",
-    "**/evals-real/results/**",
-    "plugins/senzing/skills/recipes/cookbook/**"
+    "**/evals-real/results/**"
   ],
   "ignoreRegExpList": [
     "/^\\s*(?:pattern|[a-z_]*match)\\s*:\\s*['\"].*['\"]\\s*$/gm",
