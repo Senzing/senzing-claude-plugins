@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.46.3-6] - 2026-11-21
+
+### Fixed
+
+- **`analyze` now treats the redo lookup as a step, not an aside.** The real-Senzing eval asserts
+  that a run retrieves the redo calls from `sdk_guide(topic="redo")` rather than naming them from
+  memory. That assertion passed five consecutive runs and then failed twice on 2026-11-21 — once
+  on an unrelated docs-only PR — with the skill text unchanged since 1.46.1-1. The rule was there
+  but buried mid-paragraph, immediately behind a louder "do NOT Bash-run the redo snippet"
+  warning that competed with it.
+  The retrieval is now a separated, imperative precondition ahead of that warning, and says
+  plainly that already knowing the methods is not a reason to skip the call. `scripts/check.sh`
+  guards the wording, because the failure mode is silent: a run can drain the queue correctly
+  from memory and look perfect while being ungrounded, which is a pass by luck.
+
 ## [1.46.3-4] - 2026-11-21
 
 ### Changed

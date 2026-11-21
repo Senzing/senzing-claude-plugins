@@ -288,11 +288,18 @@ State the resolved input list to the user before proceeding — informational, n
    is what a reader — and the check — sees without opening anything.
 5. **Drain the redo queue before asking anything — loading is not resolving.** Senzing defers part
    of resolution to redo records processed *after* load; an entity count taken before the queue is
-   empty is a mid-resolution snapshot, not the answer. Get the redo calls from
-   `sdk_guide(topic="redo", language=…)` and the queue-count call from
-   `get_sdk_reference(topic="parameters", filter="redo", language=…)` — do not name either method
-   from memory.
-   **Do NOT Bash-run the redo snippet as-is.** What that topic returns is a *continuous daemon*:
+   empty is a mid-resolution snapshot, not the answer.
+
+   **First, retrieve the calls. This is a step, not a suggestion:** call
+   `sdk_guide(topic="redo", language=…)` and
+   `get_sdk_reference(topic="parameters", filter="redo", language=…)` **before you write a single
+   line of redo code**. If you have not called `sdk_guide(topic="redo")` in this session, you do
+   not have the method names — you have a recollection of them, and this SDK is exactly where
+   recollection is wrong. Knowing the redo methods already is **not** a reason to skip the call:
+   the retrieval is the step. CI has caught runs that drained the queue correctly without ever
+   making it, which is a pass by luck, not by grounding.
+
+   **Then, do NOT Bash-run the redo snippet as-is.** What that topic returns is a *continuous daemon*:
    an endless loop that sleeps (~30s) when the queue is empty and never exits, so running it
    hangs the step and the run never reaches the entity count. This is the same trap
    `doctor` check 6b documents for `full_pipeline`.
