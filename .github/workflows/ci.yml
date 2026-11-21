@@ -144,7 +144,7 @@ jobs:
           # The exact set the graders encode. Keep in lockstep with
           # evals/recipes-catalog/graders/no-invented-recipe.md and
           # evals/recipes-named/graders/correct-recipe-fetched.md.
-          expected="clair-data-ingestion-starter customer-360-crm-online customer-360-stewardship nigel-healthcare-aws-entity-browser"
+          expected="clair-data-ingestion-starter customer-360-crm-online customer-360-stewardship nigel-healthcare-aws-entity-browser patient-fraud-uk"
           missing=0
           for r in $expected; do
             if ! printf '%s' "$body" | grep -q "$r"; then
