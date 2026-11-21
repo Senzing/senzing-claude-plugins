@@ -6,31 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [1.46.3-3] - 2026-11-20
+## [1.46.3-4] - 2026-11-21
 
 ### Changed
 
-- **Stripped to the minimum, to test whether a submission with ZERO directory findings
-  publishes without a human reviewer.** 1.46.3-2 was the cleanest version yet — no
-  download-and-run, no refused file types, no agent warnings — and was still held, with the
-  portal reporting *"This plugin's versions wait for an Anthropic reviewer."* It has said that
-  for four months, across every version, and the plugin has never been live. The three items
-  left all said no action was needed, so this removes them anyway to find out whether "nothing
-  to report" is what unblocks automatic publication:
-  - `icon` and `privacyPolicyUrl` removed from `plugin.json`. Both are listing-only fields the
-    directory reads and Claude Code ignores at load time; both were reported on every
-    submission. Removing them may instead trigger `ICON_MISSING` / `PRIVACY_URL_MISSING` — that
-    is the thing being measured.
-  - `icon.png` removed, so the plugin ships no image at all and the "images passed without a
-    code check" note has nothing to fire on. The listing loses its icon.
-  - The recipes' ingredient data is no longer vendored. It was 815 KB of the 1.15 MB, and the
-    policy review reported it "couldn't cover" some files. The plugin is now 27 files / 275 KB.
-    `recipes` relays the recipes' own instruction — download the files and attach them — and
-    downloads nothing itself.
+- **Reverts the 1.46.3-3 experiment, and takes the no-field route for both contested fields.**
+  1.46.3-3 stripped `icon`, `privacyPolicyUrl`, `icon.png` and the ingredient data to test
+  whether a submission with ZERO directory findings publishes without a human reviewer. It did
+  not, and the result settled three things:
+  - **`icon` and `privacyPolicyUrl` were flagged either way.** Present: "Field from another
+    tool's manifest" and "Unrecognized field in plugin.json". Absent: "No icon" and "No privacy
+    policy URL", telling you to add them back.
+  - **Plugin size was not the cause** of "Files the policy review couldn't cover" — it persisted
+    at 275 KB / 27 files, down from 1.2 MB / 37, so removing 815 KB of ingredient data bought
+    nothing. The data is restored.
+  - **"Policy review didn't complete" is not driven by our content**: absent on 1.46.3-2, back
+    on 1.46.3-3 with strictly less to review.
+- **Both contested findings have a documented alternative that needs no manifest field.** The
+  portal's own text offers each, and this release uses them:
+  - **Icon:** `icon.png` moved to the default location `.claude-plugin/icon.png` *inside the
+    plugin path* (`plugins/senzing/`, the path configured in the portal — not the repo root),
+    and the `icon` key dropped. There is now no manifest field to call "a field from another
+    tool's manifest", and the file is where the directory looks. 512x512 and square, inside the
+    documented 512-2048 px / 2 MB bounds.
+  - **Privacy:** `privacyPolicyUrl` is restored, because the portal documents it as a top-level
+    `plugin.json` key — the "unrecognized" note is its manifest schema lagging the directory
+    that reads it. The plugin README also gains a standalone line in the documented shape
+    ("Read our [Privacy Policy](...) for details on how data is handled."), which the portal
+    accepts as an alternative; the existing mention was an indented, bolded, mid-sentence
+    fragment a simple matcher may miss.
 
-**This is an experiment, and it costs real things:** the listing icon, the privacy-policy link
-and automatic ingredient data. If the version is still held, nothing shippable from this repo
-publishes without Verification, and all of it should be reverted.
+Every version so far, across four months and every content shape tried, reports "This plugin's
+versions wait for an Anthropic reviewer" and has never gone live. If this one is held too, the
+gate is not the manifest.
+
 
 ## [1.46.3-2] - 2026-11-20
 
