@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **`lint workflows` goes green for the first time since September.** The job had failed on
+  every branch that touched a workflow file - 23 runs back to 2026-09-28, including four on
+  the cookbook-bundling PR, which merged red because the check is not required. The cause is
+  zizmor's `adhoc-packages` audit flagging the three `npm install -g @anthropic-ai/claude-code`
+  steps in `ci.yml`. Pinning is not the answer: the eval job's install is already pinned to
+  `CLAUDE_CLI_VERSION` and is flagged anyway, and the other two install the current CLI on
+  purpose, because testing the plugin against it is what they are for. `.github/linters/zizmor.yaml`
+  now exempts that one rule in that one file, with the reasoning in the file. Every other
+  zizmor audit still fails the build everywhere, including in `ci.yml`.
+
 - **The READMEs present the Senzing MCP server as multi-client, Claude first.** The connector
   section of `plugins/senzing/README.md` and the install section of the repository README now
   also point at the Senzing plugin in the ChatGPT and Codex plugin directory

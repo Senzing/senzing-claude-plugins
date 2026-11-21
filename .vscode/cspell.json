@@ -113,7 +113,8 @@
     "watchlist",
     "webfetch",
     "webp",
-    "writability"
+    "writability",
+    "zizmor"
   ],
   "ignorePaths": [
     ".git/**",
