@@ -35,7 +35,13 @@ jobs:
     name: pip-audit (.github/requirements-ci.txt)
     runs-on: ubuntu-latest
     steps:
+      # persist-credentials: false matches every other checkout here and keeps
+      # zizmor's `artipacked` audit happy: the default leaves the job's token in
+      # .git/config, where an uploaded artifact can carry it off. This job only
+      # reads the tree.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
