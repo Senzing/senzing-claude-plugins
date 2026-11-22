@@ -62,7 +62,12 @@ jobs:
           echo "Releasing Senzing plugin v$VERSION"
 
       - name: Install Claude Code CLI (for plugin validate)
-        run: npm install -g @anthropic-ai/claude-code
+        # Deliberately UNPINNED: the release is validated against the CLI users
+        # have, not against a frozen one. Echoed so a failed release names the
+        # version that rejected it.
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          echo "claude CLI: $(claude --version)"
 
       - name: Build plugin .zip
         env:

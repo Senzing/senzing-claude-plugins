@@ -17,11 +17,18 @@
 # There is no `--min-severity` lever here: the invocation lives in the shared
 # reusable workflow, and its only input is validate-all-codebase.
 #
-# SCOPE: ci.yml only, and only this rule. Every other zizmor audit still fails
-# the build, in ci.yml and everywhere else. No line numbers, deliberately --
-# they move whenever a step is added, and a stale ignore that silently stops
-# matching would look like a pass.
+# release-plugin.yml installs the same CLI for the same reason: the release is
+# validated with `claude plugin validate --strict` against the CLI users have,
+# not a frozen one. Its finding stayed invisible until 2026-11-22 because
+# super-linter lints only the files a PR changes, and nothing had touched that
+# workflow since the audit was enabled -- it surfaced the first time a PR did.
+#
+# SCOPE: ci.yml and release-plugin.yml, and only this rule. Every other zizmor
+# audit still fails the build, in those files and everywhere else. No line
+# numbers, deliberately -- they move whenever a step is added, and a stale
+# ignore that silently stops matching would look like a pass.
 rules:
   adhoc-packages:
     ignore:
       - ci.yml
+      - release-plugin.yml

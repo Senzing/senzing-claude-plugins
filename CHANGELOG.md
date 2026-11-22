@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **The three workflow steps that install the Claude Code CLI unpinned now echo the resolved version, and say why they are unpinned.** `ci.yml` (static checks, install smoke) and `release-plugin.yml` float on purpose — unlike the eval jobs, which pin `CLAUDE_CLI_VERSION: 2.1.269`. `claude plugin validate --strict` and the `marketplace add` / `install` / `details` smoke exist to catch *the current CLI* rejecting this plugin, so pinning them would retire the thing they are for. The gap was not the floating version but its invisibility: a failure named no version. Each step now prints `claude CLI: <version>`. The zizmor `adhoc-packages` exemption (`.github/linters/zizmor.yaml`) now covers `release-plugin.yml` as well as `ci.yml`: its unpinned install was a latent finding that stayed invisible because super-linter lints only the files a PR changes, and surfaced the first time a PR touched that workflow.
+
 ### Security
 - **`pip-audit` gate added, and CI's Python dependency is now visible to Dependabot.** PyYAML was installed by an inline `python3 -m pip install --quiet pyyaml` in `ci.yml` — **unpinned**, and a package pinned inside a workflow's shell command is invisible to Dependabot, so it was never updated and nothing ever audited it. It now lives in `.github/requirements-ci.txt` (`pyyaml==6.0.4`), `dependabot.yml` gains a `pip` ecosystem for `/.github` with the house 21-day cooldown, and `.github/workflows/security.yml` runs `pip-audit --strict` against it on PRs, pushes to main and daily. Clean today. This is the Python counterpart to the `cargo audit` / `cargo vet` gates in the Rust MCP repos.
 
