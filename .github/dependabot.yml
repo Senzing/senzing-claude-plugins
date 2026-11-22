@@ -14,3 +14,13 @@ updates:
           - "senzing-factory/*"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "pip"
+    # .github/requirements-ci.txt. Added 2026-11-22: PyYAML was installed by an
+    # inline `pip install` in ci.yml, where Dependabot cannot see it, so it was
+    # never updated and never audited.
+    cooldown:
+      default-days: 21
+    directory: "/.github"
+    schedule:
+      interval: "daily"

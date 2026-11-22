@@ -1,0 +1,58 @@
+---
+name: Security
+
+# Dependency audit for the Python packages CI installs
+# (.github/requirements-ci.txt). This is the counterpart to the `cargo audit` /
+# `cargo vet` gates in the Rust MCP repos: nothing here checked a dependency
+# against an advisory database.
+#
+# PyYAML used to be installed by an inline `pip install` in ci.yml. A package
+# pinned inside a workflow's shell command is invisible to Dependabot, so it
+# was never updated and never audited; it now lives in a requirements file that
+# both tools can read.
+#
+# pip-audit queries the Python Packaging Advisory Database (PyPA) plus OSV.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Advisories are published against versions already pinned, so a clean PR
+    # run goes stale. Re-check daily against a fresh database.
+    - cron: "53 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pip-audit:
+    name: pip-audit (.github/requirements-ci.txt)
+    runs-on: ubuntu-latest
+    steps:
+      # persist-credentials: false matches every other checkout here and keeps
+      # zizmor's `artipacked` audit happy: the default leaves the job's token in
+      # .git/config, where an uploaded artifact can carry it off. This job only
+      # reads the tree.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      # Pinned: an unpinned audit tool is itself a dependency nobody vetted,
+      # and a silent major bump would change what this gate means.
+      - name: Install pip-audit
+        run: python -m pip install pip-audit==2.10.1
+
+      # --strict fails on a dependency pip-audit cannot resolve, so a typo or a
+      # renamed package cannot pass as "no known vulnerabilities".
+      - name: Audit the CI requirements
+        run: pip-audit --strict --requirement .github/requirements-ci.txt
