@@ -40,7 +40,7 @@ jobs:
         # that way and was never graded). The script now guards the import, so without
         # this step the gate would DEGRADE TO A FAILURE line rather than run -- install it
         # explicitly so the check actually executes where it matters.
-        run: python3 -m pip install --quiet pyyaml
+        run: python3 -m pip install --quiet -r .github/requirements-ci.txt
 
       - name: Run static checks (same script as local pre-commit)
         run: bash scripts/check.sh

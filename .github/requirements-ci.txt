@@ -1,0 +1,9 @@
+# Python packages CI installs. They live in a requirements file, not inline in
+# a workflow's `pip install` line, so Dependabot can see and update them and
+# `.github/workflows/security.yml` can audit them. A package pinned inside a
+# shell command is invisible to both.
+#
+# PyYAML: check.sh section 10 parses every eval prompt.md frontmatter. That is
+# the only gate catching a case that silently fails to load (poc-planner-how-long
+# shipped that way and was never graded).
+pyyaml==6.0.4
