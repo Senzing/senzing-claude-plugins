@@ -32,7 +32,15 @@ jobs:
 
       - name: Install Claude Code CLI
         # `claude plugin validate --strict` is a local manifest check (no auth needed).
-        run: npm install -g @anthropic-ai/claude-code
+        #
+        # Deliberately UNPINNED, unlike the eval jobs' CLAUDE_CLI_VERSION: this
+        # gate exists to catch the current CLI rejecting our plugin, so pinning
+        # it would retire the thing it is for. The version is echoed because a
+        # floating dependency that fails tells you nothing unless the log says
+        # which version failed.
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          echo "claude CLI: $(claude --version)"
 
       - name: Install PyYAML
         # check.sh section 10 parses every eval prompt.md frontmatter, which is the only
@@ -53,7 +61,12 @@ jobs:
         with:
           persist-credentials: false
       - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
+        # Deliberately UNPINNED: this smoke test reproduces what a user does
+        # today, so it must run against the CLI they actually have. Echoed so a
+        # failure names the version that produced it.
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          echo "claude CLI: $(claude --version)"
       - name: Add local marketplace, install plugin, assert inventory
         run: |
           set -e
