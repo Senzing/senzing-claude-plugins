@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Security
 - **`pip-audit` gate added, and CI's Python dependency is now visible to Dependabot.** PyYAML was installed by an inline `python3 -m pip install --quiet pyyaml` in `ci.yml` — **unpinned**, and a package pinned inside a workflow's shell command is invisible to Dependabot, so it was never updated and nothing ever audited it. It now lives in `.github/requirements-ci.txt` (`pyyaml==6.0.4`), `dependabot.yml` gains a `pip` ecosystem for `/.github` with the house 21-day cooldown, and `.github/workflows/security.yml` runs `pip-audit --strict` against it on PRs, pushes to main and daily. Clean today. This is the Python counterpart to the `cargo audit` / `cargo vet` gates in the Rust MCP repos.
 
+## [1.47.1] - 2026-11-26
+
+### Changed
+
+- Bump to MCP server **v1.47.1** (lockstep sync); the plugin carries no code change.
+
 ## [1.47.0] - 2026-11-22
 
 ### Changed
